@@ -1,4 +1,4 @@
-{sshKeyPath, name, email}: ''
+{sshKeyPath, name, email, nix-conf}: ''
   [user]
   	name = ${name}
   	email = ${email}
@@ -16,4 +16,6 @@
       format = ssh
   [commit]
     gpgsign = true
+  [safe]
+    directory = ${nix-conf}
 ''

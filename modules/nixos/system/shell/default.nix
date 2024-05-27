@@ -85,11 +85,11 @@ in {
         searchDownKey = "^F";
       };
 
-      shellAliases = {
-          ls = "eza --icons --git";
-          ll = "eza -la --icons --git";
-          cat = "bat";
-        };
+      shellAliases = config.environment.shellAliases // {
+        ls = "eza --icons --git";
+        ll = "eza -la --icons --git";
+        cat = "bat";
+      };
 
       dotDir = ".config/zsh";
       initExtraFirst = "source /home/${config.user.name}/${dotDir}/.p10k.zsh";
