@@ -73,7 +73,7 @@ in {
       history = {
         size = 5000;
         save = 5000;
-        path = "~/.zsh_history";
+        path = "/home/${config.user.name}/.zsh_history";
         share = true;
         ignorePatterns = [ "ls" "ll" "cat" ];
         ignoreAllDups = true;
