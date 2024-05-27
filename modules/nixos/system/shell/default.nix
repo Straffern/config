@@ -42,6 +42,13 @@ in {
       neofetch = "nitch";
     };
 
+    home.programs.fzf = {
+      enable = true;
+      enableBashIntegration = true;
+      enableFishIntegration = true;
+      enableZshIntegration = true;
+    };
+     
     home.programs.zoxide = {
       enable = true;
       enableNushellIntegration = true;
@@ -63,6 +70,21 @@ in {
       autosuggestion = enabled;
       syntaxHighlighting = enabled;
 
+      history = {
+        size = 5000;
+        save = 5000;
+        path = "~/.zsh_history";
+        share = true;
+        ignorePatterns = [ "ls" "ll" "cat" ];
+        ignoreAllDups = true;
+
+      };
+      historySubstringSearch = {
+        enable = true;
+        searchUpKey = "^R";
+        searchDownKey = "^F";
+      };
+
       shellAliases = {
           ls = "eza --icons --git";
           ll = "eza -la --icons --git";
@@ -71,7 +93,12 @@ in {
 
       dotDir = ".config/zsh";
       initExtraFirst = "source /home/${config.user.name}/${dotDir}/.p10k.zsh";
-      initExtra = "" + "\n" + cfg.initExtra;
+      initExtra = concatStringsSep "\n" ([
+        ''setopt APPEND_HISTORY''
+        ''setopt HIST_SAVE_NO_DUPS''
+        ''setopt HIST_FIND_NO_DUPS''
+        cfg.initExtra
+      ]);
       plugins = [
         {
           name = "powerlevel10k";
