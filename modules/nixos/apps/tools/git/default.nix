@@ -33,7 +33,12 @@ in {
       g = "lazygit";
     };
 
-    home.configFile."git/config".text = import ./config.nix {sshKeyPath = "/home/${config.user.name}/.ssh/id_ed25519.pub"; name = "Alexander Flensborg"; email = "14233825+Straffern@users.noreply.github.com"; nix-conf = "/home/${config.user.name}/.dotfiles";};
+    home.configFile."git/config".text = import ./config.nix {
+      sshKeyPath = "/home/${config.user.name}/.ssh/id_ed25519.pub"; 
+      name = "Alexander Flensborg"; 
+      email = "14233825+Straffern@users.noreply.github.com"; 
+      safe-dirs = [ "/home/${config.user.name}/.dotfiles" "/home/${config.user.name}/.cache/nix/tarball-cache" ];
+    };
     home.configFile."lazygit/config.yml".source = ./lazygitConfig.yml;
   };
 }

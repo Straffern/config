@@ -1,4 +1,8 @@
-{sshKeyPath, name, email, nix-conf}: ''
+{sshKeyPath, name, email, safe-dirs}: 
+let
+    safeDirectoriesConfig = builtins.concatStringsSep "\n" (map (dir: "  directory = ${dir}") safe-dirs);
+in 
+''
   [user]
   	name = ${name}
   	email = ${email}
@@ -13,9 +17,9 @@
   	clean = git-lfs clean -- %f
   	smudge = git-lfs smudge -- %f
   [gpg]
-      format = ssh
+    format = ssh
   [commit]
     gpgsign = true
   [safe]
-    directory = ${nix-conf}
+  ${safeDirectoriesConfig}
 ''
