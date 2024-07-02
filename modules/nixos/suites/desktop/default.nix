@@ -30,14 +30,28 @@ in {
 
     services.gpg-agent.enable = true;
     services.flatpak.enable = true;
-    services.xserver = {
+
+    services.greetd = {
       enable = true;
-      displayManager.gdm.enable = true;
+      settings.default_session.command =
+        "${pkgs.greetd.tuigreet}/bin/tuigreet -- theme border=magenta;text=cyan;prompt=green;time=red;action=blue;button=yellow;container=black;input=red --time --asterisks --remember --cmd Hyprland";
     };
+    systemd.tmpfiles.rules = [
+      "d '/var/cache/tuigreet' - greeter greeter - -"
+    ];
 
     environment.persist.directories = [
-      "/etc/gdm"
+      "/var/cache/tuigreet"
     ];
+    
+    # services.xserver = {
+    #   enable = true;
+    #   displayManager.gdm.enable = true;
+    # };
+
+    # environment.persist.directories = [
+    #   "/etc/gdm"
+    # ];
 
     environment.systemPackages = with pkgs; [
       cinnamon.nemo
