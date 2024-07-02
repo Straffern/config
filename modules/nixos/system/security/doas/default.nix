@@ -1,5 +1,6 @@
 {
   options,
+  pkgs,
   config,
   lib,
   ...
@@ -29,7 +30,8 @@ in {
       ];
     };
 
-    # Add an alias to the shell for backward-compat and convenience.
-    environment.shellAliases = {sudo = "doas";};
+    environment.systemPackages = [
+      (pkgs.writeScriptBin "sudo" ''exec doas "$@"'')
+    ];
   };
 }
