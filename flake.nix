@@ -23,42 +23,45 @@
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     impermanence.url = "github:nix-community/impermanence";
-    persist-retro.url = "github:Geometer1729/persist-retro"; 
+    persist-retro.url = "github:Geometer1729/persist-retro";
+
+    stylix.url = "github:danth/stylix";
 
     nix-colors.url = "github:IogaMaster/nix-colors";
     prism.url = "github:IogaMaster/prism";
+
+    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
   };
 
-  outputs = inputs: let
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
+  outputs = inputs:
+    let
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
 
-      snowfall = {
-        meta = {
-          name = "dotfiles";
-          title = "dotfiles";
+        snowfall = {
+          meta = {
+            name = "dotfiles";
+            title = "dotfiles";
+          };
+
+          namespace = "asgaard";
         };
-
-        namespace = "custom";
       };
-    };
-  in
-    lib.mkFlake {
+    in lib.mkFlake {
       inherit inputs;
       src = ./.;
 
-      channels-config = {
-        allowUnfree = true;
-      };
+      channels-config = { allowUnfree = true; };
 
-      overlays = with inputs; [];
+      overlays = with inputs; [ hyprpanel.overlay ];
 
       systems.modules.nixos = with inputs; [
+        stylix.nixosModules.stylix
         impermanence.nixosModules.impermanence
         persist-retro.nixosModules.persist-retro
       ];
 
-      templates = import ./templates {};
+      templates = import ./templates { };
     };
 }
