@@ -1,39 +1,31 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.system.shell;
+with lib.custom;
+let cfg = config.system.shell;
 in {
   options.system.shell = with types; {
-    shell = mkOpt (enum ["zsh" "nushell" "fish"]) "nushell" "What shell to use";
+    shell =
+      mkOpt (enum [ "zsh" "nushell" "fish" ]) "nushell" "What shell to use";
     initExtra = mkOpt str "" "ExtraShellInit";
   };
 
   config = {
-    environment.systemPackages = with pkgs; [
-      eza
-      bat
-      nitch
-    ] ++ optionals (cfg.shell == "fish" || cfg.shell == "nushell") [
-      zoxide 
-      starship
-    ] ++ optionals (cfg.shell == "zsh") [
-      meslo-lgs-nf
-    ];
+    environment.systemPackages = with pkgs;
+      [ eza bat nitch ]
+      ++ optionals (cfg.shell == "fish" || cfg.shell == "nushell") [
+        zoxide
+        starship
+      ] ++ optionals (cfg.shell == "zsh") [ meslo-lgs-nf ];
 
     users.defaultUserShell = pkgs.${cfg.shell};
     users.users.root.shell = pkgs.bashInteractive;
 
-    home.programs.starship = mkIf (cfg.shell == "fish" || cfg.shell == "nushell") {
-      enable = true;
-      enableFishIntegration = true;
-      enableNushellIntegration = true;
-    };
+    home.programs.starship =
+      mkIf (cfg.shell == "fish" || cfg.shell == "nushell") {
+        enable = true;
+        enableFishIntegration = true;
+        enableNushellIntegration = true;
+      };
 
     home.configFile."starship.toml".source = ./starship.toml;
 
@@ -48,7 +40,7 @@ in {
       enableFishIntegration = true;
       enableZshIntegration = true;
     };
-     
+
     home.programs.zoxide = {
       enable = true;
       enableNushellIntegration = true;
@@ -61,7 +53,6 @@ in {
       ".config/fish"
       ".config/zsh"
     ];
-
 
     environment.pathsToLink = [ "/share/zsh" ];
     home.programs.zsh = mkIf (cfg.shell == "zsh") rec {
@@ -94,9 +85,9 @@ in {
       dotDir = ".config/zsh";
       initExtraFirst = "source /home/${config.user.name}/${dotDir}/.p10k.zsh";
       initExtra = concatStringsSep "\n" ([
-        ''setopt APPEND_HISTORY''
-        ''setopt HIST_SAVE_NO_DUPS''
-        ''setopt HIST_FIND_NO_DUPS''
+        "setopt APPEND_HISTORY"
+        "setopt HIST_SAVE_NO_DUPS"
+        "setopt HIST_FIND_NO_DUPS"
         cfg.initExtra
       ]);
       plugins = [
@@ -151,7 +142,7 @@ in {
     # Enable all if nushell
     home.programs.nushell = mkIf (cfg.shell == "nushell") {
       enable = true;
-      shellAliases = config.environment.shellAliases // {ls = "ls";};
+      shellAliases = config.environment.shellAliases // { ls = "ls"; };
       envFile.text = "";
       extraConfig = ''
         $env.config = {
@@ -162,6 +153,6 @@ in {
             nix shell ($packages | each {|s| $"nixpkgs#($s)"})
         }
       '';
-    }; 
+    };
   };
 }

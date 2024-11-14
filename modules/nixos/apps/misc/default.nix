@@ -16,6 +16,7 @@ in {
       eza
       fzf
       fd
+      zellij
 
       # Util
       unzip

@@ -1,15 +1,12 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ options, config, lib, pkgs, inputs, ... }:
 with lib;
-with lib.custom; let
+with lib.custom;
+let
   cfg = config.desktop.hyprland;
-  inherit (inputs.nix-colors.colorschemes.${builtins.toString config.desktop.colorscheme}) palette;
+  inherit (inputs.nix-colors.colorschemes.${
+      builtins.toString config.desktop.colorscheme
+    })
+    palette;
 in {
   options.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Enable or disable the hyprland window manager.";
@@ -27,12 +24,13 @@ in {
       xdg-portal.enable = true;
     };
 
-    apps.foot.enable = true;
+    apps.kitty.enable = true;
 
     programs.hyprland.enable = true;
     programs.hyprland.xwayland.enable = true;
 
-    environment.sessionVariables.NIXOS_OZONE_WL = "1"; # Hint electron apps to use wayland
+    environment.sessionVariables.NIXOS_OZONE_WL =
+      "1"; # Hint electron apps to use wayland
 
     environment.systemPackages = with pkgs; [
       grim
