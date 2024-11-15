@@ -1,8 +1,8 @@
-{sshKeyPath, name, email, safe-dirs}: 
+{ sshKeyPath, name, email, safe-dirs }:
 let
-    safeDirectoriesConfig = builtins.concatStringsSep "\n" (map (dir: "  directory = ${dir}") safe-dirs);
-in 
-''
+  safeDirectoriesConfig = builtins.concatStringsSep "\n"
+    (map (dir: "  directory = ${dir}") safe-dirs);
+in ''
   [user]
   	name = ${name}
   	email = ${email}
@@ -11,6 +11,8 @@ in
   	rebase = true
   [init]
   	defaultBranch = main
+  [rerere]
+    enabled = true
   [filter "lfs"]
   	process = git-lfs filter-process
   	required = true
