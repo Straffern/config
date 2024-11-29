@@ -32,6 +32,6 @@ if [ -n "$external_monitor" ]; then
   fi
 else
   # If no external monitor, use eDP-1
-  hyprctl keyword monitor "eDP-1,preferred,auto,1"
+  hyprctl reload
   notify "Switched to laptop display"
 fi
