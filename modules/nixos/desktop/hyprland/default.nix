@@ -52,7 +52,7 @@ in {
     # Hyprland configuration files
     home.configFile = {
       "hypr/launch".source = ./launch;
-      "hypr/switch_display".source = ./switch_display.sh;
+      "hypr/switch_display".source = ./switch_display;
       "hypr/hyprland.conf".source = ./hyprland.conf;
       "hypr/colors.conf" = {
         text = ''
