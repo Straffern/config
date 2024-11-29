@@ -8,7 +8,7 @@ notify() {
 # Get list of connected monitors
 monitors_output=$(hyprctl monitors)
 
-external_monitor=$(echo "$monitors_output" | grep -E "^Monitor.*(DP|[HD]).*-[A0-9]*-?[0-9]" | head -n1 | awk '{print $2}')
+external_monitor=$(echo "$monitors_output" | awk '/^Monitor/ && $2 ~ /^((DP|HDMI)(-[A-Z])?-)[0-9]/ {print $2; exit}')
 
 if [ -n "$external_monitor" ]; then
   # Get first mode that matches 59.xx or 60Hz at minimum 1920x1080
