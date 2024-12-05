@@ -14,6 +14,8 @@ in {
       ripgrep
       imagemagick
       luajitPackages.magick
+
+      luajitPackages.luarocks
       # pkgs.lazygit
       # pkgs.stylua
       # pkgs.sumneko-lua-language-server
@@ -21,6 +23,7 @@ in {
     apps.tools.nix-ld.libraries = with pkgs; [
       imagemagick
       luajitPackages.magick
+      luajitPackages.luarocks
     ];
 
     home.persist.directories = [
