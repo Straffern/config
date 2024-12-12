@@ -26,9 +26,33 @@ in {
 
     services.greetd = {
       enable = true;
-      settings.default_session.command =
-        "${pkgs.greetd.tuigreet}/bin/tuigreet -- theme border=magenta;text=cyan;prompt=green;time=red;action=blue;button=yellow;container=black;input=red --time --asterisks --remember --cmd Hyprland";
+      settings = {
+        default_session = {
+          command =
+            "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd Hyprland";
+          user = "greeter";
+        };
+      };
     };
+
+    # this is a life saver.
+    # literally no documentation about this anywhere.
+    # might be good to write about this...
+    # https://www.reddit.com/r/NixOS/comments/u0cdpi/tuigreet_with_xmonad_how/
+    systemd.services.greetd.serviceConfig = {
+      Type = "idle";
+      StandardInput = "tty";
+      StandardOutput = "tty";
+      StandardError = "journal"; # Without this errors will spam on screen
+      # Without these bootlogs will spam on screen
+      TTYReset = true;
+      TTYVHangup = true;
+      TTYVTDisallocate = true;
+    };
+
+    # To prevent getting stuck at shutdown
+    systemd.extraConfig = "DefaultTimeoutStopSec=10s";
+
     systemd.tmpfiles.rules =
       [ "d '/var/cache/tuigreet' - greeter greeter - -" ];
 
@@ -43,6 +67,11 @@ in {
     #   "/etc/gdm"
     # ];
 
-    environment.systemPackages = with pkgs; [ nemo xclip xarchiver ];
+    environment.systemPackages = with pkgs; [
+      greetd.tuigreet
+      nemo
+      xclip
+      xarchiver
+    ];
   };
 }

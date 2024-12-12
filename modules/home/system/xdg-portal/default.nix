@@ -2,10 +2,10 @@
 
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.${namespace}.desktop.addons.xdg-portal;
+  cfg = config.${namespace}.xdg-portal;
 
 in {
-  options.${namespace}.desktop.addons.xdg-portal = {
+  options.${namespace}.system.xdg-portal = {
     enable = mkEnableOption "Xdg-portal hyprland & gtk";
   };
 
@@ -13,9 +13,12 @@ in {
     xdg = {
       portal = {
         enable = true;
+        xdg.portal.xdgOpenUsePortal = true;
         extraPortals = with pkgs; [
           xdg-desktop-portal-hyprland
           xdg-desktop-portal-gtk
+          # INFO: this might only work for NixOS
+          xdg-desktop-portal-wlr
         ];
       };
     };

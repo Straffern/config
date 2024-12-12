@@ -1,11 +1,14 @@
-{ options, config, pkgs, lib, inputs, ... }:
-with lib;
-with lib.custom;
-let cfg = config.apps.kitty;
+{ lib, config, namespace, ... }:
+let
+  inherit (lib) mkEnableOption mkIf;
+  cfg = config.${namespace}.apps.kitty;
 in {
-  options.apps.kitty = with types; {
-    enable = mkBoolOpt false "Enable or disable the kitty terminal.";
-  };
+  options.${namespace}.apps.kitty = { enable = mkEnableOption "Kitty"; };
 
-  config = mkIf cfg.enable { home.packages = [ pkgs.kitty ]; };
+  config = mkIf cfg.enable {
+    programs.kitty = {
+      enable = true;
+      shellIntegration.enableZshIntegration = true;
+    };
+  };
 }

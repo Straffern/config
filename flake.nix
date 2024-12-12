@@ -51,16 +51,17 @@
     in lib.mkFlake {
       inherit inputs;
       src = ./.;
-
       channels-config = { allowUnfree = true; };
 
       overlays = with inputs; [ hyprpanel.overlay ];
 
       systems.modules.nixos = with inputs; [
+        home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
         impermanence.nixosModules.impermanence
         persist-retro.nixosModules.persist-retro
       ];
+      homes.modules = with inputs; [ stylix.homeManagerModules.stylix ];
 
       templates = import ./templates { };
     };
