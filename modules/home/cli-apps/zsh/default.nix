@@ -2,9 +2,9 @@
 let
   inherit (lib) mkEnableOption mkIf;
   inherit (lib.${namespace}) enabled;
-  cfg = config.${namespace}.apps.zsh;
+  cfg = config.${namespace}.cli-apps.zsh;
 in {
-  options.${namespace}.apps.zsh = { enable = mkEnableOption "Zsh"; };
+  options.${namespace}.cli-apps.zsh = { enable = mkEnableOption "Zsh"; };
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [ eza bat nitch ];

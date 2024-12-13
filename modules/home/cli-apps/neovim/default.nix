@@ -1,9 +1,9 @@
 { lib, pkgs, config, namespace, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
-  cfg = config.${namespace}.apps.neovim;
+  cfg = config.${namespace}.cli-apps.neovim;
 in {
-  options.${namespace}.apps.neovim = { enable = mkEnableOption "Neovim"; };
+  options.${namespace}.cli-apps.neovim = { enable = mkEnableOption "Neovim"; };
 
   config = mkIf cfg.enable {
     programs.neovim = {
