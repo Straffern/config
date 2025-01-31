@@ -11,6 +11,6 @@ in {
   config = mkIf cfg.enable {
     environment.sessionVariables.NIXOS_OZONE_WL = "1";
     programs.hyprland = enabled;
-    suites.desktop.addons.tuigreet = enabled;
+    ${namespace}.suites.desktop.addons.tuigreet = enabled;
   };
 }

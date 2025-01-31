@@ -3,9 +3,9 @@ let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) mkBoolOpt;
 
-  cfg = config.system.boot;
+  cfg = config.${namespace}.system.boot;
 in {
-  options.system.boot = {
+  options.${namespace}.system.boot = {
     enable = mkEnableOption "Booting.";
     plymouth = mkBoolOpt false "Whether or not to enable plymouth boot splash.";
     secureBoot = mkBoolOpt false "Whether or not to enable secure boot.";
