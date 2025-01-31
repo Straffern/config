@@ -2,9 +2,9 @@
 let
   inherit (lib) mkEnableOption mkIf types;
   inherit (lib.${namespace}) mkOpt;
-  cfg = config.cli.programs.nix-ld;
+  cfg = config.${namespace}.cli.programs.nix-ld;
 in {
-  options.cli.programs.nix-ld = {
+  options.${namespace}.cli.programs.nix-ld = {
     enable = mkEnableOption "Nix-ld";
     libraries =
       mkOpt (types.listOf types.package) [ ] "A list of libraries for nix-ld";

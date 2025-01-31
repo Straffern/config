@@ -1,9 +1,9 @@
-{ options, config, pkgs, lib, ... }:
+{ options, config, pkgs, lib, namespace, ... }:
 with lib;
 with lib.custom;
-let cfg = config.apps.neovim;
+let cfg = config.${namespace}.apps.neovim;
 in {
-  options.apps.neovim = with types; {
+  options.${namespace}.apps.neovim = with types; {
     enable = mkBoolOpt false "Enable or disable neovim";
   };
 

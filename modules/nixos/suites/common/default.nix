@@ -1,9 +1,9 @@
 { lib, config, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.suites.common;
+  cfg = config.${namespace}.suites.common;
 in {
-  options.suites.common.enable = mkEnableOption "Common Suite";
+  options.${namespace}.suites.common.enable = mkEnableOption "Common Suite";
 
   config = mkIf cfg.enable {
     hardware = { networking.enable = true; };
