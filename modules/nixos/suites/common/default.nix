@@ -6,20 +6,20 @@ in {
   options.${namespace}.suites.common.enable = mkEnableOption "Common Suite";
 
   config = mkIf cfg.enable {
-    hardware = { networking.enable = true; };
+    ${namespace}.hardware = { networking.enable = true; };
 
     services = { ssh.enable = true; };
 
-    security = {
+    ${namespace}.security = {
       sops.enable = true;
       # yubikey.enable = true;
     };
 
-    system = {
+    ${namespace}.system = {
       nix.enable = true;
       boot.enable = true;
       locale.enable = true;
     };
-    styles.stylix.enable = true;
+    ${namespace}.styles.stylix.enable = true;
   };
 }

@@ -1,9 +1,9 @@
 { config, lib, namespace, ... }:
 let
   inherit (lib.${namespace}) mkOpt types;
-  cfg = config.user;
+  cfg = config.${namespace}.user;
 in {
-  options.user = with types; {
+  options.${namespace}.user = with types; {
     name = mkOpt str "alex" "The name of the user's account";
     initialPassword = mkOpt str "1" "The initial password to use";
     extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";

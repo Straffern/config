@@ -2,14 +2,14 @@
 let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
-  cfg = config.suites.desktop;
+  cfg = config.${namespace}.suites.desktop;
 in {
-  options.suites.desktop = { enable = mkEnableOption "Desktop suite"; };
+  options.${namespace}.suites.desktop = { enable = mkEnableOption "Desktop suite"; };
 
   config = mkIf cfg.enable {
     boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
-    suites = {
+    ${namespace}.suites = {
       common = enabled;
       desktop.addons = { nautilus = enabled; };
     };
@@ -19,21 +19,21 @@ in {
       bluetooth = enabled;
     };
 
-    system.boot.plymouth = true;
+    ${namespace}.system.boot.plymouth = true;
 
-    services = {
+    ${namespace}.services = {
       podman = enabled;
-      ${namespace}.avahi = enabled;
+      avahi = enabled;
       vpn = enabled;
       # backup.enable = true;
     };
 
-    cli.programs = {
+    ${namespace}.cli.programs = {
       nh.enable = true;
       nix-ld = enabled;
     };
 
-    user = {
+    ${namespace}.user = {
       name = "alex";
       initialPassword = "1";
     };
