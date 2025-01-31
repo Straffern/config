@@ -8,6 +8,7 @@ in {
 
   config = mkIf cfg.enable {
     programs.librewolf = enabled;
-    home.persist.directories = [ ".librewolf" ".cache/librewolf" ];
+    home.persistence."/persist".users.${config.home.username}.directories =
+      [ ".librewolf" ".cache/librewolf" ];
   };
 }

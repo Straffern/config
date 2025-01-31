@@ -1,9 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, namespace, ... }:
 let
   inherit (lib) mkIf types;
-  cfg = config.apps.misc;
+  cfg = config.${namespace}.apps.misc;
 in {
-  options.apps.misc = with types; {
+  options.${namespace}.apps.misc = with types; {
     enable = mkBoolOpt false "Enable or disable misc apps";
   };
 
