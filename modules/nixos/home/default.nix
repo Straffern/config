@@ -1,7 +1,10 @@
-{ options, config, pkgs, lib, inputs, namespace, ... }:
+{ options, config, lib, namespace, ... }:
 with lib;
 with lib.${namespace};
-let cfg = config.${namespace}.home;
+let
+  # inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) types;
+  cfg = config.${namespace}.home;
 in {
   options.${namespace}.home = with types; {
     file = mkOpt attrs { }
@@ -12,7 +15,7 @@ in {
   };
 
   config = {
-    plusultra.home.extraOptions = {
+    ${namespace}.home.extraOptions = {
       home.stateVersion = config.system.stateVersion;
       home.file = mkAliasDefinitions options.${namespace}.home.file;
       xdg.enable = true;

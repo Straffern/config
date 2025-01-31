@@ -1,31 +1,32 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-with lib;
-with lib.custom; let
+{ config, lib, pkgs, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
   cfg = config.hardware.audio;
 in {
-  options.hardware.audio = with types; {
-    enable = mkBoolOpt false "Enable pipewire";
-  };
+  options.hardware.audio = { enable = mkEnableOption "Pipewire"; };
 
   config = mkIf cfg.enable {
+    services.pulseaudio.enable = false;
     security.rtkit.enable = true;
     services.pipewire = {
       enable = true;
       alsa.enable = true;
       alsa.support32Bit = true;
+      pulse.enable = true;
       wireplumber.enable = true;
       jack.enable = true;
-      pulse.enable = true;
     };
     programs.noisetorch.enable = true;
+
+    services.udev.packages = with pkgs; [ headsetcontrol ];
+
     environment.systemPackages = with pkgs; [
-    pavucontrol
+      pavucontrol
+
+      headsetcontrol
+      headset-charge-indicator
+      pulsemixer
     ];
+
   };
 }

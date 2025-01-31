@@ -1,26 +1,14 @@
-{
-  options,
-  config,
-  lib,
-  ...
-}:
-with lib;
-with lib.custom; let
-  cfg = config.hardware.networking;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.hardware.networking;
 in {
-  options.hardware.networking = with types; {
-    enable = mkBoolOpt false "Enable NetworkManager";
+  options.${namespace}.hardware.networking = {
+    enable = mkEnableOption "NetworkManager";
   };
 
   config = mkIf cfg.enable {
+    networking.firewall = { enable = true; };
     networking.networkmanager.enable = true;
-    environment.persist.directories = [
-      "/etc/NetworkManager"
-    ];
   };
-
-
-#  environment.persist.directories = [
-#    "/etc/gdm"
-#  ];
 }

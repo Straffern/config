@@ -1,17 +1,13 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-with lib;
-with lib.custom; let
-  cfg = config.system.nix;
+{ lib, config, pkgs, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) mkOpt types;
+  cfg = config.${namespace}.system.nix;
 in {
-  options.system.nix = with types; {
-    enable = mkBoolOpt true "Whether or not to manage nix configuration.";
-    package = mkOpt package pkgs.nixVersions.latest "Which nix package to use.";
+  options.${namespace}.system.nix = {
+    enable = mkEnableOption "Manage of nix configuration.";
+    package =
+      mkOpt types.package pkgs.nixVersions.latest "Which nix package to use.";
   };
 
   config = mkIf cfg.enable {
@@ -22,31 +18,19 @@ in {
       nix-prefetch-git
     ];
 
-    nix = let
-      users = ["root" config.user.name];
-    in {
-      inherit (cfg) package;
-
-      settings =
-        {
-          experimental-features = "nix-command flakes";
-          http-connections = 50;
-          warn-dirty = false;
-          log-lines = 50;
-          sandbox = "relaxed";
-          auto-optimise-store = true;
-          trusted-users = users;
-          allowed-users = users;
-        }
-        // (lib.optionalAttrs config.apps.tools.direnv.enable {
-          keep-outputs = true;
-          keep-derivations = true;
-        });
-
+    nix = {
+      settings = {
+        trusted-users = [ "@wheel" "root" ];
+        auto-optimise-store = lib.mkDefault true;
+        use-xdg-base-directories = true;
+        experimental-features = [ "nix-command" "flakes" ];
+        warn-dirty = false;
+        system-features = [ "kvm" "big-parallel" "nixos-test" ];
+      };
       gc = {
         automatic = true;
         dates = "weekly";
-        options = "--delete-older-than 7d";
+        options = "--delete-older-than 15d";
       };
 
       # flake-utils-plus
@@ -54,5 +38,20 @@ in {
       generateNixPathFromInputs = true;
       linkInputs = true;
     };
+
+    # settings = {
+    #   experimental-features = "nix-command flakes";
+    #   http-connections = 50;
+    #   warn-dirty = false;
+    #   log-lines = 50;
+    #   sandbox = "relaxed";
+    #   auto-optimise-store = true;
+    #   trusted-users = users;
+    #   allowed-users = users;
+    # } // (lib.optionalAttrs config.apps.tools.direnv.enable {
+    #   keep-outputs = true;
+    #   keep-derivations = true;
+    # });
+
   };
 }

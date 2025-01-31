@@ -30,6 +30,7 @@ in {
       vimAlias = true;
       vimDiffAlias = true;
     };
+    # maybe make it a symlink outside nix store?
     xdg.configFile."LazyVim" = {
       enable = true;
       recursive = true;

@@ -45,3 +45,6 @@ Deploying to a server (in flake directory):
 ```sh
 sudo sys deploy HOSTNAME # or `d` as a shorthand
 ```
+
+## Inspiration
+<https://github.com/anotherhadi/nixy/tree/main>

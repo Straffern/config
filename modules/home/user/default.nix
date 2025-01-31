@@ -27,6 +27,8 @@ in {
 
     home = mkOpt (types.nullOr types.str) home-directory
       "The user's home directory.";
+    icon = mkOpt types.path ./files/pfp.png "My profile pic!";
+    bell = mkOpt types.path ./files/fuck.oga "My bell sound!";
   };
 
   config = mkIf cfg.enable (mkMerge [{
@@ -44,6 +46,16 @@ in {
     home = {
       username = mkDefault cfg.name;
       homeDirectory = mkDefault cfg.home;
+      file = {
+        pfp = mkIf (cfg.icon != null) {
+          source = cfg.icon;
+          target = "${cfg.directories.home}/.face";
+        };
+        bell = mkIf (cfg.icon != null) {
+          source = cfg.bell;
+          target = "${cfg.directories.data}/sound/bell.oga";
+        };
+      };
     };
   }]);
 }

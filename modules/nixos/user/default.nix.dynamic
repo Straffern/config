@@ -1,0 +1,49 @@
+{ config, lib, namespace, ... }:
+let
+  inherit (lib.${namespace}) mkOpt types;
+  cfg = config.${namespace}.user;
+in {
+  options.${namespace}.user = lib.mkOption {
+    type = types.attrsOf (types.submodule {
+      options = with types; {
+        initialPassword = mkOpt str "1" "The initial password to use";
+        extraGroups =
+          mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
+        extraOptions =
+          mkOpt attrs { } "Extra options passed to users.users.<name>";
+
+      };
+    });
+    default = { };
+  };
+
+  config = {
+    users.mutableUsers = false;
+    users.users = lib.mapAttrs (username: cfg:
+      {
+        isNormalUser = true;
+        inherit (cfg) initialPassword;
+        home = "/home/${username}";
+        group = "users";
+
+        # TODO: set in modules
+        extraGroups = [
+          "wheel"
+          "audio"
+          "sound"
+          "video"
+          "networkmanager"
+          "input"
+          "tty"
+          "podman"
+          "kvm"
+          "libvirtd"
+        ] ++ cfg.extraGroups;
+      } // cfg.extraOptions) cfg;
+
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+    };
+  };
+}
