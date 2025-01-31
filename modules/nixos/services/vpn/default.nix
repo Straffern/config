@@ -1,9 +1,9 @@
 { config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.services.vpn;
+  cfg = config.${namespace}.services.vpn;
 in {
-  options.services.vpn = { enable = mkEnableOption "VPN"; };
+  options.${namespace}.services.vpn = { enable = mkEnableOption "VPN"; };
 
   config = mkIf cfg.enable {
     networking.wireguard.enable = true;

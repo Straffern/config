@@ -1,9 +1,9 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.services.virtualisation.kvm;
+  cfg = config.${namespace}.services.virtualisation.kvm;
 in {
-  options.services.virtualisation.kvm = {
+  options.${namespace}.services.virtualisation.kvm = {
     enable = mkEnableOption "KVM virtualisation";
   };
 

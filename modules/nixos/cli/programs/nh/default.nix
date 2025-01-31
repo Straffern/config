@@ -1,9 +1,9 @@
-{ config, lib, ... }:
+{ config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.cli.programs.nh;
+  cfg = config.${namespace}.cli.programs.nh;
 in {
-  options.cli.programs.nh = { enable = mkEnableOption "nh"; };
+  options.${namespace}.cli.programs.nh = { enable = mkEnableOption "nh"; };
 
   config = mkIf cfg.enable {
     programs.nh = {

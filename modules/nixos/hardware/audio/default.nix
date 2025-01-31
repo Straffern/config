@@ -1,9 +1,9 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.hardware.audio;
+  cfg = config.${namespace}.hardware.audio;
 in {
-  options.hardware.audio = { enable = mkEnableOption "Pipewire"; };
+  options.${namespace}.hardware.audio = { enable = mkEnableOption "Pipewire"; };
 
   config = mkIf cfg.enable {
     services.pulseaudio.enable = false;
