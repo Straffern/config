@@ -13,7 +13,8 @@ in {
     security.doas = {
       enable = true;
       extraRules = [{
-        users = [ config.user.name ];
+        # TODO: Make this use return a list of usernames, configured using user module
+        users = [ config.${namespace}.user.name ];
         noPass = true;
         keepEnv = true;
       }];

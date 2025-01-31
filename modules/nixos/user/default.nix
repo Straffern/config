@@ -3,6 +3,7 @@ let
   inherit (lib.${namespace}) mkOpt types;
   cfg = config.${namespace}.user;
 in {
+  # TODO: Make this a attrsof submodule, to allow for creation of many users.
   options.${namespace}.user = with types; {
     name = mkOpt str "alex" "The name of the user's account";
     initialPassword = mkOpt str "1" "The initial password to use";

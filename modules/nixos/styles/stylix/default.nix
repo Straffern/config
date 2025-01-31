@@ -1,14 +1,14 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, namespace, ... }:
 let
   inherit (lib) mkOption mkEnableOption types;
-  cfg = config.styles.stylix;
+  cfg = config.${namespace}.styles.stylix;
 in {
-  options.styles.stylix = {
+  options.${namespace}.styles.stylix = {
     enable = mkEnableOption "Stylix";
 
     wallpaper = mkOption {
       type = types.package;
-      default = pkgs.asgaard.wallpapers.windows-error;
+      default = pkgs.${namespace}.wallpapers.windows-error;
       description = "The wallpaper to use for the system theme";
     };
 
@@ -82,7 +82,7 @@ in {
         };
 
         monospace = {
-          package = pkgs.nixicle.monolisa;
+          package = pkgs.${namespace}.monolisa;
           name = "MonoLisa";
         };
 

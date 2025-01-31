@@ -1,9 +1,9 @@
 { lib, config, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.services.${namespace}.avahi;
+  cfg = config.${namespace}.services.avahi;
 in {
-  options.services.${namespace}.avahi = { enable = mkEnableOption "Avahi"; };
+  options.${namespace}.services.avahi = { enable = mkEnableOption "Avahi"; };
 
   config = mkIf cfg.enable {
     services.avahi = {
