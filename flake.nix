@@ -74,9 +74,10 @@
     # Styling
 
     stylix.url = "github:danth/stylix";
+    catppuccin.url = "github:catppuccin/nix";
 
-    nix-colors.url = "github:IogaMaster/nix-colors";
-    prism.url = "github:IogaMaster/prism";
+    # nix-colors.url = "github:IogaMaster/nix-colors";
+    # prism.url = "github:IogaMaster/prism";
 
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
   };
@@ -109,7 +110,12 @@
         impermanence.nixosModules.impermanence
         persist-retro.nixosModules.persist-retro
       ];
-      homes.modules = with inputs; [ stylix.homeManagerModules.stylix ];
+      homes.modules = with inputs; [
+        impermanence.nixosModules.home-manager.impermanence
+        persist-retro.nixosModules.home-manager.persist-retro
+        stylix.homeManagerModules.stylix
+        catppuccin.homeManagerModules.catppuccin
+      ];
 
       templates = import ./templates { };
     };

@@ -1,13 +1,40 @@
-{ lib, pkgs, config, inputs, namespace, ... }:
-let cfg = config.${namespace}.styles.stylix;
+{ lib, pkgs, config, namespace, ... }:
+let
+
+  inherit (lib) mkOption mkEnableOption types;
+  cfg = config.${namespace}.styles.stylix;
 in {
-  imports = with inputs; [
-    stylix.homeManagerModules.stylix
-    catppuccin.homeManagerModules.catppuccin
-  ];
+  # imports = with inputs; [
+  #   stylix.homeManagerModules.stylix
+  #   catppuccin.homeManagerModules.catppuccin
+  # ];
 
   options.${namespace}.styles.stylix = {
-    enable = lib.mkEnableOption "Enable stylix";
+    enable = mkEnableOption "Stylix";
+
+    wallpaper = mkOption {
+      type = types.package;
+      default = pkgs.${namespace}.wallpapers.windows-error;
+      description = "The wallpaper to use for the system theme";
+    };
+
+    enableBase16 = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Whether to enable base16 color scheme";
+    };
+
+    base16Scheme = mkOption {
+      type = types.path;
+      default = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+      description = "The base16 color scheme to use when enableBase16 is true";
+    };
+
+    polarity = mkOption {
+      type = types.enum [ "light" "dark" ];
+      default = "dark";
+      description = "Whether to use a light or dark color scheme";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -16,14 +43,13 @@ in {
 
     # TODO: Possible to use stylix instead?
     catppuccin.flavor = "mocha";
-    catppuccin.fish.enable = true;
+    catppuccin.zsh-syntax-highlighting.enable = true;
 
     stylix = {
       enable = true;
       autoEnable = true;
-      base16Scheme =
-        "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-      targets.nixvim.enable = false;
+      base16Scheme = lib.mkIf cfg.enableBase16 cfg.base16Scheme;
+      # targets.nixvim.enable = false;
 
       iconTheme = {
         enable = true;
@@ -35,13 +61,14 @@ in {
       };
 
       targets = {
-        firefox = {
+        librewolf = {
           firefoxGnomeTheme.enable = true;
           profileNames = [ "Default" ];
         };
       };
 
-      image = pkgs.nixicle.wallpapers.nixppuccin;
+      image = cfg.wallpaper;
+      polarity = cfg.polarity;
 
       cursor = {
         name = "Bibata-Modern-Classic";
@@ -67,7 +94,7 @@ in {
         };
 
         monospace = {
-          package = pkgs.nixicle.monolisa;
+          package = pkgs.${namespace}.monolisa;
           name = "MonoLisa";
         };
 

@@ -4,9 +4,20 @@ in {
 
   imports = [ ./disks ./hardware-configuration.nix ];
 
-  services = {
-    virtualisation.kvm = enabled;
-    virtualisation.podman = enabled;
+  ${namespace} = {
+    system.boot = enabled;
+
+    suites = {
+      desktop = {
+        enable = true;
+        addons = { hyprland = enabled; };
+      };
+    };
+
+    services = {
+      virtualisation.kvm = enabled;
+      virtualisation.podman = enabled;
+    };
   };
 
   # system.battery.enable =
@@ -23,17 +34,7 @@ in {
   # system.shell.initExtra = ''eval "$(micromamba shell hook --shell zsh)"'';
   #
 
-  suites = {
-    desktop = {
-      enable = true;
-      addons = { hyprland = enabled; };
-    };
-  };
-
   # impermanence.enable = true;
-
-  # Enable Bootloader
-  system.boot.efi.enable = true;
 
   networking.hostName = "grug";
   boot = {

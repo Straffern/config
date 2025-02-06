@@ -17,7 +17,8 @@ let
 in {
   options.${namespace}.user = {
     enable = mkOpt types.bool true "Whether to configure the user account.";
-    name = mkOpt (types.nullOr types.str) config.snowfallorg.user.name
+    name =
+      mkOpt (types.nullOr types.str) (config.snowfallorg.user.name or "alex")
       "The user account.";
 
     fullName =
