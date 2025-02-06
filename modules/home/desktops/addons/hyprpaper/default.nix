@@ -1,19 +1,20 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle; let
-  cfg = config.desktops.addons.hyprpaper;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.hyprpaper;
 in {
-  options.desktops.addons.hyprpaper = with types; {
-    enable = mkBoolOpt false "Whether to enable the hyprpaper config";
+  options.${namespace}.desktops.addons.hyprpaper = {
+    enable = mkEnableOption "Hyprpaper config";
   };
 
   config = mkIf cfg.enable {
     services.hyprpaper = {
       enable = true;
+      settings = {
+        ipc = "on";
+        splash = false;
+        splash_offset = 2.0;
+      };
     };
   };
 }

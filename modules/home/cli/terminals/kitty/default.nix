@@ -17,6 +17,16 @@ in {
 
       settings = {
         shell = "zsh";
+
+        # font_family = "MonoLisa";
+        bold_font = "auto";
+        italic_font = "auto";
+        bold_italic_font = "auto";
+
+        font_size = 14;
+
+        background_opacity = 0.9;
+
         window_padding_width = 10;
         scrollback_lines = 10000;
         show_hyperlink_targets = "no";

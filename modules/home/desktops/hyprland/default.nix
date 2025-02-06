@@ -1,24 +1,21 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle;
-with types; let
-  cfg = config.desktops.hyprland;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.hyprland;
 in {
   imports = lib.snowfall.fs.get-non-default-nix-files ./.;
 
-  options.desktops.hyprland = {
-    enable = mkEnableOption "Enable hyprland window manager";
-    execOnceExtras = mkOpt (listOf str) [] "Extra programs to exec once";
+  options.${namespace}.desktops.hyprland = with lib.type; {
+    enable = mkEnableOption "Hyprland window manager";
+    execOnceExtras = mkOpt (listOf str) [ ] "Extra programs to exec once";
   };
 
   config = mkIf cfg.enable {
     nix.settings = {
-      trusted-substituters = ["https://hyprland.cachix.org"];
-      trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+      trusted-substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [
+        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      ];
     };
 
     desktops.addons = {
