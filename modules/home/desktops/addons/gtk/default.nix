@@ -1,14 +1,10 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.gtk;
+{ pkgs, config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.gtk;
 in {
-  options.desktops.addons.gtk = {
-    enable = mkEnableOption "enable gtk theme management";
+  options.${namespace}.desktops.addons.gtk = {
+    enable = mkEnableOption "GTK theme management";
   };
 
   config = mkIf cfg.enable {

@@ -1,14 +1,10 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle; let
-  cfg = config.desktops.addons.hypridle;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.hypridle;
 in {
-  options.desktops.addons.hypridle = with types; {
-    enable = mkBoolOpt false "Whether to enable the hypridle";
+  options.${namespace}.desktops.addons.hypridle = {
+    enable = mkEnableOption "Hypridle";
   };
 
   config = mkIf cfg.enable {

@@ -1,14 +1,10 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle; let
-  cfg = config.cli.terminals.foot;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.cli.terminals.foot;
 in {
-  options.cli.terminals.foot = with types; {
-    enable = mkBoolOpt false "enable foot terminal emulator";
+  options.${namespace}.cli.terminals.foot = {
+    enable = mkEnableOption "Foot terminal emulator";
   };
 
   config = mkIf cfg.enable {
@@ -17,14 +13,12 @@ in {
 
       settings = {
         main = {
-          shell = "fish";
+          shell = "zsh";
           pad = "15x15";
           selection-target = "clipboard";
         };
 
-        scrollback = {
-          lines = 10000;
-        };
+        scrollback = { lines = 10000; };
       };
     };
   };

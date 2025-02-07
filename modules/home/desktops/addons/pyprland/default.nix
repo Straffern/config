@@ -1,21 +1,15 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.pyprland;
+{ config, lib, pkgs, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.pyprland;
 in {
-  options.desktops.addons.pyprland = {
-    enable = mkEnableOption "Enable pyprland plugins for hyprland";
+  options.${namespace}.desktops.addons.pyprland = {
+    enable = mkEnableOption "Pyprland plugins for hyprland";
   };
 
   config = mkIf cfg.enable {
     xdg.configFile."hypr/pyprland.toml".source = ./pyprland.toml;
 
-    home = {
-      packages = with pkgs; [pyprland];
-    };
+    home = { packages = with pkgs; [ pyprland ]; };
   };
 }

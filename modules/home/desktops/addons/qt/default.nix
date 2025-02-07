@@ -1,14 +1,10 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.qt;
+{ pkgs, config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.qt;
 in {
-  options.desktops.addons.qt = {
-    enable = mkEnableOption "enable qt theme management";
+  options.${namespace}.desktops.addons.qt = {
+    enable = mkEnableOption "QT theme management";
   };
 
   config = mkIf cfg.enable {

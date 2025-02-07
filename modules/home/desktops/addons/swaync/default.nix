@@ -1,19 +1,16 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.swaync;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.swaync;
 in {
-  options.desktops.addons.swaync = {
+  options.${namespace}.desktops.addons.swaync = {
     enable = mkEnableOption "Enable sway notification center";
   };
 
   config = mkIf cfg.enable {
     services.swaync = {
       enable = true;
-      settings = {};
+      settings = { };
       style = builtins.readFile ./swaync.css;
     };
   };
