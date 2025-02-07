@@ -1,21 +1,13 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.hyprland;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.desktops.hyprland;
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = {
-      windowrule = [
-        "float, bitwarden"
-      ];
+      windowrule = [ "float, bitwarden" ];
 
-      windowrulev2 = [
-        "idleinhibit fullscreen, class:^(firefox)$"
-      ];
+      windowrulev2 = [ "idleinhibit fullscreen, class:^(firefox)$" ];
     };
   };
 }

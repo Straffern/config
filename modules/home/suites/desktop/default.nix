@@ -1,4 +1,4 @@
-{ pkgs, config, lib, ... }:
+{ pkgs, config, lib, namespace, ... }:
 with lib;
 let
   inherit (lib.${namespace}) enabled;
@@ -46,6 +46,11 @@ in {
         common = enabled;
         development = enabled;
       };
+      services = {
+        kdeconnect = enabled;
+        spotify = enabled;
+      };
+      desktops.addons.xdg = enabled;
     };
 
     # Fixes tray icons: https://github.com/nix-community/home-manager/issues/2064#issuecomment-887300055
@@ -55,12 +60,6 @@ in {
         Requires = [ "graphical-session-pre.target" ];
       };
     };
-
-    services = {
-      nixicle.kdeconnect.enable = true;
-      spotify.enable = true;
-    };
-    desktops.addons.xdg.enable = true;
 
     home.sessionVariables = {
       MOZ_ENABLE_WAYLAND = 1;

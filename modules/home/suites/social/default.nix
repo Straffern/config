@@ -1,20 +1,17 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.roles.social;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) enabled;
+  cfg = config.${namespace}.suites.social;
 in {
-  options.roles.social = {
+  options.${namespace}.suites.social = {
     enable = mkEnableOption "Enable social suite";
   };
 
   config = mkIf cfg.enable {
     programs = {
-      discord.enable = true;
-      shotwell.enable = true;
+      discord = enabled;
+      shotwell = enabled;
     };
   };
 }

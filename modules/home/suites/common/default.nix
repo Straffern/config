@@ -10,7 +10,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     ${namespace} = {
-      bowsers.firefox = enabled;
+      browsers.firefox = enabled;
       system.nix = enabled;
 
       cli = {

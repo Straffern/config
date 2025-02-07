@@ -4,7 +4,7 @@ let
   cfg = config.${namespace}.desktops.addons.swaync;
 in {
   options.${namespace}.desktops.addons.swaync = {
-    enable = mkEnableOption "Enable sway notification center";
+    enable = mkEnableOption "Sway notification center";
   };
 
   config = mkIf cfg.enable {

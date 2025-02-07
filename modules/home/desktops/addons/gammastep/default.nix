@@ -1,13 +1,10 @@
-{
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.gammastep;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.gammastep;
 in {
-  options.desktops.addons.gammastep = {
-    enable = mkEnableOption "Enable gammastep night light";
+  options.${namespace}.desktops.addons.gammastep = {
+    enable = mkEnableOption "Gammastep night light";
   };
 
   config = mkIf cfg.enable {
@@ -18,9 +15,7 @@ in {
         day = 6000;
         night = 4600;
       };
-      settings = {
-        general.adjustment-method = "wayland";
-      };
+      settings = { general.adjustment-method = "wayland"; };
     };
   };
 }

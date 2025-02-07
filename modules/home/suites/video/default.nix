@@ -1,24 +1,18 @@
-{
-  inputs,
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle; let
-  cfg = config.roles.video;
+{ inputs, config, pkgs, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) enabled;
+  cfg = config.${namespace}.roles.video;
 in {
-  options.roles.video = with types; {
-    enable = mkBoolOpt false "Whether or not to manage video editting and recording";
+  options.${namespace}.roles.video = {
+    enable = mkEnableOption "Video editting and recording suite";
   };
 
   config = mkIf cfg.enable {
-    xdg.configFile."obs-studio/themes".source = "${inputs.catppuccin-obs}/themes";
+    xdg.configFile."obs-studio/themes".source =
+      "${inputs.catppuccin-obs}/themes";
 
-    programs.obs-studio = {
-      enable = true;
-    };
+    programs.obs-studio = enabled;
 
     home.packages = with pkgs; [
       audacity

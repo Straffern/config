@@ -12,35 +12,35 @@ in {
     # System-level configurations
     boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
-    hardware = {
-      audio = enabled;
-      bluetooth = enabled;
-    };
-
     # Namespace-specific configurations
     ${namespace} = {
+      hardware = {
+        audio = enabled;
+        bluetooth = enabled;
+      };
       suites = {
         common = enabled;
         desktop.addons = { nautilus = enabled; };
+
+        system.boot.plymouth = true;
+
+        services = {
+          avahi = enabled;
+          vpn = enabled;
+          virtualisation.podman = enabled;
+        };
+
+        cli.programs = {
+          nh = enabled;
+          nix-ld = enabled;
+        };
+
+        user = {
+          name = "alex";
+          initialPassword = "1";
+        };
       };
 
-      system.boot.plymouth = true;
-
-      services = {
-        avahi = enabled;
-        vpn = enabled;
-        virtualisation.podman = enabled;
-      };
-
-      cli.programs = {
-        nh = enabled;
-        nix-ld = enabled;
-      };
-
-      user = {
-        name = "alex";
-        initialPassword = "1";
-      };
     };
   };
 }

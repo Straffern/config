@@ -1,16 +1,12 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.hyprland;
+{ pkgs, config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.desktops.hyprland;
   laptop_lid_switch = pkgs.writeShellScriptBin "laptop_lid_switch" ''
     #!/usr/bin/env bash
 
-    if grep open /proc/acpi/button/lid/LID0/state; then
-    		hyprctl keyword monitor "eDP-1, 2256x1504@60, 0x0, 1"
+    if grep open /proc/acpi/button/lid/LID/state; then
+    		hyprctl keyword monitor "eDP-1, 1920x1080@60, 0x0, 1"
     else
     		if [[ `hyprctl monitors | grep "Monitor" | wc -l` != 1 ]]; then
     				hyprctl keyword monitor "eDP-1, disable"
@@ -61,12 +57,14 @@ in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = {
       bind = [
-        "SUPER, Return, exec, foot"
+        "SUPER, Return, exec, kitty"
         "SUPER, B, exec, ${config.desktops.addons.rofi.package}/bin/rofi -show drun -mode drun"
         "SUPER, Q, killactive,"
         "SUPER, F, Fullscreen,0"
         "SUPER, R, exec, ${resize}/bin/resize"
         "SUPER, Space, togglefloating,"
+        "SUPER, TAB, pseudo"
+
         "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle pwvucontrol"
         "SUPER_SHIFT, T, exec, ${pkgs.pyprland}/bin/pypr toggle term"
         ",XF86Launch5, exec,${pkgs.hyprlock}/bin/hyprlock"
@@ -78,16 +76,17 @@ in {
         "CONTROL,Print, exec,grimblast --notify copy screen"
         "SUPER,Print, exec,grimblast --notify copy window"
         "ALT,Print, exec,grimblast --notify copy area"
-        "SUPER,bracketleft, exec,grimblast --notify --cursor copysave area ~/Pictures/$(date \" + %Y-%m-%d \"T\"%H:%M:%S_no_watermark \").png"
+        ''
+          SUPER,bracketleft, exec,grimblast --notify --cursor copysave area ~/Pictures/$(date " + %Y-%m-%d "T"%H:%M:%S_no_watermark ").png''
         "SUPER,bracketright, exec, grimblast --notify --cursor copy area"
         "SUPER,h, movefocus,l"
         "SUPER,l, movefocus,r"
         "SUPER,k, movefocus,u"
         "SUPER,j, movefocus,d"
-        "SUPERCONTROL,h, focusmonitor,l"
-        "SUPERCONTROL,l, focusmonitor,r"
-        "SUPERCONTROL,k, focusmonitor,u"
-        "SUPERCONTROL,j, focusmonitor,d"
+        # "SUPERCONTROL,h, focusmonitor,l"
+        # "SUPERCONTROL,l, focusmonitor,r"
+        # "SUPERCONTROL,k, focusmonitor,u"
+        # "SUPERCONTROL,j, focusmonitor,d"
         "SUPER,1, workspace,01"
         "SUPER,2, workspace,02"
         "SUPER,3, workspace,03"
@@ -108,18 +107,23 @@ in {
         "SUPERSHIFT,8, movetoworkspacesilent,08"
         "SUPERSHIFT,9, movetoworkspacesilent,09"
         "SUPERSHIFT,0, movetoworkspacesilent,10"
-        "SUPERALT,h, movecurrentworkspacetomonitor,l"
-        "SUPERALT,l, movecurrentworkspacetomonitor,r"
-        "SUPERALT,k, movecurrentworkspacetomonitor,u"
-        "SUPERALT,j, movecurrentworkspacetomonitor,d"
-        "ALTCTRL,L, movewindow,r"
-        "ALTCTRL,H, movewindow,l"
-        "ALTCTRL,K, movewindow,u"
-        "ALTCTRL,J, movewindow,d"
-        "SUPERSHIFT,h, swapwindow,l"
-        "SUPERSHIFT,l, swapwindow,r"
-        "SUPERSHIFT,k, swapwindow,u"
-        "SUPERSHIFT,j, swapwindow,d"
+        # "SUPERALT,h, movecurrentworkspacetomonitor,l"
+        # "SUPERALT,l, movecurrentworkspacetomonitor,r"
+        # "SUPERALT,k, movecurrentworkspacetomonitor,u"
+        # "SUPERALT,j, movecurrentworkspacetomonitor,d"
+        # "ALTCTRL,L, movewindow,r"
+        # "ALTCTRL,H, movewindow,l"
+        # "ALTCTRL,K, movewindow,u"
+        # "ALTCTRL,J, movewindow,d"
+        # Move window with mainMod_SHIFT + arrow keys
+        "SUPERSHIFT,h, movewindow,l"
+        "SUPERSHIFT,l, movewindow,r"
+        "SUPERSHIFT,k, movewindow,u"
+        "SUPERSHIFT,j, movewindow,d"
+        # "SUPERSHIFT,h, swapwindow,l"
+        # "SUPERSHIFT,l, swapwindow,r"
+        # "SUPERSHIFT,k, swapwindow,u"
+        # "SUPERSHIFT,j, swapwindow,d"
         "SUPER,u, togglespecialworkspace"
         "SUPERSHIFT,u, movetoworkspace,special"
       ];
@@ -144,10 +148,8 @@ in {
         "SUPERALT, k, resizeactive, 0 -20"
         "SUPERALT, j, resizeactive, 0 20"
       ];
-      bindm = [
-        "SUPER, mouse:272, movewindow"
-        "SUPER, mouse:273, resizewindow"
-      ];
+      bindm =
+        [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
     };
   };
 }

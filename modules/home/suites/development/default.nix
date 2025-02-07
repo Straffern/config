@@ -1,41 +1,42 @@
-{
-  lib,
-  config,
-  ...
-}:
-with lib; let
-  cfg = config.roles.development;
+{ lib, config, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) enabled;
+  cfg = config.${namespace}.suites.development;
 in {
-  options.roles.development = {
-    enable = mkEnableOption "Enable development configuration";
+  options.${namespace}.suites.development = {
+    enable = mkEnableOption "Development configuration";
   };
 
   config = mkIf cfg.enable {
-    cli = {
-      editors.nvim.enable = true;
-      multiplexers.zellij.enable = true;
+    ${namespace} = {
+      cli = {
+        editors.nvim = enabled;
+        multiplexers.zellij = enabled;
 
-      programs = {
-        # attic.enable = true;
-        atuin.enable = true;
-        bat.enable = true;
-        bottom.enable = true;
-        db.enable = true;
-        direnv.enable = true;
-        eza.enable = true;
-        fzf.enable = true;
-        git.enable = true;
-        gpg.enable = true;
-        htop.enable = true;
-        k8s.enable = true;
-        modern-unix.enable = true;
-        network-tools.enable = true;
-        nix-index.enable = true;
-        podman.enable = true;
-        ssh.enable = true;
-        starship.enable = true;
-        yazi.enable = true;
-        zoxide.enable = true;
+        programs = {
+          # attic = enabled;
+          atuin = enabled;
+          bat = enabled;
+          bottom = enabled;
+          db = enabled;
+          direnv = enabled;
+          devenv = enabled;
+          eza = enabled;
+          fzf = enabled;
+          git = enabled;
+          gpg = enabled;
+          htop = enabled;
+          k8s = enabled;
+          modern-unix = enabled;
+          network-tools = enabled;
+          nix-index = enabled;
+          podman = enabled;
+          ssh = enabled;
+          starship = enabled;
+          yazi = enabled;
+          zoxide = enabled;
+        };
       };
     };
   };

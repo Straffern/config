@@ -1,14 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.addons.wlogout;
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.desktops.addons.wlogout;
 in {
-  options.desktops.addons.wlogout = {
-    enable = mkEnableOption "Enable wlogout screen for managing sessions.";
+  options.${namespace}.desktops.addons.wlogout = {
+    enable = mkEnableOption "Wlogout screen for managing sessions.";
   };
 
   config = mkIf cfg.enable {

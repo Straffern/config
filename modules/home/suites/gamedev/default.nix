@@ -1,21 +1,11 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-with lib;
-with lib.nixicle; let
-  cfg = config.roles.gamedev;
+{ config, pkgs, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption;
+  cfg = config.${namespace}.roles.gamedev;
 in {
-  options.roles.gamedev = with types; {
-    enable = mkBoolOpt false "Whether or not to manage game dev configuration";
+  options.${namespace}.roles.gamedev = {
+    enable = mkEnableOption "Game dev suite";
   };
 
-  config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      godot_4
-      aseprite
-    ];
-  };
+  config = mkIf cfg.enable { home.packages = with pkgs; [ godot_4 aseprite ]; };
 }
