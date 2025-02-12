@@ -1,17 +1,12 @@
-{
-  options,
-  config,
-  lib,
-  ...
-}:
+{ options, config, lib, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.system.time;
+with lib.${namespace};
+let cfg = config.${namespace}.system.time;
 in {
-  options.system.time = with types; {
+  options.${namespace}.system.time = with types; {
     enable =
       mkBoolOpt false "Whether or not to configure timezone information.";
   };
 
-  config = mkIf cfg.enable {time.timeZone = "Europe/Copenhagen";};
+  config = mkIf cfg.enable { time.timeZone = "Europe/Copenhagen"; };
 }

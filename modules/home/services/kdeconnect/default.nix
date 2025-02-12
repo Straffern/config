@@ -1,9 +1,9 @@
 { config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.${namespace}.services.nixicle.kdeconnect;
+  cfg = config.${namespace}.services.kdeconnect;
 in {
-  options.${namespace}.services.nixicle.kdeconnect = {
+  options.${namespace}.services.kdeconnect = {
     enable = mkEnableOption "KDEConnect service";
   };
 

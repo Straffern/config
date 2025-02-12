@@ -1,9 +1,9 @@
-{ pkgs, config, lib, ... }:
+{ pkgs, config, lib, namespace, ... }:
 with lib;
-with lib.nixicle;
-let cfg = config.cli.programs.db;
+with lib.${namespace};
+let cfg = config.${namespace}.cli.programs.db;
 in {
-  options.cli.programs.db = with types; {
+  options.${namespace}.cli.programs.db = with types; {
     enable = mkBoolOpt false "Whether or not to manage db";
   };
 

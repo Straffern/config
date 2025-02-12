@@ -34,11 +34,11 @@ in {
     assertions = [
       {
         assertion = cfg.name != null;
-        message = "asgaard.user.name must be set";
+        message = "${namespace}.user.name must be set";
       }
       {
         assertion = cfg.home != null;
-        message = "asgaard.user.home must be set";
+        message = "${namespace}.user.home must be set";
       }
     ];
 

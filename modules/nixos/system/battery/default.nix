@@ -1,16 +1,10 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-with lib;
-with lib.custom; let
-  cfg = config.system.battery;
+{ config, lib, pkgs, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption types;
+  cfg = config.${namespace}.system.battery;
 in {
-  options.system.battery = with types; {
-    enable = mkBoolOpt false "Whether or not to enable battery optimizations and utils.";
+  options.${namespace}.system.battery = with types; {
+    enable = mkEnableOption "Battery optimizations and utils.";
     battery = mkOpt str "BAT1" "The battery on the device.";
   };
 
@@ -18,13 +12,11 @@ in {
     # Better scheduling for CPU cycles - thanks System76!!!
     services.system76-scheduler.settings.cfsProfiles.enable = true;
 
-
     environment.systemPackages = with pkgs; [
       powertop
       acpi
       # tlp
     ];
-
 
     powerManagement.enable = true;
 
@@ -52,7 +44,6 @@ in {
       };
     };
 
-
     systemd.user.timers.notify-on-low-battery = {
       timerConfig.OnBootSec = "2m";
       timerConfig.OnUnitInactiveSec = "2m";
@@ -69,7 +60,7 @@ in {
         if [[ $battery_capacity -le 10 && $battery_status = "Discharging" ]]; then
           ${pkgs.libnotify}/bin/notify-send --urgency=critical "$battery_capacity%: See you, space cowboy..."
             fi
-            '';
+      '';
     };
 
     # Disable GNOMEs power management

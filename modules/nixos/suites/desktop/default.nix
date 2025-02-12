@@ -16,29 +16,28 @@ in {
     ${namespace} = {
       hardware = {
         audio = enabled;
-        bluetooth = enabled;
+        bluetoothctl = enabled;
       };
       suites = {
         common = enabled;
         desktop.addons = { nautilus = enabled; };
+      };
+      system.boot.plymouth = true;
 
-        system.boot.plymouth = true;
+      services = {
+        avahi = enabled;
+        vpn = enabled;
+        virtualisation.podman = enabled;
+      };
 
-        services = {
-          avahi = enabled;
-          vpn = enabled;
-          virtualisation.podman = enabled;
-        };
+      cli.programs = {
+        nh = enabled;
+        nix-ld = enabled;
+      };
 
-        cli.programs = {
-          nh = enabled;
-          nix-ld = enabled;
-        };
-
-        user = {
-          name = "alex";
-          initialPassword = "1";
-        };
+      user = {
+        name = "alex";
+        initialPassword = "1";
       };
 
     };

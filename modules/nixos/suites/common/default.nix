@@ -7,7 +7,7 @@ in {
   options.${namespace}.suites.common.enable = mkEnableOption "Common Suite";
 
   config = mkIf cfg.enable {
-    services = { ssh = enabled; };
+    services = { sshd = enabled; };
 
     ${namespace} = {
       hardware = { networking = enabled; };

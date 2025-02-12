@@ -1,20 +1,15 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.desktops.gnome;
+{ config, pkgs, lib, namespace, ... }:
+with lib;
+let cfg = config.${namespace}.desktops.gnome;
 in {
   imports = lib.snowfall.fs.get-non-default-nix-files ./.;
 
-  options.desktops.gnome = {
+  options.${namespace}.desktops.gnome = {
     enable = mkEnableOption "enable gnome DE";
   };
 
   config = mkIf cfg.enable {
-    services.nixicle.kdeconnect.enable = lib.mkForce false;
+    ${namespace}.services.kdeconnect.enable = lib.mkForce false;
 
     home.packages = with pkgs; [
       gnome-tweaks
@@ -32,24 +27,21 @@ in {
       gnomeExtensions.launch-new-instance
     ];
 
-    desktops.addons = {
-      gnome.enable = true;
-    };
+    desktops.addons = { gnome.enable = true; };
 
     dconf.settings = {
       "org/gnome/desktop/applications/terminal" = {
         exec = "${pkgs.foot}/bin/foot";
       };
 
-      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
-        binding = "<Super>Return";
-        command = "kitty";
-        name = "Open Terminal";
-      };
+      "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" =
+        {
+          binding = "<Super>Return";
+          command = "kitty";
+          name = "Open Terminal";
+        };
 
-      "org/gnome/desktop/interface" = {
-        enable-hot-corners = false;
-      };
+      "org/gnome/desktop/interface" = { enable-hot-corners = false; };
 
       "org/gnome/shell" = {
         disable-user-extensions = false;
@@ -73,28 +65,22 @@ in {
         legacy-tray-enabled = true;
       };
 
-      "org/gnome/desktop/wm/preferences" = {
-        focus-mode = "sloppy";
-      };
+      "org/gnome/desktop/wm/preferences" = { focus-mode = "sloppy"; };
 
-      "org/gnome/desktop/wm/keybindings" = {
-        close = ["<Super>q"];
-      };
+      "org/gnome/desktop/wm/keybindings" = { close = [ "<Super>q" ]; };
 
       "com/github/stunkymonkey/nautilus-open-any-terminal" = {
         terminal = "wezterm";
       };
 
-      "org/gnome/shell/keybindings/toggle-application-view" = {
-        "@as" = [];
-      };
+      "org/gnome/shell/keybindings/toggle-application-view" = { "@as" = [ ]; };
 
       # "org/gnome/desktop/background" = {
       #   picture-uri-dark = "file:///${pkgs.nixicle.wallpapers.Kurzgesagt-Galaxy_2}";
       # };
 
       "org/gnome/shell/extensions/search-light" = {
-        shortcut-search = ["<Super>b"];
+        shortcut-search = [ "<Super>b" ];
       };
     };
   };

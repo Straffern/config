@@ -1,17 +1,11 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ options, config, lib, pkgs, inputs, namespace, ... }:
 with lib;
-with lib.custom; let
-  inherit (inputs.nix-colors.lib-contrib {inherit pkgs;}) gtkThemeFromScheme;
-  cfg = config.desktop;
+with lib.${namespace};
+let
+  inherit (inputs.nix-colors.lib-contrib { inherit pkgs; }) gtkThemeFromScheme;
+  cfg = config.${namespace}.desktop;
 in {
-  options.desktop = with types; {
+  options.${namespace}.desktop = with types; {
     colorscheme = mkOpt str "catppuccin-mocha" "Theme to use for the desktop";
     autoLogin = mkBoolOpt false "Enable pipewire";
   };
@@ -31,7 +25,9 @@ in {
       enable = true;
       theme = {
         name = inputs.nix-colors.colorschemes.${cfg.colorscheme}.slug;
-        package = gtkThemeFromScheme {scheme = inputs.nix-colors.colorschemes.${cfg.colorscheme};};
+        package = gtkThemeFromScheme {
+          scheme = inputs.nix-colors.colorschemes.${cfg.colorscheme};
+        };
       };
       iconTheme = {
         name = "Papirus-Dark";

@@ -1,18 +1,17 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, lib, pkgs, namespace, ... }:
 with lib;
-with lib.nixicle; let
-  cfg = config.desktops.addons.swaylock;
+with lib.${namespace};
+let cfg = config.${namespace}.desktops.addons.swaylock;
 in {
-  options.desktops.addons.swaylock = {
+  options.${namespace}.desktops.addons.swaylock = {
     enable = mkEnableOption "Enable swaylock lock management";
-    blur = mkOpt (types.nullOr types.str) "7x5" "radius x times blur the image.";
-    vignette = mkOpt (types.nullOr types.str) "0.5x0.5" "base:factor apply vignette effect.";
-    binary = mkOpt (types.nullOr types.str) "${pkgs.swaylock-effects}/bin/swaylock" "Location of the binary to use for swaylock.";
+    blur =
+      mkOpt (types.nullOr types.str) "7x5" "radius x times blur the image.";
+    vignette = mkOpt (types.nullOr types.str) "0.5x0.5"
+      "base:factor apply vignette effect.";
+    binary =
+      mkOpt (types.nullOr types.str) "${pkgs.swaylock-effects}/bin/swaylock"
+      "Location of the binary to use for swaylock.";
   };
 
   config = mkIf cfg.enable {
@@ -52,8 +51,10 @@ in {
       timeouts = [
         {
           timeout = 600;
-          command = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
-          resumeCommand = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
+          command =
+            "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
+          resumeCommand =
+            "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
         }
         {
           timeout = 610;

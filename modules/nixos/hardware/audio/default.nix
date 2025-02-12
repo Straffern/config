@@ -6,7 +6,7 @@ in {
   options.${namespace}.hardware.audio = { enable = mkEnableOption "Pipewire"; };
 
   config = mkIf cfg.enable {
-    services.pulseaudio.enable = false;
+    hardware.pulseaudio.enable = false;
     security.rtkit.enable = true;
     services.pipewire = {
       enable = true;

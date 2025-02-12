@@ -1,14 +1,14 @@
-{ options, config, lib, pkgs, inputs, ... }:
+{ options, config, lib, pkgs, inputs, namespace, ... }:
 with lib;
-with lib.custom;
+with lib.${namespace};
 let
-  cfg = config.desktop.hyprland;
+  cfg = config.${namespace}.desktop.hyprland;
   inherit (inputs.nix-colors.colorschemes.${
-      builtins.toString config.desktop.colorscheme
+      builtins.toString config.${namespace}.desktop.colorscheme
     })
     palette;
 in {
-  options.desktop.hyprland = with types; {
+  options.${namespace}.desktop.hyprland = with types; {
     enable = mkBoolOpt false "Enable or disable the hyprland window manager.";
   };
 

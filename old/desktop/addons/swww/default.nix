@@ -1,15 +1,9 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  ...
-}:
+{ options, config, pkgs, lib, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.swww;
+with lib.${namespace};
+let cfg = config.${namespace}.desktop.addons.swww;
 in {
-  options.desktop.addons.swww = with types; {
+  options.${namespace}.desktop.addons.swww = with types; {
     enable = mkBoolOpt false "Enable or disable SWWW";
   };
 
@@ -24,8 +18,6 @@ in {
       '')
     ];
 
-    home.persist.directories = [
-      ".cache/swww"
-    ];
+    home.persist.directories = [ ".cache/swww" ];
   };
 }

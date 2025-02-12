@@ -25,7 +25,7 @@
 
     persist-retro.url = "github:Geometer1729/persist-retro";
     impermanence.url = "github:nix-community/impermanence";
-    # lanzaboote.url = "github:nix-community/lanzaboote";
+    lanzaboote.url = "github:nix-community/lanzaboote";
 
     nixgl.url = "github:nix-community/nixGL";
     nix-index-database.url = "github:nix-community/nix-index-database";
@@ -107,8 +107,11 @@
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
+        disko.nixosModules.disko
+        sops-nix.nixosModules.sops
         impermanence.nixosModules.impermanence
         persist-retro.nixosModules.persist-retro
+        lanzaboote.nixosModules.lanzaboote
       ];
       homes.modules = with inputs; [
         impermanence.nixosModules.home-manager.impermanence

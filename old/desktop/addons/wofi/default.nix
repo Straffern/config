@@ -1,24 +1,19 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ options, config, lib, pkgs, inputs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.wofi;
-  inherit (inputs.nix-colors.colorschemes.${builtins.toString config.desktop.colorscheme}) palette;
+with lib.${namespace};
+let
+  cfg = config.${namespace}.desktop.addons.wofi;
+  inherit (inputs.nix-colors.colorschemes.${
+      builtins.toString config.${namespace}.desktop.colorscheme
+    })
+    palette;
 in {
-  options.desktop.addons.wofi = with types; {
+  options.${namespace}.desktop.addons.wofi = with types; {
     enable = mkBoolOpt false "Enable or disable the wofi run launcher.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      wofi
-    ];
+    environment.systemPackages = with pkgs; [ wofi ];
 
     home.configFile."wofi/config".source = ./config;
     home.configFile."wofi/style.css".text = ''

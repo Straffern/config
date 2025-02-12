@@ -1,24 +1,19 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ options, config, lib, pkgs, inputs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.wlogout;
-  inherit (inputs.nix-colors.colorschemes.${builtins.toString config.desktop.colorscheme}) palette;
+with lib.${namespace};
+let
+  cfg = config.${namespace}.desktop.addons.wlogout;
+  inherit (inputs.nix-colors.colorschemes.${
+      builtins.toString config.desktop.colorscheme
+    })
+    palette;
 in {
-  options.desktop.addons.wlogout = with types; {
+  options.${namespace}.desktop.addons.wlogout = with types; {
     enable = mkBoolOpt false "Enable or disable wlogout.";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      wlogout
-    ];
+    environment.systemPackages = with pkgs; [ wlogout ];
 
     home.configFile."wlogout/style.css".text = ''
        * {

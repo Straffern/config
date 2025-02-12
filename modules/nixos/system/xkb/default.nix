@@ -1,14 +1,9 @@
-{
-  options,
-  config,
-  lib,
-  ...
-}:
+{ options, config, lib, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.system.xkb;
+with lib.${namespace};
+let cfg = config.${namespace}.system.xkb;
 in {
-  options.system.xkb = with types; {
+  options.${namespace}.system.xkb = with types; {
     enable = mkBoolOpt false "Whether or not to configure xkb.";
   };
 

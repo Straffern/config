@@ -1,19 +1,9 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.module;
+with lib.${namespace};
+let cfg = config.${namespace}.module;
 in {
-  options.module = with types; {
-    enable = mkBoolOpt false "Enable module";
-  };
+  options.${namespace}.module = { enable = mkEnableOption "Module"; };
 
-  config =
-    mkIf cfg.enable {
-    };
+  config = mkIf cfg.enable { };
 }

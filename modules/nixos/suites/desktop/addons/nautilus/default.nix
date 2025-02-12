@@ -1,9 +1,9 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.suites.desktop.addons.nautilus;
+  cfg = config.${namespace}.suites.desktop.addons.nautilus;
 in {
-  options.suites.desktop.addons.nautilus = {
+  options.${namespace}.suites.desktop.addons.nautilus = {
     enable = mkEnableOption "Nautilus file manager.";
   };
 
@@ -37,7 +37,7 @@ in {
       ];
     };
 
-    snowfallorg.users.${config.user.name}.home.config = {
+    snowfallorg.users.${config.${namespace}.user.name}.home.config = {
       dconf.settings = {
         "org/gnome/desktop/privacy" = { remember-recent-files = false; };
         "com/github/stunkymonkey/nautilus-open-any-terminal" = {

@@ -1,14 +1,9 @@
-{
-  options,
-  config,
-  lib,
-  ...
-}:
+{ options, config, lib, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.system.boot.bios;
+with lib.${namespace};
+let cfg = config.${namespace}.system.boot.bios;
 in {
-  options.system.boot.bios = with types; {
+  options.${namespace}.system.boot.bios = with types; {
     enable = mkBoolOpt false "Whether or not to enable bios booting.";
     device = mkOpt str "/dev/sda" "Disk that grub will be installed to.";
   };

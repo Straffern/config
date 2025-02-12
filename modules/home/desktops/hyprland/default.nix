@@ -19,6 +19,7 @@ in {
     };
 
     desktops.addons = {
+      xdg-portal.enable = true;
       kanshi.enable = true;
       rofi.enable = true;
       swaync.enable = true;

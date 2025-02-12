@@ -1,6 +1,7 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption types;
+  inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.git;
 
   rewriteURL = lib.mapAttrs' (key: value: {
@@ -8,7 +9,7 @@ let
     value = { insteadOf = value; };
   }) cfg.urlRewrites;
 in {
-  options.${namespace}.cli.programs.git = with lib.types; {
+  options.${namespace}.cli.programs.git = with types; {
     enable = mkEnableOption "Git";
     userName =
       (nullOr str) "Alexander Flensborg" "The name appearing on the commits";

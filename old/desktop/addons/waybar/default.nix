@@ -1,24 +1,19 @@
-{
-  options,
-  config,
-  pkgs,
-  lib,
-  inputs,
-  ...
-}:
+{ options, config, pkgs, lib, inputs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.waybar;
-  inherit (inputs.nix-colors.colorschemes.${builtins.toString config.desktop.colorscheme}) palette;
+with lib.${namespace};
+let
+  cfg = config.${namespace}.desktop.addons.waybar;
+  inherit (inputs.nix-colors.colorschemes.${
+      builtins.toString config.desktop.colorscheme
+    })
+    palette;
 in {
-  options.desktop.addons.waybar = with types; {
+  options.${namespace}.desktop.addons.waybar = with types; {
     enable = mkBoolOpt false "Enable or disable waybar";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [
-      pkgs.waybar
-    ];
+    environment.systemPackages = [ pkgs.waybar ];
 
     home.configFile."waybar/config.jsonc" = {
       source = ./config.jsonc;

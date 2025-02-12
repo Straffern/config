@@ -1,6 +1,6 @@
 { options, config, pkgs, lib, namespace, ... }:
 with lib;
-with lib.custom;
+with lib.${namespace};
 let cfg = config.${namespace}.apps.neovim;
 in {
   options.${namespace}.apps.neovim = with types; {

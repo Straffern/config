@@ -1,26 +1,28 @@
-{ lib, pkgs, config, osConfig ? { }, format ? "unknown", namespace, ... }:
-with lib.${namespace}; {
+{ lib, pkgs, config, osConfig ? { }, format ? "unknown", namespace, ... }: {
   asgaard = {
-    cli-apps = {
-      zsh = enabled;
-      neovim = enabled;
-      home-manager = enabled;
+    desktops = {
+      hyprland = {
+        enable = true;
+        execOnceExtras = [
+          "${pkgs.trayscale}/bin/trayscale"
+          "${pkgs.networkmanagerapplet}/bin/nm-applet"
+          "${pkgs.blueman}/bin/blueman-applet"
+        ];
+      };
     };
 
-    system = {
-      gtk = enabled;
-      xdg-portal = enabled;
-      hypridle = enabled;
-      hyprland = enabled;
-      hyprlock = enabled;
-      hyprpanel = enabled;
-      hyprpaper = enabled;
+    home.packages = with pkgs; [ nwg-displays ];
+
+    suites = {
+      desktop.enable = true;
+      social.enable = true;
     };
 
-    tools = {
-      git = enabled;
-      direnv = enabled;
-      devenv = enabled;
+    user = {
+      enable = true;
+      name = "alex";
     };
+
+    home.stateVersion = "24.11";
   };
 }

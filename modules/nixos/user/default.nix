@@ -1,6 +1,7 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib.${namespace}) mkOpt types;
+  inherit (lib) types;
+  inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.user;
 in {
   # TODO: Make this a attrsof submodule, to allow for creation of many users.

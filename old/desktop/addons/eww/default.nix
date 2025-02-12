@@ -1,15 +1,9 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ options, config, lib, pkgs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.eww;
+with lib.${namespace};
+let cfg = config.${namespace}.desktop.addons.eww;
 in {
-  options.desktop.addons.eww = with types; {
+  options.${namespace}.desktop.addons.eww = with types; {
     enable = mkBoolOpt false "Enable or disable EWW.";
     wayland = mkBoolOpt false "Enable wayland support";
   };

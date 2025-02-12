@@ -1,32 +1,26 @@
-{
-  options,
-  config,
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ options, config, lib, pkgs, inputs, namespace, ... }:
 with lib;
-with lib.custom; let
-  cfg = config.desktop.addons.mako;
-  inherit (inputs.nix-colors.colorschemes.${builtins.toString config.desktop.colorscheme}) palette;
+with lib.${namespace};
+let
+  cfg = config.${namespace}.desktop.addons.mako;
+  inherit (inputs.nix-colors.colorschemes.${
+      builtins.toString config.desktop.colorscheme
+    })
+    palette;
 in {
-  options.desktop.addons.mako = with types; {
+  options.${namespace}.desktop.addons.mako = with types; {
     enable = mkBoolOpt false "Enable or disable mako";
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [
-      mako
-      libnotify
-    ];
+    environment.systemPackages = with pkgs; [ mako libnotify ];
 
     home.configFile."mako/config" = {
       text = ''
         # GLOBAL CONFIGURATION OPTIONS
         max-history=100
         sort=-time
-        
+
         # STYLE OPTIONS
         font=JetBrains Mono 10
         width=300
@@ -53,7 +47,7 @@ in {
         border-color=#${palette.base0D}
         progress-color=over #${palette.base02}
 
-        
+
         [urgency=low]
         border-color=#${palette.base0D}
         default-timeout=2000
