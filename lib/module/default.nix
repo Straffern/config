@@ -1,7 +1,7 @@
-{lib, ...}:
+{ lib, ... }:
 with lib; rec {
   mkOpt = type: default: description:
-    mkOption {inherit type default description;};
+    mkOption { inherit type default description; };
 
   mkOpt' = type: default: mkOpt type default null;
 
@@ -9,7 +9,25 @@ with lib; rec {
 
   mkBoolOpt' = mkOpt' types.bool;
 
-  enabled = {enable = true;};
+  ## Create a package NixOS module option.
+  ##
+  ## ```nix
+  ## lib.mkPackageOpt pkgs.rofi-wayland "Description of my option."
+  ## ```
+  ##
+  #@ Type -> Any -> String
+  mkPackageOpt = mkOpt types.package;
 
-  disabled = {enable = false;};
+  ## Create a package NixOS module option without a description.
+  ##
+  ## ```nix
+  ## lib.mkPackageOpt' pkgs.rofi-wayland
+  ## ```
+  ##
+  #@ Type -> Any -> String
+  mkPackageOpt' = mkOpt types.package;
+
+  enabled = { enable = true; };
+
+  disabled = { enable = false; };
 }

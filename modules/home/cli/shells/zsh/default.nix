@@ -8,12 +8,12 @@ in {
 
   config = mkIf cfg.enable {
 
-    users.defaultShell = pkgs.zsh;
-    users.users.root.shell = pkgs.bashInteractive;
+    # users.defaultShell = pkgs.zsh;
+    # users.users.root.shell = pkgs.bashInteractive;
 
-    program.zsh = rec {
+    programs.zsh = rec {
       enable = true;
-      defaultKeyMap = "viins";
+      defaultKeymap = "viins";
       enableCompletion = true;
       autosuggestion = enabled;
       syntaxHighlighting = enabled;

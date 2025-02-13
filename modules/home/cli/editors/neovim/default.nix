@@ -30,14 +30,13 @@ in {
       # TODO: add following symlink, when everything works
       viAlias = true;
       vimAlias = true;
-      vimDiffAlias = true;
+      vimdiffAlias = true;
     };
     # maybe make it a symlink outside nix store?
-    xdg.configFile."LazyVim" = {
+    xdg.configFile."nvim/lua" = {
       enable = true;
       recursive = true;
-      source = ./lazyvim;
-      target = ./nvim;
+      source = lib.mkOutOfStoreSymlink ./lazyvim;
     };
   };
 }

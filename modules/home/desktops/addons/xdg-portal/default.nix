@@ -5,7 +5,7 @@ let
   cfg = config.${namespace}.desktops.addons.xdg-portal;
 
 in {
-  options.${namespace}.desktops.addons.system.xdg-portal = {
+  options.${namespace}.desktops.addons.xdg-portal = {
     enable = mkEnableOption "Xdg-portal hyprland & gtk";
   };
 

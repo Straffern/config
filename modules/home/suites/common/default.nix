@@ -17,7 +17,7 @@ in {
         terminals.kitty = enabled;
         shells.zsh = enabled;
       };
-      # security = { sops.enable = true; };
+      security.sops = enabled;
       styles.stylix = enabled;
 
       programs = { guis = enabled; };

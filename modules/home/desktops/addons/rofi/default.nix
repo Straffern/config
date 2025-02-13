@@ -1,6 +1,7 @@
 { config, pkgs, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption mkPackageOpt;
+  inherit (lib) mkIf mkEnableOption;
+  inherit (lib.${namespace}) mkPackageOpt;
   cfg = config.${namespace}.desktops.addons.rofi;
   inherit (config.lib.stylix) colors;
 in {

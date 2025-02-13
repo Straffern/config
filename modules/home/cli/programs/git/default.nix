@@ -11,8 +11,8 @@ let
 in {
   options.${namespace}.cli.programs.git = with types; {
     enable = mkEnableOption "Git";
-    userName =
-      (nullOr str) "Alexander Flensborg" "The name appearing on the commits";
+    userName = mkOpt (nullOr str) "Alexander Flensborg"
+      "The name appearing on the commits";
     email =
       mkOpt (nullOr str) "alex@flensborg.dev" "The email to use with git.";
     urlRewrites =

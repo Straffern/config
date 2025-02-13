@@ -11,8 +11,6 @@
       };
     };
 
-    home.packages = with pkgs; [ nwg-displays ];
-
     suites = {
       desktop.enable = true;
       social.enable = true;
@@ -23,6 +21,8 @@
       name = "alex";
     };
 
-    home.stateVersion = "24.11";
   };
+
+  home.packages = with pkgs; [ nwg-displays ];
+  home.stateVersion = "24.11";
 }

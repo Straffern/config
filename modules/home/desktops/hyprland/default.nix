@@ -1,11 +1,12 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption types;
+  inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.desktops.hyprland;
 in {
   imports = lib.snowfall.fs.get-non-default-nix-files ./.;
 
-  options.${namespace}.desktops.hyprland = with lib.type; {
+  options.${namespace}.desktops.hyprland = with types; {
     enable = mkEnableOption "Hyprland window manager";
     execOnceExtras = mkOpt (listOf str) [ ] "Extra programs to exec once";
   };
@@ -18,7 +19,7 @@ in {
       ];
     };
 
-    desktops.addons = {
+    ${namespace}.desktops.addons = {
       xdg-portal.enable = true;
       kanshi.enable = true;
       rofi.enable = true;

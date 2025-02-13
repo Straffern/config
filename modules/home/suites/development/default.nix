@@ -11,12 +11,12 @@ in {
   config = mkIf cfg.enable {
     ${namespace} = {
       cli = {
-        editors.nvim = enabled;
+        editors.neovim = enabled;
         multiplexers.zellij = enabled;
 
         programs = {
           # attic = enabled;
-          atuin = enabled;
+          # atuin = enabled;
           bat = enabled;
           bottom = enabled;
           db = enabled;

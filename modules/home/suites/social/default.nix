@@ -9,7 +9,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    programs = {
+    ${namespace}.programs = {
       discord = enabled;
       shotwell = enabled;
     };

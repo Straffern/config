@@ -102,7 +102,7 @@
       src = ./.;
       channels-config = { allowUnfree = true; };
 
-      overlays = with inputs; [ hyprpanel.overlay ];
+      overlays = with inputs; [ nur.overlays.default ];
 
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
