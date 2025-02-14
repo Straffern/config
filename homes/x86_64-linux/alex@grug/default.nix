@@ -24,5 +24,5 @@
   };
 
   home.packages = with pkgs; [ nwg-displays ];
-  home.stateVersion = "24.11";
+  home.stateVersion = "23.11";
 }
