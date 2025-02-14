@@ -115,12 +115,12 @@
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
         impermanence.nixosModules.impermanence
-        persist-retro.nixosModules.persist-retro
+        # persist-retro.nixosModules.persist-retro
         lanzaboote.nixosModules.lanzaboote
       ];
       homes.modules = with inputs; [
         impermanence.nixosModules.home-manager.impermanence
-        persist-retro.nixosModules.home-manager.persist-retro
+        # persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeManagerModules.stylix
         catppuccin.homeManagerModules.catppuccin
       ];

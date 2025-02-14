@@ -26,7 +26,7 @@ in {
 
     home = mkOpt (types.nullOr types.str) home-directory
       "The user's home directory.";
-    icon = mkOpt types.path ./files/pfp.png "My profile pic!";
+    icon = mkOpt types.path ./files/pfp.jpg "My profile pic!";
     bell = mkOpt types.path ./files/fuck.oga "My bell sound!";
   };
 
