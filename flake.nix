@@ -54,6 +54,10 @@
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Terminal
+
+    zjstatus = { url = "github:dj95/zjstatus"; };
+
     # Homelab
 
     attic = {
@@ -89,20 +93,21 @@
         src = ./.;
 
         snowfall = {
+          metadata = "asgaard";
+          namespace = "asgaard";
           meta = {
             name = "dotfiles";
             title = "dotfiles";
           };
 
-          namespace = "asgaard";
         };
       };
     in lib.mkFlake {
-      inherit inputs;
-      src = ./.;
+      # inherit inputs;
+      # src = ./.;
       channels-config = { allowUnfree = true; };
 
-      overlays = with inputs; [ nur.overlays.default ];
+      overlays = with inputs; [ nixgl.overlay nur.overlays.default ];
 
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager
