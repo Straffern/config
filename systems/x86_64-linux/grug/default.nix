@@ -2,7 +2,7 @@
 let inherit (lib.${namespace}) enabled;
 in {
 
-  imports = [ ./disks.nix ./hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix ];
 
   ${namespace} = {
     system.boot = enabled;
