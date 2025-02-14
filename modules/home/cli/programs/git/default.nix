@@ -1,6 +1,6 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption types;
+  inherit (lib) mkIf mkEnableOption types mkOption;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.git;
 
@@ -19,7 +19,7 @@ in {
       mkOpt (attrsOf str) { } "url we need to rewrite i.e. ssh to http";
     allowedSigners = mkOpt str "" "The public key used for signing commits";
 
-    safe-dirs = mkOpt {
+    safeDirs = mkOption {
       type = types.listOf types.str;
       default = [ "/home/${config.home.username}/.dotfiles" ];
       description =
@@ -74,7 +74,7 @@ in {
 
         init = { defaultBranch = "master"; };
 
-        safe.directory = cfg.safe-dirs
+        safe.directory = cfg.safeDirs
           ++ [ "/home/${config.home.username}/.cache/nix/tarball-cache" ];
       } // rewriteURL;
     };

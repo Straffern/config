@@ -5,7 +5,7 @@ let
 
   # foreground = "rgba(216, 222, 233, 0.70)";
 
-  foreground = "rgba(${config.lib.stylik.colors.base05})";
+  foreground = "rgba(${config.lib.stylix.colors.base05})";
   font = config.stylix.fonts.serif.name;
 in {
   options.${namespace}.desktops.addons.hyprlock = {

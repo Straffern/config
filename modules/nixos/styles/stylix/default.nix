@@ -52,8 +52,8 @@ in {
       autoEnable = true;
 
       base16Scheme = lib.mkIf cfg.enableBase16 cfg.base16Scheme;
-      # homeManagerIntegration.autoImport = false;
-      # homeManagerIntegration.followSystem = false;
+      homeManagerIntegration.autoImport = false;
+      homeManagerIntegration.followSystem = false;
 
       image = cfg.wallpaper;
       polarity = cfg.polarity;

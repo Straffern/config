@@ -36,7 +36,7 @@ in {
     xdg.configFile."nvim/lua" = {
       enable = true;
       recursive = true;
-      source = lib.mkOutOfStoreSymlink ./lazyvim;
+      source = config.lib.file.mkOutOfStoreSymlink ./lazyvim;
     };
   };
 }

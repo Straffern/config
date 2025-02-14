@@ -46,15 +46,14 @@ in {
       username = mkDefault cfg.name;
       homeDirectory = mkDefault cfg.home;
       file = {
-        pfp = mkIf (cfg.icon != null) {
-          source = cfg.icon;
-          target = "${cfg.directories.home}/.face";
-        };
-        bell = mkIf (cfg.icon != null) {
-          source = cfg.bell;
-          target = "${cfg.directories.data}/sound/bell.oga";
-        };
+        pfp = mkIf (cfg.icon != null) { source = cfg.icon; };
+        bell = mkIf (cfg.bell != null) { source = cfg.bell; };
       };
     };
+
+    xdg.dataFile."face.icon" = mkIf (cfg.icon != null) { source = cfg.icon; };
+
+    xdg.dataFile."sounds/bell.oga" =
+      mkIf (cfg.bell != null) { source = cfg.bell; };
   }]);
 }

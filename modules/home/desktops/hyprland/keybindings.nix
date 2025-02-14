@@ -58,7 +58,9 @@ in {
     wayland.windowManager.hyprland.settings = {
       bind = [
         "SUPER, Return, exec, kitty"
-        "SUPER, B, exec, ${config.desktops.addons.rofi.package}/bin/rofi -show drun -mode drun"
+        "SUPER, B, exec, ${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -show drun -mode drun"
         "SUPER, Q, killactive,"
         "SUPER, F, Fullscreen,0"
         "SUPER, R, exec, ${resize}/bin/resize"

@@ -21,7 +21,7 @@ in {
       description = "Direct path to ssh public key";
     };
 
-    safe-dirs = mkOpt {
+    safeDirs = mkOpt {
       type = types.listOf types.str;
       default = [ "/home/${config.home.username}/.dotfiles" ];
       description =
@@ -55,7 +55,7 @@ in {
 
         rebase.autoStash = true;
 
-        safe.directory = cfg.safe-dirs
+        safe.directory = cfg.safeDirs
           ++ [ "/home/${config.home.username}/.cache/nix/tarball-cache" ];
       };
     };

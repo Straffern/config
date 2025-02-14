@@ -1,10 +1,18 @@
 { lib, pkgs, config, namespace, ... }:
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf mkOption types;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.cli.shells.zsh;
 in {
-  options.${namespace}.cli.shells.zsh = { enable = mkEnableOption "Zsh"; };
+  options.${namespace}.cli.shells.zsh = {
+    enable = mkEnableOption "Zsh";
+
+    initExtra = mkOption {
+      type = types.str;
+      default = "";
+      description = "Extra Zsh initialization commands";
+    };
+  };
 
   config = mkIf cfg.enable {
 
@@ -33,7 +41,7 @@ in {
         searchDownKey = "^F";
       };
 
-      shellAliases = config.environment.shellAliases // {
+      shellAliases = {
         ls = "eza --icons --git";
         ll = "eza -la --icons --git";
         cat = "bat";
