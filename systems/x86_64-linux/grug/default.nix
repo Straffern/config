@@ -38,10 +38,10 @@ in {
 
   networking.hostName = "grug";
   boot = {
-    kernelParams = [ "resume_offset=533760" ];
+    # kernelParams = [ "resume_offset=533760" ];
     supportedFilesystems = lib.mkForce [ "btrfs" ];
     kernelPackages = pkgs.linuxPackages_latest;
-    resumeDevice = "/dev/disk/by-label/nixos";
+    # resumeDevice = "/dev/disk/by-label/nixos";
   };
 
   # ======================== DO NOT CHANGE THIS ========================
