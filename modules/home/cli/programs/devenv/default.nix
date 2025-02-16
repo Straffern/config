@@ -11,7 +11,6 @@ in {
     home.packages = [ pkgs.devenv ];
     home.persistence."/persist/home/${config.home.username}" = {
       directories = [ ".config/devenv" ".local/share/devenv" ];
-      allowOther = true;
     };
   };
 }
