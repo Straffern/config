@@ -15,8 +15,9 @@ in {
       enable = true;
       enableSshSupport = true;
       enableExtraSocket = true;
-      sshKeys = [ "CHANGE_ME" ];
+      # sshKeys = [ "CHANGE_ME" ];
       pinentryPackage = pkgs.pinentry-gnome3;
+      defaultCacheTtlSsh = 7200;
     };
 
     programs = {

@@ -48,8 +48,8 @@ in {
       };
 
       dotDir = ".config/zsh";
-      initExtraFirst =
-        "source /home/${config.home.username}/${dotDir}/.p10k.zsh";
+      # initExtraFirst =
+      #   "source /home/${config.home.username}/${dotDir}/.p10k.zsh";
       initExtra = lib.concatStringsSep "\n" ([
         "setopt APPEND_HISTORY"
         "setopt HIST_SAVE_NO_DUPS"
@@ -57,11 +57,11 @@ in {
         cfg.initExtra
       ]);
       plugins = [
-        {
-          name = "powerlevel10k";
-          src = pkgs.zsh-powerlevel10k;
-          file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
-        }
+        # {
+        #   name = "powerlevel10k";
+        #   src = pkgs.zsh-powerlevel10k;
+        #   file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+        # }
         {
           name = "zsh-completions";
           file = "zsh-completions.plugin.zsh";

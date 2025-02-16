@@ -2,6 +2,7 @@
 let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.editors.neovim;
+  stylixEnabled = config.${namespace}.styles.stylix.enable;
 in {
   options.${namespace}.cli.editors.neovim = {
     enable = mkEnableOption "Neovim";
@@ -12,7 +13,7 @@ in {
       enable = true;
       defaultEditor = true;
 
-      extraLuaPackages = ps: [ ps.magick ];
+      # extraLuaPackages = ps: [ ps.magick ];
       extraPackages = [
         pkgs.imagemagick
         pkgs.ripgrep
@@ -32,6 +33,8 @@ in {
       vimAlias = true;
       vimdiffAlias = true;
     };
+    stylix.targets.neovim = mkIf stylixEnabled { enable = false; };
+
     # maybe make it a symlink outside nix store?
     xdg.configFile."nvim/lua" = {
       enable = true;

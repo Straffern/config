@@ -12,7 +12,7 @@ in {
     ${namespace} = {
       cli = {
         editors.neovim = enabled;
-        multiplexers.zellij = enabled;
+        # multiplexers.zellij = enabled;
 
         programs = {
           # attic = enabled;

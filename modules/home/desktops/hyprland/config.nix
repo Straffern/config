@@ -32,7 +32,7 @@ in {
           disable_splash_rendering = true;
           force_default_wallpaper = 0;
         };
-
+        monitor = ", preferred, auto, 1";
         # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
 
         exec-once = [
