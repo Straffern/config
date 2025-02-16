@@ -33,7 +33,7 @@ in {
           force_default_wallpaper = 0;
         };
 
-        source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
+        # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
 
         exec-once = [
           "dbus-update-activation-environment --systemd --all"

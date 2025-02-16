@@ -11,6 +11,7 @@
       };
     };
 
+    cli.terminals.alacritty.enable = true;
     suites = {
       desktop.enable = true;
       social.enable = true;

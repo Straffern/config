@@ -12,7 +12,7 @@ in {
       enable = true;
 
       settings = {
-        shell = { program = "fish"; };
+        shell = { program = "zsh"; };
 
         window = {
           padding = {
