@@ -44,6 +44,8 @@ in {
 
       kaf
 
+      tealdeer
+
       # go
       go
       golangci-lint

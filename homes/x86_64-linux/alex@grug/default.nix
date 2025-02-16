@@ -16,6 +16,7 @@
       desktop.enable = true;
       social.enable = true;
     };
+    styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.outer-space;
 
     user = {
       enable = true;

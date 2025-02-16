@@ -4,10 +4,6 @@ let
   inherit (lib) mkOption mkEnableOption types;
   cfg = config.${namespace}.styles.stylix;
 in {
-  # imports = with inputs; [
-  #   stylix.homeManagerModules.stylix
-  #   catppuccin.homeManagerModules.catppuccin
-  # ];
 
   options.${namespace}.styles.stylix = {
     enable = mkEnableOption "Stylix";

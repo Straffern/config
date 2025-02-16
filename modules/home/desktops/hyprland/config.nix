@@ -15,6 +15,8 @@ in {
         input = {
           kb_layout = "us";
           touchpad = { disable_while_typing = false; };
+
+          sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
         };
 
         general = {

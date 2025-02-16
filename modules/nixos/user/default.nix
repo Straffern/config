@@ -7,7 +7,9 @@ in {
   # TODO: Make this a attrsof submodule, to allow for creation of many users.
   options.${namespace}.user = with types; {
     name = mkOpt str "alex" "The name of the user's account";
-    initialPassword = mkOpt str "1" "The initial password to use";
+    initialHashedPassword = mkOpt str
+      "$6$Xzsm8xWpuEtAOgfe$TMvP8XkkM2UHUSCANLq0CSzmsTVWRDaZNsDn1VlOUQ9WmJUROQYbFkQqHDXmqJ5NYTZn2KY3e/LhmgPQA204z1"
+      "The initial password to use";
     extraGroups = mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
     extraOptions = mkOpt attrs { } "Extra options passed to users.users.<name>";
   };
@@ -16,7 +18,7 @@ in {
     users.mutableUsers = false;
     users.users.${cfg.name} = {
       isNormalUser = true;
-      inherit (cfg) name initialPassword;
+      inherit (cfg) name initialHashedPassword;
       home = "/home/${cfg.name}";
       group = "users";
 

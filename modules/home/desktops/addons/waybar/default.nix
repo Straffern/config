@@ -102,7 +102,7 @@ in {
           tooltip-format = ''
             {ifname}
             {ipaddr}/{cidr}
-            {signalstrength}
+            {signalStrength}
             Up: {bandwidthUpBits}
             Down: {bandwidthDownBits}
           '';
