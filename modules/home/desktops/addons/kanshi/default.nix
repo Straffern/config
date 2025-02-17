@@ -13,7 +13,7 @@ in {
     services.kanshi = {
       enable = true;
       package = pkgs.kanshi;
-      systemdTarget = "";
+      systemdTarget = "hyprland-session.target";
       settings = [
         {
           profile.name = "undocked";
@@ -23,7 +23,7 @@ in {
           profile.name = "home_office_laptop_docked";
           profile.outputs = [
             {
-              criteria = "Samsung Electric Company U32R59x  (HDMI-A-1)";
+              criteria = "Samsung Electric Company U32R59x H4ZN200523";
               position = "0,0";
               mode = "2560x1440@59.95100Hz";
             }
