@@ -45,7 +45,6 @@ in {
       enable = true;
       autoEnable = true;
       base16Scheme = lib.mkIf cfg.enableBase16 cfg.base16Scheme;
-      # targets.nixvim.enable = false;
 
       iconTheme = {
         enable = true;
@@ -65,6 +64,8 @@ in {
 
       image = cfg.wallpaper;
       polarity = cfg.polarity;
+
+      opacity = { terminal = 0.9; };
 
       cursor = {
         name = "Bibata-Modern-Classic";

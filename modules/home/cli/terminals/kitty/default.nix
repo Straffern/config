@@ -25,7 +25,8 @@ in {
 
         font_size = 14;
 
-        background_opacity = lib.mkForce 0.9;
+        bell_path =
+          "/home/${config.home.username}/.local/share/sounds/bell.oga";
 
         window_padding_width = 10;
         scrollback_lines = 10000;
