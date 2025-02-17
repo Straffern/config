@@ -10,9 +10,10 @@ vim.keymap.set("n", "N", "Nzzzv")
 
 -- greatest remap ever
 vim.keymap.set("x", "<leader>p", [["_dP]])
+vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 vim.keymap.set("n", "<leader>y", "0y$")
 vim.keymap.set("n", "<leader>.", '".P')
 
 vim.keymap.set("n", "<leader>;", function()
-  Snacks.scratch()
+	Snacks.scratch()
 end)

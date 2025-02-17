@@ -1,4 +1,4 @@
-{ config, lib, namespace, ... }:
+{ pkgs, config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption types mkOption;
   inherit (lib.${namespace}) mkOpt;
@@ -29,6 +29,7 @@ in {
 
   config = mkIf cfg.enable {
     home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
+    home.packages = with pkgs; [ lazygit ];
 
     programs.git = {
       enable = true;
