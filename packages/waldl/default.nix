@@ -1,4 +1,5 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs ? import <nixpkgs> { }, walldir ? "$HOME/.local/share/wallhaven"
+, sorting ? "relevance", quality ? "large", atleast ? "1920x1080" }:
 
 pkgs.writeShellScriptBin "waldl" ''
   #!${pkgs.stdenv.shell}
@@ -11,18 +12,18 @@ pkgs.writeShellScriptBin "waldl" ''
   # default viewer; user may override via environment variable
   [ -z "$VIEWER" ] && VIEWER=sxiv
   # directory for wallpapers and thumbnail cache
-  walldir="$HOME/.local/share/wallhaven"
+  # walldir="$HOME/.local/share/wallhaven"
   cachedir="$HOME/.cache/wallhaven"
   # sxiv options: note that the 'o' flag is needed for selection
   sxiv_otps=" -tfpo -z 200"
   # number of pages to show in search results (each page contains 24 results)
-  max_pages=4
+  # max_pages=4
   # sorting: date_added, relevance, random, views, favorites, toplist
-  sorting=relevance
+  # sorting=relevance
   # quality: large, original, small
-  quality=large
+  # quality=large
   # at least this resolution:
-  atleast=1920x1080
+  # atleast=1920x1080
 
   # allow the user to customize defaults
   [ -e "$HOME/.config/waldlrc" ] && . "$HOME/.config/waldlrc"
@@ -41,7 +42,7 @@ pkgs.writeShellScriptBin "waldl" ''
 
   # prepare directories for caching and wallpaper storage
   rm -rf "$cachedir"
-  mkdir -p "$walldir" "$cachedir"
+  mkdir -p "${walldir}" "$cachedir"
 
   # function for progress display and notifications
   sh_info () {
@@ -79,8 +80,8 @@ pkgs.writeShellScriptBin "waldl" ''
               json=$(curl -s -G "https://wallhaven.cc/api/v1/search" \
                       -d "q=$1" \
                       -d "page=$page_no" \
-                      -d "atleast=$atleast" \
-                      -d "sorting=$sorting"
+                      -d "atleast=${atleast}" \
+                      -d "sorting=${sorting}"
                   )
               printf "%s\n" "$json" >> "$datafile"
           } &
@@ -96,7 +97,7 @@ pkgs.writeShellScriptBin "waldl" ''
   [ -s "$datafile" ] || sh_info "no images found" 1 
 
   # extract list of thumbnail URLs from JSON data
-  thumbnails=$( jq -r '.data[]?|.thumbs.'"$quality" < "$datafile")
+  thumbnails=$( jq -r '.data[]?|.thumbs.'"${quality}" < "$datafile")
 
   [ -z "$thumbnails" ] && sh_info "no-results found" 1
 
@@ -123,6 +124,6 @@ pkgs.writeShellScriptBin "waldl" ''
       printf -- "-O\n"
   done | curl -K -
 
-  sh_info "wallpapers downloaded in:- '$walldir'"
+  sh_info "wallpapers downloaded in:- '${walldir}'"
   $VIEWER $(ls -c)
 ''
