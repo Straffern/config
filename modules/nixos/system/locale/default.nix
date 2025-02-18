@@ -23,7 +23,7 @@ in {
         LC_TIME = "en_US.UTF-8";
       };
     };
-    time.timeZone = "Denmark/Copenhagen";
+    time.timeZone = "Europe/Copenhagen";
 
     # Configure keymap in X11
     services.xserver = {

@@ -41,6 +41,7 @@ in {
           interval = 1;
           tooltip-format = "<tt><small>{calendar}</small></tt>";
           calendar = {
+            locale = "da_DK.UTF-8";
             mode = "year";
             "mode-mon-col" = 3;
             "weeks-pos" = "right";
