@@ -23,6 +23,9 @@ in {
         LC_TIME = "en_US.UTF-8";
       };
     };
+    # consider: 
+    # services.automatic-timezoned.enable = true;
+
     time.timeZone = "Europe/Copenhagen";
 
     # Configure keymap in X11
