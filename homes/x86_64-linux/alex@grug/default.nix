@@ -1,4 +1,13 @@
-{ lib, pkgs, config, osConfig ? { }, format ? "unknown", namespace, ... }: {
+{ lib, pkgs, config, osConfig ? { }, format ? "unknown", namespace, ... }:
+let
+  waldl = pkgs.${namespace}.waldl.override {
+    walldir = "~/.dotfiles/packages/wallpapers/wallpapers";
+    sorting = "toplist";
+    quality = "original";
+    atleast = "2560x1440";
+  };
+
+in {
   asgaard = {
     desktops = {
       hyprland = {
@@ -16,7 +25,7 @@
       desktop.enable = true;
       social.enable = true;
     };
-    styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.outer-space;
+    styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
 
     user = {
       enable = true;
@@ -25,6 +34,7 @@
 
   };
 
-  home.packages = with pkgs; [ nwg-displays ];
+  home.packages = with pkgs; [ nwg-displays waldl ];
+
   home.stateVersion = "23.11";
 }
