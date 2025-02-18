@@ -17,7 +17,7 @@ pkgs.writeShellScriptBin "waldl" ''
   # sxiv options: note that the 'o' flag is needed for selection
   sxiv_otps=" -tfpo -z 200"
   # number of pages to show in search results (each page contains 24 results)
-  # max_pages=4
+  max_pages=4
   # sorting: date_added, relevance, random, views, favorites, toplist
   # sorting=relevance
   # quality: large, original, small
