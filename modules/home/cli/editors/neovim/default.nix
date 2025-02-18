@@ -12,8 +12,7 @@ in {
     programs.neovim = {
       enable = true;
       defaultEditor = true;
-
-      # extraLuaPackages = ps: [ ps.magick ];
+      extraLuaPackages = ps: [ ps.magick ];
       extraPackages = [
         pkgs.imagemagick
         pkgs.ripgrep
