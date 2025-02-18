@@ -17,7 +17,11 @@ in {
       settings = [
         {
           profile.name = "undocked";
-          profile.outputs = [{ criteria = "eDP-1"; }];
+          profile.outputs = [{
+            criteria = "eDP-1";
+            status = "enable";
+            position = "0,0";
+          }];
         }
         {
           profile.name = "home_office_laptop_docked";
