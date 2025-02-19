@@ -217,6 +217,7 @@ in {
 
     programs.zellij = {
       enable = true;
+      enableZshIntegration = false;
       # package = zellij-wrapped;
       # settings = {
       #   default_mode = "normal";

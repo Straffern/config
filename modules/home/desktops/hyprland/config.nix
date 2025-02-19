@@ -27,6 +27,13 @@ in {
 
         decoration = { rounding = 5; };
 
+        dwindle = {
+          pseudotile = true;
+          preserve_split = true;
+        };
+
+        gestures = { workspace_swipe = true; };
+
         misc = let FULLSCREEN_ONLY = 2;
         in {
           vrr = FULLSCREEN_ONLY;

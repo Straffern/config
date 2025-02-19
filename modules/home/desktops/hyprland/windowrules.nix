@@ -7,7 +7,11 @@ in {
     wayland.windowManager.hyprland.settings = {
       windowrule = [ "float, bitwarden" ];
 
-      windowrulev2 = [ "idleinhibit fullscreen, class:^(firefox)$" ];
+      windowrulev2 = [
+        "idleinhibit fullscreen, class:^(firefox)$"
+        "idleinhibit fullscreen, class:^(brave)$"
+      ];
+
     };
   };
 }
