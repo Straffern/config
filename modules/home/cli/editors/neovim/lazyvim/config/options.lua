@@ -3,3 +3,4 @@
 -- Add any additional options here
 
 -- prefil edit window with common scenarios to avoid repeating query and submit immediately
+vim.g.snacks_animate = false
