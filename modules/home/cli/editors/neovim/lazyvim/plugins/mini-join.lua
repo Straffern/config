@@ -1,3 +1,3 @@
 return {
-  { "echasnovski/mini.splitjoin", version = false },
+	{ "echasnovski/mini.splitjoin", version = false },
 }
