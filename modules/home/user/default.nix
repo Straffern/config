@@ -45,10 +45,10 @@ in {
     home = {
       username = mkDefault cfg.name;
       homeDirectory = mkDefault cfg.home;
-      file = {
-        pfp = mkIf (cfg.icon != null) { source = cfg.icon; };
-        bell = mkIf (cfg.bell != null) { source = cfg.bell; };
-      };
+      # file = {
+      #   pfp = mkIf (cfg.icon != null) { source = cfg.icon; };
+      #   bell = mkIf (cfg.bell != null) { source = cfg.bell; };
+      # };
     };
 
     xdg.dataFile."face.icon" = mkIf (cfg.icon != null) { source = cfg.icon; };
