@@ -18,6 +18,7 @@ in {
       settings = {
         shell = "zsh";
 
+        cursor_trail = 3;
         # font_family = "MonoLisa";
         bold_font = "auto";
         italic_font = "auto";
