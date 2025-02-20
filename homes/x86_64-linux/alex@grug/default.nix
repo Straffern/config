@@ -21,6 +21,7 @@ in {
     };
 
     cli.terminals.alacritty.enable = true;
+    cli.programs.lobster.enable = true;
     suites = {
       desktop.enable = true;
       social.enable = true;
