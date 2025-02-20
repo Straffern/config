@@ -84,6 +84,11 @@
     # prism.url = "github:IogaMaster/prism";
 
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+    lobster = {
+      url = "github:justchokingaround/lobster";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = inputs:
