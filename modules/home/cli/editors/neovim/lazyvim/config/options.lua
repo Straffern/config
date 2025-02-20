@@ -4,3 +4,8 @@
 
 -- prefil edit window with common scenarios to avoid repeating query and submit immediately
 vim.g.snacks_animate = false
+
+vim.api.nvim_create_user_command("HighlightHomoglyphs", function()
+	vim.fn.clearmatches()
+	vim.fn.matchadd("Search", "[^\\x00-\\x7F]", 10)
+end, {})
