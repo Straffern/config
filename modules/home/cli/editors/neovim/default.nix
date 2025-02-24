@@ -14,6 +14,7 @@ in {
       defaultEditor = true;
       # extraLuaPackages = ps: [ ps.luarocks ps.magick ];
       extraPackages = [
+        pkgs.deno # required by peek.nvim
         pkgs.imagemagick
         pkgs.ripgrep
         pkgs.zig
