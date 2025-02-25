@@ -9,9 +9,14 @@ in {
   options.${namespace}.services.k3s = {
     enable = mkEnableOption "k3s";
     role = mkOpt (types.nullOr types.str) "server" "server or agent";
-    serverAddr = mkOpt (types.nullOr types.str) "" "the addr of the server";
+    serverAddr = mkOpt (types.nullOr types.str) null "the addr of the server";
   };
   config = mkIf cfg.enable {
+
+    assertions = [{
+      assertion = cfg.role != "agent" || cfg.serverAddr != null;
+      message = "serverAddr must be set when role is 'agent'";
+    }];
     sops.secrets.k3s_token = {
       sopsFile = ../../suites/kubernetes/secrets.yaml;
     };
