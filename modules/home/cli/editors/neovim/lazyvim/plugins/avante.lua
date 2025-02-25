@@ -5,6 +5,33 @@ return {
 		lazy = false,
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
+			claude = {
+				endpoint = "https://api.anthropic.com",
+				model = "claude-3-7-sonnet-20250219",
+				timeout = 30000, -- Timeout in milliseconds
+				temperature = 0,
+				max_tokens = 4096,
+			},
+
+			rag_service = {
+				enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
+			},
+
+			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
+			behaviour = {
+				enable_cursor_planning_mode = true, -- Whether to enable Cursor Planning Mode. Default to false.
+			},
+			vendors = {
+				--- ... existing vendors
+				groq = { -- define groq provider
+					__inherited_from = "openai",
+					api_key_name = "GROQ_API_KEY",
+					endpoint = "https://api.groq.com/openai/v1/",
+					model = "llama-3.3-70b-versatile",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+			},
+
 			-- add any opts here
 			-- for example
 			-- provider = "gemini",
