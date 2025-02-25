@@ -1,10 +1,21 @@
-{pkgs, ...}:
+{ pkgs, inputs, ... }:
 pkgs.mkShell {
-  nativeBuildInputs = with pkgs; [
-    treefmt
+  NIX_CONFIG = "extra-experimental-features = nix-command flakes";
 
+  packages = with pkgs; [
+    nh
+    inputs.nixos-anywhere.packages.${pkgs.system}.nixos-anywhere
+    python312Packages.mkdocs-material
+    deploy-rs
+
+    statix
+    deadnix
     alejandra
-    python310Packages.mdformat
-    shfmt
+    home-manager
+    git
+    sops
+    ssh-to-age
+    gnupg
+    age
   ];
 }
