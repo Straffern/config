@@ -1,0 +1,32 @@
+{ config, lib, namespace, ... }:
+let
+  inherit (lib) mkIf mkEnableOption types;
+  inherit (lib.${namespace}) mkOpt;
+
+  cfg = config.${namespace}.services.k3s;
+
+in {
+  options.${namespace}.services.k3s = {
+    enable = mkEnableOption "k3s";
+    role = mkOpt (types.nullOr types.str) "server" "server or agent";
+    serverAddr = mkOpt (types.nullOr types.str) "" "the addr of the server";
+  };
+  config = mkIf cfg.enable {
+    sops.secrets.k3s_token = {
+      sopsFile = ../../suites/kubernetes/secrets.yaml;
+    };
+
+    services = {
+      k3s = {
+        enable = true;
+        tokenFile = config.sops.secrets.k3s_token.path;
+        extraFlags = ''--kubelet-arg "node-ip=0.0.0.0"'';
+        role = mkIf (cfg.role == "agent") "agent";
+        # TODO: Make this smarter
+        serverAddr = mkIf (cfg.role == "agent") cfg.serverAddr;
+      };
+    };
+
+  };
+
+}
