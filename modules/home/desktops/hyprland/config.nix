@@ -14,7 +14,10 @@ in {
       settings = {
         input = {
           kb_layout = "us";
-          touchpad = { disable_while_typing = false; };
+          touchpad = {
+            disable_while_typing = false;
+            natural_scroll = true;
+          };
 
           sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
         };
