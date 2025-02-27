@@ -29,7 +29,8 @@ in {
             {
               criteria = "Samsung Electric Company U32R59x H4ZN200523";
               position = "0,0";
-              mode = "2560x1440@59.95100Hz";
+              # mode = "2560x1440@59.95100Hz";
+              mode = "3840x2160@60.00Hz";
             }
             {
               criteria = "eDP-1";
