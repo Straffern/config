@@ -7,7 +7,7 @@ in {
   options.${namespace}.services.ssh = { enable = mkEnableOption "SSH"; };
 
   config = mkIf cfg.enable {
-    services.openSSH = {
+    services.openssh = {
       enable = true;
       ports = [ 22 ];
 
