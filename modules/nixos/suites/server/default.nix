@@ -1,10 +1,10 @@
 { lib, config, pkgs, namespace, ... }:
-with lib;
-with lib.nixicle;
-let cfg = config.${namespace}.suites.server;
+let
+  inherit (lib) mkEnableOption mkIf;
+  cfg = config.${namespace}.suites.server;
 in {
   options.${namespace}.suites.server = {
-    enable = mkEnableOption "Enable server configuration";
+    enable = mkEnableOption "Server suite";
   };
 
   config = mkIf cfg.enable {
@@ -17,13 +17,13 @@ in {
       };
     };
 
-    services = {
-      getty.autologinUser = "nixos";
-      openiscsi = {
-        enable = true;
-        name = "<some-name>";
-      };
-    };
+    # services = {
+    #   getty.autologinUser = "nixos";
+    #   openiscsi = {
+    #     enable = true;
+    #     name = "<some-name>";
+    #   };
+    # };
 
     environment = {
       systemPackages = [ pkgs.nfs-utils pkgs.openiscsi pkgs.dnsutils ];
@@ -97,10 +97,10 @@ in {
       "net.core.default_qdisc" = "fq";
       "net.ipv4.tcp_congestion_control" = "bbr";
     };
-
-    user = {
-      name = "nixos";
-      initialPassword = "1";
-    };
+    # TODO: FIX
+    # user = {
+    #   name = "nixos";
+    #   initialPassword = "1";
+    # };
   };
 }

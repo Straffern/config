@@ -1,6 +1,4 @@
 { lib, config, namespace, ... }:
-with lib;
-with lib.nixicle;
 let
   inherit (lib) mkEnableOption types mkIf;
   inherit (lib.${namespace}) mkOpt;
@@ -22,9 +20,8 @@ in {
       message = "serverAddr must be set when role is 'agent'";
     }];
 
-    roles = { server.enable = true; };
-
     ${namespace} = {
+      suites = { server.enable = true; };
       services.k3s = {
         enable = true;
         role = cfg.role;
