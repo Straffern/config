@@ -5,6 +5,8 @@ return {
 		lazy = false,
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
+			provider = "gemini",
+
 			claude = {
 				endpoint = "https://api.anthropic.com",
 				model = "claude-3-7-sonnet-20250219",
@@ -13,6 +15,14 @@ return {
 				max_tokens = 4096,
 			},
 
+			gemini = {
+				endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
+				model = "gemini-2.0-flash",
+				timeout = 30000, -- Timeout in milliseconds
+				temperature = 0,
+				max_tokens = 4096,
+				api_key_name = "GEMINI_API_KEY",
+			},
 			rag_service = {
 				enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
 			},
@@ -34,15 +44,6 @@ return {
 
 			-- add any opts here
 			-- for example
-			-- provider = "gemini",
-			-- gemini = {
-			--   endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-			--   model = "gemini-2.0-flash",
-			--   timeout = 30000, -- Timeout in milliseconds
-			--   temperature = 0,
-			--   max_tokens = 4096,
-			--   api_key_name = "GEMINI_API_KEY",
-			-- },
 		},
 		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
 		build = "make",
