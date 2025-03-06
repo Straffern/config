@@ -4,7 +4,7 @@ let
   # inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.browsers.brave;
 in {
-  options.${namespace}.browsers.brave = { enable = mkEnableOption "Firefox"; };
+  options.${namespace}.browsers.brave = { enable = mkEnableOption "Brave"; };
 
   config = mkIf cfg.enable {
     programs.brave = {
