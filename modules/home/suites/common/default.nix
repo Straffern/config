@@ -10,7 +10,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     ${namespace} = {
-      browsers.firefox = enabled;
+      # browsers.firefox = enabled;
       browsers.brave = enabled;
       system.nix = enabled;
 
@@ -29,7 +29,7 @@ in {
       keymapp
 
       src-cli
-      optinix
+      # optinix
 
       (hiPrio parallel)
       moreutils
