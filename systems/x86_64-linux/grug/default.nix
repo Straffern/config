@@ -4,6 +4,8 @@ in {
 
   imports = [ ./hardware-configuration.nix ];
 
+  home-manager.backupFileExtension = "backup";
+
   ${namespace} = {
     system.boot = enabled;
 
