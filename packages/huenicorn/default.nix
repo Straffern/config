@@ -1,4 +1,6 @@
-{ stdenv, fetchFromGitLab, cmake, pipewire, mbedtls, makeWrapper, ... }:
+{ stdenv, fetchFromGitLab, cmake, pipewire, mbedtls, makeWrapper, pkg-config
+, opencv, curl, crow, nlohmann_json, glib, sysprof, wayland, wayland-protocols
+, glm, ... }:
 
 stdenv.mkDerivation {
   pname = "huenicorn";
@@ -7,13 +9,40 @@ stdenv.mkDerivation {
   src = fetchFromGitLab {
     owner = "openjowelsofts";
     repo = "huenicorn";
-    rev = "v1.0.0"; # Use a specific tag or commit hash
+    rev = "v1.0.10"; # Use a specific tag or commit hash
     sha256 =
-      "19d9c85f8cd91ffe0bdb2950553f5c8b052dab9b"; # Placeholder; update this
+      "0hvi45wcl2rsfdv5migldx3hcdsikwz4zxddak77qx6sj8j38lvp"; # Placeholder; update this
   };
 
-  nativeBuildInputs = [ cmake makeWrapper ];
-  buildInputs = [ pipewire mbedtls ];
+  nativeBuildInputs = [ cmake makeWrapper pkg-config ];
+  buildInputs = [
+    pipewire
+    mbedtls
+    opencv
+    curl
+    crow
+    nlohmann_json
+    glib
+    sysprof
+    wayland
+    wayland-protocols
+    glm
+  ];
+
+  # Add this to fix the typo in the CMake script
+  postPatch = ''
+    substituteInPlace cmake/platforms/GnuLinux.cmake \
+      --replace 'PIPEWIRER_GRABBER_AVAILABLE' 'PIPEWIRE_GRABBER_AVAILABLE'
+  '';
+
+  cmakeFlags = [
+    "-DOpenCV_DIR=${opencv}/lib/cmake/opencv4"
+    "-DCrow_DIR=${crow}/lib/cmake/Crow"
+    "-Dnlohmann_json_DIR=${nlohmann_json}/share/cmake/nlohmann_json"
+    # "-DGRABBER_TYPE=pipewire"
+  ];
+  # Disable the default install phase to avoid the 'make install' error
+  dontInstall = true;
 
   postInstall = ''
     mkdir -p $out/libexec/huenicorn
