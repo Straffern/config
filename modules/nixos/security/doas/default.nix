@@ -13,8 +13,14 @@ in {
     security.doas = {
       enable = true;
       extraRules = [{
-        # TODO: Make this use return a list of usernames, configured using user module
-        users = [ config.${namespace}.user.name ];
+        # Get all enabled users who are in the wheel group
+        users = lib.attrValues (lib.mapAttrs 
+          (id: user: user.name)
+          (lib.filterAttrs 
+            (id: user: user.enable && builtins.elem "wheel" user.extraGroups) 
+            config.${namespace}.user
+          )
+        );
         noPass = true;
         keepEnv = true;
       }];

@@ -37,7 +37,7 @@ in {
       ];
     };
 
-    snowfallorg.users.${config.${namespace}.user.name}.home.config = {
+    snowfallorg.users.${config.${namespace}.user."1".name}.home.config = {
       dconf.settings = {
         "org/gnome/desktop/privacy" = { remember-recent-files = false; };
         "com/github/stunkymonkey/nautilus-open-any-terminal" = {

@@ -20,7 +20,7 @@ in rec {
       nodes = lib.foldl (result: name:
         let
           host = hosts.${name};
-          user = host.config.${namespace}.user.name or null;
+          user = host.config.${namespace}.user."1".name or null;
           inherit (host.pkgs) system;
         in result // {
           ${name} = (overrides.${name} or { }) // {

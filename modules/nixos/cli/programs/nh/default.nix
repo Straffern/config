@@ -10,7 +10,7 @@ in {
       enable = true;
       clean.enable = true;
       clean.extraArgs = "--keep-since 4d --keep 3";
-      flake = "/home/${config.${namespace}.user.name}/.dotfiles";
+      flake = "/home/${config.${namespace}.user."1".name}/.dotfiles";
     };
   };
 }
