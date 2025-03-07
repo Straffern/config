@@ -25,7 +25,7 @@ return {
 			},
 			rag_service = {
 				enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
-				runner = "nix",
+				-- runner = "nix",
 			},
 
 			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
