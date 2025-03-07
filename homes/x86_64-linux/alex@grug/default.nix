@@ -28,11 +28,6 @@ in {
     };
     styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
 
-    user = {
-      enable = true;
-      name = "alex";
-    };
-
   };
 
   home.packages = with pkgs; [ nwg-displays waldl ];

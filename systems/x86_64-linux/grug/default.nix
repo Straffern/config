@@ -9,6 +9,15 @@ in {
   ${namespace} = {
     system.boot = enabled;
 
+    user = {
+      "1" = {
+        name = "alex";
+        initialHashedPassword =
+          "$6$5aPLuGMVlK2YIt5x$Ia4aC72iA6EDPcnB06B7RWtci9LVK8.aTK1APcUfAKRhlVweSCy0GT3IguQ/6D2Cv2v1M/iNORUoz6Hkbsh3J/";
+        extraGroups = [ "wheel" ];
+      };
+    };
+
     suites = {
       desktop = {
         enable = true;
