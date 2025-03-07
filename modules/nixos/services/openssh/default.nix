@@ -13,7 +13,9 @@ in {
 
       settings = {
         PasswordAuthentication = false;
+        PermitRootLogin = "no";
         StreamLocalBindUnlink = "yes";
+        KbdInteractiveAuthentication = false;
         GatewayPorts = "clientspecified";
       };
     };
