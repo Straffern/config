@@ -35,11 +35,6 @@ in {
         nix-ld = enabled;
       };
 
-      user = {
-        name = "alex";
-        # initialPassword = "1";
-      };
-
     };
   };
 }
