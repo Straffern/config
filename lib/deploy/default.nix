@@ -1,4 +1,4 @@
-{ lib, inputs, }:
+{ lib, inputs, namespace, }:
 let inherit (inputs) deploy-rs;
 in rec {
   ## Create deployment configuration for use with deploy-rs.
@@ -20,7 +20,7 @@ in rec {
       nodes = lib.foldl (result: name:
         let
           host = hosts.${name};
-          user = host.config.user.name or null;
+          user = host.config.${namespace}.user.name or null;
           inherit (host.pkgs) system;
         in result // {
           ${name} = (overrides.${name} or { }) // {
@@ -32,7 +32,7 @@ in rec {
                 user = "root";
                 sshUser = user;
               } // lib.optionalAttrs
-                (host.config.security.nixicle.doas.enable or false) {
+                (host.config.${namespace}.security.doas.enable or false) {
                   sudo = "doas -u";
                 };
             };
