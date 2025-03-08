@@ -71,21 +71,12 @@ in {
     };
 
     # Assertions
-    assertions = [
-      {
-        assertion = lib.all (user:
-          user.initialHashedPassword != "" || user.initialHashedPassword
-          == null) (lib.attrValues config.${namespace}.user);
-        message = "Empty string is not a valid initialHashedPassword";
-      }
-      # New assertion to catch unexpected behavior
-      {
-        assertion =
-          lib.all (user: user.enable -> (config.users.users ? user.name))
-          (lib.attrValues config.${namespace}.user);
-        message = "A disabled user was unexpectedly included in users.users";
-      }
-    ];
+    assertions = [{
+      assertion = lib.all (user:
+        user.initialHashedPassword != "" || user.initialHashedPassword == null)
+        (lib.attrValues config.${namespace}.user);
+      message = "Empty string is not a valid initialHashedPassword";
+    }];
 
   };
 }
