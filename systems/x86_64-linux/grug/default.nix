@@ -4,18 +4,14 @@ in {
 
   imports = [ ./hardware-configuration.nix ];
 
-  home-manager.backupFileExtension = "backup";
-
   ${namespace} = {
     system.boot = enabled;
 
-    user = {
-      "1" = {
-        name = "alex";
-        initialHashedPassword =
-          "$6$5aPLuGMVlK2YIt5x$Ia4aC72iA6EDPcnB06B7RWtci9LVK8.aTK1APcUfAKRhlVweSCy0GT3IguQ/6D2Cv2v1M/iNORUoz6Hkbsh3J/";
-        extraGroups = [ "wheel" ];
-      };
+    user."1" = {
+      name = "alex";
+      initialHashedPassword =
+        "$6$Xzsm8xWpuEtAOgfe$TMvP8XkkM2UHUSCANLq0CSzmsTVWRDaZNsDn1VlOUQ9WmJUROQYbFkQqHDXmqJ5NYTZn2KY3e/LhmgPQA204z1";
+      extraGroups = [ "wheel" ];
     };
 
     suites = {

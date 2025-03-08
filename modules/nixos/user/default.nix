@@ -1,71 +1,91 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib) types;
+  inherit (lib) types mkIf mkMerge;
   inherit (lib.${namespace}) mkOpt;
-  # Removed cfg since we now access config.${namespace}.user directly
-in {
-  # Implemented attrsof submodule to allow for creation of many users.
-  options.${namespace}.user = mkOpt (types.attrsOf (types.submodule {
-    options = with types; {
-      enable = mkOpt bool true "Whether this user is enabled.";
-      name = mkOpt str "nixos" "The name of the user's account";
-      initialHashedPassword = mkOpt (types.nullOr str) null
+
+  # Helper function to define common user defaults
+  defaultGroups = [
+    "audio"
+    "sound"
+    "video"
+    "networkmanager"
+    "input"
+    "tty"
+    "podman"
+    "kvm"
+    "libvirtd"
+  ];
+
+  # Define user submodule
+  userSubmodule = types.submodule {
+    options = {
+      enable = mkOpt types.bool true "Whether this user is enabled.";
+      name = mkOpt types.str "nixos" "The name of the user's account";
+      initialHashedPassword = mkOpt (types.nullOr types.str) null
         "The initial password to use (null for no password)";
       extraGroups =
-        mkOpt (listOf str) [ ] "Groups for the user to be assigned.";
-      authorizedKeys = mkOpt (listOf str) [ ] "SSH public keys to allow access";
-      extraOptions = mkOpt attrs { } "Extra options passed to users.users.<n>";
+        mkOpt (types.listOf types.str) [ ] "Additional groups for the user.";
+      authorizedKeys =
+        mkOpt (types.listOf types.str) [ ] "SSH public keys to allow access";
+      extraOptions =
+        mkOpt types.attrs { } "Extra options passed to users.users.<name>";
+      shell = mkOpt (types.nullOr types.package) null
+        "The user's shell (null for system default)";
     };
-  })) { } "Attribute set of users indexed by numeric keys.";
+  };
+
+in {
+  options.${namespace}.user = mkOpt (types.attrsOf userSubmodule) { }
+    "Attribute set of users indexed by numeric keys, with 'name' defining the username.";
 
   config = {
-    # Ensure user.1 always exists with defaults
+    # Default user configuration
     ${namespace}.user = { "1" = { extraGroups = [ "wheel" ]; }; };
 
-    users.mutableUsers = false;
+    users = {
+      mutableUsers = false;
 
-    # Generate users from the attrsOf config
-    users.users = lib.mapAttrs (id: user:
-      lib.mkIf user.enable (lib.mkMerge [
-        {
-          isNormalUser = true;
-          inherit (user) name;
-          home = "/home/${user.name}";
-          group = "users";
-
-          # Merge default groups with user's extraGroups
-          extraGroups = [
-            "audio"
-            "sound"
-            "video"
-            "networkmanager"
-            "input"
-            "tty"
-            "podman"
-            "kvm"
-            "libvirtd"
-          ] ++ user.extraGroups;
-
-          # Configure openssh authorized keys if provided
-          openssh.authorizedKeys.keys = user.authorizedKeys;
-        }
-        (lib.mkIf (user.initialHashedPassword != null) {
-          inherit (user) initialHashedPassword;
-        })
-      ]) // user.extraOptions) config.${namespace}.user;
-
-    home-manager = {
-      useGlobalPkgs =
-        true; # NOTE: When this is enabled, don't set nixpkgs options in home-manager configs
-      useUserPackages = true;
+      # Generate users configuration
+      users = lib.mapAttrs' (id: user:
+        lib.nameValuePair user.name (mkIf user.enable (mkMerge [
+          {
+            isNormalUser = true;
+            home = "/home/${user.name}";
+            group = "users";
+            extraGroups = defaultGroups ++ user.extraGroups;
+            openssh.authorizedKeys.keys = user.authorizedKeys;
+          }
+          (mkIf (user.initialHashedPassword != null) {
+            initialHashedPassword = user.initialHashedPassword;
+          })
+          (mkIf (user.shell != null) { shell = user.shell; })
+          user.extraOptions
+        ]))) config.${namespace}.user;
     };
 
-    # Set allowOther for home persistence for each user
-    # home.persistence = lib.mapAttrs' (id: user: 
-    #   lib.nameValuePair "/persist/home/${user.name}" { 
-    #     allowOther = true; 
-    #   }
-    # ) (lib.filterAttrs (id: user: user.enable) config.${namespace}.user);
+    # Home Manager configuration
+    home-manager = {
+      useGlobalPkgs = true;
+      useUserPackages = true;
+      backupFileExtension = "hm-backup";
+    };
+
+    # Assertions
+    assertions = [
+      {
+        assertion = lib.all (user:
+          user.initialHashedPassword != "" || user.initialHashedPassword
+          == null) (lib.attrValues config.${namespace}.user);
+        message = "Empty string is not a valid initialHashedPassword";
+      }
+      # New assertion to catch unexpected behavior
+      {
+        assertion =
+          lib.all (user: user.enable -> (config.users.users ? user.name))
+          (lib.attrValues config.${namespace}.user);
+        message = "A disabled user was unexpectedly included in users.users";
+      }
+    ];
+
   };
 }
-
