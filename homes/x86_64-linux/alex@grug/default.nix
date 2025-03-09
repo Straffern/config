@@ -22,6 +22,12 @@ in {
 
     cli.terminals.alacritty.enable = true;
     cli.programs.lobster.enable = true;
+    # cli.programs.ssh.extraHosts = {
+    #   "frostmourne" = {
+    #     host = "...";
+    #     user = "alex";
+    #   };
+    # };
     suites = {
       desktop.enable = true;
       social.enable = true;
@@ -30,7 +36,7 @@ in {
 
   };
 
-  home.packages = with pkgs; [ nwg-displays waldl ];
+  home.packages = with pkgs; [ nwg-displays waldl aider-chat ];
 
   home.stateVersion = "23.11";
 }
