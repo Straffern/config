@@ -1,6 +1,6 @@
 { config, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption literalExample;
+  inherit (lib) mkIf mkEnableOption literalExample types;
   cfg = config.${namespace}.cli.programs.ssh;
 in {
   options.${namespace}.cli.programs.ssh = {
@@ -17,6 +17,27 @@ in {
             type = lib.types.str;
             description = "The path to the identity file for the SSH host.";
           };
+        };
+        user = lib.mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Specifies the user to log in as.";
+        };
+        sendEnv = lib.mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = ''
+            Environment variables to send from the local host to the
+            server.
+          '';
+        };
+
+        setEnv = lib.mkOption {
+          type = with types; attrsOf (oneOf [ str path int float ]);
+          default = { };
+          description = ''
+            Environment variables and their value to send to the server.
+          '';
         };
       });
       default = { };
@@ -43,6 +64,10 @@ in {
       enable = true;
       addKeysToAgent = "yes";
       matchBlocks = cfg.extraHosts;
+      compression = true;
+      extraConfig = ''
+        SetEnv TERM=xterm
+      '';
     };
   };
 }
