@@ -1,11 +1,15 @@
-{ lib, namespace, pkgs, ... }:
+{ lib, namespace, pkgs, inputs, ... }:
 let inherit (lib.${namespace}) enabled;
 in {
 
-  imports = [ ./hardware-configuration.nix ];
+  imports = [
+    ./hardware-configuration.nix
+    inputs.nixos-facter-modules.nixosModules.facter
+    { config.facter.reportPath = ./facter.json; }
+  ];
 
   ${namespace} = {
-    system.boot = enabled;
+    system.env = { EDITOR = "nvim"; };
 
     user."1" = {
       name = "alex";
