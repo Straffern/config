@@ -65,9 +65,7 @@ in {
       addKeysToAgent = "yes";
       matchBlocks = cfg.extraHosts;
       compression = true;
-      extraConfig = ''
-        SetEnv TERM=xterm
-      '';
+      extraConfig = "SetEnv TERM=xterm";
     };
   };
 }
