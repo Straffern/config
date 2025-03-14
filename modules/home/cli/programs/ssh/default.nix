@@ -14,30 +14,31 @@ in {
             description = "The hostname or IP address of the SSH host.";
           };
           identityFile = lib.mkOption {
-            type = lib.types.str;
+            type = with types; either (listOf str) (nullOr str);
+            default = [ ];
             description = "The path to the identity file for the SSH host.";
           };
-        };
-        user = lib.mkOption {
-          type = types.nullOr types.str;
-          default = null;
-          description = "Specifies the user to log in as.";
-        };
-        sendEnv = lib.mkOption {
-          type = types.listOf types.str;
-          default = [ ];
-          description = ''
-            Environment variables to send from the local host to the
-            server.
-          '';
-        };
+          user = lib.mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "Specifies the user to log in as.";
+          };
+          sendEnv = lib.mkOption {
+            type = types.listOf types.str;
+            default = [ ];
+            description = ''
+              Environment variables to send from the local host to the
+              server.
+            '';
+          };
 
-        setEnv = lib.mkOption {
-          type = with types; attrsOf (oneOf [ str path int float ]);
-          default = { };
-          description = ''
-            Environment variables and their value to send to the server.
-          '';
+          setEnv = lib.mkOption {
+            type = with types; attrsOf (oneOf [ str path int float ]);
+            default = { };
+            description = ''
+              Environment variables and their value to send to the server.
+            '';
+          };
         };
       });
       default = { };

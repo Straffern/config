@@ -9,7 +9,7 @@ let
 
   sshHosts = {
     "frostmourne" = {
-      host = config.sops.secrets.frostmourne_ip.path;
+      hostname = config.sops.secrets.frostmourne_ip.path;
       user = "alex";
     };
   };
