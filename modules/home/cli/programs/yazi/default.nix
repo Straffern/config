@@ -9,6 +9,22 @@ in {
     programs.yazi = {
       enable = true;
       enableZshIntegration = true;
+      # settings = {
+      #   opener = {
+      #     edit = [
+      #       {
+      #         run = ''$EDITOR "$@"'';
+      #         block = true;
+      #         for = "unix";
+      #       }
+      #       {
+      #         run = "%EDITOR% %*";
+      #         block = true;
+      #         for = "windows";
+      #       }
+      #     ];
+      #   };
+      # };
     };
 
     home.packages = with pkgs; [
