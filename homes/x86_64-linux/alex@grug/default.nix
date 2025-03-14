@@ -7,6 +7,13 @@ let
     atleast = "2560x1440";
   };
 
+  sshHosts = {
+    "frostmourne" = {
+      host = config.sops.secrets.frostmourne_ip.path;
+      user = "alex";
+    };
+  };
+
 in {
   asgaard = {
     desktops = {
@@ -22,12 +29,7 @@ in {
 
     cli.terminals.alacritty.enable = true;
     cli.programs.lobster.enable = true;
-    # cli.programs.ssh.extraHosts = {
-    #   "frostmourne" = {
-    #     host = "...";
-    #     user = "alex";
-    #   };
-    # };
+    cli.programs.ssh.extraHosts = sshHosts;
     suites = {
       desktop.enable = true;
       social.enable = true;
@@ -35,8 +37,8 @@ in {
     styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
 
   };
+  sops.secrets.frostmourne_ip = { sopsFile = ../../../secrets.yaml; };
 
-  home.packages = with pkgs; [ nwg-displays waldl aider-chat ];
-
+  home.packages = with pkgs; [ nwg-displays waldl aider-chat goose-cli ];
   home.stateVersion = "23.11";
 }
