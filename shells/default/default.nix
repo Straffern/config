@@ -18,5 +18,6 @@ pkgs.mkShell {
     gnupg
     age
     claude-code
+    goose-cli
   ];
 }
