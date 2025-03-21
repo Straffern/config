@@ -31,7 +31,6 @@ in {
               server.
             '';
           };
-
           setEnv = lib.mkOption {
             type = with types; attrsOf (oneOf [ str path int float ]);
             default = { };
@@ -66,7 +65,10 @@ in {
       addKeysToAgent = "yes";
       matchBlocks = cfg.extraHosts;
       compression = true;
-      extraConfig = "SetEnv TERM=xterm";
+      extraConfig = ''
+        SetEnv TERM=xterm
+        IdentityFile ~/.ssh/id_ed25519
+      '';
     };
   };
 }

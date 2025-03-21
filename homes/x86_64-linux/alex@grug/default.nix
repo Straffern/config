@@ -7,12 +7,12 @@ let
     atleast = "2560x1440";
   };
 
-  sshHosts = {
-    "frostmourne" = {
-      hostname = config.sops.secrets.frostmourne_ip.path;
-      user = "alex";
-    };
-  };
+  # sshHosts = {
+  #   "frostmourne" = {
+  #     hostname = "%(cat ${config.sops.secrets.frostmourne_ip.path})";
+  #     user = "alex";
+  #   };
+  # };
 
 in {
   asgaard = {
@@ -29,7 +29,6 @@ in {
 
     cli.terminals.alacritty.enable = true;
     cli.programs.lobster.enable = true;
-    cli.programs.ssh.extraHosts = sshHosts;
     suites = {
       desktop.enable = true;
       social.enable = true;
@@ -37,7 +36,9 @@ in {
     styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
 
   };
-  sops.secrets.frostmourne_ip = { sopsFile = ../../../secrets.yaml; };
+  sops.secrets.ssh_config = { sopsFile = ../../../secrets.yaml; };
+
+  programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 
   home.packages = with pkgs; [ nwg-displays waldl aider-chat goose-cli ];
   home.stateVersion = "23.11";

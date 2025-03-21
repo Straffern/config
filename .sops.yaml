@@ -20,6 +20,7 @@ keys:
     - &alex age1ff98yfdlxax5ymnlu9rdzermuyvg8jwq98z6h86tpj8ajlxw7upsq4k8a0
   - &host: 
     - &grug age1uzfwpjz2d29gfd93xm0qenke89s7ynl5sy635wgrchcm96et9pfq99a9ja # Your public key from Step 2
+    - &frostmourne age1kjqhsyucjhuw6gazjrjqcuavay6pfgpr8fasltft99vzfdkjdsdsvfx4xv
 creation_rules:
   - path_regex: secrets\.ya?ml$
     key_groups:
