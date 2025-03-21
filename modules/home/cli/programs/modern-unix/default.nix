@@ -44,6 +44,8 @@ in {
 
       kaf
 
+      lazysql
+
       tealdeer
 
       # go
