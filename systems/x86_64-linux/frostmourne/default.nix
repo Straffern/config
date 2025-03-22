@@ -25,6 +25,8 @@ in {
     };
   };
 
+  environment.systemPackages = [ pkgs.home-manager ];
+
   # ======================== DO NOT CHANGE THIS ========================
   system.stateVersion = "23.11";
   # ======================== DO NOT CHANGE THIS ========================
