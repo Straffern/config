@@ -5,11 +5,11 @@ return {
 		lazy = false,
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
-			provider = "gemini",
+			provider = "claude",
 
 			claude = {
 				endpoint = "https://api.anthropic.com",
-				model = "claude-3-7-sonnet-20250219",
+				model = "claude-3-5-sonnet-20241022",
 				timeout = 30000, -- Timeout in milliseconds
 				temperature = 0,
 				max_tokens = 4096,
@@ -28,8 +28,11 @@ return {
 				-- runner = "nix",
 			},
 
+			auto_suggestions_provider = "claude",
 			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
+				auto_suggestions = false, -- Experimental stage
+
 				enable_cursor_planning_mode = true, -- Whether to enable Cursor Planning Mode. Default to false.
 			},
 			vendors = {
