@@ -46,6 +46,7 @@ in {
 
       lazysql
 
+      jq
       tealdeer
 
       # go
