@@ -10,6 +10,8 @@ in {
       windowrulev2 = [
         "idleinhibit fullscreen, class:^(firefox)$"
         "idleinhibit fullscreen, class:^(brave)$"
+        "float, title:^(Picture in picture)$"
+        "pin, title:^(Picture in picture)$"
       ];
 
     };
