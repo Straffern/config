@@ -65,6 +65,7 @@ in {
         "SUPER, F, Fullscreen,0"
         "SUPER, R, exec, ${resize}/bin/resize"
         "SUPER, Space, togglefloating,"
+        "SUPER, S, pin"
         "SUPER, TAB, pseudo"
 
         "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle pwvucontrol"
