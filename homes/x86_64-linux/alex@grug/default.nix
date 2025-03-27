@@ -7,6 +7,8 @@ let
     atleast = "2560x1440";
   };
 
+  clipy = pkgs.${namespace}.clipy;
+
   # sshHosts = {
   #   "frostmourne" = {
   #     hostname = "%(cat ${config.sops.secrets.frostmourne_ip.path})";
@@ -40,6 +42,6 @@ in {
 
   programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 
-  home.packages = with pkgs; [ nwg-displays waldl aider-chat goose-cli ];
+  home.packages = with pkgs; [ nwg-displays waldl goose-cli clipy ];
   home.stateVersion = "23.11";
 }
