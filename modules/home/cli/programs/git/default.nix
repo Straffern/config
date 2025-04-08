@@ -30,7 +30,7 @@ in {
   config = mkIf cfg.enable {
     home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
     home.packages = with pkgs; [ lazygit ];
-    
+
     home.file.".config/lazygit/config.yml".text = ''
       git:
         overrideGpg: true
@@ -49,6 +49,8 @@ in {
         lg = "lg1";
       };
       signing.signByDefault = true;
+
+      ignores = [ ".aider*" ];
 
       extraConfig = {
         gpg.format = "ssh";
