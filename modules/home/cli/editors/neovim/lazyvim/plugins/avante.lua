@@ -5,7 +5,7 @@ return {
 		lazy = false,
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
-			provider = "claude",
+			provider = "openrouter_deepseek",
 
 			claude = {
 				endpoint = "https://api.anthropic.com",
@@ -16,25 +16,33 @@ return {
 			},
 
 			gemini = {
-				endpoint = "https://generativelanguage.googleapis.com/v1beta/models",
-				model = "gemini-2.0-flash",
+				model = "gemini-2.5-pro-preview-03-25",
 				timeout = 30000, -- Timeout in milliseconds
 				temperature = 0,
-				max_tokens = 4096,
+				max_tokens = 32768,
 				api_key_name = "GEMINI_API_KEY",
 			},
+
 			rag_service = {
 				enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
 				-- runner = "nix",
 			},
 
-			auto_suggestions_provider = "claude",
-			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
+			auto_suggestions_provider = "openrouter_claude_3_5",
+			cursor_applying_provider = "openrouter_meta_scout", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
 				auto_suggestions = false, -- Experimental stage
 
+				minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
 				enable_cursor_planning_mode = true, -- Whether to enable Cursor Planning Mode. Default to false.
+				enable_claude_text_editor_tool_mode = true,
 			},
+
+			suggestion = {
+				debounce = 600,
+				throttle = 600,
+			},
+
 			vendors = {
 				--- ... existing vendors
 				groq = { -- define groq provider
@@ -43,6 +51,64 @@ return {
 					endpoint = "https://api.groq.com/openai/v1/",
 					model = "llama-3.3-70b-versatile",
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_deepseek = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "deepseek/deepseek-chat-v3-0324",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_meta_scout = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "meta-llama/llama-4-scout",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_meta_maverick = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "meta-llama/llama-4-maverick",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_claude_3_5 = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "anthropic/claude-3.5-sonnet",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_claude_3_7 = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "anthropic/claude-3.7-sonnet",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				gemini_flash = {
+					__inherited_from = "gemini",
+					model = "gemini-2.0-flash",
+					timeout = 30000, -- Timeout in milliseconds
+					temperature = 0,
+					max_tokens = 32768,
+					api_key_name = "GEMINI_API_KEY",
+				},
+
+				gemini_flash_lite = {
+					__inherited_from = "gemini",
+					model = "gemini-2.0-flash-lite",
+					timeout = 30000, -- Timeout in milliseconds
+					temperature = 0,
+					max_tokens = 32768,
+					api_key_name = "GEMINI_API_KEY",
 				},
 			},
 
@@ -53,6 +119,7 @@ return {
 		build = "make",
 		-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
 		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
 			"stevearc/dressing.nvim",
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
