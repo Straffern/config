@@ -18,4 +18,6 @@
 
     styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.ign_cityRainOther;
   };
+
+  home.stateVersion = "23.11";
 }
