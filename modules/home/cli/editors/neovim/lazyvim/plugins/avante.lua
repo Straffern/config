@@ -35,7 +35,7 @@ return {
 
 				minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
 				enable_cursor_planning_mode = true, -- Whether to enable Cursor Planning Mode. Default to false.
-				enable_claude_text_editor_tool_mode = true,
+				-- enable_claude_text_editor_tool_mode = true,
 			},
 
 			suggestion = {
