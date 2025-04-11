@@ -23,10 +23,10 @@ return {
 				api_key_name = "GEMINI_API_KEY",
 			},
 
-			rag_service = {
-				enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
-				-- runner = "nix",
-			},
+			-- rag_service = {
+			-- 	enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
+			-- 	-- runner = "nix",
+			-- },
 
 			auto_suggestions_provider = "openrouter_claude_3_5",
 			cursor_applying_provider = "openrouter_meta_scout", -- In this example, use Groq for applying, but you can also use any provider you want.
