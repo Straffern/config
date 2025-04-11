@@ -5,6 +5,7 @@ in {
   imports = [
     ./hardware-configuration.nix
     ./disks.nix
+    inputs.nixos-hardware.nixosModules.framework-13-7040-amd
     inputs.nixos-facter-modules.nixosModules.facter
     { config.facter.reportPath = ./facter.json; }
   ];
@@ -33,6 +34,7 @@ in {
     };
   };
 
+  services.fwupd.enable = true;
   # system.battery.enable =
   #   true; # Only for laptops, they will still work without it, just improves battery life
   # system.shell.shell = "zsh";
