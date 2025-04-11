@@ -129,7 +129,7 @@
         impermanence.nixosModules.home-manager.impermanence
         # persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeManagerModules.stylix
-        catppuccin.homeManagerModules.catppuccin
+        catppuccin.homeModules.catppuccin
       ];
 
       deploy = lib.mkDeploy { inherit (inputs) self; };
