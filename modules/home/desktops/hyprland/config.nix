@@ -37,6 +37,8 @@ in {
 
         gestures = { workspace_swipe = true; };
 
+        binds.movefocus_cycles_fullscreen = true;
+
         misc = let FULLSCREEN_ONLY = 2;
         in {
           vrr = FULLSCREEN_ONLY;
