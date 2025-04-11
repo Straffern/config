@@ -35,6 +35,7 @@ in {
   };
 
   services.fwupd.enable = true;
+  networking.useNetworkd = false;
   # system.battery.enable =
   #   true; # Only for laptops, they will still work without it, just improves battery life
   # system.shell.shell = "zsh";
