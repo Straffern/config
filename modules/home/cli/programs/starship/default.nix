@@ -13,7 +13,7 @@ in {
       enable = true;
       enableZshIntegration = true;
       settings = {
-        palette = "custom";
+        palette = lib.mkDefault "custom";
         palettes.custom = {
           rosewater = "#${colors.base06}";
           flamingo = "#${colors.base0F}";
