@@ -85,9 +85,13 @@ in {
         "SUPER,P, exec,grimblast --notify copy area"
         # "ALT,Print, exec,grimblast --notify copy area"
         # "SUPERALT,P, exec,grimblast --notify copy area"
-        ''
-          SUPER,bracketleft, exec,grimblast --notify --cursor copysave area ~/Pictures/$(date " + %Y-%m-%d "T"%H:%M:%S_no_watermark ").png''
-        "SUPER,bracketright, exec, grimblast --notify --cursor copy area"
+        # ''
+        #   SUPER,bracketleft, exec,grimblast --notify --cursor copysave area ~/Pictures/$(date " + %Y-%m-%d "T"%H:%M:%S_no_watermark ").png''
+        # "SUPER,bracketright, exec, grimblast --notify --cursor copy area"
+
+        "SUPER,bracketright, exec, ${pkgs.brightnessctl}/bin/brightnessctl set 5%+"
+        "SUPER,bracketleft, exec, ${pkgs.brightnessctl}/bin/brightnessctl set 5%-"
+
         "SUPER,h, movefocus,l"
         "SUPER,l, movefocus,r"
         "SUPER,k, movefocus,u"
@@ -137,8 +141,8 @@ in {
         "SUPERSHIFT,u, movetoworkspace,special"
       ];
       bindi = [
-        ",XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl +5%"
-        ",XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl -5%"
+        ",XF86MonBrightnessUp, exec, ${pkgs.brightnessctl}/bin/brightnessctl set 5%+"
+        ",XF86MonBrightnessDown, exec, ${pkgs.brightnessctl}/bin/brightnessctl set 5%-"
         ",XF86AudioRaiseVolume, exec, ${pkgs.pamixer}/bin/pamixer -i 5"
         ",XF86AudioLowerVolume, exec, ${pkgs.pamixer}/bin/pamixer -d 5"
         ",XF86AudioMute, exec, ${pkgs.pamixer}/bin/pamixer --toggle-mute"
