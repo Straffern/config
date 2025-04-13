@@ -29,7 +29,7 @@ return {
 			-- },
 
 			auto_suggestions_provider = "openrouter_claude_3_5",
-			cursor_applying_provider = "openrouter_meta_scout", -- In this example, use Groq for applying, but you can also use any provider you want.
+			cursor_applying_provider = "openrouter_deepseek_distill", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
 				auto_suggestions = false, -- Experimental stage
 
@@ -74,6 +74,14 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "meta-llama/llama-4-maverick",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_deepseek_distill = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "deepseek/deepseek-r1-distill-llama-8b",
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 				},
 
