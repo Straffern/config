@@ -36,6 +36,16 @@ in {
 
   services.fwupd.enable = true;
   networking.useNetworkd = false;
+  networking.firewall = {
+    allowedTCPPortRanges = [{
+      from = 1714;
+      to = 1764;
+    }];
+    allowedUDPPortRanges = [{
+      from = 1714;
+      to = 1764;
+    }];
+  };
   # system.battery.enable =
   #   true; # Only for laptops, they will still work without it, just improves battery life
   # system.shell.shell = "zsh";
