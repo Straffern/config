@@ -29,7 +29,7 @@ return {
 			-- },
 
 			auto_suggestions_provider = "openrouter_claude_3_5",
-			cursor_applying_provider = "openrouter_deepseek_distill", -- In this example, use Groq for applying, but you can also use any provider you want.
+			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
 				auto_suggestions = false, -- Experimental stage
 
