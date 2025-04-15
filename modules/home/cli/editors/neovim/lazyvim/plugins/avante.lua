@@ -17,7 +17,7 @@ return {
 
 			gemini = {
 				model = "gemini-2.5-pro-preview-03-25",
-				timeout = 30000, -- Timeout in milliseconds
+				timeout = 60000, -- Timeout in milliseconds
 				temperature = 0,
 				max_tokens = 32768,
 				api_key_name = "GEMINI_API_KEY",
@@ -99,6 +99,15 @@ return {
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "anthropic/claude-3.7-sonnet",
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+				},
+
+				openrouter_gemini_2_5_pro = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "google/gemini-2.5-pro-preview-03-25",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					timeout = 60000,
 				},
 
 				gemini_flash = {
