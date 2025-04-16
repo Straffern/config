@@ -109,6 +109,14 @@ return {
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 					timeout = 60000,
 				},
+				openrouter_gpt_4_1 = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "openai/gpt-4.1",
+					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					timeout = 60000,
+				},
 
 				gemini_flash = {
 					__inherited_from = "gemini",
