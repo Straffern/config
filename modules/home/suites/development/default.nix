@@ -1,4 +1,4 @@
-{ lib, config, namespace, ... }:
+{ lib, config, namespace, pkgs, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
@@ -9,6 +9,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+
+    home.packages = with pkgs; [ btop ];
     ${namespace} = {
       cli = {
         editors.neovim = enabled;
