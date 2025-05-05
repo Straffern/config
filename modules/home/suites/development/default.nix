@@ -27,6 +27,7 @@ in {
           eza = enabled;
           fzf = enabled;
           git = enabled;
+          jj = enabled;
           gpg = enabled;
           htop = enabled;
           k8s = enabled;
