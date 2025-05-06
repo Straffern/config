@@ -28,6 +28,8 @@ in {
           border_size = 3;
         };
 
+        animations.enabled = false;
+
         decoration = { rounding = 5; };
 
         dwindle = {
