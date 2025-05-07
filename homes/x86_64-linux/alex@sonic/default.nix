@@ -48,8 +48,9 @@ in {
     nwg-displays
     waldl
     goose-cli
-    clipy
+    claude-code
     aider-chat
+    clipy
     uv
   ];
   home.stateVersion = "23.11";
