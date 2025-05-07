@@ -31,19 +31,19 @@ in {
           "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
         };
         defaultApplications = {
-          "application/x-extension-htm" = "firefox";
-          "application/x-extension-html" = "firefox";
-          "application/x-extension-shtml" = "firefox";
-          "application/x-extension-xht" = "firefox";
-          "application/x-extension-xhtml" = "firefox";
-          "application/xhtml+xml" = "firefox";
-          "text/html" = "firefox";
-          "x-scheme-handler/about" = "firefox";
+          "application/x-extension-htm" = "brave";
+          "application/x-extension-html" = "brave";
+          "application/x-extension-shtml" = "brave";
+          "application/x-extension-xht" = "brave";
+          "application/x-extension-xhtml" = "brave";
+          "application/xhtml+xml" = "brave";
+          "text/html" = "brave";
+          "x-scheme-handler/about" = "brave";
           "x-scheme-handler/chrome" = [ "chromium-browser.desktop" ];
-          "x-scheme-handler/ftp" = "firefox";
-          "x-scheme-handler/http" = "firefox";
-          "x-scheme-handler/https" = "firefox";
-          "x-scheme-handler/unknown" = "firefox";
+          "x-scheme-handler/ftp" = "brave";
+          "x-scheme-handler/http" = "brave";
+          "x-scheme-handler/https" = "brave";
+          "x-scheme-handler/unknown" = "brave";
 
           "audio/*" = [ "mpv.desktop" ];
           "video/*" = [ "org.gnome.Totem.desktop" ];
@@ -53,7 +53,7 @@ in {
           "image/png" = [ "org.gnome.loupe.desktop" ];
           "image/jpg" = [ "org.gnome.loupe.desktop" ];
           "application/json" = [ "gnome-text-editor.desktop" ];
-          "application/pdf" = "firefox";
+          "application/pdf" = "brave";
           "application/x-gnome-saved-search" = [ "org.gnome.Nautilus.desktop" ];
           "x-scheme-handler/discord" = [ "discord.desktop" ];
           "x-scheme-handler/spotify" = [ "spotify.desktop" ];
