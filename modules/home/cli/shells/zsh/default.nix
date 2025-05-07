@@ -8,9 +8,8 @@ in {
     enable = mkEnableOption "Zsh";
 
     initExtra = mkOption {
-      type = types.str;
+      type = types.lines;
       default = "";
-      description = "Extra Zsh initialization commands";
     };
   };
 
@@ -19,7 +18,7 @@ in {
     # users.defaultShell = pkgs.zsh;
     # users.users.root.shell = pkgs.bashInteractive;
 
-    programs.zsh = rec {
+    programs.zsh = {
       enable = true;
       defaultKeymap = "viins";
       enableCompletion = true;
@@ -50,12 +49,14 @@ in {
       dotDir = ".config/zsh";
       # initExtraFirst =
       #   "source /home/${config.home.username}/${dotDir}/.p10k.zsh";
-      initExtra = lib.concatStringsSep "\n" ([
-        "setopt APPEND_HISTORY"
-        "setopt HIST_SAVE_NO_DUPS"
-        "setopt HIST_FIND_NO_DUPS"
+      initExtra = lib.mkMerge [
+        ''
+          setopt APPEND_HISTORY
+          setopt HIST_SAVE_NO_DUPS
+          setopt HIST_FIND_NO_DUPS
+        ''
         cfg.initExtra
-      ]);
+      ];
       plugins = [
         # {
         #   name = "powerlevel10k";

@@ -15,11 +15,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ lazyjj jujutsu ];
+    home.packages = with pkgs; [ lazyjj jujutsu watchman ];
 
     programs.jujutsu = {
       enable = true;
       settings = {
+
+        core.fsmonitor = "watchman";
+        core.watchman.register-snapshot-trigger = true;
 
         user = {
           email = cfg.email;
@@ -75,7 +78,12 @@ in {
         git.sign-on-push = true;
 
       };
-
     };
+
+    ${namespace}.cli.shells.zsh.initExtra = ''
+      autoload -U compinit
+      compinit
+      source <(jj util completion zsh)
+    '';
   };
 }
