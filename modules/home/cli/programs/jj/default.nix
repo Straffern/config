@@ -32,7 +32,7 @@ in {
         ui = {
           default-command = "status";
           pager = "delta";
-          # diff.format = "git";
+          diff.tool = "vimdiff";
           show-cryptographic-signatures = true;
         };
 
