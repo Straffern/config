@@ -5,13 +5,13 @@ final: prev: {
   # input `unstable = "github:nixos/nixpkgs/nixos-unstable"` in your flake.
 
   goose-cli = prev.goose-cli.overrideAttrs (oldAttrs: rec {
-    version = "1.0.19";
+    version = "1.0.22";
 
     src = final.fetchFromGitHub {
       owner = "block";
       repo = "goose";
       tag = "v${version}";
-      hash = "sha256-BVkvMAAb4W+KiTeqVEnLn5W/tN70A4tWtxJIMkzthwY=";
+      hash = "sha256-rNd5cA7d3RK0Xh8h4zHcH2I8LNj7Jy/Ku8xCzTbeEpo=";
     };
 
     # https://discourse.nixos.org/t/nixpkgs-overlay-for-mpd-discord-rpc-is-no-longer-working/59982/2 
@@ -19,7 +19,7 @@ final: prev: {
       inherit src;
       name = "goose-cli-${version}";
 
-      hash = "sha256-P/u0E54ICvkvKLy8sfpb6sg+0HTAU2jj0P9HAFVU2Dc=";
+      hash = "sha256-8QdacavZInTeZnuJ4z0fKD+T6kSYTKQVFEYZk0tmVJo=";
     };
 
     # Extend the original checkFlags to skip the failing test
