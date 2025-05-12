@@ -5,7 +5,7 @@ final: prev: {
   # input `unstable = "github:nixos/nixpkgs/nixos-unstable"` in your flake.
 
   goose-cli = prev.goose-cli.overrideAttrs (oldAttrs: rec {
-    version = "1.0.22";
+    version = "1.0.23";
 
     src = final.fetchFromGitHub {
       owner = "block";

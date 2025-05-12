@@ -15,7 +15,7 @@ in {
     programs = { home-manager.enable = true; };
 
     home.sessionVariables = {
-      FLAKE = "/home/${config.home.username}/.dotfiles";
+      NH_FLAKE = "/home/${config.home.username}/.dotfiles";
     };
 
     nix = {

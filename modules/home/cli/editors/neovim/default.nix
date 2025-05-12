@@ -20,7 +20,7 @@ in {
         pkgs.zig
         pkgs.gnumake
         pkgs.cargo
-        pkgs.nodejs-slim
+        pkgs.nodejs-slim_24
       ];
 
       extraLuaConfig = ''

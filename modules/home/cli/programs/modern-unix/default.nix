@@ -61,7 +61,7 @@ in {
       go-mockery
       gotestsum
 
-      nodejs_23
+      nodejs-slim_24
     ];
   };
 }
