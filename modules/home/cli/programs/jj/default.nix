@@ -84,36 +84,39 @@ in {
         ui = {
           default-command = "worklog";
           pager = "delta";
-          diff-editor = ":builtin";
+          diff-editor = "nvim-hunk";
           diff.tool = "difftastic";
-          merge-editor = "vimdiff";
+          merge-editor = "nvim-hunk";
 
           show-cryptographic-signatures = true;
         };
 
-        merge-tools = {
-          vimdiff = {
-            program = "nvim";
-            # similar to the default, but opens files in a different order to
-            # preserve commands like `1do`.
-            merge-args = [
-              "-d"
-              "-M"
-              "$left"
-              "$base"
-              "$right"
-              "$output"
-              "-c"
-              "$wincmd w | wincmd J | set modifiable write"
-            ];
-            merge-tool-edits-conflict-markers = true;
-          };
-
-          difftastic = {
-            program = "${pkgs.difftastic}/bin/difft";
-            diff-args = [ "--color=always" "$left" "$right" ];
-          };
+        merge-tools.difftastic = {
+          program = "${pkgs.difftastic}/bin/difft";
+          diff-args = [ "--color=always" "$left" "$right" ];
         };
+        merge-tools.nvim = { edit-args = [ "-d" "$left" "$right" ]; };
+        merge-tools.nvim-hunk = {
+          program = "nvim";
+          edit-args = [ "-c" "DiffEditor $left $right $output" ];
+        };
+
+        # mmerge-tools.vimdiff = {
+        #   program = "nvim";
+        #   # similar to the default, but opens files in a different order to
+        #   # preserve commands like `1do`.
+        #   merge-args = [
+        #     "-d"
+        #     "-M"
+        #     "$left"
+        #     "$base"
+        #     "$right"
+        #     "$output"
+        #     "-c"
+        #     "$wincmd w | wincmd J | set modifiable write"
+        #   ];
+        #   merge-tool-edits-conflict-markers = true;
+        # };
 
         colors = {
           commit_id = {
@@ -149,7 +152,6 @@ in {
           behaviour = if gitCfg.commit.gpgsign then "own" else "never";
           key = gitCfg.user.signingkey;
         };
-
         git.sign-on-push = true;
 
         revsets = {
@@ -163,6 +165,16 @@ in {
             mkExecAlias
             (lib.getExe (pkgs.writers.writeBashBin "jj-${name}" text));
         in {
+          # create named bookmark at HEAD
+          name = [ "bookmark" "create" "-r" "head" ];
+          # update bookmark <arg> to point to HEAD
+          update = [ "bookmark" "move" "--to" "head" ];
+          # pull up the nearest bookmarks to the last described commit
+          tug = [ "bookmark" "move" "--from" "curbranch" "--to" "latest" ];
+
+          # push the nearest bookmark
+          push = [ "git" "push" "-r" "curbranch" ];
+
           "ui" = mkExecAlias "${pkgs.jj-fzf}/bin/jj-fzf";
 
           "worklog" = [ "log" "-r" "(trunk()..@):: | (trunk()..@)-" ];
@@ -339,6 +351,17 @@ in {
         };
 
         revset-aliases = {
+          "head" = "git_head()";
+          "latest" = "latest(curbranch..@ ~ subject(exact:'') ~ empty())";
+
+          "bases" = "dev";
+          "downstream(x,y)" = "(x::y) & y";
+          "branches" = "downstream(trunk(), bookmarks())";
+          "heads" = "heads(trunk()::)";
+          "leafs" = "branches | heads";
+          "curbranch" = "latest(branches::@- & branches)";
+          "nextbranch" = "roots(@:: & branchesandheads)";
+
           # graph utilities
           "symdiff(x, y)" =
             "(x ~ y) | (y ~ x)"; # commits in either x or y, but not both
