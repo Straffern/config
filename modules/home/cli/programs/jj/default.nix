@@ -62,7 +62,8 @@ in {
       "The name appearing on the commits";
     email =
       mkOpt (nullOr str) "alex@flensborg.dev" "The email to use with git.";
-    alias = mkOpt (nullOr str) "straffern";
+    alias = mkOpt (nullOr str) "straffern"
+      "An alias for your user. Eg. Account name.";
   };
 
   config = mkIf cfg.enable {
