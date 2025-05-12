@@ -6,12 +6,16 @@ final: prev: {
 
   goose-cli = prev.goose-cli.overrideAttrs (oldAttrs: rec {
     version = "1.0.23";
+    # rev = "77146e50352b8f02e7334e7e4c7398beedece299";
 
     src = final.fetchFromGitHub {
       owner = "block";
       repo = "goose";
+      # inherit rev;
+      # rev =
       tag = "v${version}";
-      hash = "sha256-rNd5cA7d3RK0Xh8h4zHcH2I8LNj7Jy/Ku8xCzTbeEpo=";
+      # hash = "sha256-rNd5cA7d3RK0Xh8h4zHcH2I8LNj7Jy/Ku8xCzTbeEpo=";
+      hash = "sha256-jdoopa4pbW3MSgbNmNSp47iiXZF8H2GEgyhpkV1cB4A=";
     };
 
     # https://discourse.nixos.org/t/nixpkgs-overlay-for-mpd-discord-rpc-is-no-longer-working/59982/2 
@@ -19,7 +23,7 @@ final: prev: {
       inherit src;
       name = "goose-cli-${version}";
 
-      hash = "sha256-8QdacavZInTeZnuJ4z0fKD+T6kSYTKQVFEYZk0tmVJo=";
+      hash = "sha256-We2v/U9pK4O7JVXyVDvHwyrujPLp9jL1m4SKcMg/Hvc=";
     };
 
     # Extend the original checkFlags to skip the failing test
