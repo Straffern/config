@@ -17,8 +17,7 @@ in {
         "--password-store=basic"
         "--no-default-browser-check"
         "--restore-last-session"
-        "--enable-features=TouchpadOverscrollHistoryNavigation"
-        "--enable-features=UseOzonePlatform"
+        "--enable-features=TouchpadOverscrollHistoryNavigation,UseOzonePlatform"
         "--ozone-platform=wayland"
       ];
     };
