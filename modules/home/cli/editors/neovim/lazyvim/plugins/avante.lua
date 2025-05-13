@@ -33,6 +33,7 @@ return {
 			auto_suggestions_provider = "openrouter_claude_3_5",
 			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
+				use_absolute_path = true,
 				auto_suggestions = false, -- Experimental stage
 
 				minimize_diff = true, -- Whether to remove unchanged lines when applying a code block
