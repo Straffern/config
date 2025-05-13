@@ -5,6 +5,8 @@ return {
 		lazy = false,
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
+
+			use_cwd_as_project_root = true,
 			provider = "openrouter_deepseek",
 
 			claude = {
