@@ -6,7 +6,7 @@ return {
 		version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
 		opts = {
 
-			use_cwd_as_project_root = true,
+			-- use_cwd_as_project_root = true,
 			provider = "openrouter_deepseek",
 
 			claude = {
@@ -64,22 +64,6 @@ return {
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 				},
 
-				openrouter_meta_scout = {
-					__inherited_from = "openai",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key_name = "OPENROUTER_API_KEY",
-					model = "meta-llama/llama-4-scout",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-				},
-
-				openrouter_meta_maverick = {
-					__inherited_from = "openai",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key_name = "OPENROUTER_API_KEY",
-					model = "meta-llama/llama-4-maverick",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-				},
-
 				openrouter_deepseek_distill = {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
@@ -108,7 +92,7 @@ return {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
-					model = "google/gemini-2.5-pro-preview-03-25",
+					model = "google/gemini-2.5-pro-preview",
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 					timeout = 60000,
 				},
@@ -118,6 +102,7 @@ return {
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "x-ai/grok-3-mini-beta",
 					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					disable_tools = true,
 				},
 
 				gemini_flash = {
