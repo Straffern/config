@@ -84,9 +84,9 @@ in {
         ui = {
           default-command = "worklog";
           pager = "delta";
-          diff-editor = "nvim-hunk";
+          # diff-editor = "nvim-hunk";
           diff.tool = "difftastic";
-          merge-editor = "nvim-hunk";
+          merge-editor = "vimdiff";
 
           show-cryptographic-signatures = true;
         };
@@ -95,11 +95,11 @@ in {
           program = "${pkgs.difftastic}/bin/difft";
           diff-args = [ "--color=always" "$left" "$right" ];
         };
-        merge-tools.nvim = { edit-args = [ "-d" "$left" "$right" ]; };
-        merge-tools.nvim-hunk = {
-          program = "nvim";
-          edit-args = [ "-c" "DiffEditor $left $right $output" ];
-        };
+        # merge-tools.nvim = { edit-args = [ "-d" "$left" "$right" ]; };
+        # merge-tools.nvim-hunk = {
+        #   program = "nvim";
+        #   edit-args = [ "-c" "DiffEditor $left $right $output" ];
+        # };
 
         # mmerge-tools.vimdiff = {
         #   program = "nvim";
@@ -117,6 +117,21 @@ in {
         #   ];
         #   merge-tool-edits-conflict-markers = true;
         # };
+        merge-tools.vimdiff = {
+          merge-args = [
+            "-f"
+            "-d"
+            "$output"
+            "-M"
+            "$left"
+            "$base"
+            "$right"
+            "-c"
+            "wincmd J | set modifiable write"
+          ];
+          program = "nvim";
+          merge-tool-edits-conflict-markers = true;
+        };
 
         colors = {
           commit_id = {
