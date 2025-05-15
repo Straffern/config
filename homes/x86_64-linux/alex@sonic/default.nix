@@ -8,6 +8,7 @@ let
   };
 
   clipy = pkgs.${namespace}.clipy;
+  opencode = pkgs.${namespace}.opencode;
 
   # sshHosts = {
   #   "frostmourne" = {
@@ -52,6 +53,7 @@ in {
     aider-chat
     clipy
     uv
+    opencode
   ];
   home.stateVersion = "23.11";
 }
