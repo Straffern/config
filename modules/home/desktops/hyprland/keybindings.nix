@@ -61,6 +61,9 @@ in {
         "SUPER, B, exec, ${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -show drun -mode drun"
+        "SUPER_SHIFT, B, exec, sh -c 'query=$(${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -dmenu -p \"Prompt T3 chat\"); [ -n \"$query\" ] && brave --app=\"https://unduck.link?q=$query !t3\"'"
         "SUPER, Q, killactive,"
         "SUPER, F, Fullscreen,0"
         "SUPER, R, exec, ${resize}/bin/resize"
