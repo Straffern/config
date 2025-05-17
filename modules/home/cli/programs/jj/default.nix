@@ -95,28 +95,6 @@ in {
           program = "${pkgs.difftastic}/bin/difft";
           diff-args = [ "--color=always" "$left" "$right" ];
         };
-        # merge-tools.nvim = { edit-args = [ "-d" "$left" "$right" ]; };
-        # merge-tools.nvim-hunk = {
-        #   program = "nvim";
-        #   edit-args = [ "-c" "DiffEditor $left $right $output" ];
-        # };
-
-        # mmerge-tools.vimdiff = {
-        #   program = "nvim";
-        #   # similar to the default, but opens files in a different order to
-        #   # preserve commands like `1do`.
-        #   merge-args = [
-        #     "-d"
-        #     "-M"
-        #     "$left"
-        #     "$base"
-        #     "$right"
-        #     "$output"
-        #     "-c"
-        #     "$wincmd w | wincmd J | set modifiable write"
-        #   ];
-        #   merge-tool-edits-conflict-markers = true;
-        # };
         merge-tools.vimdiff = {
           merge-args = [
             "-f"

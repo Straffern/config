@@ -10,7 +10,7 @@ in {
   config = mkIf cfg.enable {
     qt = {
       enable = true;
-      platformTheme.name = "gtk";
+      platformTheme = "gtk2";
       style = {
         name = "adwaita-dark";
         package = pkgs.adwaita-qt;
