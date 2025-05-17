@@ -61,12 +61,16 @@ in {
         "SUPER, B, exec, ${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -show drun -mode drun"
+        # TODO: Make this an option on the module, such that it can be managed by individual user config.
         "SUPER_SHIFT, B, exec, sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"Prompt T3 chat\"); [ -n \"$query\" ] && brave --app=\"https://unduck.link?q=$query !t3\"'"
         "SUPER, G, exec, sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"Super Grok\"); [ -n \"$query\" ] && brave --app=\"https://grok.com?q=$query\"'"
+        "SUPER_SHIFT,G, exec, sh -c 'query=$(${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -dmenu -p \"HexDocs Search\"); if [ -n \"$query\" ]; then read -r library search_query <<< \"$query\"; if [ -z \"$search_query\" ]; then brave --app=\"https://hexdocs.pm/$library/\"; else brave --app=\"https://hexdocs.pm/$library/search.html?q=$search_query\"; fi; fi'"
 
         "SUPER, Q, killactive,"
         "SUPER, F, Fullscreen,0"
