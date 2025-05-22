@@ -4,6 +4,7 @@
 
 -- prefil edit window with common scenarios to avoid repeating query and submit immediately
 vim.g.snacks_animate = false
+vim.g.ai_cmp = false
 
 vim.api.nvim_create_user_command("HighlightHomoglyphs", function()
 	vim.fn.clearmatches()
