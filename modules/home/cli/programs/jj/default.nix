@@ -145,8 +145,6 @@ in {
           behaviour = if gitCfg.commit.gpgsign then "own" else "never";
           key = gitCfg.user.signingkey;
         };
-        git.sign-on-push = true;
-
         revsets = {
           log =
             "@ | ancestors(immutable_heads().., 2) | heads(immutable_heads())";
@@ -397,9 +395,10 @@ in {
         };
 
         git = {
+          sign-on-push = true;
           push-bookmark-prefix = lib.mkDefault "${cfg.alias}/push-";
-          private-commits = lib.mkDefault
-            ''description(regex:"^[xX]+:") | description(glob-i:"^wip:")'';
+          private-commits = lib.mkDefault ''
+            description(regex:"^[xX]+:") | description(glob-i:"^wip:") | description(glob:'private:*')'';
         };
 
       };
