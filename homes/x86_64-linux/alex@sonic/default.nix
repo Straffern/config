@@ -18,6 +18,9 @@ let
   # };
 
 in {
+
+  programs.zsh.sessionVariables = { PATH = "$HOME/.npm-global/bin:$PATH"; };
+
   asgaard = {
     desktops = {
       hyprland = {
