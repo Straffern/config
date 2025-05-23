@@ -49,7 +49,6 @@ in {
     nwg-displays
     waldl
     goose-cli
-    claude-code
     aider-chat
     clipy
     uv
