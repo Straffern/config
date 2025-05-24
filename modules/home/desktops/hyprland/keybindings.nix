@@ -65,6 +65,9 @@ in {
         "SUPER_SHIFT, B, exec, sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"Prompt T3 chat\"); [ -n \"$query\" ] && brave --app=\"https://unduck.link?q=$query !t3\"'"
+        "SUPER, C, exec, sh -c 'query=$(${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -dmenu -p \"Super Claude\"); [ -n \"$query\" ] && brave --app=\"https://claude.ai/new?q=$query\"'"
         "SUPER, G, exec, sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"Super Grok\"); [ -n \"$query\" ] && brave --app=\"https://grok.com?q=$query\"'"
