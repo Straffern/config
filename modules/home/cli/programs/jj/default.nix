@@ -395,6 +395,7 @@ in {
         };
 
         git = {
+          auto-local-bookmark = true;
           sign-on-push = true;
           push-bookmark-prefix = lib.mkDefault "${cfg.alias}/push-";
           private-commits = lib.mkDefault ''
