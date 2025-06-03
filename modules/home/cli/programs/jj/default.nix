@@ -339,6 +339,41 @@ in {
 
               eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
             '';
+
+          # Convenient shorthands.
+          d = [ "diff" ];
+          s = [ "show" ];
+          ll = [ "log" "-T" "builtin_log_detailed" ];
+          nt = [ "new" "trunk()" ];
+
+          # Get all open stacks of work.
+          open = [ "log" "-r" "open()" ];
+
+          # Better name, IMO.
+          credit = [ "file" "annotate" ];
+
+          # Retrunk a series. Typically used as `jj retrunk -s ...`, and notably can be
+          # used with open:
+          # - jj retrunk -s 'all:roots(open())'
+          retrunk = [ "rebase" "-d" "trunk()" ];
+
+          # Retrunk the current stack of work.
+          reheat =
+            [ "rebase" "-d" "trunk()" "-s" "all:roots(trunk()..stack(@))" ];
+
+          # Assumes the existence of a 'megamerge' bookmark and 'trunk()' resolving
+          # properly to a single commit. Then 'jj sandwich xyz' to move xyz into the
+          # megamerge in parallel to everything else.
+          sandwich = [ "rebase" "-B" "megamerge()" "-A" "trunk()" "-r" ];
+
+          # Take content from any change, and move it into @.
+          # - jj consume xyz path/to/file`
+          consume = [ "squash" "--into" "@" "--from" ];
+
+          # Eject content from @ into any other change.
+          # - jj eject xyz --interactive
+          eject = [ "squash" "--from" "@" "--into" ];
+
         };
 
         revset-aliases = {
@@ -373,6 +408,58 @@ in {
             toAuthor = x: "author(exact:${builtins.toJSON x})";
           in builtins.concatStringsSep " | "
           (builtins.map toAuthor (emails ++ names));
+
+          # By default, show the repo trunk, the remote bookmarks, and all remote tags. We
+          # don't want to change these in most cases, but in some repos it's useful.
+          "immutable_heads()" =
+            "present(trunk()) | remote_bookmarks() | tags()";
+          # Useful to ignore this, in many repos. For repos like `jj` these are
+          # consistently populated with a bunch of auto-generated commits, so ignoring it
+          # is often nice.
+          "gh_pages()" = "ancestors(remote_bookmarks(exact:'gh-pages'))";
+
+          # trunk() by default resolves to the latest 'main'/'master' remote bookmark. May
+          # require customization for repos like nixpkgs.
+          "trunk()" =
+            "latest((present(main) | present(master)) & remote_bookmarks())";
+
+          # Private and WIP commits that should never be pushed anywhere. Often part of
+          # work-in-progress merge stacks.
+          "wip()" = "description(glob-i:'^wip:*')";
+          "private()" =
+            "description(regex:'^[xX]+:')| description(glob:'private:*')";
+          "blacklist()" = "wip() | private()";
+          # stack(x, n) is the set of mutable commits reachable from 'x', with 'n'
+          # parents. 'n' is often useful to customize the display and return set for
+          # certain operations. 'x' can be used to target the set of 'roots' to traverse,
+          # e.g. @ is the current stack.
+          "stack()" = "ancestors(reachable(@, mutable()), 2)";
+          "stack(x)" = "ancestors(reachable(x, mutable()), 2)";
+          "stack(x, n)" = "ancestors(reachable(x, mutable()), n)";
+
+          # The current set of "open" works. It is defined as:
+          #
+          # - given the set of commits not in trunk, that are written by me,
+          # - calculate the given stack() for each of those commits
+          #
+          # n = 1, meaning that nothing from `trunk()` is included, so all resulting
+          # commits are mutable by definition.
+          "open()" = "stack(trunk().. & mine(), 1)";
+
+          # the set of 'ready()' commits. defined as the set of open commits, but nothing
+          # that is blacklisted or any of their children.
+          #
+          # often used with gerrit, which you can use to submit whole stacks at once:
+          #
+          # - jj gerrit send -r 'ready()' --dry-run
+          "ready()" = "open() ~ blacklist()::";
+
+          # Find the latest megamerge. Mostly useful in combination with other aliases.
+          # FIXME: I wish there was a way to assert that there should only be a resultset
+          # of size 1 for this, because this assumes that there's only one megamerge on
+          # your current path to the root.
+          "megamerge()" = "reachable(stack(), merges())";
+
         };
 
         templates = {
@@ -398,8 +485,7 @@ in {
           auto-local-bookmark = true;
           sign-on-push = true;
           push-bookmark-prefix = lib.mkDefault "${cfg.alias}/push-";
-          private-commits = lib.mkDefault ''
-            description(regex:"^[xX]+:") | description(glob-i:"^wip:") | description(glob:'private:*')'';
+          private-commits = lib.mkDefault "blacklist()";
         };
 
       };
