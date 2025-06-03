@@ -10,27 +10,6 @@ return {
 			provider = "openrouter_deepseek",
 			mode = "legacy",
 
-			-- claude = {
-			-- 	endpoint = "https://api.anthropic.com",
-			-- 	model = "claude-3-5-sonnet-20241022",
-			-- 	timeout = 30000, -- Timeout in milliseconds
-			-- 	temperature = 0,
-			-- 	max_tokens = 4096,
-			-- },
-			--
-			-- gemini = {
-			-- 	model = "gemini-2.5-pro-preview-03-25",
-			-- 	timeout = 60000, -- Timeout in milliseconds
-			-- 	temperature = 0,
-			-- 	max_tokens = 32768,
-			-- 	api_key_name = "GEMINI_API_KEY",
-			-- },
-
-			-- rag_service = {
-			-- 	enabled = true, -- Enables the rag service, requires OPENAI_API_KEY to be set
-			-- 	-- runner = "nix",
-			-- },
-
 			auto_suggestions_provider = "openrouter_claude_3_5",
 			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
@@ -47,14 +26,16 @@ return {
 				throttle = 600,
 			},
 
-			vendors = {
-				--- ... existing vendors
+			providers = {
+				--- ... existing providers
 				groq = { -- define groq provider
 					__inherited_from = "openai",
 					api_key_name = "GROQ_API_KEY",
 					endpoint = "https://api.groq.com/openai/v1/",
 					model = "llama-3.3-70b-versatile",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 				},
 
 				openrouter_deepseek = {
@@ -62,7 +43,9 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "deepseek/deepseek-chat-v3-0324",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 				},
 
 				openrouter_deepseek_distill = {
@@ -70,7 +53,9 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "deepseek/deepseek-r1-distill-llama-8b",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 				},
 
 				openrouter_claude_3_5 = {
@@ -78,7 +63,9 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "anthropic/claude-3.5-sonnet",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 				},
 
 				openrouter_claude_3_7 = {
@@ -86,7 +73,9 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "anthropic/claude-3.7-sonnet",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 				},
 
 				openrouter_gemini_2_5_pro = {
@@ -94,15 +83,19 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "google/gemini-2.5-pro-preview",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-					timeout = 60000,
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+						timeout = 60000,
+					},
 				},
 				openrouter_grok_3_mini = {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "x-ai/grok-3-mini-beta",
-					max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
 					-- disable_tools = true,
 				},
 
@@ -111,8 +104,10 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "google/gemini-2.0-flash-001",
-					timeout = 30000, -- Timeout in milliseconds
-					max_tokens = 60000,
+					extra_request_body = {
+						timeout = 30000, -- Timeout in milliseconds
+						max_tokens = 60000,
+					},
 				},
 
 				openrouter_gemini_flash_2_5 = {
@@ -120,8 +115,10 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "google/gemini-2.5-flash-preview",
-					timeout = 30000, -- Timeout in milliseconds
-					max_tokens = 60000,
+					extra_request_body = {
+						timeout = 30000, -- Timeout in milliseconds
+						max_tokens = 60000,
+					},
 				},
 
 				openrouter_gemini_flash_lite = {
@@ -129,8 +126,10 @@ return {
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "google/gemini-2.0-flash-lite-001",
-					timeout = 30000, -- Timeout in milliseconds
-					max_tokens = 60000,
+					extra_request_body = {
+						timeout = 30000, -- Timeout in milliseconds
+						max_tokens = 60000,
+					},
 				},
 			},
 
