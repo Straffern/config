@@ -427,7 +427,7 @@ in {
           # work-in-progress merge stacks.
           "wip()" = "description(glob-i:'^wip:*')";
           "private()" =
-            "description(regex:'^[xX]+:')| description(glob:'private:*')";
+            "description(regex:'^[xX]+:') | description(glob:'private:*')";
           "blacklist()" = "wip() | private()";
           # stack(x, n) is the set of mutable commits reachable from 'x', with 'n'
           # parents. 'n' is often useful to customize the display and return set for

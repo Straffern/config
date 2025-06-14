@@ -62,6 +62,7 @@ in {
       gotestsum
 
       nodejs_24
+      bun
     ];
   };
 }
