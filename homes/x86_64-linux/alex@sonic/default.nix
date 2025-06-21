@@ -8,7 +8,6 @@ let
   };
 
   clipy = pkgs.${namespace}.clipy;
-  opencode = pkgs.${namespace}.opencode;
 
   # sshHosts = {
   #   "frostmourne" = {
@@ -19,7 +18,9 @@ let
 
 in {
 
-  programs.zsh.sessionVariables = { PATH = "$HOME/.npm-global/bin:$PATH"; };
+  programs.zsh.sessionVariables = {
+    PATH = "$HOME/.local/cache/.bun/bin:$HOME/.npm-global/bin:$PATH";
+  };
 
   asgaard = {
     desktops = {
@@ -55,7 +56,6 @@ in {
     aider-chat
     clipy
     uv
-    opencode
   ];
   home.stateVersion = "23.11";
 }
