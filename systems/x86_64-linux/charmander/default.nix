@@ -15,6 +15,7 @@ in {
 
     user."1" = {
       name = "gunniko";
+      initialPassword = "gunniko";
       extraGroups = [ "wheel" ];
       extraOptions = { uid = 1000; };
     };
