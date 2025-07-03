@@ -88,7 +88,7 @@ in {
           diff.tool = "difftastic";
           merge-editor = "vimdiff";
 
-          show-cryptographic-signatures = true;
+          # show-cryptographic-signatures = true;
         };
 
         merge-tools.difftastic = {
