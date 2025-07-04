@@ -53,6 +53,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    hyprland.url = "github:hyprwm/Hyprland";
+    waybar = {
+      url = "github:Alexays/Waybar";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland";
+    };
+
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -114,7 +124,12 @@
       # src = ./.;
       channels-config = { allowUnfree = true; };
 
-      overlays = with inputs; [ nixgl.overlay nur.overlays.default ];
+      overlays = with inputs; [
+        nixgl.overlay
+        nur.overlays.default
+        hyprland.overlays.default
+        waybar.overlays.default
+      ];
 
       systems.modules.nixos = with inputs; [
         home-manager.nixosModules.home-manager

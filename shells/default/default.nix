@@ -17,6 +17,5 @@ pkgs.mkShell {
     ssh-to-age
     gnupg
     age
-    goose-cli
   ];
 }

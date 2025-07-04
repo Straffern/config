@@ -1,4 +1,4 @@
-{ pkgs, config, lib, namespace, ... }:
+{ inputs, pkgs, config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.hyprland;
@@ -11,7 +11,11 @@ in {
       systemd.enableXdgAutostart = true;
       xwayland.enable = true;
 
+      plugins = [ inputs.hyprland-plugins.packages.${pkgs.system}.hyprfocus ];
       settings = {
+
+        ecosystem.no_update_news = true;
+
         input = {
           kb_layout = "us";
           touchpad = {
@@ -28,7 +32,33 @@ in {
           border_size = 3;
         };
 
-        animations.enabled = false;
+        # animations.enabled = false;
+
+        animations = {
+          enabled = true;
+
+          bezier = [
+            "flashCurve, 0.22, 1, 0.36, 1" # This is an "easeOutQuint" curve
+            "linear, 0.0, 0.0, 1.0, 1.0"
+          ];
+
+          animation = [
+            # Format: name, on, speed, curve
+            "hyprfocusIn, 1, 2, flashCurve"
+            "hyprfocusOut, 1, 2, linear"
+
+            # Format: name, on, speed, curve, style
+            "windows, 0, 1, linear"
+            "windowsIn, 0, 1, linear"
+            "windowsOut, 0, 1, linear"
+            "windowsMove, 0, 1, linear"
+            "border, 0, 1, linear"
+            "borderangle, 0, 1, linear"
+            "fade, 0, 1, linear"
+            "workspaces, 0, 1, linear"
+          ];
+
+        };
 
         decoration = { rounding = 5; };
 

@@ -85,7 +85,7 @@ in {
           default-command = "worklog";
           pager = "delta";
           # diff-editor = "nvim-hunk";
-          diff.tool = "difftastic";
+          diff.formatter = "difftastic";
           merge-editor = "vimdiff";
 
           # show-cryptographic-signatures = true;
