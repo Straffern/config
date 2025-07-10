@@ -49,13 +49,6 @@ in {
 
   programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 
-  home.packages = with pkgs; [
-    nwg-displays
-    waldl
-    goose-cli
-    aider-chat
-    clipy
-    uv
-  ];
+  home.packages = with pkgs; [ nwg-displays waldl clipy uv ];
   home.stateVersion = "23.11";
 }

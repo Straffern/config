@@ -38,11 +38,31 @@ return {
 					},
 				},
 
+				openrouter_openai_4_1 = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "openai/gpt-4.1",
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
+				},
+
 				openrouter_deepseek = {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
 					model = "deepseek/deepseek-chat-v3-0324",
+					extra_request_body = {
+						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
+					},
+				},
+
+				openrouter_deepseek_r1 = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "deepseek/deepseek-r1-0528",
 					extra_request_body = {
 						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 					},
@@ -58,45 +78,15 @@ return {
 					},
 				},
 
-				openrouter_claude_3_5 = {
-					__inherited_from = "openai",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key_name = "OPENROUTER_API_KEY",
-					model = "anthropic/claude-3.5-sonnet",
-					extra_request_body = {
-						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-					},
-				},
-
-				openrouter_claude_3_7 = {
-					__inherited_from = "openai",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key_name = "OPENROUTER_API_KEY",
-					model = "anthropic/claude-3.7-sonnet",
-					extra_request_body = {
-						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-					},
-				},
-
 				openrouter_gemini_2_5_pro = {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
-					model = "google/gemini-2.5-pro-preview",
+					model = "google/gemini-2.5-pro",
 					extra_request_body = {
 						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 						timeout = 60000,
 					},
-				},
-				openrouter_grok_3_mini = {
-					__inherited_from = "openai",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key_name = "OPENROUTER_API_KEY",
-					model = "x-ai/grok-3-mini-beta",
-					extra_request_body = {
-						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
-					},
-					-- disable_tools = true,
 				},
 
 				openrouter_gemini_flash = {
@@ -114,7 +104,18 @@ return {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
-					model = "google/gemini-2.5-flash-preview",
+					model = "google/gemini-2.5-flash",
+					extra_request_body = {
+						timeout = 30000, -- Timeout in milliseconds
+						max_tokens = 60000,
+					},
+				},
+
+				openrouter_gemini_flash_2_5_lite = {
+					__inherited_from = "openai",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key_name = "OPENROUTER_API_KEY",
+					model = "google/gemini-2.5-flash-lite-preview-06-17",
 					extra_request_body = {
 						timeout = 30000, -- Timeout in milliseconds
 						max_tokens = 60000,

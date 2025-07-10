@@ -53,22 +53,22 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland";
-    waybar = {
-      url = "github:Alexays/Waybar";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
+    # hyprland.url = "github:hyprwm/Hyprland";
+    # waybar = {
+    #   url = "github:Alexays/Waybar";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    # hyprland-plugins = {
+    #   url = "github:hyprwm/hyprland-plugins";
+    #   inputs.hyprland.follows = "hyprland";
+    # };
 
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Terminal
 
-    zjstatus = { url = "github:dj95/zjstatus"; };
+    # zjstatus = { url = "github:dj95/zjstatus"; };
 
     # Homelab
 
@@ -95,7 +95,7 @@
     # nix-colors.url = "github:IogaMaster/nix-colors";
     # prism.url = "github:IogaMaster/prism";
 
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+    # hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     lobster = {
       url = "github:justchokingaround/lobster";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -127,8 +127,8 @@
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
-        hyprland.overlays.default
-        waybar.overlays.default
+        # hyprland.overlays.default
+        # waybar.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [

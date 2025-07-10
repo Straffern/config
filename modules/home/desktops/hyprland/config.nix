@@ -11,7 +11,7 @@ in {
       systemd.enableXdgAutostart = true;
       xwayland.enable = true;
 
-      plugins = [ inputs.hyprland-plugins.packages.${pkgs.system}.hyprfocus ];
+      # plugins = [ inputs.hyprland-plugins.packages.${pkgs.system}.hyprfocus ];
       settings = {
 
         ecosystem.no_update_news = true;
@@ -44,8 +44,8 @@ in {
 
           animation = [
             # Format: name, on, speed, curve
-            "hyprfocusIn, 1, 2, flashCurve"
-            "hyprfocusOut, 1, 2, linear"
+            # "hyprfocusIn, 1, 2, flashCurve"
+            # "hyprfocusOut, 1, 2, linear"
 
             # Format: name, on, speed, curve, style
             "windows, 0, 1, linear"
