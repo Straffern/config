@@ -10,7 +10,7 @@ return {
 			provider = "openrouter_deepseek",
 			mode = "legacy",
 
-			auto_suggestions_provider = "openrouter_claude_3_5",
+			auto_suggestions_provider = "openrouter_openai_4_1", -- In this example, use Openrouter for auto-suggestions, but you can also use any provider you want.
 			cursor_applying_provider = "groq", -- In this example, use Groq for applying, but you can also use any provider you want.
 			behaviour = {
 				use_absolute_path = true,
@@ -52,7 +52,7 @@ return {
 					__inherited_from = "openai",
 					endpoint = "https://openrouter.ai/api/v1",
 					api_key_name = "OPENROUTER_API_KEY",
-					model = "deepseek/deepseek-chat-v3-0324",
+					model = "deepseek/deepseek-r1-0528",
 					extra_request_body = {
 						max_tokens = 32768, -- remember to increase this value, otherwise it will stop generating halfway
 					},
