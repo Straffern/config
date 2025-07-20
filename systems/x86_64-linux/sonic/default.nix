@@ -26,6 +26,7 @@ in {
         enable = true;
         addons = { hyprland = enabled; };
       };
+      gaming = enabled;
     };
 
     services = {

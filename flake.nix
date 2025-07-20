@@ -101,6 +101,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    devenv.url = "github:cachix/devenv";
+
   };
 
   outputs = inputs:
@@ -127,6 +129,7 @@
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
+        devenv.overlays.default
         # hyprland.overlays.default
         # waybar.overlays.default
       ];
