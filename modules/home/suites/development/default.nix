@@ -10,7 +10,7 @@ in {
 
   config = mkIf cfg.enable {
 
-    home.packages = with pkgs; [ btop ];
+    home.packages = with pkgs; [ btop python3 ];
     ${namespace} = {
       cli = {
         editors.neovim = enabled;
