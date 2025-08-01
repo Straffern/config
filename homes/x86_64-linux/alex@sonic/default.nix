@@ -19,7 +19,8 @@ let
 in {
 
   programs.zsh.sessionVariables = {
-    PATH = "$HOME/.local/cache/.bun/bin:$HOME/.npm-global/bin:$PATH";
+    PATH =
+      "$HOME/go/bin:$HOME/.local/cache/.bun/bin:$HOME/.npm-global/bin:$PATH";
   };
 
   asgaard = {
