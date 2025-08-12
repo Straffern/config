@@ -486,6 +486,7 @@ in {
           sign-on-push = true;
           push-bookmark-prefix = lib.mkDefault "${cfg.alias}/push-";
           private-commits = lib.mkDefault "blacklist()";
+          write-change-id-header = true;
         };
 
       };
