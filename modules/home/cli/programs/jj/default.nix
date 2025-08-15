@@ -73,8 +73,8 @@ in {
       enable = true;
       settings = {
 
-        core.fsmonitor = "watchman";
-        core.watchman.register-snapshot-trigger = true;
+        fsmonitor.backend = "watchman";
+        fsmonitor.watchman.register-snapshot-trigger = true;
 
         user = {
           email = cfg.email;
@@ -475,6 +475,7 @@ in {
               diff.git(),
             )
           '';
+          git_push_bookmark = lib.mkDefault ''"${cfg.alias}/push-" ++ change_id.short()'';
         };
 
         template-aliases = {
@@ -484,7 +485,6 @@ in {
         git = {
           auto-local-bookmark = true;
           sign-on-push = true;
-          push-bookmark-prefix = lib.mkDefault "${cfg.alias}/push-";
           private-commits = lib.mkDefault "blacklist()";
           write-change-id-header = true;
         };
