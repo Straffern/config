@@ -19,6 +19,7 @@ in {
         "--restore-last-session"
         "--enable-features=TouchpadOverscrollHistoryNavigation,UseOzonePlatform"
         "--ozone-platform=wayland"
+        "--ozone-platform-hint=wayland"
       ];
     };
     home.persistence."/persist/home/${config.home.username}".directories =

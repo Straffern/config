@@ -27,9 +27,9 @@ in {
         };
 
         general = {
-          gaps_in = 3;
-          gaps_out = 5;
-          border_size = 3;
+          gaps_in = 5;
+          gaps_out = 10;
+          border_size = 2;
         };
 
         # animations.enabled = false;
@@ -60,7 +60,27 @@ in {
 
         };
 
-        decoration = { rounding = 5; };
+        # decoration = { rounding = 5; };
+
+        # https://wiki.hyprland.org/Configuring/Variables/#decoration
+        decoration = {
+          rounding = 0;
+
+          shadow = {
+            enabled = true;
+            range = 2;
+            render_power = 3;
+          };
+
+          # https://wiki.hyprland.org/Configuring/Variables/#blur
+          blur = {
+            enabled = true;
+            size = 3;
+            passes = 1;
+
+            vibrancy = 0.1696;
+          };
+        };
 
         dwindle = {
           pseudotile = true;

@@ -42,6 +42,7 @@ in {
       social.enable = true;
     };
     styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
+    # styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.osaka-jade-bg;
 
   };
   wayland.windowManager.hyprland.settings.monitor =
