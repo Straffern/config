@@ -29,6 +29,16 @@ in {
         "center, class:^(com.saivert.pwvucontrol)$"
         "size 800 600, class:^(com.saivert.pwvucontrol)$"
 
+        # Bluetooth Manager
+        "float, class:^(.blueman-manager-wrapped)$"
+        "center, class:^(.blueman-manager-wrapped)$"
+        "size 800 600, class:^(.blueman-manager-wrapped)$"
+
+        # Trayscale
+        "float, class:^(dev.deedles.Trayscale)$"
+        "center, class:^(dev.deedles.Trayscale)$"
+        "size 800 600, class:^(dev.deedles.Trayscale)$"
+
         # Picture-in-picture overlays
         "tag +pip, title:(Picture.{0,1}in.{0,1}[Pp]icture)"
         "float, tag:pip"

@@ -64,6 +64,9 @@ in {
         "sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"${prompt_label}\"); [ -n \"$query\" ] && ${destination}$query${append}\"'";
+      webapp_prompt = "sh -c 'query=$(${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -dmenu -p \"Open Link as Webapp\"); [ -n \"$query\" ] && ${browser} --app=\"$query\"'";
       hexdocs_prompt = "sh -c 'query=$(${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -dmenu -p \"HexDocs Search\"); if [ -n \"$query\" ]; then read -r library search_query <<< \"$query\"; if [ -z \"$search_query\" ]; then ${
@@ -83,6 +86,7 @@ in {
           rofi_prompt "Prompt T3 chat" "${webapp ''"https://unduck.link?q=''}"
           "!t3"
         }"
+        "SUPER, W, exec, ${webapp_prompt}"
 
         "SUPER, C, exec, ${
           rofi_prompt "Claude" "${webapp ''"https://claude.ai/new?q=''}" ""
