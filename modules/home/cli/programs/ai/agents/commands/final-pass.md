@@ -1,0 +1,13 @@
+- use `jj worklog` to see what we have been working on
+- make sure all tests are passing
+- make sure all code is linted and formatted
+- make sure all docs are up to date and reflect the current state of the code
+  - look for the current feature docs in notes/**/**.md
+  - look for related docs in notes/**/**.md
+  - look for related docs in docs/**/**.md
+  - Project.md
+  - CLAUDE.md
+- use `jj describe -m "final: [summary]"` to record final state
+- use `jj diff -r main..@` to see changes since main branch
+  - use `jj git fetch` to ensure main is up to date with origin
+- present a commit message for when work is ready to merge/push

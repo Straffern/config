@@ -1,0 +1,4 @@
+- create a pr on github using JJ's git bridge
+- position bookmark at desired point with `jj bookmark set <name> -r @`
+- use `jj git push` to push bookmark to remote
+- Claude doesn't mention itself in the PR description

@@ -19,8 +19,7 @@ let
 in {
 
   programs.zsh.sessionVariables = {
-    PATH =
-      "$HOME/go/bin:$HOME/.local/cache/.bun/bin:$HOME/.npm-global/bin:$PATH";
+    PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
   };
 
   asgaard = {
@@ -37,6 +36,24 @@ in {
 
     cli.terminals.alacritty.enable = true;
     cli.programs.lobster.enable = true;
+
+    cli.programs.ai = {
+      enable = true;
+      claude.enable = true;
+      opencode = {
+        enable = true;
+        convertAgents = true;
+        convertCommands = true;
+      };
+      includeModelInAgents = false;
+      # Optional: Configure specific agent providers or temperature overrides
+      # agentProviders = {
+      #   "elixir-expert" = "cerebras/qwen3-coder";
+      # };
+      # temperatureOverrides = {
+      #   "creative-agent" = 0.7;
+      # };
+    };
     suites = {
       desktop.enable = true;
       social.enable = true;

@@ -1,0 +1,18 @@
+- use `jj worklog` to see current work context and bookmarks
+  - check current bookmarks with `jj log -r @ -T 'bookmarks.join(", ")'`
+  - depending on the type there should be one of the following files:
+  - notes/feature/<feature_name>.md
+  - notes/fix/<fix_name>.md
+  - notes/tasks/<task_name>.md
+- check what the next step is in the planning document
+- anaylze the current state of the implementation
+- analyze what needs to be done next
+- look up docs for the next step if needed
+- output a summary of the current state and what needs to be done next
+  - if you looked up docs, cite them in the summary
+- wait for further instructions
+- after the step is done update the planning document
+  - add a summary of the step
+  - update the current status section
+  - update the todo list
+  - use `jj describe -m "step: [summary]"` to record progress
