@@ -65,6 +65,13 @@ in {
       addKeysToAgent = "yes";
       matchBlocks = cfg.extraHosts;
       compression = true;
+      controlMaster = "auto";
+      controlPath = "~/.ssh/cm-%r@%h:%p";
+      controlPersist = "10m";
+      extraOptionOverrides = {
+        TCPKeepAlive = "no";
+        IPQoS = "lowdelay throughput";
+      };
       extraConfig = ''
         SetEnv TERM=xterm
         IdentityFile ~/.ssh/id_ed25519
