@@ -21,6 +21,7 @@ in {
         pkgs.gnumake
         pkgs.cargo
         pkgs.nodejs_24
+        pkgs.tree-sitter
       ];
 
       extraLuaConfig = ''

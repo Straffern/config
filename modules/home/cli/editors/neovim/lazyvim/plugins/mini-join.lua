@@ -1,3 +1,3 @@
 return {
-	{ "echasnovski/mini.splitjoin", version = false },
+	{ "nvim-mini/mini.splitjoin", version = false },
 }
