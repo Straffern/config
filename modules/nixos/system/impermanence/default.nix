@@ -75,6 +75,10 @@ in {
       ];
     };
 
-    systemd.tmpfiles.rules = [ "d! /persist/home 0770 root users - -" ];
+    systemd.tmpfiles.rules = 
+      [ "d! /persist/home 0770 root users - -" ] ++
+      (lib.mapAttrsToList (id: user: 
+        "d /persist/home/${user.name} 0700 ${user.name} users - -"
+      ) (lib.filterAttrs (id: user: user.enable) config.${namespace}.user));
   };
 }
