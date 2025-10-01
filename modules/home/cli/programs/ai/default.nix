@@ -270,11 +270,16 @@ let
       parsed = extractFrontmatterAndBody content;
       bodyLines = parsed.body;
 
-      # Generate OpenCode command frontmatter
+      # Check if command has a specific agent mapping
+      hasAgentMapping = cfg.commandAgentMappings ? ${commandName};
+      mappedAgent = if hasAgentMapping then cfg.commandAgentMappings.${commandName} else null;
+
+      # Generate OpenCode command frontmatter with conditional agent field
+      agentLine = if hasAgentMapping then "agent: ${mappedAgent}" else "";
       openCodeFrontmatter = ''
         ---
         description: ${commandName} command
-        agent: ${defaultAgent}
+        ${agentLine}
         ---
       '';
 
@@ -329,7 +334,7 @@ let
     sourceDir = ./agents/commands;
     outputPrefix = ".config/opencode/command";
     converter = commandFile: commandName:
-      convertClaudeCommandToOpenCode commandFile commandName "general";
+      convertClaudeCommandToOpenCode commandFile commandName "build";
   };
 
 in {
@@ -421,6 +426,17 @@ in {
       default = true;
       description =
         "Whether to include model field in converted OpenCode agents. When false, OpenCode uses its configured default model";
+    };
+
+    commandAgentMappings = mkOption {
+      type = types.attrsOf types.str;
+      default = { };
+      example = {
+        "feature" = "plan";
+        "implement" = "build";
+        "review" = "plan";
+      };
+      description = "Mapping of command names to agent names for OpenCode commands. Commands not specified will not include an agent field in the generated markdown";
     };
   };
 
