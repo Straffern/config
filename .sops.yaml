@@ -21,9 +21,11 @@ keys:
   - &host: 
     - &grug age1uzfwpjz2d29gfd93xm0qenke89s7ynl5sy635wgrchcm96et9pfq99a9ja # Your public key from Step 2
     - &frostmourne age1kjqhsyucjhuw6gazjrjqcuavay6pfgpr8fasltft99vzfdkjdsdsvfx4xv
+    - &palantir age1ajyn9l0v2fv5kyhdzvkr4dxw6rm602w06sk3qnxz5d7aj67ygy0qv4drf9
 creation_rules:
   - path_regex: secrets\.ya?ml$
     key_groups:
       - age:
           - *frostmourne
+          - *palantir
           - *alex
