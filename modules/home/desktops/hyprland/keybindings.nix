@@ -110,6 +110,7 @@ in {
 
         "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle pwvucontrol"
         "SUPER_SHIFT, T, exec, ${pkgs.pyprland}/bin/pypr toggle term"
+        "SUPER, M, exec, ${pkgs.blueman}/bin/blueman-manager"
         ",XF86Launch5, exec,${pkgs.hyprlock}/bin/hyprlock"
         ",XF86Launch4, exec,${pkgs.hyprlock}/bin/hyprlock"
         "SUPER,backspace, exec,${pkgs.hyprlock}/bin/hyprlock"
