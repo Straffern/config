@@ -1,11 +1,15 @@
 ---
 name: jj-expert
 description: >
-  NON-INTERACTIVE JJ AGENT: MUST BE USED for all Jujutsu (jj) operations.
+  MUST BE USED for all Jujutsu (jj) operations.
   Executes jj commands non-interactively only. Specializes in jj CLI usage
   from documentation, with flags to avoid editors/pagers/user input.
 model: opus
 tools: Bash
+permission:
+  bash:
+    "*": true
+    "jj edit": false
 color: green
 ---
 
