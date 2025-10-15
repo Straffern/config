@@ -73,7 +73,7 @@ Would you like me to help create this agent definition?
 
 - **When to use**: ALWAYS when working with Elixir, Phoenix, Ecto, Ash, or any
   Elixir libraries
-- **Purpose**: Consults usage_rules.md and provides documentation-backed
+- **Purpose**: Consults deps/*/usage_rules.md and any project local usage_rules.md and provides documentation-backed
   guidance
 - **Never**: Attempt Elixir work without consulting this agent first
 - **Tools**: `mix usage_rules.docs`, `mix usage_rules.search_docs`
@@ -88,6 +88,21 @@ Would you like me to help create this agent definition?
 - **Specializes in**: Official docs, API research, technology comparisons, usage
   patterns
 
+#### **test-expert** - READ-ONLY Testing Methodology Guidance
+
+- **When to use**: When developing test strategies, determining what to test, or
+  learning testing methodologies
+- **Purpose**: READ-ONLY language-agnostic testing guidance and methodology
+  expertise
+- **Read-Only Role**: Provides testing strategy and best practices for the
+  orchestrator to implement
+- **Specializes in**: TDD/BDD, test organization, coverage strategy, testing
+  methodologies
+- **Coordinates with**: Language experts (elixir-expert, etc.) for
+  framework-specific patterns
+- **Critical**: NEVER attempts to write tests or modify files - only provides
+  testing guidance
+
 #### **elixir-reviewer** - MANDATORY After Elixir Changes
 
 - **When to use**: ALWAYS after making changes to Elixir code, Ash applications,
@@ -97,6 +112,13 @@ Would you like me to help create this agent definition?
 - **Never**: Commit Elixir changes without running this agent first
 - **Tools**: mix format, credo, dialyzer, sobelow, deps.audit, test coverage,
   security scanning
+
+#### **jj-expert** - MANDATORY for jj Workflow
+
+- **When to use**: ALWAYS when working with jj (Jujutsu) workflows. Use of jj should be prioritized over use of git commands.
+- **Purpose**: interacting with jj or provide guidance on jj workflow best practices and patterns
+- **Never**: Attempt jj work without consulting this agent first
+- **Tools**: jj worklog, jj diff, jj new, jj bookmark create, jj describe, jj commit, jj split, jj squash
 
 ### Specialized Review Agents (Use in Parallel)
 
