@@ -34,6 +34,86 @@ implementation agents will execute.
 - Maintain essential structure without excessive overhead
 - Enable quick task execution while preserving planning discipline
 - Balance thorough planning with rapid execution needs
+- Save planning documents to LogSeq pages with project namespace
+
+### **LogSeq Page Structure**
+
+Create task planning pages using this structure:
+
+```
+projects/[project]/task/[task-name]
+```
+
+**Determining Project Name:**
+
+```bash
+basename $(git rev-parse --show-toplevel)
+```
+
+**Page Properties:**
+
+Add LogSeq properties at the top using double-colon syntax:
+
+```
+type:: task
+status:: planned
+created:: YYYY-MM-DD
+project:: [project-name]
+task:: [task-name]
+```
+
+**Creating the Page:**
+
+Use ash-logseq MCP server tools to create pages. The convenience tool is
+recommended:
+
+**Recommended Approach (Using create_page from ash-logseq MCP server):**
+
+```elixir
+# Tool from ash-logseq MCP server
+mcp__ash-logseq__create_page(
+  input: {
+    "page_name": "projects/[project]/task/[task-name]",
+    "content": """
+type:: task
+status:: planning
+created:: YYYY-MM-DD
+project:: [project-name]
+task:: [task-name]
+
+- # [task-name] Task Plan
+- [content sections go here]
+"""
+  }
+)
+```
+
+**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+
+```elixir
+page_content = """
+type:: task
+status:: planning
+created:: YYYY-MM-DD
+project:: [project-name]
+task:: [task-name]
+
+- # [task-name] Task Plan
+- [content sections go here]
+"""
+
+# Generic API tool from ash-logseq MCP server
+mcp__ash-logseq__logseq_api(
+  input: {
+    "method": "logseq.Editor.createPage",
+    "args": ["projects/[project]/task/[task-name]", page_content]
+  }
+)
+```
+
+**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive tool
+documentation including `read_page`, `search_blocks`, and `replace_line` for
+working with existing pages.
 
 ### **Task Categorization**
 
@@ -64,8 +144,8 @@ implementation agents will execute.
 - **architecture-agent**: For tasks affecting file organization or module
   structure
 - **research-agent**: For unfamiliar tools or approaches
-- **Domain experts**: For language/framework-specific tasks (elixir-expert,
-  lua-expert, etc.)
+- **Domain experts**: For language/framework-specific tasks (elixir skill
+  knowledge, lua skill knowledge, etc.)
 - **consistency-reviewer**: For pattern-related tasks
 - Only include consultations that add value
 
@@ -143,7 +223,7 @@ implementation agents will execute.
 - Working with unfamiliar technologies
 - Task involves language/framework-specific code (consult appropriate domain
   expert)
-- Code changes that require tests (consult test-developer if complex)
+- Code changes that require tests (consult testing skill knowledge if complex)
 - Need to maintain consistency with existing patterns
 - Security or quality implications exist
 
@@ -203,8 +283,8 @@ utility module to reduce code duplication and improve maintainability.
 
 ## Agent Consultations
 
-- **elixir-expert**: Consult usage_rules.md for proper module organization
-  patterns
+- **elixir skill knowledge**: Consult usage_rules.md for proper module
+  organization patterns
 - **redundancy-reviewer**: Identify all instances of duplicated utility code
 
 ## Approach
@@ -365,7 +445,7 @@ You create lightweight task plans or escalate to appropriate planners.
 ```markdown
 ## Task Planning Complete
 
-### Planning Document: notes/tasks/[task-name].md
+### Planning Document: LogSeq page `projects/[project]/task/[task-name]`
 
 ### Task Summary
 

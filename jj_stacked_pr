@@ -1,0 +1,343 @@
+# https://opencode.ai/s/2wL6ebVb
+Great! Let's design comprehensive helper commands to make the flow + stacked PR workflow seamless. I'll create detailed implementations for the helper aliases.
+
+Core Helper Commands
+1. stack-sync - Sync Stable Bookmarks to Flow State
+"stack-sync" = mkBashAlias "stack-sync" ''
+  source ${jj-helpers-lib}
+  
+  # Get all changes in the flow (from trunk to flow tip)
+  flow_changes=$(jj log -r "trunk()..flow" --reversed --no-graph --template 'change_id.short() ++ "\n"')
+  
+  # Get all bookmarks that look like stack bookmarks (exclude 'flow' and system bookmarks)
+  stack_bookmarks=$(jj bookmark list | grep -v "^flow$" | grep -v "@" | awk '{print $1}' | sort)
+  
+  if [ -z "$flow_changes" ]; then
+    echo "No changes in flow to sync"
+    return 0
+  fi
+  
+  if [ -z "$stack_bookmarks" ]; then
+    echo "No stack bookmarks found to sync"
+    return 0
+  fi
+  
+  # Convert to arrays
+  readarray -t changes <<< "$flow_changes"
+  readarray -t bookmarks <<< "$stack_bookmarks"
+  
+  # Sync bookmarks to changes (1:1 mapping)
+  for i in "''${!changes[@]}"; do
+    if [ $i -lt ''${#bookmarks[@]} ]; then
+      change_id="''${changes[$i]}"
+      bookmark="''${bookmarks[$i]}"
+      
+      echo "Syncing bookmark '$bookmark' to change '$change_id'"
+      log_and_run jj bookmark move "$bookmark" -r "$change_id"
+    fi
+  done
+  
+  # Push all stack bookmarks
+  echo "Pushing all stack bookmarks..."
+  for bookmark in "''${bookmarks[@]}"; do
+    log_and_run jj git push --bookmark "$bookmark"
+  done
+  
+  echo "Stack sync complete!"
+'';
+2. stack-add - Add New Component to Stack
+"stack-add" = mkBashAlias "stack-add" ''
+  source ${jj-helpers-lib}
+  
+  if [ $# -lt 2 ]; then
+    echo "Usage: jj stack-add <bookmark-name> <commit-message>"
+    echo "Example: jj stack-add auth-middleware 'Add authentication middleware'"
+    return 1
+  fi
+  
+  bookmark_name="$1"
+  commit_message="$2"
+  
+  # Check if bookmark already exists
+  if jj bookmark list | grep -q "^$bookmark_name$"; then
+    echo "Error: Bookmark '$bookmark_name' already exists"
+    return 1
+  fi
+  
+  # Move to flow tip and create new change
+  log_and_run jj flow tip
+  log_and_run jj new -m "$commit_message"
+  
+  # Create stable bookmark for this change
+  log_and_run jj bookmark create "$bookmark_name"
+  
+  # Add to flow
+  log_and_run jj flow changes::add @
+  
+  echo "Added '$bookmark_name' to stack and flow"
+  echo "Next steps:"
+  echo "  1. Make your changes"
+  echo "  2. Run 'jj stack-sync' to push"
+  echo "  3. Create PR: $bookmark_name -> <previous-component>"
+'';
+3. stack-remove - Remove Component from Stack
+"stack-remove" = mkBashAlias "stack-remove" ''
+  source ${jj-helpers-lib}
+  
+  if [ $# -ne 1 ]; then
+    echo "Usage: jj stack-remove <bookmark-name>"
+    echo "Example: jj stack-remove auth-middleware"
+    return 1
+  fi
+  
+  bookmark_name="$1"
+  
+  # Check if bookmark exists
+  if ! jj bookmark list | grep -q "^$bookmark_name$"; then
+    echo "Error: Bookmark '$bookmark_name' not found"
+    return 1
+  fi
+  
+  # Get the change ID for this bookmark
+  change_id=$(jj log -r "bookmarks(exact:'$bookmark_name')" --no-graph --template 'change_id.short()')
+  
+  # Remove from flow
+  log_and_run jj flow changes::remove "$change_id"
+  
+  # Delete the bookmark locally and remotely
+  log_and_run jj bookmark delete "$bookmark_name"
+  log_and_run jj git push --bookmark "$bookmark_name" --delete
+  
+  echo "Removed '$bookmark_name' from stack and flow"
+  echo "Don't forget to close the associated PR manually"
+'';
+4. stack-insert - Insert Component Between Existing Ones
+"stack-insert" = mkBashAlias "stack-insert" ''
+  source ${jj-helpers-lib}
+  
+  if [ $# -lt 3 ]; then
+    echo "Usage: jj stack-insert <after-bookmark> <new-bookmark> <commit-message>"
+    echo "Example: jj stack-insert auth-api auth-middleware 'Add authentication middleware'"
+    return 1
+  fi
+  
+  after_bookmark="$1"
+  new_bookmark="$2"
+  commit_message="$3"
+  
+  # Check if after_bookmark exists
+  if ! jj bookmark list | grep -q "^$after_bookmark$"; then
+    echo "Error: Bookmark '$after_bookmark' not found"
+    return 1
+  fi
+  
+  # Check if new_bookmark already exists
+  if jj bookmark list | grep -q "^$new_bookmark$"; then
+    echo "Error: Bookmark '$new_bookmark' already exists"
+    return 1
+  fi
+  
+  # Create new change based on after_bookmark
+  log_and_run jj new "bookmarks(exact:'$after_bookmark')" -m "$commit_message"
+  
+  # Create stable bookmark
+  log_and_run jj bookmark create "$new_bookmark"
+  
+  # Add to flow (this will rebase subsequent changes)
+  log_and_run jj flow changes::add @
+  
+  echo "Inserted '$new_bookmark' after '$after_bookmark' in stack"
+  echo "Subsequent components will be automatically rebased"
+  echo "Run 'jj stack-sync' to update all PRs"
+'';
+5. stack-status - Show Current Stack State
+"stack-status" = mkBashAlias "stack-status" ''
+  source ${jj-helpers-lib}
+  
+  echo "=== Flow + Stack Status ==="
+  echo
+  
+  # Show flow structure
+  echo "Flow structure:"
+  jj log -r "trunk()..flow" --template 'change_id.short() ++ " " ++ description.first_line() ++ "\n"'
+  echo
+  
+  # Show stack bookmarks
+  echo "Stack bookmarks:"
+  stack_bookmarks=$(jj bookmark list | grep -v "^flow$" | grep -v "@" | awk '{print $1}' | sort)
+  
+  if [ -z "$stack_bookmarks" ]; then
+    echo "  No stack bookmarks found"
+  else
+    while read -r bookmark; do
+      if [ -n "$bookmark" ]; then
+        change_id=$(jj log -r "bookmarks(exact:'$bookmark')" --no-graph --template 'change_id.short()')
+        description=$(jj log -r "bookmarks(exact:'$bookmark')" --no-graph --template 'description.first_line()')
+        echo "  $bookmark -> $change_id ($description)"
+      fi
+    done <<< "$stack_bookmarks"
+  fi
+  echo
+  
+  # Check sync status
+  echo "Sync status:"
+  flow_changes=$(jj log -r "trunk()..flow" --reversed --no-graph --template 'change_id.short() ++ "\n"')
+  readarray -t changes <<< "$flow_changes"
+  readarray -t bookmarks <<< "$stack_bookmarks"
+  
+  synced=true
+  for i in "''${!changes[@]}"; do
+    if [ $i -lt ''${#bookmarks[@]} ]; then
+      change_id="''${changes[$i]}"
+      bookmark="''${bookmarks[$i]}"
+      bookmark_change=$(jj log -r "bookmarks(exact:'$bookmark')" --no-graph --template 'change_id.short()')
+      
+      if [ "$change_id" = "$bookmark_change" ]; then
+        echo "  ✓ $bookmark synced with flow"
+      else
+        echo "  ✗ $bookmark out of sync (points to $bookmark_change, should be $change_id)"
+        synced=false
+      fi
+    fi
+  done
+  
+  if [ "$synced" = true ]; then
+    echo "  All bookmarks are synced with flow"
+  else
+    echo "  Run 'jj stack-sync' to sync bookmarks with flow"
+  fi
+'';
+6. stack-reorder - Reorder Components in Stack
+"stack-reorder" = mkBashAlias "stack-reorder" ''
+  source ${jj-helpers-lib}
+  
+  if [ $# -lt 2 ]; then
+    echo "Usage: jj stack-reorder <bookmark1> <bookmark2> [bookmark3...]"
+    echo "Reorders the stack to match the specified bookmark order"
+    echo "Example: jj stack-reorder auth-db auth-api auth-middleware auth-ui"
+    return 1
+  fi
+  
+  register_rollback_instructions
+  
+  # Clear current flow
+  echo "Rebuilding flow in specified order..."
+  
+  # Get current flow tip and remove all changes
+  current_changes=$(jj log -r "trunk()..flow" --no-graph --template 'change_id.short() ++ "\n"')
+  while read -r change; do
+    if [ -n "$change" ]; then
+      log_and_run jj flow changes::remove "$change"
+    fi
+  done <<< "$current_changes"
+  
+  # Add bookmarks back in specified order
+  for bookmark in "$@"; do
+    if jj bookmark list | grep -q "^$bookmark$"; then
+      change_id=$(jj log -r "bookmarks(exact:'$bookmark')" --no-graph --template 'change_id.short()')
+      log_and_run jj flow changes::add "$change_id"
+      echo "Added $bookmark to flow"
+    else
+      echo "Warning: Bookmark '$bookmark' not found, skipping"
+    fi
+  done
+  
+  echo "Stack reordered. Run 'jj stack-sync' to update PRs"
+'';
+Advanced Helpers
+7. stack-init - Initialize New Stack
+"stack-init" = mkBashAlias "stack-init" ''
+  source ${jj-helpers-lib}
+  
+  if [ $# -eq 0 ]; then
+    echo "Usage: jj stack-init <component1> [component2] [component3...]"
+    echo "Example: jj stack-init auth-db auth-api auth-ui"
+    echo "Creates empty commits for each component and sets up the stack"
+    return 1
+  fi
+  
+  echo "Initializing new stack with components: $*"
+  
+  # Start from trunk
+  log_and_run jj new trunk
+  
+  # Create each component as empty commit
+  for component in "$@"; do
+    log_and_run jj new -m "Add $component (placeholder)"
+    log_and_run jj bookmark create "$component"
+    log_and_run jj flow changes::add @
+    echo "Created placeholder for $component"
+  done
+  
+  echo "Stack initialized! Next steps:"
+  echo "1. Edit each component: jj edit <bookmark-name>"
+  echo "2. Make your changes"
+  echo "3. Run 'jj stack-sync' to push"
+  echo "4. Create stacked PRs"
+'';
+8. stack-pr-info - Generate PR Creation Commands
+"stack-pr-info" = mkBashAlias "stack-pr-info" ''
+  source ${jj-helpers-lib}
+  
+  echo "=== PR Creation Commands ==="
+  echo
+  
+  stack_bookmarks=$(jj bookmark list | grep -v "^flow$" | grep -v "@" | awk '{print $1}' | sort)
+  readarray -t bookmarks <<< "$stack_bookmarks"
+  
+  if [ ''${#bookmarks[@]} -eq 0 ]; then
+    echo "No stack bookmarks found"
+    return 0
+  fi
+  
+  # First PR goes to main
+  if [ -n "''${bookmarks[0]}" ]; then
+    echo "# First component (base of stack)"
+    echo "gh pr create --base main --head ''${bookmarks[0]} --title 'Add ''${bookmarks[0]}'"
+    echo
+  fi
+  
+  # Subsequent PRs stack on previous
+  for i in $(seq 1 $((''${#bookmarks[@]} - 1))); do
+    if [ -n "''${bookmarks[$i]}" ] && [ -n "''${bookmarks[$((i-1))]}" ]; then
+      echo "# Component $((i+1))"
+      echo "gh pr create --base ''${bookmarks[$((i-1))]} --head ''${bookmarks[$i]} --title 'Add ''${bookmarks[$i]}'"
+    fi
+  done
+  
+  echo
+  echo "Copy and run these commands to create your stacked PRs"
+'';
+Usage Examples
+Complete Workflow Example
+# Initialize a new authentication feature stack
+$ jj stack-init auth-db auth-api auth-middleware auth-ui
+
+# Work on each component
+$ jj edit auth-db
+# Make database changes
+$ jj commit -m "Implement user tables and indexes"
+
+$ jj edit auth-api  
+# Make API changes
+$ jj commit -m "Implement authentication endpoints"
+
+# Sync and push all components
+$ jj stack-sync
+
+# Get PR creation commands
+$ jj stack-pr-info
+# Copy and run the generated gh commands
+
+# Check status
+$ jj stack-status
+
+# Add new component in the middle
+$ jj stack-insert auth-api auth-validation "Add input validation"
+
+# Reorder if needed
+$ jj stack-reorder auth-db auth-validation auth-api auth-middleware auth-ui
+
+# Remove component
+$ jj stack-remove auth-middleware
+These helpers provide a complete toolkit for managing flow + stacked PR workflows, automating the tedious bookmark management while preserving the benefits of both approaches!

@@ -13,11 +13,12 @@ in {
     programs.brave = {
       enable = true;
       commandLineArgs = [
+        "--disable-gpu-driver-bug-workaround --skia-graphite-backend"
         "--disable-features=PasswordManager"
         "--password-store=basic"
         "--no-default-browser-check"
         "--restore-last-session"
-        "--enable-features=TouchpadOverscrollHistoryNavigation,UseOzonePlatform"
+        "--enable-features=TouchpadOverscrollHistoryNavigation,UseOzonePlatform,VaapiVideoDecoder,VaapiVideoEncoder,VaapiVideoDecodeLinuxGL,VaapiIgnoreDriverChecks,PlatformHEVCEncoderSupport"
         "--ozone-platform=wayland"
         "--ozone-platform-hint=wayland"
       ];

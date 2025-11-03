@@ -1,5 +1,4 @@
-- use `jj worklog` to see current work context and bookmarks
-  - check current bookmarks with `jj log -r @ -T 'bookmarks.join(", ")'`
+- look at the name current git branch to see what we are working on
   - depending on the type there should be one of the following files:
   - notes/feature/<feature_name>.md
   - notes/fix/<fix_name>.md
@@ -15,4 +14,4 @@
   - add a summary of the step
   - update the current status section
   - update the todo list
-  - use `jj describe -m "step: [summary]"` to record progress
+  - commit the changes

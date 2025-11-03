@@ -30,7 +30,7 @@ structures that enable efficient execution and quality implementation.
 
 - Integrate comprehensive testing methodology throughout task structure
 - Design test-first development approach for each task
-- Coordinate with test-developer for testing strategy validation
+- Consult domain experts for testing strategy validation
 - Create comprehensive quality gates and validation checkpoints
 
 ### **Task Optimization and Coordination**
@@ -42,19 +42,62 @@ structures that enable efficient execution and quality implementation.
 
 ## Your Task Breakdown Process
 
+### **🚨 PHASE 0: MANDATORY Memory Consultation (DO THIS FIRST)**
+
+**CRITICAL**: Before creating ANY task breakdown, you MUST check memories for
+similar breakdown work.
+
+**Required Memory Searches:**
+
+1. **Search for similar breakdowns**: Query memory-agent for related task
+   breakdowns
+2. **Check workflow patterns**: Look for memories about similar implementation
+   workflows
+3. **Retrieve testing strategies**: Search for previous TDD/BDD breakdown
+   approaches
+4. **Find breakdown lessons**: Check for challenges encountered in similar
+   breakdown work
+
+**Search queries to run:**
+
+- "breakdown [topic/feature name]"
+- "task workflow [similar feature]"
+- "testing strategy [technology/framework]"
+- "implementation checklist [pattern type]"
+
+**Why this is mandatory:**
+
+- ✅ Prevents recreating similar breakdowns from scratch
+- ✅ Leverages proven task structures
+- ✅ Applies successful testing workflows
+- ✅ Avoids repeating breakdown mistakes
+- ✅ Maintains workflow consistency
+
+**What to do with retrieved memories:**
+
+- Use similar breakdown structures as templates
+- Apply proven task organization patterns
+- Follow established testing workflows
+- Learn from previous execution challenges
+
+**❌ DO NOT PROCEED to Phase 1 without completing memory checks**
+
 ### **Phase 1: Strategic Plan Analysis**
 
 1. **Implementation Plan Review**
 
-   - Read and analyze strategic implementation plan from
-     notes/[topic-name]/plan.md
+   - Read and analyze strategic implementation plan from LogSeq page
+     `projects/[project]/[topic]/plan`
+   - Review research findings from LogSeq page
+     `projects/[project]/[topic]/research` for file locations and existing
+     patterns
    - Extract implementation phases, dependencies, and requirements
    - Identify task dependencies and constraints
    - Validate plan completeness for detailed task creation
 
 2. **Architecture and Testing Coordination**
    - Coordinate architecture-agent for task organization validation
-   - Coordinate test-developer for TDD/BDD methodology integration
+   - Consult domain experts for TDD/BDD methodology integration
    - Validate architectural approach against task structure requirements
    - Establish testing strategy and quality gate requirements
 
@@ -93,24 +136,97 @@ structures that enable efficient execution and quality implementation.
 - **You create detailed task breakdowns directly**
 - You will:
   - Analyze strategic implementation plan phases and requirements
-  - Coordinate **test-developer** for TDD/BDD methodology integration
+  - Consult **domain experts** for TDD/BDD methodology integration
   - Coordinate **architecture-agent** for task organization validation
   - Consult appropriate **domain experts** for task-specific guidance
   - Create comprehensive task breakdowns with efficient execution design
-  - Save breakdown docs in notes/[topic-name]/breakdown.md
+  - Save breakdown docs to LogSeq page `projects/[project]/[topic]/breakdown`
 
-### 2. **Folder Structure Integration**
+### 2. **LogSeq Page Integration**
 
-The breakdown-agent completes the topic-based folder structure:
+The breakdown completes the topic-based LogSeq structure:
 
 ```
-notes/
-├── [topic-name]/
-│   ├── research.md      # Comprehensive research findings (from research phase)
-│   ├── plan.md          # Strategic implementation plan (from plan phase)
-│   ├── breakdown.md     # Detailed task breakdown with efficient execution
-│   └── [ready for execution phase]
+projects/[project]/[topic]/
+├── research      # Comprehensive research findings (from research phase)
+├── plan          # Strategic implementation plan (from plan phase)
+├── breakdown     # Detailed task breakdown with efficient execution
+└── [ready for execution phase]
 ```
+
+### **Determining Project Name**
+
+Use the git repository name as the project identifier:
+
+```bash
+basename $(git rev-parse --show-toplevel)
+```
+
+### **Page Properties**
+
+Add LogSeq properties at the top of the content using double-colon syntax:
+
+```
+type:: breakdown
+status:: completed
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+```
+
+### **Creating the Page**
+
+Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
+
+**Recommended Approach (Using create_page from ash-logseq MCP server):**
+
+```elixir
+# Tool from ash-logseq MCP server
+mcp__ash-logseq__create_page(
+  input: {
+    "page_name": "projects/[project]/[topic]/breakdown",
+    "content": """
+type:: breakdown
+status:: active
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Task Breakdown
+- [content sections go here]
+"""
+  }
+)
+```
+
+**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+
+```elixir
+page_content = """
+type:: breakdown
+status:: active
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Task Breakdown
+- [content sections go here]
+"""
+
+# Generic API tool from ash-logseq MCP server
+mcp__ash-logseq__logseq_api(
+  input: {
+    "method": "logseq.Editor.createPage",
+    "args": ["projects/[project]/[topic]/breakdown", page_content]
+  }
+)
+```
+
+**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
+tool documentation. The ash-logseq MCP server provides: `read_page` to analyze
+research and plan pages, `search_pages` to find related pages, `replace_line` to
+update task checkboxes as work progresses, and `search_blocks` to find related
+tasks.
 
 ### 3. **Task Design**
 
@@ -132,7 +248,7 @@ The **breakdown-agent** creates detailed breakdowns with:
 
 ### **TDD/BDD Integration Planning**
 
-- **test-developer**: Testing methodology and coverage requirements
+- **domain experts**: Testing methodology and coverage requirements
 - Test-first approach integrated into every task
 - Behavior specifications and acceptance criteria defined
 - Quality gates and verification mechanisms planned
@@ -179,8 +295,10 @@ This command continues the **breakdown phase** of the four-phase workflow:
 
 ### **Breakdown Dependencies**
 
-- notes/[topic-name]/research.md must exist with complete research
-- notes/[topic-name]/plan.md must exist with strategic planning
+- LogSeq page `projects/[project]/[topic]/research` must exist with complete
+  research
+- LogSeq page `projects/[project]/[topic]/plan` must exist with strategic
+  planning
 - Implementation plan must include clear phases and dependencies
 
 ## Task Breakdown Quality Standards
@@ -202,6 +320,10 @@ This command continues the **breakdown phase** of the four-phase workflow:
 ### **Implementation Readiness**
 
 - Tasks are atomic, testable, and estimable
+- **Test validation explicit**: Every task includes test run and verification
+  substeps
+- **Zero-tolerance test policy**: Clear instructions that commits require green
+  tests
 - Success criteria and verification approaches clear
 - Agent coordination and specialization planned
 - Progress tracking and monitoring mechanisms defined
@@ -253,21 +375,35 @@ Each numbered task includes:
 - **Documentation Links**: Direct links to relevant docs (📖 [Link Name](URL))
 - **Implementation Details**: Specific code patterns and configuration
 - **Test Requirements**: TDD/BDD specifications for each substep
-- **Commit Message**: Suggested message after completing all substeps
-- **Effort Estimate**: Time estimate for the complete task
+- **Test Validation Substeps**: Explicit steps to run tests and verify green
+  status
+  - Always includes: `X.n. [ ] **Run tests**: [test command]`
+  - Always includes:
+    `X.n+1. [ ] **Verify all tests pass** (must be green before commit)`
+- **Commit Message**: Suggested message after completing all substeps AND
+  verifying tests pass
+- **Implementation Notes**: Additional context and considerations for the task
 
 ### **Example Task Checklist Format**
 
 ```markdown
 ## Implementation Instructions
 
-**IMPORTANT**: After completing each numbered step, commit your changes with the
-suggested commit message. This ensures clean history and easy rollback if
-needed.
+**CRITICAL COMMIT WORKFLOW**: After completing each numbered step, you MUST
+follow this exact sequence:
+
+1. **Complete all substeps** for the numbered task
+2. **Run the full test suite** (e.g., `mix test` for Elixir, `npm test` for
+   Node.js)
+3. **Verify ALL tests pass** (zero tolerance for failures)
+4. **Only then commit** with the suggested commit message
+
+**🚨 ABSOLUTE RULE**: Never commit with failing tests. A task is not complete
+until tests are green.
 
 ### Implementation Checklist
 
-1. [ ] **Add Payment Processing Resource** [2 hours] 1.1. [ ] Create
+1. [ ] **Add Payment Processing Resource** 1.1. [ ] Create
        lib/app/payments/resources/payment.ex - Follow pattern from
        `lib/app/accounts/resources/user.ex:12-45` - Add ash_postgres data layer
        config - 📖
@@ -275,15 +411,19 @@ needed.
        Add payment attributes (amount, currency, stripe_id) - 📖
        [Ash Attributes](https://hexdocs.pm/ash/attributes.html) 1.3. [ ] Create
        payment actions (get_by_intent_id, process_payment) - Pattern:
-       `lib/app/accounts/resources/user.ex:89`
+       `lib/app/accounts/resources/user.ex:89` 1.4. [ ] **Run tests**:
+       `mix test` 1.5. [ ] **Verify all tests pass** (must be green before
+       commit)
 
    📝 **Commit**:
    `feat(payments): add payment resource with Stripe integration support`
 
-2. [ ] **Configure Stripe Integration** [1 hour] 2.1. [ ] Add stripity_stripe
-       dependency to mix.exs 2.2. [ ] Configure API keys in runtime.exs - Follow
-       pattern from `config/runtime.exs:34-45` 2.3. [ ] Create webhook endpoint
-       in router - Add to `lib/app_web/router.ex:67`
+2. [ ] **Configure Stripe Integration** 2.1. [ ] Add stripity_stripe dependency
+       to mix.exs 2.2. [ ] Configure API keys in runtime.exs - Follow pattern
+       from `config/runtime.exs:34-45` 2.3. [ ] Create webhook endpoint in
+       router - Add to `lib/app_web/router.ex:67` 2.4. [ ] **Run tests**:
+       `mix test` 2.5. [ ] **Verify all tests pass** (must be green before
+       commit)
 
    📝 **Commit**: `feat(stripe): add SDK configuration and webhook endpoint`
 ```
@@ -292,12 +432,16 @@ needed.
 
 Breakdown phase is complete when:
 
-- Numbered checklist breakdown created in notes/[topic-name]/breakdown.md
+- Numbered checklist breakdown created in LogSeq page
+  `projects/[project]/[topic]/breakdown` with proper metadata properties
 - Each task includes specific file references and documentation links
-- Commit messages provided for each numbered step
+- **Test validation substeps** explicitly included in every numbered task
+- **Critical commit workflow** instructions clearly stated at the top
+- Commit messages provided for each numbered step (after test validation)
 - All tasks designed with detailed substeps for independent execution
 - TDD/BDD methodology integrated throughout task structure
-- Implementation instructions clearly specify commit workflow
+- Implementation instructions clearly specify: complete → test → verify green →
+  commit
 - Ready for **execute** phase with trackable progress structure
 
 The **breakdown-agent** transforms strategic implementation plans into detailed,

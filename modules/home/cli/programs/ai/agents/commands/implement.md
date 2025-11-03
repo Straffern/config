@@ -1,7 +1,6 @@
 # /implement
 
-Orchestrate the implementation of planned work by delegating specific tasks to
-the implementation-agent.
+Execute the implementation of planned work with expert consultation.
 
 ## Orchestration Process
 
@@ -9,7 +8,7 @@ As the orchestrator, you will:
 
 1. **Identify current work context**:
 
-   - Use `jj worklog` to determine work type and current context
+   - Check git branch to determine work type
    - Locate planning document in:
      - notes/features/<feature_name>.md
      - notes/fixes/<fix_name>.md
@@ -21,27 +20,28 @@ As the orchestrator, you will:
    - Identify what needs to be built
    - Determine the order of operations
 
-3. **Delegate to implementation-agent**:
+3. **Consult experts for guidance**:
 
-   - Give specific implementation tasks
-   - Provide clear technical specifications
-   - Specify patterns to follow
-   - Define success criteria
+   - Use **architecture-agent** for code placement and module organization
+   - Ask about implementation patterns (elixir skill provides Elixir/Phoenix/Ash
+     patterns and best practices)
+   - Use **research-agent** for unfamiliar libraries or frameworks
+   - Use **consistency-reviewer** to ensure alignment with existing patterns
 
-4. **Coordinate the implementation**:
-   - The implementation-agent will execute your instructions
-   - It will proactively consult experts for patterns/guidance
-   - It will return summaries of completed work
-   - You decide next steps based on progress
+4. **Implement systematically**:
+   - Execute implementation tasks based on expert guidance
+   - Apply recommended patterns and approaches
+   - Verify each step independently
+   - Track progress through the plan
 
 **CRITICAL**: Implementation is NOT complete without working tests:
 
 - Every feature/fix must have comprehensive test coverage
 - Tests must pass before claiming any step complete
-- Use test-developer for systematic test creation
+- Consult experts for test patterns and approaches
 - Never report implementation as "done" without working tests
 
-## Example Orchestration
+## Example Workflow
 
 ```markdown
 # As orchestrator, you would:
@@ -49,38 +49,47 @@ As the orchestrator, you will:
 1. Read notes/features/user-authentication.md
 2. See it needs: User model, auth endpoints, JWT tokens, tests
 
-3. Delegate to implementation-agent: "Create the User model in
-   lib/app/users/user.ex following the existing Ash resource pattern. Include
-   email, password_hash, and confirmed_at fields. Tests required."
+3. Consult architecture-agent: "Where should I place the User model and auth
+   endpoints? What's the proper module structure for authentication?"
 
-4. Implementation-agent returns: "✅ Complete - Created User resource with 3
-   fields, added 8 tests, all passing"
+4. Ask about Ash patterns: "What are the best practices for creating an Ash
+   resource for User with email, password_hash, and confirmed_at fields? How
+   should I handle authentication in Phoenix?" (elixir skill provides
+   Elixir-specific guidance)
 
-5. You continue with next task: "Now implement the authentication endpoints..."
+5. Implement based on skill knowledge: Create User resource following expert
+   patterns
+
+6. Verify: Run tests to ensure User resource works correctly
+
+7. Continue with next task: Implement authentication endpoints following same
+   consultation pattern
 ```
 
 ## Usage Examples
 
 ```bash
-# On feature work
-jj edit feature/user-authentication  # or jj worklog to see current
-/implement  # Orchestrator reads plan and delegates to implementation-agent
+# On a feature branch
+git checkout feature/user-authentication
+/implement  # Orchestrator reads plan, consults experts, implements with guidance
 
-# On fix work
-jj edit fix/memory-leak  # or jj worklog to see current
-/implement  # Orchestrator analyzes fix and guides implementation
+# On a fix branch
+git checkout fix/memory-leak
+/implement  # Orchestrator analyzes fix, gets expert guidance, implements solution
 
-# On task work
-jj edit task/update-dependencies  # or jj worklog to see current
-/implement  # Orchestrator breaks down task and coordinates execution
+# On a task branch
+git checkout task/update-dependencies
+/implement  # Orchestrator breaks down task, consults experts, executes systematically
 ```
 
 ## Key Benefits
 
-- **Clear separation**: Orchestrator plans, implementation-agent executes
-- **Expert consultation**: Implementation-agent proactively uses experts
-- **Quality control**: You verify each step before proceeding
-- **Flexible coordination**: You adapt based on implementation results
+- **Expert-driven implementation**: Every decision backed by domain expertise
+- **Pattern consistency**: Implementation aligns with existing codebase
+  standards
+- **Quality focus**: Tests and validation built into every step
+- **Systematic approach**: Controlled implementation strategy with expert
+  guidance
 
-You maintain control of the workflow while the implementation-agent handles the
-technical execution with expert support.
+You maintain control of the implementation strategy while leveraging expert
+guidance for high-quality, consistent code.

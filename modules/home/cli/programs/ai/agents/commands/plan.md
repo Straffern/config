@@ -43,11 +43,52 @@ into detailed, executable tasks.
 
 ## Your Implementation Planning Process
 
+### **🚨 PHASE 0: MANDATORY Memory Consultation (DO THIS FIRST)**
+
+**CRITICAL**: Before creating ANY implementation plan, you MUST check memories
+for similar planning work.
+
+**Required Memory Searches:**
+
+1. **Search for similar plans**: Query memory-agent for related implementation
+   plans
+2. **Check architectural decisions**: Look for memories about similar
+   architectural approaches
+3. **Retrieve implementation patterns**: Search for previous implementation
+   strategies
+4. **Find planning lessons**: Check for challenges encountered in similar
+   planning work
+
+**Search queries to run:**
+
+- "plan [topic/feature name]"
+- "[technology/framework] implementation approach"
+- "architectural decision [pattern type]"
+- "implementation strategy [similar feature]"
+
+**Why this is mandatory:**
+
+- ✅ Prevents recreating similar plans from scratch
+- ✅ Leverages proven implementation approaches
+- ✅ Avoids repeating planning mistakes
+- ✅ Maintains architectural consistency
+- ✅ Saves significant planning time
+
+**What to do with retrieved memories:**
+
+- Use similar plan structures as templates
+- Apply proven architectural patterns
+- Learn from previous implementation challenges
+- Follow established planning conventions
+
+**❌ DO NOT PROCEED to Phase 1 without completing memory checks**
+
 ### **Phase 1: Impact Analysis Review and Planning Foundation**
 
 1. **Codebase Impact Analysis Review**
 
-   - Read and analyze impact analysis from notes/[topic-name]/research.md
+   - Read and analyze impact analysis from LogSeq page
+     `projects/[project]/[topic]/research`
    - Extract existing patterns, dependencies, and architectural conventions
    - Identify file-level changes and integration points discovered
    - Review third-party integration detection and documentation links
@@ -107,19 +148,92 @@ into detailed, executable tasks.
   - Consult appropriate **domain experts** for pattern validation
   - Coordinate **senior-engineer-reviewer** for strategic validation
   - Create comprehensive implementation plans with clear phases
-  - Save planning docs in notes/[topic-name]/plan.md
+  - Save planning docs to LogSeq page `projects/[project]/[topic]/plan`
 
-### 2. **Folder Structure Integration**
+### 2. **LogSeq Page Integration**
 
-The implementation-planner builds on the existing research structure:
+The plan builds on the existing research structure in LogSeq:
 
 ```
-notes/
-├── [topic-name]/
-│   ├── research.md      # Comprehensive research findings (from research phase)
-│   ├── plan.md          # Strategic implementation plan
-│   └── [ready for breakdown phase]
+projects/[project]/[topic]/
+├── research      # Comprehensive research findings (from research phase)
+├── plan          # Strategic implementation plan
+└── [ready for breakdown phase]
 ```
+
+### **Determining Project Name**
+
+Use the git repository name as the project identifier:
+
+```bash
+basename $(git rev-parse --show-toplevel)
+```
+
+### **Page Properties**
+
+Add LogSeq properties at the top of the content using double-colon syntax:
+
+```
+type:: plan
+status:: completed
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+```
+
+### **Creating the Page**
+
+Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
+
+**Recommended Approach (Using create_page from ash-logseq MCP server):**
+
+```elixir
+# Tool from ash-logseq MCP server
+mcp__ash-logseq__create_page(
+  input: {
+    "page_name": "projects/[project]/[topic]/plan",
+    "content": """
+type:: plan
+status:: active
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Implementation Plan
+- [content sections go here]
+"""
+  }
+)
+```
+
+**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+
+```elixir
+page_content = """
+type:: plan
+status:: active
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Implementation Plan
+- [content sections go here]
+"""
+
+# Generic API tool from ash-logseq MCP server
+mcp__ash-logseq__logseq_api(
+  input: {
+    "method": "logseq.Editor.createPage",
+    "args": ["projects/[project]/[topic]/plan", page_content]
+  }
+)
+```
+
+**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
+tool documentation. The ash-logseq MCP server provides: `read_page` for
+analyzing existing research, `search_pages` for finding pages by name,
+`search_blocks` for finding related content, and `replace_line` for updating
+page content.
 
 ### 3. **Strategic Implementation Planning**
 
@@ -182,14 +296,15 @@ This command continues the **planning phase** of the four-phase workflow:
 
 ### **Required Before Planning**
 
-- Research phase completed with notes/[topic-name]/research.md
+- Research phase completed with LogSeq page
+  `projects/[project]/[topic]/research`
 - Research findings include technical, architectural, and strategic dimensions
 - Expert recommendations and risk assessment available
 
 ### **Planning Dependencies**
 
-- Research document must exist and be comprehensive
-- Topic folder structure must be established
+- Research page must exist and be comprehensive in LogSeq
+- Project and topic structure must be established
 - Research findings must include implementation guidance
 
 ## Planning Quality Standards
@@ -229,31 +344,40 @@ The **implementation-planner** agent creates plans with:
 ### **Core Sections**
 
 - **Impact Analysis Summary**: Codebase changes and existing patterns discovered
-- **Feature Specification**: Detailed behavior, user stories, and acceptance criteria
-- **Technical Design**: Data models, API contracts, and integration details using existing patterns
-- **Third-Party Integrations**: Specific SDK usage, authentication, and webhook handling
-- **Implementation Strategy**: Primary approach following discovered project conventions
+- **Feature Specification**: Detailed behavior, user stories, and acceptance
+  criteria
+- **Technical Design**: Data models, API contracts, and integration details
+  using existing patterns
+- **Third-Party Integrations**: Specific SDK usage, authentication, and webhook
+  handling
+- **Implementation Strategy**: Primary approach following discovered project
+  conventions
 - **Agent Consultations**: Architecture and expert guidance received
 - **Implementation Phases**: Clear phases with objectives and success criteria
-- **Quality and Testing Strategy**: Test approach using discovered testing patterns
+- **Quality and Testing Strategy**: Test approach using discovered testing
+  patterns
 - **Success Criteria**: Measurable outcomes and acceptance criteria
 
 ### **Example Plan Output Structure**
 
 ```markdown
 ## Feature Specification
+
 - User Stories with acceptance criteria
 - API contracts and data flow
 - State management requirements
 - Integration points with existing systems
 
 ## Technical Design
+
 - Using existing pattern from `lib/app/accounts/user.ex:45-67`
 - Extending current authentication module with new capabilities
 - Third-party integration via Stripe Payment Intents API
-- Data model following current Ash resource patterns from `lib/app/accounts/resources/user.ex`
+- Data model following current Ash resource patterns from
+  `lib/app/accounts/resources/user.ex`
 
 ## Implementation Strategy
+
 - Phase 1: Core resource creation following `existing_resource.ex` pattern
 - Phase 2: Integration setup using discovered authentication approach
 - Phase 3: Testing using current project test patterns from `test/app/accounts/`
@@ -270,7 +394,8 @@ The **implementation-planner** agent creates plans with:
 
 Planning phase is complete when:
 
-- Strategic implementation plan created in notes/[topic-name]/plan.md
+- Strategic implementation plan created in LogSeq page
+  `projects/[project]/[topic]/plan` with proper metadata properties
 - Architecture consultations completed and documented
 - Implementation phases defined with clear objectives
 - Quality and testing strategy integrated

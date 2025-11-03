@@ -16,17 +16,17 @@ with continuous plan updates.
 - **Use feature-planner agent** to create comprehensive planning document
 - The agent will:
   - Consult **research-agent** for unfamiliar technologies
-  - Consult **elixir-expert** for Elixir/Phoenix/Ash features
+  - Leverage elixir skill knowledge for Elixir/Phoenix/Ash features
   - Consult **senior-engineer-reviewer** for architectural decisions
   - Create structured implementation plans with clear steps
   - Save planning docs in the notes/features folder
 
-### 2. **JJ Workflow**
+### 2. **Git Workflow**
 
-- Use `jj worklog` to check current work context
-- For new feature: `jj bookmark create feature/<name>` or `jj new` to continue
-- Use conventional commits with `jj describe` and `jj commit`
-- JJ's change-based model naturally encourages atomic commits
+- Check if already on an appropriate feature branch (e.g., feature/\*)
+- If not on a feature branch, create a new one
+- Use conventional commits
+- Make small commits while working, so we can better analyze changes and revert
   if necessary
 - Do not reference claude in the commit messages
 
@@ -45,7 +45,7 @@ with continuous plan updates.
 
 - Every feature must have comprehensive test coverage
 - Tests must pass before considering any step complete
-- Use test-developer for systematic test creation
+- Consult domain experts for systematic test creation patterns
 - Never claim feature completion without working tests
 
 ## What the Feature-Planner Agent Provides
@@ -55,7 +55,7 @@ The **feature-planner** agent creates comprehensive planning documents with:
 ### **Expert Research Integration**
 
 - **research-agent**: For unfamiliar technologies, APIs, frameworks
-- **elixir-expert**: For Elixir, Phoenix, Ash, Ecto work
+- Elixir skill knowledge: For Elixir, Phoenix, Ash, Ecto work
 - **senior-engineer-reviewer**: For architectural decisions
 - Documents all agent consultations performed
 

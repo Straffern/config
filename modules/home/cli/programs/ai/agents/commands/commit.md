@@ -1,4 +1,2 @@
-- analyze the changes with `jj status` and `jj diff`
-- describe current work with `jj describe -m "message"`
-- use `jj commit -m "message"` to finalize and start new work
-- JJ automatically tracks all changes (no staging needed)
+- anaylze the changes in the worktree
+- commit the changes in logical chunks

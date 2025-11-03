@@ -35,11 +35,92 @@ implementation agents will execute.
 - Ensure all required sections are complete and detailed
 - Guide proper breakdown of complex features into logical steps
 - Integrate agent consultation patterns throughout planning
+- Save planning documents to LogSeq pages with project namespace
+
+### **LogSeq Page Structure**
+
+Create feature planning pages using this structure:
+
+```
+projects/[project]/feature/[feature-name]
+```
+
+**Determining Project Name:**
+
+```bash
+basename $(git rev-parse --show-toplevel)
+```
+
+**Page Properties:**
+
+Add LogSeq properties at the top using double-colon syntax:
+
+```
+type:: feature
+status:: planned
+created:: YYYY-MM-DD
+project:: [project-name]
+feature:: [feature-name]
+```
+
+**Creating the Page:**
+
+Use ash-logseq MCP server tools to create pages. The convenience tool is
+recommended:
+
+**Recommended Approach (Using create_page from ash-logseq MCP server):**
+
+```elixir
+# Tool from ash-logseq MCP server
+mcp__ash-logseq__create_page(
+  input: {
+    "page_name": "projects/[project]/feature/[feature-name]",
+    "content": """
+type:: feature
+status:: planning
+created:: YYYY-MM-DD
+project:: [project-name]
+feature:: [feature-name]
+
+- # [feature-name] Feature Plan
+- [content sections go here]
+"""
+  }
+)
+```
+
+**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+
+```elixir
+page_content = """
+type:: feature
+status:: planning
+created:: YYYY-MM-DD
+project:: [project-name]
+feature:: [feature-name]
+
+- # [feature-name] Feature Plan
+- [content sections go here]
+"""
+
+# Generic API tool from ash-logseq MCP server
+mcp__ash-logseq__logseq_api(
+  input: {
+    "method": "logseq.Editor.createPage",
+    "args": ["projects/[project]/feature/[feature-name]", page_content]
+  }
+)
+```
+
+**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
+tool documentation. The ash-logseq MCP server provides: `read_page`,
+`search_blocks`, `replace_line`, and other tools for working with existing
+pages.
 
 ### **Research Coordination**
 
 - Identify when to consult research-agent for unfamiliar technologies
-- Determine which language experts to involve (elixir-expert, etc.)
+- Determine which language experts to involve (elixir skill knowledge, etc.)
 - Coordinate with specialized agents for comprehensive planning
 - Document all agent consultations in the planning document
 
@@ -72,7 +153,7 @@ implementation agents will execute.
 
 - **CRITICAL**: Document which agents were consulted
 - **research-agent**: For unfamiliar technologies, APIs, frameworks
-- **elixir-expert**: For Elixir, Phoenix, Ash, Ecto work
+- **elixir skill knowledge**: For Elixir, Phoenix, Ash, Ecto work
 - **senior-engineer-reviewer**: For architectural decisions
 - Other relevant agents based on feature type
 
@@ -108,7 +189,7 @@ implementation agents will execute.
 **For Simple Features:** Single checklist with integrated testing
 
 - [ ] Define expected behavior and test criteria
-- [ ] Research and consult relevant agents (including test-developer)
+- [ ] Research and consult relevant agents (including testing skill knowledge)
 - [ ] Implement the feature with accompanying tests
 - [ ] Verify feature works with all tests passing
 - [ ] Update documentation
@@ -116,7 +197,7 @@ implementation agents will execute.
 **For Complex Features:** Break into logical steps, each with:
 
 - [ ] Define expected behavior and comprehensive test criteria
-- [ ] Research and consult relevant agents (including test-developer)
+- [ ] Research and consult relevant agents (including testing skill knowledge)
 - [ ] Implement the feature component with accompanying tests
 - [ ] Verify component works with all tests passing
 - [ ] Integration testing for component interactions
@@ -124,7 +205,7 @@ implementation agents will execute.
 
 **Test Development Requirements:**
 
-- Consult test-developer for comprehensive test strategy
+- Consult testing skill knowledge for comprehensive test strategy
 - Include both unit tests and integration tests as appropriate
 - Cover success paths, error conditions, and edge cases
 - Ensure tests follow existing patterns and conventions
@@ -167,6 +248,7 @@ implementation agents will execute.
 - Understanding current project dependencies and conventions
 
 **The research command now provides:**
+
 - File-level impact mapping with specific line references
 - Existing pattern discovery from the actual codebase
 - Third-party integration detection with targeted documentation
@@ -177,9 +259,11 @@ implementation agents will execute.
 ```markdown
 ## Research Command Output Used
 
-- **Existing Patterns**: Found authentication pattern in `lib/app/accounts/user.ex:45-67`
+- **Existing Patterns**: Found authentication pattern in
+  `lib/app/accounts/user.ex:45-67`
 - **Dependencies**: Project uses Ash 3.0.1 with specific resource patterns
-- **Third-Party Detection**: Detected need for Stripe integration with payment processing
+- **Third-Party Detection**: Detected need for Stripe integration with payment
+  processing
 - **Impact Analysis**: 12 files need changes, 3 new modules required
 ```
 
@@ -188,7 +272,8 @@ implementation agents will execute.
 **ALWAYS consult appropriate domain expert:**
 
 - Identify the relevant language/framework expert for your feature
-- Examples: elixir-expert, lua-expert, neovim-expert, chezmoi-expert, etc.
+- Examples: elixir skill knowledge, lua skill knowledge, neovim skill knowledge,
+  chezmoi skill knowledge, etc.
 - Consult for patterns, conventions, and best practices
 - Document all expert consultations in your plan
 
@@ -197,9 +282,10 @@ implementation agents will execute.
 ```markdown
 ## Agent Consultations Performed
 
-- **elixir-expert**: Consulted usage_rules.md for Phoenix LiveView patterns
-- **lua-expert**: Researched metatables for plugin architecture
-- **neovim-expert**: Analyzed LSP integration patterns
+- **elixir skill knowledge**: Consulted usage_rules.md for Phoenix LiveView
+  patterns
+- **lua skill knowledge**: Researched metatables for plugin architecture
+- **neovim skill knowledge**: Analyzed LSP integration patterns
 ```
 
 ### **Architectural Review**
@@ -242,7 +328,7 @@ implementation agents will execute.
    - Identify third-party integration requirements with targeted documentation
 
 2. **Expert Consultation**
-   - Consult language experts (elixir-expert, etc.)
+   - Consult language experts (elixir skill knowledge, etc.)
    - Get architectural guidance if needed
    - Document all agent recommendations
 
@@ -315,7 +401,8 @@ Add git aliases to dot_aliases.tmpl file following existing alias patterns.
 ## Technical Details
 
 - **File**: `dot_aliases.tmpl`
-- **Aliases**: jw (jj worklog), js (jj status), jd (jj describe), jc (jj commit), jp (jj git push)
+- **Aliases**: gs (git status), gaa (git add -A), gcm (git commit -m), gp (git
+  push)
 
 ## Success Criteria
 
@@ -348,8 +435,10 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 
 ## Agent Consultations Performed
 
-- **elixir-expert**: Researched Phoenix LiveView patterns and PubSub usage
-- **elixir-expert**: Consulted usage_rules.md for authentication patterns
+- **elixir skill knowledge**: Researched Phoenix LiveView patterns and PubSub
+  usage
+- **elixir skill knowledge**: Consulted usage_rules.md for authentication
+  patterns
 - **research-agent**: Found official Phoenix LiveView documentation and examples
 - **security-reviewer**: Assessed security implications of real-time messaging
 
@@ -381,8 +470,8 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 
 ### Step 1: Database Schema and Migration
 
-- [ ] Consult elixir-expert for Ecto schema patterns
-- [ ] Consult test-developer for schema testing strategies
+- [ ] Consult elixir skill knowledge for Ecto schema patterns
+- [ ] Consult testing skill knowledge for schema testing strategies
 - [ ] Create Messages schema with user associations
 - [ ] Generate and run database migration
 - [ ] Implement comprehensive schema tests (creation, validation, associations)
@@ -391,7 +480,7 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 ### Step 2: LiveView Implementation
 
 - [ ] Create ChatLive module following LiveView patterns
-- [ ] Consult test-developer for LiveView testing strategies
+- [ ] Consult testing skill knowledge for LiveView testing strategies
 - [ ] Implement mount/3 with authentication
 - [ ] Add message rendering and form handling
 - [ ] Implement LiveView tests (mount, render, form handling)
@@ -402,7 +491,7 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 
 - [ ] Integrate Phoenix.PubSub for message broadcasting
 - [ ] Add message sending and receiving logic
-- [ ] Consult test-developer for real-time testing patterns
+- [ ] Consult testing skill knowledge for real-time testing patterns
 - [ ] Implement real-time messaging tests (send, receive, broadcast)
 - [ ] Test message persistence and retrieval
 - [ ] Test error scenarios and edge cases
@@ -413,7 +502,7 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 - [ ] Implement Phoenix.Presence for user tracking
 - [ ] Add user join/leave notifications
 - [ ] Display active users in chat interface
-- [ ] Consult test-developer for presence testing strategies
+- [ ] Consult testing skill knowledge for presence testing strategies
 - [ ] Implement presence tests (join, leave, tracking)
 - [ ] Test presence synchronization across sessions
 - [ ] Verify all presence tests pass before proceeding
@@ -423,7 +512,7 @@ real-time messaging, Presence for user tracking, and Ecto for persistence.
 - [ ] Consult security-reviewer for final security check
 - [ ] Add input validation and sanitization
 - [ ] Implement rate limiting if needed
-- [ ] Consult test-developer for comprehensive end-to-end testing
+- [ ] Consult testing skill knowledge for comprehensive end-to-end testing
 - [ ] Implement security tests (validation, sanitization, rate limiting)
 - [ ] Run complete integration test suite
 - [ ] Verify 100% test coverage for all implemented functionality
@@ -462,7 +551,7 @@ implementation.
 ```markdown
 ## Feature Planning Complete
 
-### Planning Document: notes/features/[feature-name].md
+### Planning Document: LogSeq page `projects/[project]/feature/[feature-name]`
 
 ### Feature Summary
 
@@ -486,7 +575,7 @@ implementation.
 - Test Coverage Required: [Unit/Integration/E2E]
 - Critical Test Scenarios: [List key scenarios]
 
-### Estimated Effort: [Small/Medium/Large]
+### Implementation Complexity: [Simple/Moderate/Complex]
 
 ### Ready for Implementation: [Yes/No]
 

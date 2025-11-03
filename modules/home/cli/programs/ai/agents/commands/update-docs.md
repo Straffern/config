@@ -11,8 +11,8 @@ the code using specialized documentation agents.
 
 1. **Identify current work**:
 
-   - Use `jj worklog` to understand feature/fix context
-   - Review recent changes with `jj log` and `jj diff`
+   - Check git branch to understand feature/fix context
+   - Review recent commits for changes
    - Identify affected components and systems
 
 2. **Locate existing documentation**:
@@ -102,8 +102,8 @@ Documentation must meet these criteria:
 ## Example Workflow
 
 ```bash
-# On feature work
-jj edit feature/user-authentication  # or jj worklog to see current
+# On feature branch
+git checkout feature/user-authentication
 
 # Run update-docs command
 /update-docs
@@ -112,7 +112,7 @@ jj edit feature/user-authentication  # or jj worklog to see current
 # 1. documentation-expert analyzes changes
 # 2. Updates all affected documentation
 # 3. documentation-reviewer validates quality
-# 4. Records updates with jj describe
+# 4. Commits documentation updates
 ```
 
 ## Integration with Other Commands

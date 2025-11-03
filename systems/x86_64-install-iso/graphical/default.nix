@@ -4,12 +4,9 @@ in {
   services.openssh.settings.PermitRootLogin = lib.mkForce "yes";
   # networking.useNetworkd = false;
 
-  # Disable wpa_supplicant
-  networking.wireless.enable = false;
+  networking.wireless.enable = lib.mkForce false;
   # Enable NetworkManager
   networking.networkmanager.enable = true;
-
-  system = { locale.enable = true; };
 
   services.displayManager.autoLogin = {
     enable = true;
@@ -22,8 +19,13 @@ in {
     suites = {
       desktop = {
         enable = true;
-        addons = { gnome = enabled; };
+        addons = { hyprland = enabled; };
       };
+    };
+
+    system = {
+      locale = enabled;
+      nix = enabled;
     };
 
     user."1" = {

@@ -64,6 +64,39 @@ implementation phases will use.
 
 ## Impact Analysis Process
 
+### **🚨 PHASE 0: MANDATORY Memory Consultation (DO THIS FIRST)**
+
+**CRITICAL**: Before starting ANY research, you MUST check memories for similar
+work.
+
+**Required Memory Searches:**
+
+1. **Search for similar topics**: Query memory-agent for related research on
+   this topic or technology
+2. **Check for integration patterns**: Look for memories about similar
+   third-party integrations
+3. **Retrieve project patterns**: Search for previous work on this specific
+   project
+4. **Find hard-won knowledge**: Check for challenges encountered with similar
+   technologies
+
+**Search queries to run:**
+
+- "research [topic/technology name]"
+- "[third-party service name] integration"
+- "[project name] patterns"
+- "challenges with [technology]"
+
+**Why this is mandatory:**
+
+- ✅ Prevents repeating research already done
+- ✅ Leverages previous integration experiences
+- ✅ Finds documented solutions to known problems
+- ✅ Maintains consistency with established patterns
+- ✅ Saves significant research time
+
+**❌ DO NOT PROCEED to Phase 1 without completing memory checks**
+
 ### **Phase 1: Project Discovery**
 
 1. **Dependency Analysis**
@@ -83,12 +116,15 @@ implementation phases will use.
 
 1. **Service Detection from Prompt**
 
-   - Analyze user prompt for third-party service mentions (Stripe, AWS, Twilio, etc.)
-   - Identify specific service features (payments, subscriptions, uploads, SMS, etc.)
+   - Analyze user prompt for third-party service mentions (Stripe, AWS, Twilio,
+     etc.)
+   - Identify specific service features (payments, subscriptions, uploads, SMS,
+     etc.)
    - Determine integration patterns (webhooks, API calls, SDKs, OAuth)
    - Map service combinations and dependencies
 
 2. **Context-Aware Service Analysis**
+
    - "payment" + "subscription" → Subscription APIs, billing portal
    - "payment" + "one-time" → Payment Intents, Checkout
    - "email" + "template" → Dynamic templates, template management
@@ -220,6 +256,7 @@ Required:**
 _[Automatically detected from prompt analysis and codebase search]_
 
 **Service Detection Results:**
+
 - Detected services: [list from prompt analysis]
 - Integration types: [API calls, webhooks, SDK usage, OAuth]
 - Integration patterns: [direct HTTP, SDK, webhook receiver]
@@ -227,13 +264,16 @@ _[Automatically detected from prompt analysis and codebase search]_
 **Per-Service Analysis:**
 
 **[Service Name]** (e.g., Stripe, AWS S3, Twilio) - [Purpose from context]
+
 - Integration Type: [Specific use case detected from prompt]
 - Current Status: [Found in codebase at X / Not found - NEW INTEGRATION]
 - Context-Specific Documentation Links:
   - 📖 [Primary API Docs](direct-link-to-exact-section) - For [specific feature]
-  - 📖 [Authentication Guide](specific-auth-method-link) - [API keys/OAuth/webhook security]
+  - 📖 [Authentication Guide](specific-auth-method-link) - [API
+    keys/OAuth/webhook security]
   - 📖 [Language SDK](version-specific-sdk-link) - [Elixir/Node/Python specific]
-  - 📖 [Integration Examples](official-examples-link) - Code samples for exact use case
+  - 📖 [Integration Examples](official-examples-link) - Code samples for exact
+    use case
   - 📖 [Webhook Documentation](webhook-event-types) - If webhooks detected
   - 📖 [Rate Limits & Quotas](limits-documentation) - Service-specific limits
   - 📖 [Testing & Sandbox](testing-guide-link) - Development environment setup
@@ -247,33 +287,53 @@ _[Automatically detected from prompt analysis and codebase search]_
   - Breaking changes: [list if upgrading]
 
 **Integration Dependencies:**
+
 - Service A requires Service B for [specific workflow]
 - Authentication flow dependencies
 - Webhook event ordering and idempotency
 
 **Example Service Entries:**
 
-**Stripe** - Payment Processing (detected: "process payments with subscriptions")
+**Stripe** - Payment Processing (detected: "process payments with
+subscriptions")
+
 - Integration Type: Payment collection with recurring billing
 - Current Status: [Not found in codebase - NEW INTEGRATION]
 - Context-Specific Documentation:
-  - 📖 [Payment Intents API](https://stripe.com/docs/api/payment_intents) - For one-time payments
-  - 📖 [Subscriptions API](https://stripe.com/docs/api/subscriptions) - For recurring billing
-  - 📖 [Checkout Sessions](https://stripe.com/docs/api/checkout/sessions) - Hosted payment page
-  - 📖 [Webhook Events](https://stripe.com/docs/webhooks/stripe-events#invoice.payment_succeeded) - Payment success handling
-  - 📖 [Elixir SDK - Stripity Stripe](https://hexdocs.pm/stripity_stripe/Stripe.PaymentIntent.html) - Elixir implementation
-  - 📖 [Test Card Numbers](https://stripe.com/docs/testing#cards) - Development testing
+  - 📖 [Payment Intents API](https://stripe.com/docs/api/payment_intents) - For
+    one-time payments
+  - 📖 [Subscriptions API](https://stripe.com/docs/api/subscriptions) - For
+    recurring billing
+  - 📖 [Checkout Sessions](https://stripe.com/docs/api/checkout/sessions) -
+    Hosted payment page
+  - 📖
+    [Webhook Events](https://stripe.com/docs/webhooks/stripe-events#invoice.payment_succeeded) -
+    Payment success handling
+  - 📖
+    [Elixir SDK - Stripity Stripe](https://hexdocs.pm/stripity_stripe/Stripe.PaymentIntent.html) -
+    Elixir implementation
+  - 📖 [Test Card Numbers](https://stripe.com/docs/testing#cards) - Development
+    testing
 - Security: PCI DSS Level 1 (Stripe handles compliance, SAQ-A required)
 - Rate Limits: 100 requests/second in live mode
 
-**AWS S3** - File Storage (detected: "upload user avatars with image processing")
+**AWS S3** - File Storage (detected: "upload user avatars with image
+processing")
+
 - Integration Type: Direct browser upload with server-side processing
 - Current Status: [Found: lib/my_app/storage.ex uses ExAws v2.4.1]
 - Context-Specific Documentation:
-  - 📖 [Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-presigned-url.html) - For secure direct uploads
-  - 📖 [CORS Configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html) - Browser upload requirements
-  - 📖 [ExAws S3 Upload](https://hexdocs.pm/ex_aws_s3/ExAws.S3.html#upload/4) - Current SDK docs
-  - 📖 [Lambda Image Processing](https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html) - Thumbnail generation
+  - 📖
+    [Presigned URLs](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-presigned-url.html) -
+    For secure direct uploads
+  - 📖
+    [CORS Configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManageCorsUsing.html) -
+    Browser upload requirements
+  - 📖 [ExAws S3 Upload](https://hexdocs.pm/ex_aws_s3/ExAws.S3.html#upload/4) -
+    Current SDK docs
+  - 📖
+    [Lambda Image Processing](https://docs.aws.amazon.com/lambda/latest/dg/with-s3-example.html) -
+    Thumbnail generation
 - Version: ExAws 2.4.1 (current), ExAws.S3 2.4.0
 - Rate Limits: 3,500 PUT operations per second per prefix
 
@@ -319,16 +379,20 @@ _[Automatically detected from prompt analysis and codebase search]_
 **Service-Specific Research Patterns:**
 
 - **Payment Services** (Stripe, Square, PayPal):
-  - Payment flow documentation for detected method (one-time/subscription/marketplace)
+
+  - Payment flow documentation for detected method
+    (one-time/subscription/marketplace)
   - Webhook event documentation for payment lifecycle
   - Test environment and card numbers for development
 
 - **Storage Services** (AWS S3, Cloudinary, Azure Blob):
+
   - Upload method documentation (presigned URLs, direct upload, SDK)
   - Image processing and transformation guides
   - CDN integration and caching strategies
 
 - **Communication Services** (Twilio, SendGrid, Mailgun):
+
   - Message type documentation (SMS, email templates, bulk sending)
   - Delivery tracking and webhook events
   - Template management and personalization
@@ -342,10 +406,10 @@ _[Automatically detected from prompt analysis and codebase search]_
 
 **Coordinate appropriate domain experts:**
 
-- elixir-expert for Ash/Phoenix/Ecto analysis and patterns
-- lua-expert for Neovim configuration analysis
-- neovim-expert for editor integration patterns
-- chezmoi-expert for dotfile management analysis
+- Elixir skill knowledge for Ash/Phoenix/Ecto analysis and patterns
+- Lua skill knowledge for Neovim configuration analysis
+- Neovim skill knowledge for editor integration patterns
+- Chezmoi skill knowledge for dotfile management analysis
 
 ### **Quality Assessment Coordination**
 
@@ -356,16 +420,91 @@ _[Automatically detected from prompt analysis and codebase search]_
 - Mock and fixture update requirements
 - Quality gate identification
 
-## Folder Structure Creation
+## LogSeq Page Creation
 
-You will create a topic-based folder structure:
+You will create a LogSeq page with project-based organization:
+
+### **Page Structure**
 
 ```
-notes/
-├── [topic-name]/
-│   ├── research.md      # Comprehensive research findings
-│   └── [ready for planning phase]
+projects/[project]/[topic]/research
 ```
+
+### **Determining Project Name**
+
+Use the git repository name as the project identifier:
+
+```bash
+basename $(git rev-parse --show-toplevel)
+```
+
+For example, if the repository is at `/home/user/my-project`, the project name
+is `my-project`.
+
+### **Page Properties**
+
+Add LogSeq properties at the top of the content using double-colon syntax:
+
+```
+type:: research
+status:: completed
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+```
+
+### **Creating the Page**
+
+Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
+
+**Recommended Approach (Using create_page from ash-logseq MCP server):**
+
+```elixir
+# Tool from ash-logseq MCP server
+mcp__ash-logseq__create_page(
+  input: {
+    "page_name": "projects/[project]/[topic]/research",
+    "content": """
+type:: research
+status:: completed
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Research
+- [content sections go here]
+"""
+  }
+)
+```
+
+**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+
+```elixir
+page_content = """
+type:: research
+status:: completed
+created:: YYYY-MM-DD
+project:: [project-name]
+topic:: [topic-name]
+
+- # [topic] Research
+- [content sections go here]
+"""
+
+# Generic API tool from ash-logseq MCP server
+mcp__ash-logseq__logseq_api(
+  input: {
+    "method": "logseq.Editor.createPage",
+    "args": ["projects/[project]/[topic]/research", page_content]
+  }
+)
+```
+
+**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
+tool documentation. The ash-logseq MCP server provides: `read_page`,
+`search_pages`, `search_blocks`, `replace_line`, and other tools for working
+with existing pages.
 
 ## What You Provide as Research Orchestrator
 
@@ -485,15 +624,18 @@ claude research "Add Auth0 social login with Google and GitHub"
 
 **Integration Pattern Detection Logic:**
 
-The research orchestrator automatically detects integration patterns from user prompts:
+The research orchestrator automatically detects integration patterns from user
+prompts:
 
 1. **Service Detection Keywords:**
+
    - Payment: "Stripe", "PayPal", "Square", "payment", "billing", "subscription"
    - Storage: "S3", "Cloudinary", "storage", "upload", "file", "image", "CDN"
    - Communication: "Twilio", "SendGrid", "email", "SMS", "notification"
    - Auth: "Auth0", "OAuth", "SSO", "social login", "authentication"
 
 2. **Feature Context Analysis:**
+
    - "payment" + "recurring" → Subscription-focused documentation
    - "upload" + "image" → Image processing and transformation guides
    - "email" + "template" → Template management and dynamic content
@@ -515,32 +657,43 @@ Impact analysis phase is complete when:
 - Complete file-level impact map created with specific locations
 - All existing dependencies and patterns documented
 - Version-specific documentation links gathered for actual libraries used
-- **Third-party integrations detected and researched with context-specific documentation**
-- **Deep links to exact API sections, authentication methods, and integration guides**
-- **Service-specific rate limits, security requirements, and testing approaches documented**
+- **Third-party integrations detected and researched with context-specific
+  documentation**
+- **Deep links to exact API sections, authentication methods, and integration
+  guides**
+- **Service-specific rate limits, security requirements, and testing approaches
+  documented**
 - Integration points and configuration changes identified
 - Test impact assessment completed
 - Risk assessment with mitigation strategies provided
 - Clear questions flagged for user clarification on ambiguities
+- **LogSeq page created at `projects/[project]/[topic]/research` with proper
+  metadata properties**
 - Ready for **plan** phase with surgical precision and all resources
 
 ### Version-Specific Documentation Standards
 
 For all discovered integrations (existing and new):
 
-- **Exact Version Links**: Link to documentation for the specific version found in package files
+- **Exact Version Links**: Link to documentation for the specific version found
+  in package files
 - **Migration Paths**: Include upgrade guides if newer versions are recommended
 - **Breaking Changes**: Document version-specific breaking changes if relevant
-- **Deprecation Warnings**: Flag any deprecated APIs or methods in current versions
+- **Deprecation Warnings**: Flag any deprecated APIs or methods in current
+  versions
 - **Security Updates**: Note if current versions have known security issues
 
 **Example Version-Specific Documentation:**
 
 ```markdown
 **Stripe Integration** (found: stripity_stripe 2.17.2 in mix.exs)
-- 📖 [Stripity Stripe 2.17.2 Docs](https://hexdocs.pm/stripity_stripe/2.17.2) - Your current version
-- 📖 [Payment Intents in v2.17](https://hexdocs.pm/stripity_stripe/2.17.2/Stripe.PaymentIntent.html)
+
+- 📖 [Stripity Stripe 2.17.2 Docs](https://hexdocs.pm/stripity_stripe/2.17.2) -
+  Your current version
+- 📖
+  [Payment Intents in v2.17](https://hexdocs.pm/stripity_stripe/2.17.2/Stripe.PaymentIntent.html)
 - ⚠️ **Upgrade Available**: v3.0.1 adds Payment Element support
-- 📖 [v2.17 → v3.0 Migration Guide](https://github.com/beam-community/stripity_stripe/blob/master/CHANGELOG.md#v300)
+- 📖
+  [v2.17 → v3.0 Migration Guide](https://github.com/beam-community/stripity_stripe/blob/master/CHANGELOG.md#v300)
 - 🔒 **Security**: v2.17.2 is secure, v3.0+ recommended for new features
 ```

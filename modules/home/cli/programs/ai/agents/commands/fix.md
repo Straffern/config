@@ -2,12 +2,12 @@ Create a plan and implement a bug fix or issue resolution.
 
 Follow these steps:
 
-1. **JJ Workflow**
+1. **Git Workflow**
 
-   - Use `jj worklog` to check current work context
-   - For new fix: `jj bookmark create fix/<name>` or `jj new` to continue
-   - Use conventional commits (fix: description) with `jj describe`
-   - Use `jj commit` to finalize changes - JJ encourages atomic work
+   - Check if already on an appropriate fix branch (e.g., fix/\*)
+   - If not on a fix branch, create a new one
+   - Use conventional commits (fix: description)
+   - Make small commits while working, so we can better analyze changes and
      revert if necessary
    - Do not reference claude in the commit messages
 
@@ -43,7 +43,7 @@ Follow these steps:
 - Every bug fix must include tests that verify the fix
 - Regression tests must fail before the fix and pass after
 - All existing tests must continue to pass
-- Use test-developer for comprehensive test creation
+- Consult domain experts for comprehensive test creation patterns
 - Never claim fix completion without working tests
 
 ## Fix Planning Document Structure
@@ -251,7 +251,7 @@ Add memory monitoring and periodic garbage collection.
 - **Check logs and error messages** - Look for patterns and stack traces
 - **Use debugging tools** - Profilers, debuggers, monitoring tools
 - **Isolate the problem** - Narrow down to specific components or conditions
-- **Review recent changes** - Use `jj log` and `jj worklog` for related modifications
+- **Review recent changes** - Check git history for related modifications
 
 ### Documentation Requirements
 

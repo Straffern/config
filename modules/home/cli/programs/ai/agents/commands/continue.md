@@ -2,13 +2,13 @@
 
 ## Process
 
-1. **Analyze current work** to determine work type:
+1. **Analyze current branch** to determine work type:
 
-   - Use `jj worklog` to see current context and bookmarks
-   - Find planning document in:
-     - notes/feature/<feature_name>.md
-     - notes/fix/<fix_name>.md
-     - notes/tasks/<task_name>.md
+   - Look at git branch name
+   - Find planning document in LogSeq:
+     - projects/[project]/feature/<feature_name>
+     - projects/[project]/fix/<fix_name>
+     - projects/[project]/task/<task_name>
 
 2. **Consult appropriate agents** based on work type:
 
@@ -31,4 +31,4 @@
    - Update planning document as you progress
    - Use **consistency-reviewer** to ensure alignment with existing patterns
 
-6. **JJ practices**: Do not reference claude in commit messages. Use `jj describe` to update current work, `jj commit` to finalize
+6. **Commit practices**: Do not reference claude in git commit messages

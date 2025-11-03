@@ -24,14 +24,14 @@ For simple tasks, use the **task-planner** agent which will:
 - Create lightweight planning document in ./notes/tasks/<task_name>.md
 - Include essential task description and todo list
 - Consult **research-agent** when working with unfamiliar tools
-- Consult **elixir-expert** for Elixir-related tasks
+- Leverage elixir skill knowledge for Elixir-related tasks
 - Use **consistency-reviewer** for pattern-related work
 
-### 3. **JJ Workflow**
+### 3. **Git Workflow**
 
-- Use `jj worklog` to check current work context
-- For new task: `jj bookmark create task/<name>` or `jj new` to continue
-- Use conventional commits with `jj describe` and `jj commit`
+- Check if already on an appropriate task branch (e.g., task/\*)
+- If not on a task branch, create a new one
+- Use conventional commits
 - Make small commits while working
 - Do not reference claude in the commit messages
 
@@ -40,7 +40,7 @@ For simple tasks, use the **task-planner** agent which will:
 The **task-planner** agent knows when to consult other agents:
 
 - **research-agent**: For unfamiliar technologies or approaches
-- **elixir-expert**: For any Elixir/Phoenix/Ash/Ecto work
+- Elixir skill knowledge: For any Elixir/Phoenix/Ash/Ecto work
 - **consistency-reviewer**: When maintaining existing patterns
 - Escalates to **feature-planner** or **fix-planner** if complexity exceeds
   scope
@@ -63,7 +63,7 @@ The **task-planner** agent knows when to consult other agents:
 
 - Includes necessary agent consultations without over-engineering
 - Consults **research-agent** for unfamiliar concepts
-- Uses language experts when appropriate
+- Uses language skills when appropriate
 
 ## Example Task Types
 
@@ -90,6 +90,6 @@ The **task-planner** agent knows when to consult other agents:
 ## Implementation Notes
 
 - Do not reference claude in commit messages
-- Follow established JJ workflow practices (worklog, describe, commit)
+- Follow established git workflow practices
 - Update planning document as work progresses
 - Mark tasks complete as you finish them
