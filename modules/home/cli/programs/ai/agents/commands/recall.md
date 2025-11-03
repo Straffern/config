@@ -45,20 +45,19 @@ You: Let me search the memory system for testing patterns.
 
 [Calls memory-agent to retrieve testing memories]
 
-Found in claude/memories/technical/patterns/testing:
+Found in bd-42 (Memory: Testing patterns, labels: memory, memory:technical-patterns):
 - Prefer integration tests over unit tests for business logic
 - Use property-based testing for complex data transformations
 - Keep test files co-located with source files
-- Created: 2025-09-15, Last verified: 2025-10-20
+- Created: 2025-09-15, Last updated: 2025-10-20
 
-Also found related memory about project-specific test setup in
-claude/memories/project/[project]/testing-setup
+Also found related memory in bd-43 (Memory: Project test setup, labels: memory, memory:project-knowledge)
 ```
 
 ## Important Notes
 
-- The memory-agent will handle searching across LogSeq pages
-- Results include confidence levels and dates for context
+- The memory-agent will handle searching across bd issues with `memory` labels
+- Results include dates and update history for context
 - If memory is applied and doesn't work, immediately update it (Memory
   Correction Protocol)
 - The system may suggest related memories you didn't explicitly ask for

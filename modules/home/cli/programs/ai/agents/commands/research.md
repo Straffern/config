@@ -64,38 +64,36 @@ implementation phases will use.
 
 ## Impact Analysis Process
 
-### **🚨 PHASE 0: MANDATORY Memory Consultation (DO THIS FIRST)**
+### **🚨 PHASE 0: MANDATORY bd Ready Check & Memory Consultation (DO THIS FIRST)**
 
-**CRITICAL**: Before starting ANY research, you MUST check memories for similar
-work.
+**CRITICAL**: Before starting ANY research, you MUST check for existing work.
 
-**Required Memory Searches:**
+**Step 1: Check bd for existing research:**
 
-1. **Search for similar topics**: Query memory-agent for related research on
-   this topic or technology
-2. **Check for integration patterns**: Look for memories about similar
-   third-party integrations
-3. **Retrieve project patterns**: Search for previous work on this specific
-   project
-4. **Find hard-won knowledge**: Check for challenges encountered with similar
-   technologies
+```bash
+# Search for existing research issues
+bd list --json | jq -r '.[] | select(.labels | contains(["research"])) | select(.title + .description | ascii_downcase | contains("[topic keyword]"))'
 
-**Search queries to run:**
+# Check if research already in progress
+bd ready --json | jq -r '.[] | select(.labels | contains(["research"]))'
+```
 
-- "research [topic/technology name]"
-- "[third-party service name] integration"
-- "[project name] patterns"
-- "challenges with [technology]"
+**Step 2: Check memories for similar work:**
+
+```bash
+# Search memory issues for related topics
+bd list --json | jq -r '.[] | select(.labels | contains(["memory"])) | select(.title + .description | ascii_downcase | contains("[topic]"))'
+```
 
 **Why this is mandatory:**
 
-- ✅ Prevents repeating research already done
+- ✅ Prevents duplicate research efforts
 - ✅ Leverages previous integration experiences
 - ✅ Finds documented solutions to known problems
 - ✅ Maintains consistency with established patterns
 - ✅ Saves significant research time
 
-**❌ DO NOT PROCEED to Phase 1 without completing memory checks**
+**❌ DO NOT PROCEED to Phase 1 without completing these checks**
 
 ### **Phase 1: Project Discovery**
 
@@ -420,15 +418,9 @@ processing")
 - Mock and fixture update requirements
 - Quality gate identification
 
-## LogSeq Page Creation
+## bd Issue Creation for Research Tracking
 
-You will create a LogSeq page with project-based organization:
-
-### **Page Structure**
-
-```
-projects/[project]/[topic]/research
-```
+You will create a bd issue to track the research work and findings:
 
 ### **Determining Project Name**
 
@@ -441,70 +433,76 @@ basename $(git rev-parse --show-toplevel)
 For example, if the repository is at `/home/user/my-project`, the project name
 is `my-project`.
 
-### **Page Properties**
+### **Creating the Research Issue**
 
-Add LogSeq properties at the top of the content using double-colon syntax:
+Create a bd issue with research label and comprehensive findings:
 
-```
-type:: research
-status:: completed
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-```
+```bash
+PROJECT_NAME=$(basename $(git rev-parse --show-toplevel))
 
-### **Creating the Page**
+bd create "Research: [topic]" \
+  --type task \
+  --priority 2 \
+  --label research \
+  --label "project:$PROJECT_NAME" \
+  --desc "$(cat <<'DESC'
+# [Topic] Research
 
-Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
+## Project Context
+- **Project**: [project-name]
+- **Research Date**: YYYY-MM-DD
+- **Status**: Completed
 
-**Recommended Approach (Using create_page from ash-logseq MCP server):**
+## Research Summary
+[High-level overview of findings]
 
-```elixir
-# Tool from ash-logseq MCP server
-mcp__ash-logseq__create_page(
-  input: {
-    "page_name": "projects/[project]/[topic]/research",
-    "content": """
-type:: research
-status:: completed
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
+## Project Dependencies Discovered
+[List actual dependencies found in project]
 
-- # [topic] Research
-- [content sections go here]
-"""
-  }
-)
-```
+## Files Requiring Changes
+[File paths with specific line numbers and required changes]
+- `path/to/file.ex:30` - [Change description]
+  - 📖 [Documentation link]
 
-**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
+## Integration Points
+[Third-party integrations, APIs, configuration changes]
 
-```elixir
-page_content = """
-type:: research
-status:: completed
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
+## Existing Patterns Found
+[Patterns already established in the project]
 
-- # [topic] Research
-- [content sections go here]
-"""
+## Testing Impact
+[Test files affected, new tests needed]
 
-# Generic API tool from ash-logseq MCP server
-mcp__ash-logseq__logseq_api(
-  input: {
-    "method": "logseq.Editor.createPage",
-    "args": ["projects/[project]/[topic]/research", page_content]
-  }
-)
+## Risk Assessment
+[Risks identified and mitigation strategies]
+
+## Documentation Links
+[Version-specific docs for actual project dependencies]
+
+## Unclear Areas Requiring Clarification
+[Questions for user, ambiguities to resolve]
+
+## Recommendations
+[Strategic recommendations based on findings]
+DESC
+)" \
+  --json
 ```
 
-**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
-tool documentation. The ash-logseq MCP server provides: `read_page`,
-`search_pages`, `search_blocks`, `replace_line`, and other tools for working
-with existing pages.
+**Alternative: Link to existing epic/feature:**
+
+If research is for a specific feature or bug fix:
+
+```bash
+# Link research to parent issue
+bd create "Research: [topic]" \
+  --type task \
+  --priority 2 \
+  --label research \
+  --deps blocks:bd-XXX \
+  --desc "[research content]" \
+  --json
+```
 
 ## What You Provide as Research Orchestrator
 
@@ -667,7 +665,7 @@ Impact analysis phase is complete when:
 - Test impact assessment completed
 - Risk assessment with mitigation strategies provided
 - Clear questions flagged for user clarification on ambiguities
-- **LogSeq page created at `projects/[project]/[topic]/research` with proper
+- **bd issue created with `research` label and comprehensive findings**
   metadata properties**
 - Ready for **plan** phase with surgical precision and all resources
 

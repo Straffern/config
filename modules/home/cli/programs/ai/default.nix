@@ -272,7 +272,10 @@ let
 
       # Check if command has a specific agent mapping
       hasAgentMapping = cfg.commandAgentMappings ? ${commandName};
-      mappedAgent = if hasAgentMapping then cfg.commandAgentMappings.${commandName} else null;
+      mappedAgent = if hasAgentMapping then
+        cfg.commandAgentMappings.${commandName}
+      else
+        null;
 
       # Generate OpenCode command frontmatter with conditional agent field
       agentLine = if hasAgentMapping then "agent: ${mappedAgent}" else "";
@@ -283,7 +286,9 @@ let
         ---
       '';
 
-      body = concatStringsSep "\n" bodyLines + "\n$ARGUMENTS";
+      body = concatStringsSep "\n" bodyLines + ''
+
+        $ARGUMENTS'';
     in openCodeFrontmatter + "\n" + body;
 
   # === File Processing ===
@@ -436,7 +441,8 @@ in {
         "implement" = "build";
         "review" = "plan";
       };
-      description = "Mapping of command names to agent names for OpenCode commands. Commands not specified will not include an agent field in the generated markdown";
+      description =
+        "Mapping of command names to agent names for OpenCode commands. Commands not specified will not include an agent field in the generated markdown";
     };
   };
 
@@ -453,9 +459,7 @@ in {
           source = ./agents/commands;
           recursive = true;
         };
-        ".claude/CLAUDE.md" = {
-          source = ./agents/AGENTS.md;
-        };
+        ".claude/CLAUDE.md" = { source = ./agents/AGENTS.md; };
       })
 
       # OpenCode converted files
@@ -466,9 +470,8 @@ in {
 
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
-        ".config/opencode/AGENTS.md" = {
-          source = ./agents/AGENTS.md;
-        };
+        ".config/opencode/AGENTS.md" = { source = ./agents/AGENTS.md; };
+        ".config/opencode/opencode.json" = { source = ./agents/opencode.json; };
       })
     ];
   };

@@ -140,18 +140,18 @@ similar breakdown work.
   - Coordinate **architecture-agent** for task organization validation
   - Consult appropriate **domain experts** for task-specific guidance
   - Create comprehensive task breakdowns with efficient execution design
-  - Save breakdown docs to LogSeq page `projects/[project]/[topic]/breakdown`
+  - Create bd subtask issues with proper dependencies
 
-### 2. **LogSeq Page Integration**
+### 2. **bd Subtask Creation**
 
-The breakdown completes the topic-based LogSeq structure:
+The breakdown creates actionable bd subtasks based on research and plan:
 
 ```
-projects/[project]/[topic]/
-├── research      # Comprehensive research findings (from research phase)
-├── plan          # Strategic implementation plan (from plan phase)
-├── breakdown     # Detailed task breakdown with efficient execution
-└── [ready for execution phase]
+bd issues for a topic:
+├── bd-X (label: research)    # Research findings
+├── bd-Y (label: plan)        # Strategic plan
+├── bd-Z (label: breakdown)   # Breakdown summary
+└── bd-A, bd-B, bd-C...       # Actual implementation subtasks (blocks bd-Z)
 ```
 
 ### **Determining Project Name**
@@ -162,71 +162,47 @@ Use the git repository name as the project identifier:
 basename $(git rev-parse --show-toplevel)
 ```
 
-### **Page Properties**
+### **Creating the Breakdown and Subtasks**
 
-Add LogSeq properties at the top of the content using double-colon syntax:
+Create a breakdown issue and then create subtasks with dependencies:
 
+```bash
+PROJECT_NAME=$(basename $(git rev-parse --show-toplevel))
+
+# Find research and plan issues if they exist
+RESEARCH_ID=$(bd list --json | jq -r '.[] | select(.labels | contains(["research"])) | select(.title | contains("[topic]")) | .id' | head -1)
+PLAN_ID=$(bd list --json | jq -r '.[] | select(.labels | contains(["plan"])) | select(.title | contains("[topic]")) | .id' | head -1)
+
+# Create breakdown tracking issue
+BREAKDOWN_ID=$(bd create "Breakdown: [topic]" \
+  --type task \
+  --priority 2 \
+  --label breakdown \
+  --label "project:$PROJECT_NAME" \
+  --deps discovered-from:$PLAN_ID \
+  --desc "Task breakdown for [topic] implementation" \
+  --json | jq -r '.id')
+
+# Create subtasks that block the breakdown
+bd create "Subtask 1: [description]" \
+  --type task \
+  --priority 1 \
+  --label "project:$PROJECT_NAME" \
+  --deps blocks:$BREAKDOWN_ID \
+  --desc "Detailed task 1 description with acceptance criteria" \
+  --json
+
+bd create "Subtask 2: [description]" \
+  --type task \
+  --priority 1 \
+  --label "project:$PROJECT_NAME" \
+  --deps blocks:$BREAKDOWN_ID \
+  --desc "Detailed task 2 description with acceptance criteria" \
+  --json
+
+# Add dependencies between subtasks if needed
+# bd dep add bd-B bd-A --type blocks --json  # bd-A blocks bd-B (B depends on A)
 ```
-type:: breakdown
-status:: completed
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-```
-
-### **Creating the Page**
-
-Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
-
-**Recommended Approach (Using create_page from ash-logseq MCP server):**
-
-```elixir
-# Tool from ash-logseq MCP server
-mcp__ash-logseq__create_page(
-  input: {
-    "page_name": "projects/[project]/[topic]/breakdown",
-    "content": """
-type:: breakdown
-status:: active
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-
-- # [topic] Task Breakdown
-- [content sections go here]
-"""
-  }
-)
-```
-
-**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
-
-```elixir
-page_content = """
-type:: breakdown
-status:: active
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-
-- # [topic] Task Breakdown
-- [content sections go here]
-"""
-
-# Generic API tool from ash-logseq MCP server
-mcp__ash-logseq__logseq_api(
-  input: {
-    "method": "logseq.Editor.createPage",
-    "args": ["projects/[project]/[topic]/breakdown", page_content]
-  }
-)
-```
-
-**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
-tool documentation. The ash-logseq MCP server provides: `read_page` to analyze
-research and plan pages, `search_pages` to find related pages, `replace_line` to
-update task checkboxes as work progresses, and `search_blocks` to find related
-tasks.
 
 ### 3. **Task Design**
 

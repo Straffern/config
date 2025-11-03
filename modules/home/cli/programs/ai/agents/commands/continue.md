@@ -5,10 +5,11 @@
 1. **Analyze current branch** to determine work type:
 
    - Look at git branch name
-   - Find planning document in LogSeq:
-     - projects/[project]/feature/<feature_name>
-     - projects/[project]/fix/<fix_name>
-     - projects/[project]/task/<task_name>
+   - Find related bd issues:
+     - Features: `bd list --json | jq -r '.[] | select(.labels | contains(["feature"]))'`
+     - Fixes: `bd list --json | jq -r '.[] | select(.labels | contains(["bug"]))'`
+     - Tasks: `bd list --json | jq -r '.[] | select(.labels | contains(["task"]))'`
+   - Check in-progress work: `bd list --status in_progress --json`
 
 2. **Consult appropriate agents** based on work type:
 

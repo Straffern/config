@@ -5,11 +5,11 @@
 1. **Check PR feedback**: Use `gh` to check the PR for this branch for
    unresolved comments
 
-2. **Identify work type and planning document** in LogSeq:
+2. **Identify work type and related bd issues**:
 
-   - projects/[project]/feature/<feature_name>
-   - projects/[project]/fix/<fix_name>
-   - projects/[project]/task/<task_name>
+   - Find feature epic or tasks with labels: `feature`, `project:[project]`
+   - Find bug issues with labels: `bug`, `project:[project]`
+   - Find task issues with labels: `task`, `project:[project]`
 
 3. **Update planning document with feedback**:
 

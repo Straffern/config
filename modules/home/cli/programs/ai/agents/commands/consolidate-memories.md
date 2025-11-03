@@ -27,19 +27,23 @@ You coordinate the memory consolidation process, working with memory-agent to:
 
 ### **Phase 1: Memory Discovery**
 
-1. **Search all memory categories**:
+1. **Search all memory issues**:
 
-   ```
-   Use the ash-logseq MCP server's search_pages tool to find all memory pages:
-   Tool: mcp__ash-logseq__search_pages
-   - Query: "claude/memories/"
-   - This will return all pages in the memory namespace
+   ```bash
+   # Find all memory issues
+   bd list --json | jq -r '.[] | select(.labels | contains(["memory"]))'
+   
+   # Group by category
+   bd list --json | jq -r '.[] | select(.labels | contains(["memory:hard-won-knowledge"]))'
+   bd list --json | jq -r '.[] | select(.labels | contains(["memory:technical-patterns"]))'
+   bd list --json | jq -r '.[] | select(.labels | contains(["memory:project-knowledge"]))'
    ```
 
 2. **Catalog memories**:
-   - List all memory pages found
-   - Note creation and update dates
+   - List all memory issues found
+   - Note creation and update dates from bd
    - Identify topic keywords for each
+   - Group by similarity
 
 ### **Phase 2: Similarity Analysis**
 
@@ -75,24 +79,24 @@ For each consolidation opportunity:
 
 ### Memories to Merge:
 
-1. claude/memories/[category]/[memory-1]
+1. bd-42 (Memory: [topic-1], labels: memory, memory:[category])
 
    - Created: YYYY-MM-DD
    - Key content: [summary]
 
-2. claude/memories/[category]/[memory-2]
+2. bd-43 (Memory: [topic-2], labels: memory, memory:[category])
 
    - Created: YYYY-MM-DD
    - Key content: [summary]
 
-3. claude/memories/[category]/[memory-3]
+3. bd-44 (Memory: [topic-3], labels: memory, memory:[category])
    - Created: YYYY-MM-DD
    - Key content: [summary]
 
 ### Target Memory:
 
-- Name: claude/memories/[category]/[consolidated-name]
-- Approach: Update oldest/most comprehensive memory
+- ID: bd-42 (update oldest/most comprehensive memory)
+- Approach: Merge all content into bd-42, close bd-43 and bd-44
 
 ### Content Organization:
 
@@ -114,9 +118,11 @@ For each consolidation plan:
 
 1. **Read all related memories**:
 
-   ```
-   Use the ash-logseq MCP server's read_page tool for each memory to merge:
-   Tool: mcp__ash-logseq__read_page
+   ```bash
+   # Read each memory issue
+   bd show bd-42 --json
+   bd show bd-43 --json
+   bd show bd-44 --json
    ```
 
 2. **Create consolidated content**:
@@ -128,31 +134,42 @@ For each consolidation plan:
 
 3. **Update target memory**:
 
+   ```bash
+   # Get current content
+   CURRENT=$(bd show bd-42 --json | jq -r '.description')
+   
+   # Create consolidated content
+   CONSOLIDATED="$CURRENT
+
+## Consolidated YYYY-MM-DD
+
+[Combined content from bd-43, bd-44]
+
+### From bd-43
+[Content]
+
+### From bd-44
+[Content]
+
+### Consolidated Notes
+- Merged bd-43 and bd-44 into this memory
+- Related issues: bd-43, bd-44 (closed)"
+   
+   # Update the issue
+   bd update bd-42 --desc "$CONSOLIDATED" --json
    ```
-   Use ash-logseq MCP tools to update the primary memory:
-   - For bulk pattern updates: mcp__ash-logseq__replace_line
-   - For precise updates: mcp__ash-logseq__logseq_api with updateBlock method
+
+4. **Close merged memories**:
+
+   ```bash
+   # Close the memories that were merged
+   bd close bd-43 --reason "Consolidated into bd-42" --json
+   bd close bd-44 --reason "Consolidated into bd-42" --json
    ```
 
-4. **Update memory properties**:
-
-   ```
-   updated:: YYYY-MM-DD
-   consolidated-from:: [[memory-2]], [[memory-3]]
-   confidence:: [adjusted based on combined information]
-   ```
-
-5. **Archive or delete merged memories**:
-
-   - Add "Status: Consolidated into [[target-memory]]" to merged memories
-   - OR delete if content is fully merged:
-     - Tool: mcp**ash-logseq**delete_page
-     - Use `dry_run: true` FIRST to validate
-     - Then use `confirm: true` for permanent deletion
-
-6. **Update cross-references**:
-   - Find memories linking to merged memories
-   - Update links to point to consolidated memory
+5. **Update cross-references**:
+   - Note in consolidated memory which issues were merged
+   - Add comments if needed: `bd comments add bd-42 "Consolidated from bd-43, bd-44" --json`
 
 ### **Phase 5: Report Results**
 

@@ -19,12 +19,12 @@ Use the memory-agent in STORE mode to save the information provided by the user.
 
 2. **Determine Category**: Classify the memory appropriately
 
-   - `claude/memories/user/` - Preferences, work patterns, communication style
-   - `claude/memories/project/[project-name]/` - Project-specific knowledge
-   - `claude/memories/technical/` - Reusable patterns, decisions, solutions
-   - `claude/memories/context/` - People, domain knowledge, organizational info
-   - `claude/memories/conversation/` - Key insights, important questions, themes
-   - `claude/memories/hard-won-knowledge/` - Problems that required effort (if
+   - `memory:user-preferences` - Preferences, work patterns, communication style
+   - `memory:project-knowledge` - Project-specific knowledge and decisions
+   - `memory:technical-patterns` - Reusable patterns, decisions, solutions
+   - `memory:context` - People, domain knowledge, organizational info
+   - `memory:conversation-insights` - Key insights, important questions, themes
+   - `memory:hard-won-knowledge` - Problems that required effort (if
      applicable)
 
 3. **Call memory-agent**: Use Task tool with subagent_type=memory-agent
@@ -48,16 +48,18 @@ You: I'll store that preference in your memory system.
 
 [Calls memory-agent to store user preference]
 
-Stored in claude/memories/user/preferences/planning-workflow:
+Stored in bd-85 (Memory: Planning workflow preferences):
+- Labels: memory, memory:user-preferences
 - Preference for feature-planner on complex features
 - Preference for task-planner on simple changes
 
-This preference will be applied in future planning sessions.
+This preference will be applied in future planning sessions. You can recall it with `/recall planning preferences`.
 ```
 
 ## Important Notes
 
-- The memory-agent will handle the LogSeq page creation and formatting
+- The memory-agent will handle bd issue creation with appropriate labels
 - Trust the agent to choose appropriate memory structure and metadata
 - Focus on capturing the essential information and context
 - The memory system is designed to improve over time with each addition
+- Memories are stored as bd issues with `memory` labels for easy retrieval

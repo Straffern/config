@@ -148,17 +148,17 @@ for similar planning work.
   - Consult appropriate **domain experts** for pattern validation
   - Coordinate **senior-engineer-reviewer** for strategic validation
   - Create comprehensive implementation plans with clear phases
-  - Save planning docs to LogSeq page `projects/[project]/[topic]/plan`
+  - Save planning details to bd issue with `plan` label
 
-### 2. **LogSeq Page Integration**
+### 2. **bd Issue Integration**
 
-The plan builds on the existing research structure in LogSeq:
+The plan builds on the existing research tracked in bd:
 
 ```
-projects/[project]/[topic]/
-├── research      # Comprehensive research findings (from research phase)
-├── plan          # Strategic implementation plan
-└── [ready for breakdown phase]
+bd issues for a topic:
+├── bd-X (label: research)    # Research findings
+├── bd-Y (label: plan)        # Strategic implementation plan  
+└── [ready for breakdown: create subtasks with blocks: dependencies]
 ```
 
 ### **Determining Project Name**
@@ -169,71 +169,63 @@ Use the git repository name as the project identifier:
 basename $(git rev-parse --show-toplevel)
 ```
 
-### **Page Properties**
+### **Creating the Plan Issue**
 
-Add LogSeq properties at the top of the content using double-colon syntax:
+Create a bd issue to track the planning work:
 
+```bash
+PROJECT_NAME=$(basename $(git rev-parse --show-toplevel))
+
+# Link to research issue if it exists
+RESEARCH_ID=$(bd list --json | jq -r '.[] | select(.labels | contains(["research"])) | select(.title | contains("[topic]")) | .id' | head -1)
+
+if [ -n "$RESEARCH_ID" ]; then
+  DEPS_FLAG="--deps discovered-from:$RESEARCH_ID"
+else
+  DEPS_FLAG=""
+fi
+
+bd create "Plan: [topic]" \
+  --type task \
+  --priority 2 \
+  --label plan \
+  --label "project:$PROJECT_NAME" \
+  $DEPS_FLAG \
+  --desc "$(cat <<'DESC'
+# [Topic] Implementation Plan
+
+## Project Context
+- **Project**: [project-name]
+- **Planning Date**: YYYY-MM-DD
+- **Status**: Ready for breakdown
+
+## Strategic Approach
+[High-level implementation strategy]
+
+## Feature Specifications
+[Detailed specifications using research findings]
+
+## Architecture Integration
+[How this integrates with existing architecture]
+
+## Implementation Phases
+[Logical phases for implementation]
+
+## Testing Strategy
+[Comprehensive testing approach]
+
+## Risk Management
+[Risks identified and mitigation plans]
+
+## Quality Gates
+[Criteria that must be met before completion]
+
+## Dependencies
+[Prerequisites and blocking items]
+DESC
+)" \
+  --json
 ```
-type:: plan
-status:: completed
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-```
-
-### **Creating the Page**
-
-Use the LogSeq MCP tools to create pages. The convenience tool is recommended:
-
-**Recommended Approach (Using create_page from ash-logseq MCP server):**
-
-```elixir
-# Tool from ash-logseq MCP server
-mcp__ash-logseq__create_page(
-  input: {
-    "page_name": "projects/[project]/[topic]/plan",
-    "content": """
-type:: plan
-status:: active
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-
-- # [topic] Implementation Plan
-- [content sections go here]
-"""
-  }
-)
-```
-
-**Alternative Approach (Using logseq_api tool from ash-logseq MCP server):**
-
-```elixir
-page_content = """
-type:: plan
-status:: active
-created:: YYYY-MM-DD
-project:: [project-name]
-topic:: [topic-name]
-
-- # [topic] Implementation Plan
-- [content sections go here]
-"""
-
-# Generic API tool from ash-logseq MCP server
-mcp__ash-logseq__logseq_api(
-  input: {
-    "method": "logseq.Editor.createPage",
-    "args": ["projects/[project]/[topic]/plan", page_content]
-  }
-)
-```
-
-**Note**: See `/home/joba/.claude/skills/logseq/SKILL.md` for comprehensive MCP
-tool documentation. The ash-logseq MCP server provides: `read_page` for
-analyzing existing research, `search_pages` for finding pages by name,
-`search_blocks` for finding related content, and `replace_line` for updating
-page content.
 
 ### 3. **Strategic Implementation Planning**
 
