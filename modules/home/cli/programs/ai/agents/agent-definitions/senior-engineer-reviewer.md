@@ -1,7 +1,7 @@
 ---
 name: senior-engineer-reviewer
 description: >
-  READ-ONLY STRATEGIC ANALYSIS AGENT: Use PROACTIVELY for strategic technical
+  READ-ONLY STRATEGIC ANALYSIS AGENT Use PROACTIVELY for strategic technical
   review from a senior engineering perspective. This agent focuses on long-term
   sustainability, scalability implications, technical debt, and future-oriented
   architectural decisions. Complements architecture-agent by providing strategic

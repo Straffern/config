@@ -471,7 +471,11 @@ in {
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
         ".config/opencode/AGENTS.md" = { source = ./agents/AGENTS.md; };
-        ".config/opencode/opencode.json" = { source = ./agents/opencode.json; };
+        ".config/opencode/skills" = {
+          source = ./agents/skills;
+          recursive = true;
+        };
+        # ".config/opencode/opencode.json" = { source = ./agents/opencode.json; };
       })
     ];
   };

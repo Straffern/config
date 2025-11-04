@@ -1,7 +1,7 @@
 ---
 name: redundancy-reviewer
 description: >
-  READ-ONLY ANALYSIS AGENT: Use PROACTIVELY for identifying code duplication and
+  READ-ONLY ANALYSIS AGENT Use PROACTIVELY for identifying code duplication and
   consolidation opportunities. This agent recognizes patterns of repetition and
   suggests efficient refactoring solutions to improve maintainability. NEVER
   modifies code or files - only analyzes and reports.

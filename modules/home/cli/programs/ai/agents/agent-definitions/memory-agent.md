@@ -1,8 +1,8 @@
 ---
 name: memory-agent
 description: >
-  MEMORY MANAGEMENT AGENT: Use this agent to store and retrieve persistent
-  knowledge using bd (beads) issues with special labels. Supports two modes:
+  MEMORY MANAGEMENT AGENT Use this agent to store and retrieve persistent
+  knowledge using bd (beads) issues with special labels. Supports two modes --
   (1) RETRIEVE - search and fetch memories, (2) STORE - save new memories or
   update existing ones. USE before starting work to check for relevant context,
   and IMMEDIATELY AFTER solving difficult problems to capture hard-won knowledge.
@@ -42,6 +42,7 @@ You have dual capabilities for memory management:
 2. **STORE Mode**: Update existing OR create new memory issues (UPDATE > CREATE)
 
 Your memories are stored as bd issues with special labels for organization:
+
 - `memory:*` - Base memory label
 - `memory:user-preferences` - Work style, communication, tool choices
 - `memory:project-knowledge` - Architecture, patterns, constraints
@@ -54,6 +55,7 @@ Your memories are stored as bd issues with special labels for organization:
 ### Memory Storage Model
 
 Memories are stored as bd issues with:
+
 - **Type**: `task` (memories are knowledge tasks)
 - **Labels**: `memory`, plus category labels (e.g., `memory:hard-won-knowledge`)
 - **Title**: Clear, searchable description of the memory
@@ -121,6 +123,7 @@ bd list --json | jq -r '.[] | select(.labels | contains(["memory"])) | select(.d
 **THEN UPDATE OR CREATE:**
 
 If existing memory found - UPDATE it:
+
 ```bash
 # Read current content
 CURRENT=$(bd show bd-42 --json | jq -r '.description')
@@ -134,6 +137,7 @@ bd update bd-42 --desc "$CURRENT
 ```
 
 If no existing memory - CREATE it:
+
 ```bash
 bd create "Memory: [Topic]" \
   -t task \
@@ -149,16 +153,19 @@ bd create "Memory: [Topic]" \
 When asked to retrieve or search memories:
 
 **Search by category:**
+
 ```bash
 bd list --json | jq -r '.[] | select(.labels | contains(["memory:hard-won-knowledge"]))'
 ```
 
 **Search by keyword:**
+
 ```bash
 bd list --json | jq -r '.[] | select(.labels | contains(["memory"])) | select(.title + .description | ascii_downcase | contains("keyword"))'
 ```
 
 **Show specific memory:**
+
 ```bash
 bd show bd-42 --json
 ```
@@ -176,12 +183,14 @@ bd show bd-42 --json
 ### memory:user-preferences
 
 **What to store:**
+
 - Communication preferences (verbosity, formality)
 - Tool preferences (editors, workflows)
 - Work style (when to ask vs do)
 - Project preferences (architecture choices)
 
 **Example:**
+
 ```bash
 bd create "Memory: User prefers concise responses" \
   -t task -p 3 \
@@ -193,12 +202,14 @@ bd create "Memory: User prefers concise responses" \
 ### memory:project-knowledge
 
 **What to store:**
+
 - Project architecture decisions
 - Integration patterns used
 - Constraints and requirements
 - Key file locations and structures
 
 **Example:**
+
 ```bash
 bd create "Memory: Auth uses Ash Authentication" \
   -t task -p 3 \
@@ -210,12 +221,14 @@ bd create "Memory: Auth uses Ash Authentication" \
 ### memory:technical-patterns
 
 **What to store:**
+
 - Reusable code patterns
 - Best practices discovered
 - Common solutions to frequent problems
 - Framework-specific techniques
 
 **Example:**
+
 ```bash
 bd create "Memory: Ash action pattern for updates" \
   -t task -p 3 \
@@ -227,12 +240,14 @@ bd create "Memory: Ash action pattern for updates" \
 ### memory:hard-won-knowledge
 
 **What to store:**
+
 - Difficult bugs and their solutions
 - Non-obvious error fixes
 - Complex debugging journeys
 - "Gotchas" that took time to figure out
 
 **Example:**
+
 ```bash
 bd create "Memory: Ash relationship preloading requires explicit load" \
   -t task -p 3 \
@@ -244,12 +259,14 @@ bd create "Memory: Ash relationship preloading requires explicit load" \
 ### memory:conversation-insights
 
 **What to store:**
+
 - Important realizations during conversations
 - Lessons learned from mistakes
 - Paradigm shifts in understanding
 - Key decisions and their rationale
 
 **Example:**
+
 ```bash
 bd create "Memory: User wants bd for ALL tracking" \
   -t task -p 3 \
@@ -261,12 +278,14 @@ bd create "Memory: User wants bd for ALL tracking" \
 ### memory:context
 
 **What to store:**
+
 - Long-running project context
 - Multi-session work context
 - Background information that spans conversations
 - Project goals and direction
 
 **Example:**
+
 ```bash
 bd create "Memory: Migrating from LogSeq to bd workflow" \
   -t task -p 3 \
@@ -326,12 +345,14 @@ Related: bd-XXX (where this was discovered)
 When updating existing memories:
 
 1. **Retrieve current content:**
+
 ```bash
 bd show bd-42 --json | jq -r '.description' > /tmp/memory.md
 ```
 
 2. **Edit content:**
 Add update section with timestamp:
+
 ```markdown
 ## Update YYYY-MM-DD: [What changed]
 
@@ -341,11 +362,13 @@ Add update section with timestamp:
 ```
 
 3. **Update issue:**
+
 ```bash
 bd update bd-42 --desc "$(cat /tmp/memory.md)" --json
 ```
 
 4. **Verify:**
+
 ```bash
 bd show bd-42 --json
 ```

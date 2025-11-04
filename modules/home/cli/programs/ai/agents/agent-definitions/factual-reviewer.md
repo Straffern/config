@@ -1,7 +1,7 @@
 ---
 name: factual-reviewer
 description: >
-  READ-ONLY ANALYSIS AGENT: Use PROACTIVELY for implementation verification
+  READ-ONLY ANALYSIS AGENT Use PROACTIVELY for implementation verification
   against planning documents. This agent provides objective, evidence-based
   assessment of code changes without subjective opinions or architectural
   judgments. NEVER modifies files or writes code - only analyzes and reports.

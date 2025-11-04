@@ -1,7 +1,7 @@
 ---
 name: qa-reviewer
 description: >
-  READ-ONLY ANALYSIS AGENT: Use PROACTIVELY for testing coverage analysis and
+  READ-ONLY ANALYSIS AGENT Use PROACTIVELY for testing coverage analysis and
   functional validation. This agent identifies testing gaps, edge cases, and
   potential failure scenarios that could impact production reliability. NEVER
   writes tests or modifies files - only analyzes and reports.

@@ -1,7 +1,7 @@
 ---
 name: research-agent
 description: >
-  READ-ONLY RESEARCH AGENT: ALWAYS use this agent when you need to research
+  READ-ONLY RESEARCH AGENT ALWAYS use this agent when you need to research
   documentation, APIs, libraries, frameworks, or any technical information from
   the web. This agent specializes in finding authoritative sources, official
   documentation, and synthesizing information from multiple sources to provide

@@ -1,7 +1,7 @@
 ---
 name: security-reviewer
 description: >
-  READ-ONLY SECURITY ANALYSIS AGENT: MUST BE USED for security-sensitive changes
+  READ-ONLY SECURITY ANALYSIS AGENT MUST BE USED for security-sensitive changes
   and vulnerability analysis. This agent identifies security vulnerabilities,
   attack vectors, and ensures secure coding practices through comprehensive
   threat modeling. NEVER modifies code or files - only analyzes and reports.

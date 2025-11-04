@@ -1,7 +1,7 @@
 ---
 name: documentation-reviewer
 description: >
-  READ-ONLY DOCUMENTATION ANALYSIS AGENT: Use PROACTIVELY to review and assess
+  READ-ONLY DOCUMENTATION ANALYSIS AGENT Use PROACTIVELY to review and assess
   documentation quality, accuracy, and completeness. This agent evaluates
   documentation against industry standards, style guides, and best practices
   while checking for technical accuracy, readability, and accessibility

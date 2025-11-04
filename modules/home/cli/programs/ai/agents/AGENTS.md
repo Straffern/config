@@ -13,11 +13,31 @@ You are an **implementation lead** who consults specialized agents for guidance.
 
 ## Non-Negotiable Rules
 
-1. **bd for ALL tracking** - ZERO exceptions, no markdown TODOs
+1. **bd for ALL tracking** - EVERY task gets a bd issue IMMEDIATELY
+   - User gives ANY request → create/claim bd issue FIRST
+   - No exceptions for "quick fixes" or "simple changes"
+   - If you think "this is too small for bd" - CREATE IT ANYWAY
 2. **Tests MUST pass** - Before closing ANY issue
 3. **Review agents MANDATORY** - Run before EVERY bd close
 4. **jj commit** - Standard pattern (not jj describe + jj new)
 5. **One issue per commit** - Exception: trivial typo batches only
+
+## The bd-First Mindset
+
+**RULE: If you're doing work, there's a bd issue for it.**
+
+Every single task, no matter how trivial, must be tracked:
+- Fixing a typo? Create bd issue.
+- Updating a comment? Create bd issue.
+- Refactoring 2 lines? Create bd issue.
+- User asks a question requiring code changes? Create bd issue.
+
+**The only time you DON'T create a bd issue:**
+- Answering questions without making changes
+- Running exploratory commands to understand the codebase
+- Consulting agents for guidance
+
+**When in doubt:** Create the issue. It takes 5 seconds and ensures nothing is forgotten.
 
 ## Workflow Entry Point
 
@@ -39,11 +59,11 @@ bd ready --json
 
 # 2. DECISION: Pick existing OR create new issue
 #    Existing work:
-bd update bd-XXXX --status in_progress --json
+bd update bd-XXXX --status in_progress
 
 #    New work:
-bd create "Title" -t TYPE -p PRIORITY --json  # Returns bd-XXXX
-bd update bd-XXXX --status in_progress --json
+bd create "Title" -t TYPE -p PRIORITY
+bd update bd-XXXX --status in_progress
 ```
 
 ### Phase 2: Execute
@@ -79,7 +99,7 @@ bd update bd-XXXX --status in_progress --json
 
 ```bash
 # 8. Close issue
-bd close bd-XXXX --reason "Descriptive reason" --json
+bd close bd-XXXX --reason "Descriptive reason"
 
 # 9. Commit with jj (auto-stages all changes including .beads/issues.jsonl)
 jj commit -m "type: description"
@@ -97,8 +117,7 @@ jj commit -m "type: description"
 
 ```bash
 # Create linked issue
-bd create "New work description" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT --json
-# Returns bd-NEW
+bd create "New work description" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT
 
 # DECISION: Does new work BLOCK parent completion?
 
@@ -106,12 +125,12 @@ bd create "New work description" -t TYPE -p PRIORITY --deps discovered-from:bd-P
 #   Continue parent work, handle new issue later
 
 # If BLOCKING:
-bd update bd-PARENT --status blocked --json
-bd update bd-NEW --status in_progress --json
+bd update bd-PARENT --status blocked
+bd update bd-NEW --status in_progress
 # [work on new issue]
-bd close bd-NEW --reason "Done" --json
+bd close bd-NEW --reason "Done"
 jj commit -m "type: description"
-bd update bd-PARENT --status in_progress --json
+bd update bd-PARENT --status in_progress
 # [continue parent work]
 ```
 
@@ -121,23 +140,22 @@ bd update bd-PARENT --status in_progress --json
 
 ```bash
 # 1. Create critical test fix issue
-bd create "Fix failing tests: description" -t bug -p 0 --deps discovered-from:bd-CURRENT --json
-# Returns bd-TESTFIX
+bd create "Fix failing tests: description" -t bug -p 0 --deps discovered-from:bd-CURRENT
 
 # 2. Block current work
-bd update bd-CURRENT --status blocked --json
+bd update bd-CURRENT --status blocked
 
 # 3. Fix tests NOW
-bd update bd-TESTFIX --status in_progress --json
+bd update bd-TESTFIX --status in_progress
 # [diagnose and fix root cause]
 # Run tests → MUST PASS
 
 # 4. Complete test fix
-bd close bd-TESTFIX --reason "Tests now passing" --json
+bd close bd-TESTFIX --reason "Tests now passing"
 jj commit -m "fix: test failure description"
 
 # 5. Unblock and continue
-bd update bd-CURRENT --status in_progress --json
+bd update bd-CURRENT --status in_progress
 # Run tests again → verify still passing
 # [continue current work]
 ```
@@ -152,27 +170,90 @@ bd update bd-CURRENT --status in_progress --json
 
 ## bd Command Reference
 
+### `--json` Flag Usage
+
+**The `--json` flag is optional on ALL bd commands.** Use it when you need programmatic access to structured data.
+
+#### Common Patterns
+
+**Query commands** (almost always want `--json`):
+```bash
+# Get list of available work
+bd ready --json
+
+# Find specific issues
+bd list --status open --json
+bd list --priority 0 --json
+bd list --type bug --json
+
+# Get detailed issue info
+bd show bd-XXXX --json
+bd info --json
+```
+
+**Action commands** (usually don't need `--json`, but useful for scripting):
+```bash
+# Standard usage (human-readable output):
+bd create "Fix typo" -t task -p 2
+bd update bd-XXXX --status in_progress
+bd close bd-XXXX --reason "Done"
+
+# With --json for scripting/automation:
+ISSUE_ID=$(bd create "Fix typo" -t task -p 2 --json | jq -r '.id')
+bd update $ISSUE_ID --status in_progress
+```
+
+#### Practical Examples with `jq`
+
+```bash
+# Get the ID of the highest priority ready issue
+bd ready --json | jq -r '.[0].id'
+
+# Count how many issues are in progress
+bd list --status in_progress --json | jq 'length'
+
+# List all blocked issue titles
+bd list --status blocked --json | jq -r '.[].title'
+
+# Get all critical priority issues
+bd list --priority 0 --json | jq -r '.[] | "\(.id): \(.title)"'
+
+# Find all issues with a specific label
+bd list --json | jq '.[] | select(.labels[] == "security")'
+
+# Check if any tests are failing (priority 0 bugs)
+if [ $(bd list --type bug --priority 0 --json | jq 'length') -gt 0 ]; then
+  echo "⚠️  Critical bugs exist!"
+fi
+```
+
+#### Rule of Thumb
+
+- **Viewing** issue info → Use `--json` with `jq` for filtering/parsing
+- **Creating/updating** issues → Skip `--json` unless scripting
+- **In documentation examples** → Skip `--json` for readability (it's implied as optional)
+
 ### Essential Commands
 
 ```bash
-bd ready --json                                     # Show unblocked work
-bd create "Title" -t TYPE -p PRIORITY --json       # Create issue
-bd update bd-XXXX --status in_progress --json      # Claim/start work
-bd update bd-XXXX --status blocked --json           # Mark blocked
-bd close bd-XXXX --reason "Reason" --json           # Complete work
+bd ready --json                              # Show unblocked work
+bd create "Title" -t TYPE -p PRIORITY        # Create issue
+bd update bd-XXXX --status in_progress       # Claim/start work
+bd update bd-XXXX --status blocked           # Mark blocked
+bd close bd-XXXX --reason "Reason"           # Complete work
 ```
 
 ### Dependency Commands
 
 ```bash
-bd create "Title" --deps discovered-from:bd-XXXX --json   # Link discovered work
-bd create "Task" --deps blocks:bd-XXXX --json             # Blocking dependency
-bd create "Task" --deps parent-child:bd-XXXX --json       # Epic subtask
-bd create "Task" --deps related:bd-XXXX --json            # Soft link
+bd create "Title" --deps discovered-from:bd-XXXX   # Link discovered work
+bd create "Task" --deps blocks:bd-XXXX             # Blocking dependency
+bd create "Task" --deps parent-child:bd-XXXX       # Epic subtask
+bd create "Task" --deps related:bd-XXXX            # Soft link
 
-bd dep add bd-A bd-B --type blocks --json                 # Add dependency later
-bd dep tree bd-XXXX                                       # Visualize tree
-bd dep cycles                                             # Detect cycles
+bd dep add bd-A bd-B --type blocks                 # Add dependency later
+bd dep tree bd-XXXX                                # Visualize tree
+bd dep cycles                                      # Detect cycles
 ```
 
 ### Issue Types
@@ -308,9 +389,17 @@ Launch in parallel:
 ### User Gives Request
 
 ```
-Q: Is there existing bd issue for this work?
-├─ YES → bd ready --json → bd update bd-XXXX --status in_progress --json → Execute
-└─ NO  → bd create "..." --json → bd update bd-XXXX --status in_progress --json → Execute
+Q: Does this request require ANY work (code, docs, config changes)?
+├─ NO  → Answer question, no bd issue needed
+│
+└─ YES → Q: Is there existing bd issue for this work?
+          ├─ YES → bd ready --json
+          │        bd update bd-XXXX --status in_progress
+          │        Execute
+          │
+          └─ NO  → bd create "..." -t TYPE -p PRIORITY
+                   bd update bd-XXXX --status in_progress
+                   Execute
 ```
 
 ### Should I Use a Planner?
@@ -333,16 +422,16 @@ Q: Is this work complex?
 
 ```
 Q: Can I complete current issue WITHOUT fixing this new issue?
-├─ YES → bd create "..." --deps discovered-from:bd-PARENT --json
+├─ YES → bd create "..." --deps discovered-from:bd-PARENT
 │        Continue parent work
 │        Handle new issue later
 │
-└─ NO  → bd create "..." --deps discovered-from:bd-PARENT --json
-         bd update bd-PARENT --status blocked --json
-         bd update bd-NEW --status in_progress --json
+└─ NO  → bd create "..." --deps discovered-from:bd-PARENT
+         bd update bd-PARENT --status blocked
+         bd update bd-NEW --status in_progress
          Fix new issue NOW
          bd close bd-NEW + jj commit
-         bd update bd-PARENT --status in_progress --json
+         bd update bd-PARENT --status in_progress
          Continue parent work
 ```
 
@@ -378,11 +467,11 @@ DECIDE AUTONOMOUSLY:
 
 ```
 bd ready --json
-bd update bd-f14c --status in_progress --json
+bd update bd-f14c --status in_progress
 [implement feature]
 [run tests - all must pass]
 [run all review agents in parallel]
-bd close bd-f14c --reason "Feature complete, tests passing" --json
+bd close bd-f14c --reason "Feature complete, tests passing"
 jj commit -m "feat: add dark mode toggle"
 ```
 
@@ -390,27 +479,26 @@ jj commit -m "feat: add dark mode toggle"
 
 ```
 bd ready --json
-bd update bd-a1b2 --status in_progress --json
+bd update bd-a1b2 --status in_progress
 [start implementing]
 [discover bug in existing code]
-bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2 --json
-# Returns bd-3e7a
+bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2
 
 # Bug is BLOCKING
-bd update bd-a1b2 --status blocked --json
-bd update bd-3e7a --status in_progress --json
+bd update bd-a1b2 --status blocked
+bd update bd-3e7a --status in_progress
 [fix bug]
 [run tests]
 [run review agents]
-bd close bd-3e7a --reason "Fixed null check" --json
+bd close bd-3e7a --reason "Fixed null check"
 jj commit -m "fix: add null check in theme loader"
 
 # Resume original work
-bd update bd-a1b2 --status in_progress --json
+bd update bd-a1b2 --status in_progress
 [finish feature]
 [run tests]
 [run review agents]
-bd close bd-a1b2 --reason "Complete" --json
+bd close bd-a1b2 --reason "Complete"
 jj commit -m "feat: implement dark mode"
 ```
 
@@ -418,39 +506,39 @@ jj commit -m "feat: implement dark mode"
 
 ```
 # Create epic and subtasks
-bd create "User authentication system" -t epic -p 1 --json  # Returns bd-9k2m
-bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m --json  # Returns bd-4h8n
-bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m --json  # Returns bd-7j3p
-bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p --json  # Returns bd-2q5r
+bd create "User authentication system" -t epic -p 1
+bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m
+bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m
+bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p
 
 # Work on first subtask
 bd ready --json  # Shows bd-4h8n, bd-7j3p (not bd-2q5r - blocked)
-bd update bd-4h8n --status in_progress --json
+bd update bd-4h8n --status in_progress
 [implement login form]
 [run tests]
 [run review agents]
-bd close bd-4h8n --reason "Login form complete" --json
+bd close bd-4h8n --reason "Login form complete"
 jj commit -m "feat: add login form component"
 
 # Work on second subtask
-bd update bd-7j3p --status in_progress --json
+bd update bd-7j3p --status in_progress
 [implement password hashing]
 [run tests]
 [run review agents]
-bd close bd-7j3p --reason "Password hashing implemented" --json
+bd close bd-7j3p --reason "Password hashing implemented"
 jj commit -m "feat: add bcrypt password hashing"
 
 # Third subtask now unblocked
 bd ready --json  # NOW shows bd-2q5r
-bd update bd-2q5r --status in_progress --json
+bd update bd-2q5r --status in_progress
 [implement sessions]
 [run tests]
 [run review agents]
-bd close bd-2q5r --reason "Sessions working" --json
+bd close bd-2q5r --reason "Sessions working"
 jj commit -m "feat: add session management"
 
 # Close epic
-bd close bd-9k2m --reason "All subtasks complete" --json
+bd close bd-9k2m --reason "All subtasks complete"
 jj commit -m "feat: complete authentication system
 
 Closes bd-9k2m"
@@ -460,27 +548,27 @@ Closes bd-9k2m"
 
 ```
 bd ready --json
-bd update bd-8v1w --status in_progress --json
+bd update bd-8v1w --status in_progress
 [implement feature]
 mix test  # TESTS FAIL
 
 # IMMEDIATE ACTION
-bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w --json  # Returns bd-6d9x
-bd update bd-8v1w --status blocked --json
-bd update bd-6d9x --status in_progress --json
+bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w
+bd update bd-8v1w --status blocked
+bd update bd-6d9x --status in_progress
 [diagnose and fix test failures]
 mix test  # TESTS PASS
 [run review agents]
-bd close bd-6d9x --reason "Tests now passing" --json
+bd close bd-6d9x --reason "Tests now passing"
 jj commit -m "fix: resolve auth test failures"
 
 # Resume original work
-bd update bd-8v1w --status in_progress --json
+bd update bd-8v1w --status in_progress
 mix test  # Verify still passing
 [finish feature]
 [run tests]
 [run review agents]
-bd close bd-8v1w --reason "Feature complete, all tests pass" --json
+bd close bd-8v1w --reason "Feature complete, all tests pass"
 jj commit -m "feat: add oauth integration"
 ```
 
@@ -490,26 +578,26 @@ jj commit -m "feat: add oauth integration"
 bd ready --json  # Shows bd-5m2k, bd-1n7p, bd-3r8q
 
 # Task 1: Typo fix
-bd update bd-5m2k --status in_progress --json
+bd update bd-5m2k --status in_progress
 [fix typo]
 [run review agents]
-bd close bd-5m2k --reason "Typo fixed" --json
+bd close bd-5m2k --reason "Typo fixed"
 jj commit -m "docs: fix typo in authentication guide"
 
 # Task 2: Update dependencies
-bd update bd-1n7p --status in_progress --json
+bd update bd-1n7p --status in_progress
 [update deps]
 [run tests]
 [run review agents]
-bd close bd-1n7p --reason "Dependencies updated" --json
+bd close bd-1n7p --reason "Dependencies updated"
 jj commit -m "chore: update dependencies"
 
 # Task 3: Refactor
-bd update bd-3r8q --status in_progress --json
+bd update bd-3r8q --status in_progress
 [refactor code]
 [run tests]
 [run review agents]
-bd close bd-3r8q --reason "Refactoring complete" --json
+bd close bd-3r8q --reason "Refactoring complete"
 jj commit -m "refactor: simplify theme module structure"
 ```
 
@@ -517,7 +605,7 @@ jj commit -m "refactor: simplify theme module structure"
 
 ```
 bd ready --json
-bd update bd-4t2y --status in_progress --json
+bd update bd-4t2y --status in_progress
 [implement part 1]
 
 # Optional: Set WIP message
@@ -526,7 +614,7 @@ jj describe -m "feat: add user profile page (WIP)"
 [implement part 2]
 [run tests]
 [run review agents]
-bd close bd-4t2y --reason "Complete" --json
+bd close bd-4t2y --reason "Complete"
 
 # Update message and commit
 jj describe -m "feat: add user profile page"
@@ -560,14 +648,14 @@ jj new  # Commit and create new change
 ## Quick Reference Card
 
 ```
-START    → bd ready --json
-CLAIM    → bd update bd-XXXX --status in_progress --json
+START    → bd ready --json (check work) OR bd create "..." (new work)
+CLAIM    → bd update bd-XXXX --status in_progress
 CONSULT  → research-agent (unknown tech), architecture-agent (placement), skills (domain)
-DISCOVER → bd create "..." --deps discovered-from:bd-PARENT --json
-BLOCK    → bd update bd-XXXX --status blocked --json
+DISCOVER → bd create "..." --deps discovered-from:bd-PARENT
+BLOCK    → bd update bd-XXXX --status blocked
 TEST     → Run before closing (MUST PASS)
 REVIEW   → ALL agents in parallel before EVERY bd close
-CLOSE    → bd close bd-XXXX --reason "..." --json
+CLOSE    → bd close bd-XXXX --reason "..."
 COMMIT   → jj commit -m "type: description"
 ```
 

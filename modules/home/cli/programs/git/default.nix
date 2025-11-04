@@ -50,7 +50,7 @@ in {
       };
       signing.signByDefault = true;
 
-      ignores = [ ".aider*" ];
+      ignores = [ ".aider*" ".beads/" ".devenv/" ".direnv/" ];
 
       extraConfig = {
         gpg.format = "ssh";

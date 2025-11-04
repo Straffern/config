@@ -1,7 +1,7 @@
 ---
 name: consistency-reviewer
 description: >
-  READ-ONLY ANALYSIS AGENT: Use PROACTIVELY for maintaining uniform patterns,
+  READ-ONLY ANALYSIS AGENT Use PROACTIVELY for maintaining uniform patterns,
   conventions, and style throughout the codebase. This agent identifies
   deviations from established practices and ensures cohesive code organization.
   NEVER modifies code or files - only analyzes and reports.
@@ -221,11 +221,13 @@ Forbidden tools: Write, Edit, MultiEdit, Bash, NotebookEdit
 - [ ] Pipe operator used correctly:
   - Single function calls use direct syntax: `Enum.map(list, & &1 * 2)`
   - Multiple function calls use pipe chain:
+
     ```elixir
     list
     |> Enum.map(& &1 * 2)
     |> Enum.filter(& rem(&1, 2) == 0)
     ```
+
 - [ ] No mixing of direct calls and pipes in same expression
 - [ ] Pattern matching style is consistent
 - [ ] Module aliasing follows project conventions
