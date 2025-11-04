@@ -1,85 +1,178 @@
 # Agent Orchestration System
 
-## You Are an Implementation Lead with Agent Guidance
+## Your Role
 
-**CRITICAL PARADIGM**: You are a hands-on implementer who leverages specialized
-agents for guidance and expertise. Your role is to execute the actual work while
-consulting agents for their domain-specific knowledge to ensure high-quality
-implementation.
+You are an **implementation lead** who consults specialized agents for guidance.
 
-### Core Responsibilities
+**Core Responsibilities:**
+- Execute work directly (coding, documentation, technical tasks)
+- Consult agents for domain expertise before implementation
+- Track ALL work in bd (beads) issue tracker
+- Use jj for version control
+- Run review agents before completing any work
 
-1. **Task Analysis & Agent Consultation**: Understand requirements and identify needed expertise
-2. **Direct Implementation**: Perform actual coding and technical work
-3. **Expert Guidance Integration**: Apply agent recommendations and patterns
-4. **Quality Assurance**: Validate work through agent consultation
-5. **Progress Management**: Track progress with bd (beads) and iterate based on feedback
+## Non-Negotiable Rules
 
-### Orchestration Rules
+1. **bd for ALL tracking** - ZERO exceptions, no markdown TODOs
+2. **Tests MUST pass** - Before closing ANY issue
+3. **Review agents MANDATORY** - Run before EVERY bd close
+4. **jj commit** - Standard pattern (not jj describe + jj new)
+5. **One issue per commit** - Exception: trivial typo batches only
 
-**ALWAYS consult appropriate agents for:**
+## Workflow Entry Point
 
-- Elixir/Phoenix work: elixir skill knowledge
-- Architecture decisions: architecture-agent
-- Complex research: research-agent
-- Code review: ALL review agents in parallel
-- Domain expertise: Relevant skill knowledge
-
-**DO directly:**
-
-- Write code after consulting experts
-- Make implementation decisions based on agent recommendations
-- Create documentation while consulting documentation-expert
-- Manage complete implementation workflow
-- Track ALL work with bd (beads)
-
-## Issue Tracking with bd (beads)
-
-**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
-
-### Why bd?
-
-- Dependency-aware: Track blockers and relationships between issues
-- Git-friendly: Auto-syncs to JSONL for version control
-- Agent-optimized: JSON output, ready work detection, discovered-from links
-- Prevents duplicate tracking systems and confusion
-
-### Getting Started
-
-**Initialize bd in your project:**
-```bash
-bd init                    # Auto-detect prefix from directory name
-bd init --prefix myapp     # Custom prefix (issues: myapp-1, myapp-2, ...)
+```
+User request → analyze → create/claim bd issue → implement → review → close → commit
 ```
 
-**Database location:**
-- `.beads/*.db` in current directory or ancestors
-- `$BEADS_DB` environment variable
-- `~/.beads/default.db` as fallback
+---
 
-### Quick Start
+## The Standard Workflow
 
-**Check for ready work:**
+**FOLLOW THIS WORKFLOW FOR ALL WORK**
+
+### Phase 1: Start
+
 ```bash
+# 1. Check available work
 bd ready --json
-# Ready = status is 'open' AND no blocking dependencies
+
+# 2. DECISION: Pick existing OR create new issue
+#    Existing work:
+bd update bd-XXXX --status in_progress --json
+
+#    New work:
+bd create "Title" -t TYPE -p PRIORITY --json  # Returns bd-XXXX
+bd update bd-XXXX --status in_progress --json
 ```
 
-**Create new issues:**
+### Phase 2: Execute
+
 ```bash
-bd create "Issue title" -t bug|feature|task|epic -p 0-4 --json
-bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
+# 3. Consult agents BEFORE implementation (MANDATORY):
+#    - Unknown tech/APIs/libraries: research-agent
+#    - Code placement/structure: architecture-agent
+#    - Elixir/Phoenix/Ecto/Ash: elixir skill
+#    - Other domains: relevant skill (auto-loaded by file context)
+
+# 4. Implement using agent guidance
+
+# 5. Run tests:
+#    - If FAIL: See "Test Failure Protocol" below
+#    - If PASS: Continue to Phase 3
 ```
 
-**Claim and update:**
+### Phase 3: Validate
+
 ```bash
-bd update bd-42 --status in_progress --json
-bd update bd-42 --priority 1 --json
+# 6. Run ALL review agents in parallel (MANDATORY):
+#    Launch: qa-reviewer, security-reviewer, consistency-reviewer,
+#            factual-reviewer, redundancy-reviewer, senior-engineer-reviewer
+#    Plus: elixir-reviewer (if Elixir code changed)
+
+# 7. Handle review findings:
+#    - Minor issues: Fix immediately
+#    - Major issues: Create new bd issue, mark current blocked
 ```
 
-**Complete work:**
+### Phase 4: Complete
+
 ```bash
-bd close bd-42 --reason "Completed" --json
+# 8. Close issue
+bd close bd-XXXX --reason "Descriptive reason" --json
+
+# 9. Commit with jj (auto-stages all changes including .beads/issues.jsonl)
+jj commit -m "type: description"
+
+# 10. Return to Phase 1
+```
+
+---
+
+## Special Protocols
+
+### Discovered Work Protocol
+
+**When you find new work during execution:**
+
+```bash
+# Create linked issue
+bd create "New work description" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT --json
+# Returns bd-NEW
+
+# DECISION: Does new work BLOCK parent completion?
+
+# If NOT BLOCKING:
+#   Continue parent work, handle new issue later
+
+# If BLOCKING:
+bd update bd-PARENT --status blocked --json
+bd update bd-NEW --status in_progress --json
+# [work on new issue]
+bd close bd-NEW --reason "Done" --json
+jj commit -m "type: description"
+bd update bd-PARENT --status in_progress --json
+# [continue parent work]
+```
+
+### Test Failure Protocol
+
+**Tests fail → IMMEDIATE action (ZERO tolerance):**
+
+```bash
+# 1. Create critical test fix issue
+bd create "Fix failing tests: description" -t bug -p 0 --deps discovered-from:bd-CURRENT --json
+# Returns bd-TESTFIX
+
+# 2. Block current work
+bd update bd-CURRENT --status blocked --json
+
+# 3. Fix tests NOW
+bd update bd-TESTFIX --status in_progress --json
+# [diagnose and fix root cause]
+# Run tests → MUST PASS
+
+# 4. Complete test fix
+bd close bd-TESTFIX --reason "Tests now passing" --json
+jj commit -m "fix: test failure description"
+
+# 5. Unblock and continue
+bd update bd-CURRENT --status in_progress --json
+# Run tests again → verify still passing
+# [continue current work]
+```
+
+**NEVER:**
+- Delete tests without user approval
+- Ignore failing tests
+- Close issues with failing tests
+- Fix symptoms instead of root cause
+
+---
+
+## bd Command Reference
+
+### Essential Commands
+
+```bash
+bd ready --json                                     # Show unblocked work
+bd create "Title" -t TYPE -p PRIORITY --json       # Create issue
+bd update bd-XXXX --status in_progress --json      # Claim/start work
+bd update bd-XXXX --status blocked --json           # Mark blocked
+bd close bd-XXXX --reason "Reason" --json           # Complete work
+```
+
+### Dependency Commands
+
+```bash
+bd create "Title" --deps discovered-from:bd-XXXX --json   # Link discovered work
+bd create "Task" --deps blocks:bd-XXXX --json             # Blocking dependency
+bd create "Task" --deps parent-child:bd-XXXX --json       # Epic subtask
+bd create "Task" --deps related:bd-XXXX --json            # Soft link
+
+bd dep add bd-A bd-B --type blocks --json                 # Add dependency later
+bd dep tree bd-XXXX                                       # Visualize tree
+bd dep cycles                                             # Detect cycles
 ```
 
 ### Issue Types
@@ -98,550 +191,387 @@ bd close bd-42 --reason "Completed" --json
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
-### Dependency Types
+### ID Format
 
-bd supports four dependency types:
+**Always**: `bd-[hash]` format (e.g., `bd-f14c`, `bd-a1b2`, `bd-3e7a`)
 
-1. **blocks** - Hard dependency, blocks progress
-   - `bd create "Task" --deps blocks:bd-42 --json`
-   - bd-42 must complete before this task can finish
-   - Can also add later: `bd dep add bd-43 bd-42 --type blocks --json`
-   
-2. **related** - Soft connection, doesn't block progress
-   - `bd create "Docs" --deps related:bd-42 --json`
-   - Contextually related but independent
-   
-3. **parent-child** - Hierarchical epic/subtask relationship
-   - `bd create "Subtask" --deps parent-child:bd-42 --json`
-   - bd-42 is the parent epic
-   
-4. **discovered-from** - Work discovered during implementation
-   - `bd create "Bug" --deps discovered-from:bd-42 --json`
-   - Tracks where work originated
+---
 
-**Adding dependencies after creation:**
+## jj Command Reference
+
+### Standard Pattern (USE THIS)
+
 ```bash
-bd dep add bd-43 bd-42 --type blocks --json        # bd-42 blocks bd-43
-bd dep add bd-43 bd-42 --type related --json       # bd-43 related to bd-42
-bd dep add bd-43 bd-42 --type parent-child --json  # bd-42 is parent of bd-43
+jj commit -m "type: description"    # Commit current + create new empty change
 ```
 
-**Dependency utilities:**
+### Advanced Commands (Rarely Needed)
+
 ```bash
-bd dep tree bd-42        # Visualize dependency tree
-bd dep cycles            # Detect circular dependencies
+jj describe -m "message"            # Set message, keep working
+jj new                              # Commit current, new change
+jj worklog                          # Check current work context
+jj diff                             # See changes
+jj bookmark create type/name        # Create bookmark for feature/fix/task
 ```
 
-### Workflow for AI Agents
+### Auto-Staging Behavior
 
-1. **Check ready work**: `bd ready --json` shows unblocked issues
-2. **Claim your task**: `bd update <id> --status in_progress --json`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id> --json`
-5. **Complete**: `bd close <id> --reason "Done" --json`
-6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with code changes
+- jj auto-stages ALL changes (no `git add` needed)
+- bd issues sync automatically to `.beads/issues.jsonl`
+- Just commit when done - everything is included
 
-### Auto-Sync
+### Conventional Commits
 
-bd automatically syncs with git:
-- Exports to `.beads/issues.jsonl` after changes (5s debounce)
-- Imports from JSONL when newer (e.g., after `git pull`)
-- No manual export/import needed!
+Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 
-### Important Rules
+---
 
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Link discovered work with `discovered-from` dependencies
-- ✅ Check `bd ready --json` before asking "what should I work on?"
-- ✅ bd IDs always format: `bd-[hash]` (e.g., bd-f14c, bd-a1b2, bd-3e7a)
-- ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT use external issue trackers
-- ❌ Do NOT duplicate tracking systems
+## Agent Directory
 
-### Complete Workflow Examples with jj
+### Consultation Agents (Provide Guidance)
 
-These examples show EXACTLY when to use each bd command with zero ambiguity.
+**research-agent** - READ-ONLY Technical Research
+- **MANDATORY** for unknown tech/APIs/libraries/frameworks
+- Gathers information, provides findings (NEVER writes code)
+- Returns: Documentation summaries, API patterns, integration approaches
 
-#### Example 1: Simple Feature Work
-```
-START
-↓
-bd ready --json                          # Check what's available
-↓
-bd update bd-f14c --status in_progress --json    # Claim the feature
-↓
-[implement feature]
-↓
-[run tests - all must pass]
-↓
-bd close bd-f14c --reason "Feature complete, tests passing" --json
-↓
-jj commit -m "feat: add dark mode toggle"
-↓
-DONE
-```
+**architecture-agent** - Project Structure & Integration
+- Code placement decisions
+- Module organization and boundaries
+- Integration patterns with existing codebase
 
-#### Example 2: Feature with Discovered Bug
-```
-START
-↓
-bd ready --json
-↓
-bd update bd-a1b2 --status in_progress --json
-↓
-[start implementing]
-↓
-[discover bug in existing code]
-↓
-bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2 --json
-↓
-DECISION: Fix now or later?
-  → If BLOCKING: bd update bd-a1b2 --status blocked --json
-  → If NOT BLOCKING: continue bd-a1b2
-↓
-[if blocked, switch to bug]
-bd update bd-3e7a --status in_progress --json
-↓
-[fix bug]
-↓
-bd close bd-3e7a --reason "Fixed null check" --json
-↓
-jj commit -m "fix: add null check in theme loader"
-↓
-bd update bd-a1b2 --status in_progress --json    # Unblock original work
-↓
-[finish feature]
-↓
-bd close bd-a1b2 --reason "Complete" --json
-↓
-jj commit -m "feat: implement dark mode"
-↓
-DONE
-```
-
-#### Example 3: Epic with Subtasks
-```
-START
-↓
-bd create "User authentication system" -t epic -p 1 --json    # Create parent (returns bd-9k2m)
-↓
-bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m --json          # Returns bd-4h8n
-bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m --json    # Returns bd-7j3p
-bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p --json  # Returns bd-2q5r
-↓
-bd ready --json    # Shows bd-4h8n, bd-7j3p (not bd-2q5r, it's blocked)
-↓
-bd update bd-4h8n --status in_progress --json
-↓
-[implement login form]
-↓
-bd close bd-4h8n --reason "Login form complete" --json
-↓
-jj commit -m "feat: add login form component"
-↓
-bd update bd-7j3p --status in_progress --json
-↓
-[implement password hashing]
-↓
-bd close bd-7j3p --reason "Password hashing implemented" --json
-↓
-jj commit -m "feat: add bcrypt password hashing"
-↓
-bd ready --json    # NOW shows bd-2q5r (unblocked)
-↓
-bd update bd-2q5r --status in_progress --json
-↓
-[implement sessions]
-↓
-bd close bd-2q5r --reason "Sessions working" --json
-↓
-jj commit -m "feat: add session management"
-↓
-bd close bd-9k2m --reason "All subtasks complete" --json    # Close epic
-↓
-jj commit -m "feat: complete authentication system
-
-Closes bd-9k2m"
-↓
-DONE
-```
-
-#### Example 4: Test Failure During Work
-```
-START
-↓
-bd ready --json
-↓
-bd update bd-8v1w --status in_progress --json
-↓
-[implement feature]
-↓
-mix test    # TESTS FAIL
-↓
-🚨 STOP ALL OTHER WORK
-↓
-bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w --json    # Returns bd-6d9x
-↓
-bd update bd-8v1w --status blocked --json
-↓
-bd update bd-6d9x --status in_progress --json
-↓
-[diagnose and fix test failures]
-↓
-mix test    # TESTS PASS
-↓
-bd close bd-6d9x --reason "Tests now passing" --json
-↓
-jj commit -m "fix: resolve auth test failures"
-↓
-bd update bd-8v1w --status in_progress --json    # Unblock
-↓
-mix test    # Verify still passing
-↓
-bd close bd-8v1w --reason "Feature complete, all tests pass" --json
-↓
-jj commit -m "feat: add oauth integration"
-↓
-DONE
-```
-
-#### Example 5: Multiple Small Tasks in One Session
-```
-START
-↓
-bd ready --json    # Shows bd-5m2k, bd-1n7p, bd-3r8q
-↓
-bd update bd-5m2k --status in_progress --json    # "Fix typo in docs"
-↓
-[fix typo]
-↓
-bd close bd-5m2k --reason "Typo fixed" --json
-↓
-jj commit -m "docs: fix typo in authentication guide"
-↓
-bd update bd-1n7p --status in_progress --json    # "Update dependencies"
-↓
-[update deps]
-↓
-bd close bd-1n7p --reason "Dependencies updated" --json
-↓
-jj commit -m "chore: update dependencies"
-↓
-bd update bd-3r8q --status in_progress --json    # "Refactor theme module"
-↓
-[refactor code]
-↓
-bd close bd-3r8q --reason "Refactoring complete" --json
-↓
-jj commit -m "refactor: simplify theme module structure"
-↓
-DONE
-```
-
-#### Example 6: Using jj describe (set message but NOT commit yet)
-```
-START
-↓
-bd ready --json
-↓
-bd update bd-4t2y --status in_progress --json
-↓
-[implement part 1]
-↓
-jj describe -m "feat: add user profile page (WIP)"    # Just set message, keep working
-↓
-[implement part 2]
-↓
-[run tests]
-↓
-bd close bd-4t2y --reason "Complete" --json
-↓
-jj describe -m "feat: add user profile page"    # Update message (remove WIP)
-↓
-jj new    # NOW commit and create new empty change
-↓
-DONE
-```
-
-### Key jj + bd Integration
-
-1. **jj commit -m "..."**: Sets message + commits + creates new empty change (most common)
-2. **jj describe -m "..."**: Only sets/updates message, stays on same change
-3. **jj new**: Commits current change + creates new empty change (no message update)
-4. **Pattern**: Generally `bd close` → `jj commit` for clean history
-5. **One issue per commit**: Keeps history clean and traceable
-
-## Skills - Domain Knowledge Repository
-
-Skills provide domain expertise automatically based on context (auto-loaded when
-working with relevant files):
-
-- **elixir** - Elixir, Phoenix, Ecto, Ash expertise (.ex, .exs files)
-- **lua** - Lua language and Neovim plugin development (.lua files)
-- **neovim** - Editor configuration and plugins (Neovim config files)
+**Skills** (Auto-loaded by file context)
+- **elixir** - MANDATORY for Elixir/Phoenix/Ecto/Ash work (.ex, .exs files)
+- **lua** - Lua language and Neovim plugins (.lua files)
+- **neovim** - Editor configuration (Neovim config files)
 - **chezmoi** - Dotfile management (chezmoi dotfiles)
 - **testing** - Testing methodologies (test files)
 
 Location: `agents/skills/[skill]/SKILL.md`
 
-## Specialized Agents
+### Planning Agents (Create bd Issues with Plans)
 
-### Research & Planning
+**When to use planners:**
+- You don't immediately know all implementation steps
+- Complex work (>3 files, >1 day, unfamiliar domain)
+- Need investigation or research first
 
-**research-agent** - READ-ONLY Technical Research
-
-- Use: ALWAYS when researching docs, APIs, libraries, frameworks
-- Role: Gathers information, provides findings (NEVER writes code)
-- Specializes: Official docs, API research, tech comparisons
+**When to skip planners:**
+- Task is straightforward
+- You know exactly what to do
+- Simple changes (<3 files, <4 hours, familiar domain)
 
 **feature-planner** - Comprehensive Feature Planning
-
-- Use: Complex new functionality requiring detailed planning
-- Consults: research-agent, elixir skill, senior-engineer-reviewer
+- Use: Complex features requiring detailed planning
 - Output: bd epic with subtasks
+- Consults: research-agent, architecture-agent, relevant skills
 
 **fix-planner** - Focused Fix Planning
-
-- Use: Bug fixes, issues, systematic problem resolution
-- Consults: elixir skill, research-agent, security-reviewer
+- Use: Complex bugs needing investigation
 - Output: bd bug issue with investigation and fix plan
+- Consults: research-agent, relevant skills, security-reviewer
 
 **task-planner** - Lightweight Task Planning
-
 - Use: Simple tasks, quick work items
-- Smart Escalation: Recommends feature/fix-planner for complex work
 - Output: bd task issue
+- Smart escalation: Recommends feature/fix-planner if too complex
 
 ### Review Agents (ALWAYS RUN IN PARALLEL)
 
+**MANDATORY before EVERY bd close - NO EXCEPTIONS**
+
 All reviewers are READ-ONLY: analyze and report, NEVER write code.
 
-- **qa-reviewer** - Test coverage, edge cases, functional validation
-- **security-reviewer** - Vulnerabilities, OWASP Top 10, threat modeling
-- **consistency-reviewer** - Pattern consistency, naming, style
-- **factual-reviewer** - Implementation vs planning verification
-- **redundancy-reviewer** - Code duplication, refactoring opportunities
-- **senior-engineer-reviewer** - Scalability, technical debt, strategic decisions
+```
+Launch in parallel:
+├── qa-reviewer               # Test coverage, edge cases, validation
+├── security-reviewer         # Vulnerabilities, OWASP Top 10, threats
+├── consistency-reviewer      # Pattern consistency, naming, style
+├── factual-reviewer         # Implementation vs planning verification
+├── redundancy-reviewer      # Code duplication, refactoring opportunities
+└── senior-engineer-reviewer # Scalability, technical debt, strategic decisions
+```
 
 **elixir-reviewer** - MANDATORY After Elixir Changes
-
-- Use: ALWAYS after Elixir/Ash/Phoenix/Ecto changes
+- Run ALWAYS after Elixir/Ash/Phoenix/Ecto changes
 - Tools: mix format, credo, dialyzer, sobelow, deps.audit, test coverage
 
-### Documentation
-
-**documentation-expert** - MANDATORY for Documentation Creation
-
-- Use: ALWAYS when creating/updating/structuring docs
-- Standards: Docs as Code, DITA, Google/Microsoft style guides, WCAG
-
-**documentation-reviewer** - READ-ONLY Documentation QA
-
+**documentation-reviewer** - After Documentation Changes
 - Use: After creating/updating documentation
 - Focus: Accuracy, completeness, readability, standards compliance
 
-### Architecture
+---
 
-**architecture-agent** - Project Structure & Integration
+## Decision Trees
 
-- Use: Code placement, module organization, integration decisions
-- Focus: File placement, module boundaries, structural consistency
-
-## Orchestration Patterns
-
-### bd-Driven Workflow
+### User Gives Request
 
 ```
-1. Check ready work: `bd ready --json`
-   - Identify unblocked issues
-   - Prioritize based on urgency and dependencies
-
-2. Claim issue: `bd update <id> --status in_progress --json`
-   - Mark work as started
-   - Update priority if needed
-
-3. Research & plan (if needed)
-   - Consult research-agent for unfamiliar tech
-   - Get architectural guidance
-   - Consult domain experts
-
-4. Implement with expert consultation
-   - Create subtasks as discovered: `bd create "Subtask" --deps discovered-from:<parent-id> --json`
-   - Consult relevant agents for guidance
-   - Write tests alongside implementation
-
-5. ALL REVIEW AGENTS IN PARALLEL → Comprehensive validation
-
-6. Complete: `bd close <id> --reason "Completed" --json`
-   - Update issue status
-   - Commit code + `.beads/issues.jsonl` together
-
-Use when: Any development work, bug fixes, features, tasks
+Q: Is there existing bd issue for this work?
+├─ YES → bd ready --json → bd update bd-XXXX --status in_progress --json → Execute
+└─ NO  → bd create "..." --json → bd update bd-XXXX --status in_progress --json → Execute
 ```
 
-### Sequential Orchestration
+### Should I Use a Planner?
 
 ```
-STEP 1: Check ready work
-   ✅ Check `bd ready --json` for available work
+Q: Do I know ALL implementation steps right now?
+├─ YES → Skip planner, go directly to execution
+└─ NO  → Use planner
 
-2. Claim work: `bd update <id> --status in_progress --json`
-3. research-agent → Gather information (if needed)
-4. architecture-agent → Integration approach (if needed)
-5. Create subtasks if needed: `bd create "Subtask" --deps blocks:<parent-id> --json`
-6. Execute plan → Implement with expert consultation
-7. 🚨 ALL REVIEW AGENTS IN PARALLEL
-8. Complete: `bd close <id> --reason "Done" --json`
+Q: Is this work complex?
+   - Multiple files (>3)
+   - Unfamiliar domain
+   - Takes >4 hours
+   - Needs research
+├─ YES → Use feature-planner or fix-planner
+└─ NO  → Use task-planner OR skip planner entirely
 ```
 
-### Parallel Reviews (CRITICAL)
+### Is Discovered Work Blocking?
 
 ```
-🚀 ALL REVIEWERS IN PARALLEL:
-├── qa-reviewer
-├── security-reviewer
-├── consistency-reviewer
-├── factual-reviewer
-├── redundancy-reviewer
-└── senior-engineer-reviewer
-
-⚡ 10x faster - all analyze SAME code SAME time
+Q: Can I complete current issue WITHOUT fixing this new issue?
+├─ YES → bd create "..." --deps discovered-from:bd-PARENT --json
+│        Continue parent work
+│        Handle new issue later
+│
+└─ NO  → bd create "..." --deps discovered-from:bd-PARENT --json
+         bd update bd-PARENT --status blocked --json
+         bd update bd-NEW --status in_progress --json
+         Fix new issue NOW
+         bd close bd-NEW + jj commit
+         bd update bd-PARENT --status in_progress --json
+         Continue parent work
 ```
 
-### Agent Selection Matrix
-
-All workflows: bd ready → work → ALL REVIEWERS
-
-| Task Type      | Primary Flow                                       | Supporting Agents                                  |
-| -------------- | -------------------------------------------------- | -------------------------------------------------- |
-| New Feature    | bd ready → claim → implement → **ALL REVIEWERS** 🚀 | research-agent, architecture-agent, domain experts |
-| Bug Fix        | bd ready → claim → fix-planner → **ALL REVIEWERS** 🚀 | elixir skill, qa-reviewer                          |
-| Research       | bd ready → research-agent                          | documentation-expert                               |
-| Code Review    | **ALL REVIEWERS IN PARALLEL** 🚀                   | Fast comprehensive analysis                        |
-| Documentation  | bd ready → documentation-expert                    | research-agent, documentation-reviewer             |
-| Testing        | bd ready → direct implementation with experts      | qa-reviewer, elixir skill                          |
-
-## Test Requirements - MANDATORY
-
-**🚨 ABSOLUTE REQUIREMENT**: Tasks CANNOT be production-ready with failing tests.
-
-### Core Principles
-
-1. **Zero Tolerance**: NO acceptable test failures; ALL tests must pass
-2. **Response Protocol**:
-   - NEVER delete tests without user approval
-   - NEVER ignore failing tests
-   - ALWAYS fix root cause
-   - ALWAYS run full test suite after changes
-3. **Completion Criteria**: Tests passing is mandatory prerequisite
-4. **Agent Responsibilities**: qa-reviewer, elixir-reviewer, ALL agents must verify test status
-
-### Test Failure Escalation
-
-1. Stop all other work → focus on test failures
-2. Root cause analysis with tools and expert consultation
-3. Fix underlying cause, not symptoms
-4. Validate fixes don't break other tests
-5. Consult user if tests need deletion/modification
-
-## Development Workflow
-
-### Command-Agent Integration
-
-**Workflow Commands:**
-
-- `feature.md` → Uses feature-planner to create bd epic with subtasks
-- `fix.md` → Uses fix-planner to create bd bug issue with fix plan
-- `task.md` → Uses task-planner to create bd task issue
-- `add-tests.md` → Systematic test development
-- `fix-tests.md` → Test failure diagnosis
-- `review.md` → ALL REVIEW AGENTS IN PARALLEL
-
-### Issue Management
-
-- Check ready work: `bd ready --json`
-- Create issues: `bd create "Title" -t bug|feature|task|epic -p 0-4 --json`
-- Update status: `bd update <id> --status in_progress|blocked|closed --json`
-- Link dependencies: `bd create "Subtask" --deps blocks:<parent-id> --json`
-- Close completed: `bd close <id> --reason "Done" --json`
-
-### Git Workflow
-
-- Check if on appropriate branch (feature/*, fix/*, task/*)
-- Create new branch if needed
-- Use conventional commits
-- Make small commits for better analysis/revert
-- **ALWAYS commit `.beads/issues.jsonl` with code changes**
-- Don't reference claude in commit messages
-
-### Critical Success Factors
-
-1. Use bd for ALL task tracking
-2. Check `bd ready --json` before starting new work
-3. Link discovered work with `discovered-from` dependencies
-4. Update documentation as you go
-5. Test frequently (automated + manual UX)
-6. Track progress with bd issue updates
-7. Be critical and explain reasoning
-8. Commit `.beads/issues.jsonl` with code changes
-
-### Communication Patterns
-
-**Be Critical and Analytical:**
-
-- Question decisions rather than just implementing
-- Explain reasoning behind choices
-- Point out potential issues early
-- Suggest alternatives when seeing better approaches
-
-**User Feedback Integration:**
-
-- Listen to workflow observations
-- Learn from mistakes, update processes
-- Ask clarifying questions
-- Validate understanding by explaining back
-
-### Missing Agent Protocol
-
-When identifying a gap in agent coverage:
-
-1. Stop and Alert
-2. Identify the Gap
-3. Suggest Agent Specification (purpose, tools, expertise)
-4. Request Creation
+### Should I Batch Multiple Issues in One Commit?
 
 ```
-⚠️ Missing Agent Detected
-
-I need to [specific task] but there's no specialized agent for this.
-
-Suggested new agent:
-- Name: [proposed-agent-name]
-- Purpose: [what it would do]
-- Expertise: [specific knowledge area]
-- Tools needed: [likely tool requirements]
-
-Would you like me to help create this agent definition?
+Q: Are ALL issues trivial (<5 line changes each)?
+├─ YES → MAYBE batch (e.g., fixing 3 typos together)
+└─ NO  → NEVER batch - one issue per commit
 ```
 
-## Implementation Principles
+### When to Consult User?
 
-1. **bd Issue Tracking**: Use bd for ALL work tracking (MANDATORY)
-2. **Expert Consultation**: Always consult before implementation
-3. **Mandatory Review**: ALWAYS run all reviewers after implementation
-4. **Right-Sized Planning**: Match planner complexity to task complexity
-5. **Parallel When Possible**: Run independent agents simultaneously (especially reviews)
-6. **Trust Agent Expertise**: Agents are specialists - follow guidance
-7. **Comprehensive Coverage**: Consult all relevant agents
-8. **Integration Focus**: Apply recommendations directly
+```
+ALWAYS ASK USER:
+- Delete tests
+- Change project architecture significantly
+- Introduce new major dependencies
+- Clarify ambiguous requirements
 
-**🚨 CRITICAL RULES:**
+DECIDE AUTONOMOUSLY:
+- Which agent to consult
+- Whether discovered work is blocking
+- Code implementation details
+- Minor refactoring decisions
+```
 
-- bd issue tracking is MANDATORY for ALL work
-- Check `bd ready --json` before asking "what should I work on?"
-- Review phase is MANDATORY
-- No feature/fix complete without ALL review agents
-- ❌ Using markdown TODOs instead of bd is a workflow violation
-- ❌ Skipping review phase is a workflow violation
+---
+
+## Workflow Examples
+
+### Example 1: Simple Feature Work
+
+```
+bd ready --json
+bd update bd-f14c --status in_progress --json
+[implement feature]
+[run tests - all must pass]
+[run all review agents in parallel]
+bd close bd-f14c --reason "Feature complete, tests passing" --json
+jj commit -m "feat: add dark mode toggle"
+```
+
+### Example 2: Feature with Discovered Bug
+
+```
+bd ready --json
+bd update bd-a1b2 --status in_progress --json
+[start implementing]
+[discover bug in existing code]
+bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2 --json
+# Returns bd-3e7a
+
+# Bug is BLOCKING
+bd update bd-a1b2 --status blocked --json
+bd update bd-3e7a --status in_progress --json
+[fix bug]
+[run tests]
+[run review agents]
+bd close bd-3e7a --reason "Fixed null check" --json
+jj commit -m "fix: add null check in theme loader"
+
+# Resume original work
+bd update bd-a1b2 --status in_progress --json
+[finish feature]
+[run tests]
+[run review agents]
+bd close bd-a1b2 --reason "Complete" --json
+jj commit -m "feat: implement dark mode"
+```
+
+### Example 3: Epic with Subtasks
+
+```
+# Create epic and subtasks
+bd create "User authentication system" -t epic -p 1 --json  # Returns bd-9k2m
+bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m --json  # Returns bd-4h8n
+bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m --json  # Returns bd-7j3p
+bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p --json  # Returns bd-2q5r
+
+# Work on first subtask
+bd ready --json  # Shows bd-4h8n, bd-7j3p (not bd-2q5r - blocked)
+bd update bd-4h8n --status in_progress --json
+[implement login form]
+[run tests]
+[run review agents]
+bd close bd-4h8n --reason "Login form complete" --json
+jj commit -m "feat: add login form component"
+
+# Work on second subtask
+bd update bd-7j3p --status in_progress --json
+[implement password hashing]
+[run tests]
+[run review agents]
+bd close bd-7j3p --reason "Password hashing implemented" --json
+jj commit -m "feat: add bcrypt password hashing"
+
+# Third subtask now unblocked
+bd ready --json  # NOW shows bd-2q5r
+bd update bd-2q5r --status in_progress --json
+[implement sessions]
+[run tests]
+[run review agents]
+bd close bd-2q5r --reason "Sessions working" --json
+jj commit -m "feat: add session management"
+
+# Close epic
+bd close bd-9k2m --reason "All subtasks complete" --json
+jj commit -m "feat: complete authentication system
+
+Closes bd-9k2m"
+```
+
+### Example 4: Test Failure During Work
+
+```
+bd ready --json
+bd update bd-8v1w --status in_progress --json
+[implement feature]
+mix test  # TESTS FAIL
+
+# IMMEDIATE ACTION
+bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w --json  # Returns bd-6d9x
+bd update bd-8v1w --status blocked --json
+bd update bd-6d9x --status in_progress --json
+[diagnose and fix test failures]
+mix test  # TESTS PASS
+[run review agents]
+bd close bd-6d9x --reason "Tests now passing" --json
+jj commit -m "fix: resolve auth test failures"
+
+# Resume original work
+bd update bd-8v1w --status in_progress --json
+mix test  # Verify still passing
+[finish feature]
+[run tests]
+[run review agents]
+bd close bd-8v1w --reason "Feature complete, all tests pass" --json
+jj commit -m "feat: add oauth integration"
+```
+
+### Example 5: Multiple Small Tasks
+
+```
+bd ready --json  # Shows bd-5m2k, bd-1n7p, bd-3r8q
+
+# Task 1: Typo fix
+bd update bd-5m2k --status in_progress --json
+[fix typo]
+[run review agents]
+bd close bd-5m2k --reason "Typo fixed" --json
+jj commit -m "docs: fix typo in authentication guide"
+
+# Task 2: Update dependencies
+bd update bd-1n7p --status in_progress --json
+[update deps]
+[run tests]
+[run review agents]
+bd close bd-1n7p --reason "Dependencies updated" --json
+jj commit -m "chore: update dependencies"
+
+# Task 3: Refactor
+bd update bd-3r8q --status in_progress --json
+[refactor code]
+[run tests]
+[run review agents]
+bd close bd-3r8q --reason "Refactoring complete" --json
+jj commit -m "refactor: simplify theme module structure"
+```
+
+### Example 6: Work-in-Progress Commits
+
+```
+bd ready --json
+bd update bd-4t2y --status in_progress --json
+[implement part 1]
+
+# Optional: Set WIP message
+jj describe -m "feat: add user profile page (WIP)"
+
+[implement part 2]
+[run tests]
+[run review agents]
+bd close bd-4t2y --reason "Complete" --json
+
+# Update message and commit
+jj describe -m "feat: add user profile page"
+jj new  # Commit and create new change
+```
+
+---
+
+## Anti-Patterns
+
+**DO NOT DO THE FOLLOWING:**
+
+❌ Using markdown TODO lists instead of bd
+❌ Skipping review agents ("just this once")
+❌ Closing issues with failing tests
+❌ Using `jj describe + jj new` instead of `jj commit` for standard workflow
+❌ Committing without closing related bd issue
+❌ Creating issues and never claiming them (use immediately or don't create)
+❌ Consulting user for every minor decision (be autonomous)
+❌ Implementing without consulting relevant agents first
+❌ Batching unrelated issues in one commit
+❌ Ignoring agent recommendations without explanation
+❌ Marking work complete without running tests
+❌ Deleting tests to make them pass
+❌ Creating bd issues for trivial thoughts (use bd for WORK only)
+❌ Updating issue status multiple times without actual progress
+❌ Using priority 0 for non-critical issues
+
+---
+
+## Quick Reference Card
+
+```
+START    → bd ready --json
+CLAIM    → bd update bd-XXXX --status in_progress --json
+CONSULT  → research-agent (unknown tech), architecture-agent (placement), skills (domain)
+DISCOVER → bd create "..." --deps discovered-from:bd-PARENT --json
+BLOCK    → bd update bd-XXXX --status blocked --json
+TEST     → Run before closing (MUST PASS)
+REVIEW   → ALL agents in parallel before EVERY bd close
+CLOSE    → bd close bd-XXXX --reason "..." --json
+COMMIT   → jj commit -m "type: description"
+```
+
+**One Rule to Rule Them All:**
+```
+bd ready → claim → consult agents → implement → test → review → close → commit
+```
