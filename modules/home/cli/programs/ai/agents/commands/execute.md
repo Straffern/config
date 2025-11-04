@@ -67,26 +67,25 @@ basename $(git rev-parse --show-toplevel)
 
 ### **Updating Progress in bd**
 
-Update bd issues as you complete tasks:
+**Follow the Standard Workflow from AGENTS.md:**
 
 ```bash
 # 1. Check ready work
 bd ready --json
 
 # 2. Claim a task
-bd update bd-42 --status in_progress --json
+bd update bd-XXXX --status in_progress --json
 
 # 3. Work on the task (implement, test, document)
 
 # 4. Complete the task
-bd close bd-42 --reason "Implemented and tested successfully" --json
+bd close bd-XXXX --reason "Implemented and tested successfully" --json
 
-# 5. Commit code with .beads/issues.jsonl
-git add .beads/issues.jsonl [other files]
-git commit -m "feat: implement feature (closes bd-42)"
+# 5. Commit with jj (auto-stages everything including .beads/issues.jsonl)
+jj commit -m "feat: implement feature"
 ```
 
-**Workflow**: Use `bd ready --json` to see unblocked tasks, claim with `bd update`, complete with `bd close`, and always commit `.beads/issues.jsonl` with code changes.
+**Reference**: See AGENTS.md for the complete Standard Workflow (Phase 1-4).
 
 ## Primary Responsibilities
 
@@ -96,8 +95,8 @@ git commit -m "feat: implement feature (closes bd-42)"
 - Implement each task according to specifications
 - Use file references and documentation links provided
 - **Update bd issue status in real-time** by marking tasks in_progress and closing when done
-- Make commits as specified after completing each task
-- Always commit `.beads/issues.jsonl` with code changes
+- Make commits as specified after completing each task using `jj commit`
+- jj auto-stages all changes including .beads/issues.jsonl
 
 ### **Agent Consultation**
 
@@ -217,14 +216,14 @@ Execution phase is complete when:
    - Implement subtask 1.2, mark as [x] in breakdown page
    - Implement subtask 1.3, mark as [x] in breakdown page
    - Mark Task 1 as [x] completed in breakdown page
-   - Commit: "feat(auth): add user authentication resource" (includes code + progress)
+   - jj commit -m "feat(auth): add user authentication resource"
 3. Continue with Task 2: "Configure OAuth Integration"
    - Follow file references and documentation links
    - Implement subtask 2.1, mark as [x] in breakdown page
    - Implement subtask 2.2, mark as [x] in breakdown page
    - Implement subtask 2.3, mark as [x] in breakdown page
    - Mark Task 2 as [x] completed in breakdown page
-   - Commit: "feat(oauth): configure OAuth provider integration" (includes code + progress)
+   - jj commit -m "feat(oauth): configure OAuth provider integration"
 4. After completing 3-4 related tasks, run review agents for validation
 5. Continue until all tasks completed
 ```

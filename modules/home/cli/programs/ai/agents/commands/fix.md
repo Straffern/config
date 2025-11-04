@@ -1,285 +1,112 @@
-Create a plan and implement a bug fix or issue resolution.
+# Bug Fix Command
 
-Follow these steps:
+**PURPOSE**: Complex bugs requiring investigation, root cause analysis, and systematic resolution.
 
-1. **Git Workflow**
+## When to Use This Command
 
-   - Check if already on an appropriate fix branch (e.g., fix/\*)
-   - If not on a fix branch, create a new one
-   - Use conventional commits (fix: description)
-   - Make small commits while working, so we can better analyze changes and
-     revert if necessary
-   - Do not reference claude in the commit messages
+Use when:
+- Bug requires investigation (root cause unknown)
+- Affects multiple components
+- Needs regression tests
+- Security or data integrity implications
 
-2. **Investigation Phase**
+**For simple bugs**: Skip this command, use the Standard Workflow directly.
 
-   - ultrathink
-   - Always check the existing codebase, documentation, usage-rules
-   - Reproduce the issue reliably
-   - Analyze error messages, logs, and symptoms
-   - Check existing codebase, documentation, and related issues
-   - Create parallel sub-agents and analyse the problem from the following
-     perspectives: factual, senior engineer, security expert, consistency
-     reviewer, and let their feedback guide the fix
-   - Create sub agent to check usage-rules and docs for the libraries we are
-     going to use while fixing the issue
-   - Save investigation docs in the notes/fixes folder in the project (unless
-     otherwise specified)
+## Command Flow
 
-3. **Implementation**
-   - Follow the fix planning document structure below
-   - After every step of implementation, update the planning document with a
-     summary and wait for further instructions
-   - add regression tests
-   - Identify root cause through debugging
-   - Update the plan frequently as you discover new information
-   - Mark completed tasks clearly with ✅ and add detailed status summaries
-   - Include current status section with "what's broken", "what's fixed", and
-     "how to test"
-   - Document discovered complications immediately when found
+### Step 1: Investigation with fix-planner
 
-**CRITICAL**: Fixes are NOT complete without regression tests:
+Invoke **fix-planner** agent with bug description. The planner will:
+- Analyze symptoms and error messages
+- Consult **research-agent** for unfamiliar error patterns
+- Leverage elixir skill for Elixir/Phoenix/Ash debugging
+- Consult **security-reviewer** if security-related
+- Create bd bug issue with investigation findings
+- Leave issue in `open` status for you to claim
+
+**Output**: bd bug issue (bd-XXXX) with root cause analysis and fix plan
+
+### Step 2: Execute Using Standard Workflow
+
+**Reference**: See AGENTS.md "Standard Workflow" (Phase 1-4)
+
+```bash
+# Check what fix-planner created
+bd ready --json
+
+# Claim the bug issue
+bd update bd-XXXX --status in_progress --json
+
+# Implement fix (consult agents as needed)
+[fix bug]
+
+# Add regression tests (MANDATORY)
+[add tests that fail before fix, pass after fix]
+
+# Run ALL tests (MUST PASS)
+[test]
+
+# Run ALL review agents in parallel (MANDATORY)
+[review]
+
+# Complete and commit
+bd close bd-XXXX --reason "Bug fixed, regression tests added, all tests passing" --json
+jj commit -m "fix: bug description"
+```
+
+## Version Control
+
+- Use `jj commit -m "..."` for all commits
+- jj auto-stages all changes including .beads/issues.jsonl
+- Use conventional commit format: `fix:` for bugs
+- Do not reference claude in commit messages
+
+## Test Requirements
+
+**CRITICAL**: Fixes are NOT complete without regression tests.
 
 - Every bug fix must include tests that verify the fix
-- Regression tests must fail before the fix and pass after
-- All existing tests must continue to pass
-- Consult domain experts for comprehensive test creation patterns
-- Never claim fix completion without working tests
+- Regression tests must fail BEFORE the fix and pass AFTER
+- ALL existing tests must continue to pass
+- Follow Test Failure Protocol if tests fail (see AGENTS.md)
+- Never claim fix completion without passing tests
 
-## Fix Planning Document Structure
+## What fix-planner Creates
 
-### 1. Issue Description
+The **fix-planner** agent creates:
 
-- Clear description of the problem or bug
-- Steps to reproduce the issue
-- Expected vs actual behavior
-- Impact and urgency level
+### bd Bug Issue Structure
+- Bug issue with investigation findings
+- Root cause analysis
+- Proposed fix approach
+- Testing strategy
+- Issue left in `open` status for you to claim
 
-### 2. Root Cause Analysis
+### Issue Description Format
+1. **Problem Description** - Symptoms, errors, impact
+2. **Investigation** - Debugging steps performed
+3. **Root Cause** - Why the bug occurs
+4. **Agent Consultations** - Research performed
+5. **Fix Approach** - Proposed solution
+6. **Testing Strategy** - Regression test plan
 
-- Investigation findings
-- Where the issue originates
-- Why it's happening (technical explanation)
-- Related components or dependencies affected
+## Test Failure Protocol
 
-### 3. Solution Overview
+If you encounter test failures during the fix:
 
-- High-level approach to fix the issue
-- Key technical decisions
-- Alternative approaches considered and why they were rejected
+**IMMEDIATE ACTION** (see AGENTS.md for details):
+1. Create critical test fix issue: `bd create "Fix failing tests" -t bug -p 0 --deps discovered-from:bd-CURRENT`
+2. Block current work: `bd update bd-CURRENT --status blocked`
+3. Fix tests NOW (priority 0)
+4. Unblock original fix once tests pass
+5. Continue with original fix
 
-### 4. Technical Details
+## Integration with Standard Workflow
 
-- File locations that need changes
-- Configuration specifics
-- Dependencies or prerequisites
-- Backwards compatibility considerations
+This command is a **wrapper** around AGENTS.md Standard Workflow:
 
-### 5. Testing Strategy
+1. **fix-planner** creates the bd bug issue (replaces Phase 1 "create issue")
+2. **You follow Standard Workflow** for execution (Phase 1-4)
+3. **Add regression tests** (mandatory for all fixes)
 
-- How to verify the fix works
-- Regression testing approach
-- Edge cases to validate
-- Performance impact assessment
-
-### 6. Rollback Plan
-
-- How to revert changes if issues arise
-- Monitoring points to watch post-deployment
-- Backup procedures if applicable
-
-### 7. Implementation Plan
-
-For simple fixes: single checklist with integrated testing For complex fixes:
-break into logical steps, each with its own validation
-
-#### Step Format (for complex fixes)
-
-- [ ] Investigate and confirm root cause
-- [ ] Implement the fix
-- [ ] Test the fix thoroughly
-- [ ] Validate no regressions introduced
-
-## Example: Simple Bug Fix
-
-```markdown
-# Fix Login Timeout Issue
-
-## Issue Description
-
-Users are experiencing login timeouts after 30 seconds, but the expected timeout
-should be 5 minutes.
-
-**Steps to reproduce:**
-
-1. Navigate to login page
-2. Enter credentials but wait 35 seconds before submitting
-3. Submit form
-4. Observe timeout error
-
-**Expected:** 5-minute timeout **Actual:** 30-second timeout **Impact:** High -
-affects user experience
-
-## Root Cause Analysis
-
-- Investigated session configuration in `config/session.conf`
-- Found timeout value set to 30000ms instead of 300000ms
-- Likely a typo during initial configuration
-
-## Solution Overview
-
-Update session timeout configuration from 30 seconds to 5 minutes in the session
-configuration file.
-
-## Technical Details
-
-- **File:** `config/session.conf`
-- **Change:** `session_timeout = 300000` (was 30000)
-- **No breaking changes expected**
-
-## Testing Strategy
-
-- Manual test: Login and wait 4 minutes, verify session active
-- Manual test: Login and wait 6 minutes, verify session expired
-- Automated test: Update session timeout test expectations
-
-## Rollback Plan
-
-- Revert `config/session.conf` to previous value
-- Restart service to apply old configuration
-
-## Implementation Plan
-
-- [ ] Update session timeout value in config file
-- [ ] Test timeout behavior manually
-- [ ] Update automated tests
-- [ ] Deploy and monitor for issues
-```
-
-## Example: Complex Bug Fix
-
-```markdown
-# Fix Memory Leak in Background Job Processor
-
-## Issue Description
-
-Background job processor is consuming increasing amounts of memory over time,
-eventually causing out-of-memory crashes.
-
-**Steps to reproduce:**
-
-1. Start application with background job processor
-2. Queue multiple jobs continuously
-3. Monitor memory usage over 2+ hours
-4. Observe memory continuously increasing
-
-**Expected:** Stable memory usage **Actual:** Memory increases 10MB every hour
-**Impact:** Critical - causes production crashes
-
-## Root Cause Analysis
-
-- Memory profiling revealed job objects not being garbage collected
-- Jobs hold references to large data objects after completion
-- `JobProcessor.cleanup()` method not properly releasing references
-- Issue introduced in commit abc123 when adding job result caching
-
-## Solution Overview
-
-Implement proper cleanup of job references and cached data after job completion.
-Add memory monitoring and periodic garbage collection.
-
-## Technical Details
-
-- **Files:**
-  - `src/jobs/JobProcessor.js` - Main processor logic
-  - `src/jobs/JobCache.js` - Result caching system
-  - `tests/integration/memory-test.js` - Memory leak tests
-- **Changes:**
-  - Add explicit cleanup in job completion handler
-  - Implement LRU cache with size limits
-  - Add memory monitoring middleware
-
-## Testing Strategy
-
-- Memory profiling tests running jobs for 4+ hours
-- Unit tests for cleanup methods
-- Integration tests for cache size limits
-- Performance benchmarks to ensure no regression
-
-## Rollback Plan
-
-- Revert to commit before caching feature (def456)
-- Disable job result caching via feature flag
-- Monitor memory usage returns to baseline
-
-## Implementation Plan
-
-### Step 1: Investigate and Reproduce
-
-- [ ] Set up memory profiling environment
-- [ ] Reproduce issue with test job queue
-- [ ] Identify specific objects not being released
-- [ ] Confirm root cause in job completion flow
-
-### Step 2: Implement Core Fix
-
-- [ ] Add explicit cleanup in JobProcessor completion handler
-- [ ] Update JobCache to use LRU with size limits
-- [ ] Add memory usage logging
-- [ ] Test fix resolves memory leak
-
-### Step 3: Add Monitoring and Tests
-
-- [ ] Implement memory monitoring middleware
-- [ ] Add automated memory leak detection tests
-- [ ] Update existing job tests for cleanup verification
-- [ ] Performance test to ensure no regression
-
-### Step 4: Deployment and Validation
-
-- [ ] Deploy to staging with monitoring
-- [ ] Run 24-hour memory stability test
-- [ ] Deploy to production with careful monitoring
-- [ ] Validate memory usage remains stable
-```
-
-## Debugging Guidelines
-
-### Investigation Techniques
-
-- **Reproduce consistently** - Ensure you can trigger the issue reliably
-- **Check logs and error messages** - Look for patterns and stack traces
-- **Use debugging tools** - Profilers, debuggers, monitoring tools
-- **Isolate the problem** - Narrow down to specific components or conditions
-- **Review recent changes** - Check git history for related modifications
-
-### Documentation Requirements
-
-- **Record investigation steps** - What you tried and what you found
-- **Document evidence** - Screenshots, log snippets, error messages
-- **Note environment details** - OS, versions, configuration differences
-- **Track time spent** - Helps with future similar issues
-
-## Critical Success Factors
-
-1. **Reproduce the issue first** - Never start fixing what you can't reproduce
-2. **Understand root cause** - Don't just treat symptoms
-3. **Test thoroughly** - Verify fix works and doesn't break anything else
-4. **Document learnings** - Help prevent similar issues in the future
-5. **Monitor post-fix** - Ensure the issue stays resolved
-
-## Communication Patterns
-
-### Issue Reporting
-
-- **Be specific about symptoms** - Exact error messages, steps to reproduce
-- **Include environment details** - What's different about failing cases
-- **Assess impact and urgency** - Help prioritize the fix appropriately
-- **Provide debugging context** - What you've already tried
-
-### Fix Documentation
-
-- **Explain the 'why'** - Not just what you changed, but why it fixes the issue
-- **Document side effects** - Any other behavior that might change
-- **Include testing evidence** - Proof that the fix works as intended
-- **Plan for monitoring** - How to detect if the issue returns
+**Reference**: See AGENTS.md for complete workflow details.

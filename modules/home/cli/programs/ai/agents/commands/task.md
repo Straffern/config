@@ -1,95 +1,122 @@
-# Task Planning and Execution
+# Task Command
 
-**IMPORTANT**: Use the **task-planner** agent for lightweight task planning and
-the appropriate specialized agents for complex work.
+**PURPOSE**: Lightweight task planning for simple, focused work items.
 
-## Command Overview
+## When to Use This Command
 
-This command helps determine the right approach for your work item and delegates
-to the appropriate planning agent.
+Use when:
+- Simple, focused work (<3 files)
+- You don't immediately know all the steps
+- Want structured task breakdown
+- Estimated <4 hours of work
 
-## Decision Framework
+**For straightforward tasks**: Skip this command, use the Standard Workflow directly.
 
-### 1. **Determine Work Type**
+## Command Flow
 
-- **Complex New Functionality** → Use **feature-planner** agent (follow
-  feature.md)
-- **Bug Fixes or Issues** → Use **fix-planner** agent (follow fix.md)
-- **Simple Tasks** → Use **task-planner** agent (this command)
+### Step 1: Create Task with task-planner
 
-### 2. **Task Planning Process**
+Invoke **task-planner** agent with task description. The planner will:
+- Create lightweight task breakdown
+- Identify key steps and considerations
+- Consult agents if needed (research, architecture)
+- Create bd task issue
+- Leave issue in `open` status for you to claim
 
-For simple tasks, use the **task-planner** agent which will:
+**Smart Escalation**: If task is too complex, task-planner will recommend using feature-planner or fix-planner instead.
 
-- Create lightweight planning document in ./notes/tasks/<task_name>.md
-- Include essential task description and todo list
-- Consult **research-agent** when working with unfamiliar tools
-- Leverage elixir skill knowledge for Elixir-related tasks
-- Use **consistency-reviewer** for pattern-related work
+**Output**: bd task issue (bd-XXXX) with step breakdown
 
-### 3. **Git Workflow**
+### Step 2: Execute Using Standard Workflow
 
-- Check if already on an appropriate task branch (e.g., task/\*)
-- If not on a task branch, create a new one
-- Use conventional commits
-- Make small commits while working
-- Do not reference claude in the commit messages
+**Reference**: See AGENTS.md "Standard Workflow" (Phase 1-4)
 
-### 4. **Agent Integration**
+```bash
+# Check what task-planner created
+bd ready --json
 
-The **task-planner** agent knows when to consult other agents:
+# Claim the task
+bd update bd-XXXX --status in_progress --json
 
-- **research-agent**: For unfamiliar technologies or approaches
-- Elixir skill knowledge: For any Elixir/Phoenix/Ash/Ecto work
-- **consistency-reviewer**: When maintaining existing patterns
-- Escalates to **feature-planner** or **fix-planner** if complexity exceeds
-  scope
+# Work on it (consult agents as needed)
+[implement]
 
-## What the Task-Planner Provides
+# Run tests if applicable
+[test]
 
-### **Right-Sized Planning**
+# Run ALL review agents in parallel (MANDATORY)
+[review]
 
-- Minimal overhead for straightforward tasks
-- Essential structure without over-engineering
-- Quick execution while maintaining planning discipline
+# Complete and commit
+bd close bd-XXXX --reason "Task complete" --json
+jj commit -m "type: task description"
+```
 
-### **Smart Escalation**
+## Version Control
 
-- Recommends **feature-planner** for complex functionality
-- Recommends **fix-planner** for issues requiring investigation
-- Ensures appropriate level of planning for work complexity
+- Use `jj commit -m "..."` for all commits
+- jj auto-stages all changes including .beads/issues.jsonl
+- Use conventional commit format: `feat:`, `docs:`, `refactor:`, `test:`, `chore:`, etc.
+- Do not reference claude in commit messages
 
-### **Expert Consultation**
+## Test Requirements
 
-- Includes necessary agent consultations without over-engineering
-- Consults **research-agent** for unfamiliar concepts
-- Uses language skills when appropriate
+Run tests when applicable:
+- Code changes: Tests must pass
+- Documentation only: Tests optional
+- Configuration changes: Verify system still works
+
+Follow Test Failure Protocol if tests fail (see AGENTS.md).
+
+## What task-planner Creates
+
+The **task-planner** agent creates:
+
+### bd Task Issue Structure
+- Task issue with step breakdown
+- Key considerations
+- Testing notes
+- Issue left in `open` status for you to claim
+
+### Issue Description Format
+1. **Task Description** - What needs to be done
+2. **Steps** - Key implementation steps
+3. **Considerations** - Edge cases, gotchas
+4. **Testing** - How to verify completion
+
+## Integration with Standard Workflow
+
+This command is a **wrapper** around AGENTS.md Standard Workflow:
+
+1. **task-planner** creates the bd task issue (replaces Phase 1 "create issue")
+2. **You follow Standard Workflow** for execution (Phase 1-4)
+
+**Reference**: See AGENTS.md for complete workflow details.
+
+## When Task Is Too Complex
+
+If task-planner determines the work is too complex for lightweight planning, it will:
+- Recommend using **feature-planner** for large features
+- Recommend using **fix-planner** for complex bugs
+- Provide reasoning for the recommendation
+
+In that case, use the recommended command instead.
 
 ## Example Task Types
 
 **Good for task-planner:**
-
 - Configuration changes
 - Simple refactoring
 - Documentation updates
 - Tool setup or installation
-- Small improvements
+- Small improvements (<3 files, <4 hours)
 
 **Should use feature-planner:**
-
 - New complex functionality
 - Multi-component integrations
 - Architectural changes
 
 **Should use fix-planner:**
-
 - Bug investigations
 - Security issues
 - System stability problems
-
-## Implementation Notes
-
-- Do not reference claude in commit messages
-- Follow established git workflow practices
-- Update planning document as work progresses
-- Mark tasks complete as you finish them

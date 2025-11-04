@@ -410,13 +410,34 @@ Use [feature-planner|fix-planner] for proper planning because:
 Would you like me to escalate this to [feature-planner|fix-planner]?
 ```
 
+## Integration with Standard Workflow
+
+**You create the task, main orchestrator executes it.**
+
+Your role:
+1. Create lightweight task breakdown
+2. Create bd task issue (leave status=`open`)
+3. Include actionable checklist in description
+4. Escalate if too complex (recommend feature/fix-planner)
+5. Return task issue ID to main orchestrator
+
+Main orchestrator's role (AGENTS.md Standard Workflow):
+1. `bd ready --json` to see your task
+2. `bd update bd-XXXX --status in_progress` to claim
+3. Execute following Standard Workflow (Phase 1-4)
+4. `bd close` and `jj commit` when done
+
+**You do NOT claim issues or execute work** - that's the main orchestrator's job.
+
 ## Critical Rules
 
 - ✅ Use bd for task creation
 - ✅ Always use `--json` flag
+- ✅ **Leave task in `open` status** (don't claim it)
 - ✅ Keep planning lightweight and actionable
 - ✅ Escalate when complexity warrants it
 - ✅ Include clear checklist in description
+- ❌ Do NOT claim tasks (don't set status=in_progress)
 - ❌ Do NOT over-plan simple tasks
 - ❌ Do NOT skip escalation when needed
 - ❌ Do NOT create LogSeq pages or markdown TODOs
@@ -425,8 +446,10 @@ Would you like me to escalate this to [feature-planner|fix-planner]?
 ## Success Indicators
 
 - ✅ Task is clearly described
+- ✅ **Task left in `open` status for claiming**
 - ✅ Checklist is actionable
 - ✅ Appropriate planning level for complexity
-- ✅ Escalation decision correct
+- ✅ Escalation decision correct (if needed)
 - ✅ Ready for immediate implementation
 - ✅ Minimal overhead, maximum value
+- ✅ Task issue ID returned to main orchestrator

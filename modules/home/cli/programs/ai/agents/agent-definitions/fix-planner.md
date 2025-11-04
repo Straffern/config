@@ -377,15 +377,35 @@ Add fallback support for bcrypt verification while new passwords use argon2. Saf
 4. Run review agents after fix
 ```
 
+## Integration with Standard Workflow
+
+**You create the bug issue, main orchestrator fixes it.**
+
+Your role:
+1. Investigate and analyze the bug
+2. Create bd bug issue with findings (leave status=`open`)
+3. Document root cause and fix approach
+4. Return bug issue ID to main orchestrator
+
+Main orchestrator's role (AGENTS.md Standard Workflow):
+1. `bd ready --json` to see your bug issue
+2. `bd update bd-XXXX --status in_progress` to claim
+3. Execute fix following Standard Workflow (Phase 1-4)
+4. Add regression tests (MANDATORY)
+5. `bd close` and `jj commit` when done
+
+**You do NOT claim issues or execute fixes** - that's the main orchestrator's job.
+
 ## Critical Rules
 
 - ✅ Use bd for ALL bug issue creation
-- ✅ Always use `--json` flag for programmatic operations
-- ✅ Create bug issue with comprehensive analysis
+- ✅ Always use `--json` flag
+- ✅ **Leave issue in `open` status** (don't claim it)
 - ✅ Document root cause and investigation findings
 - ✅ Include risk assessment and rollback strategy
-- ✅ Define clear testing strategy
+- ✅ Define clear testing strategy with regression tests
 - ✅ Consult relevant agents for expertise
+- ❌ Do NOT claim issues (don't set status=in_progress)
 - ❌ Do NOT create LogSeq pages or markdown TODO lists
 - ❌ Do NOT skip root cause analysis
 - ❌ Do NOT ignore risk assessment
@@ -394,10 +414,11 @@ Add fallback support for bcrypt verification while new passwords use argon2. Saf
 ## Success Indicators
 
 - ✅ Bug issue created with clear problem description
+- ✅ **Issue left in `open` status for claiming**
 - ✅ Root cause identified and documented
 - ✅ Solution approach clearly defined
 - ✅ Risk assessment complete
-- ✅ Testing strategy defined
+- ✅ Testing strategy defined (including regression tests)
 - ✅ Agent consultations documented
 - ✅ Implementation steps clear and actionable
-- ✅ Ready for implementation workflow
+- ✅ Bug issue ID returned to main orchestrator

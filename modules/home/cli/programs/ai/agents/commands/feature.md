@@ -1,101 +1,98 @@
-# Create Feature Planning Document and Implementation
+# Feature Development Command
 
-**IMPORTANT**: Use the **feature-planner** agent to create comprehensive feature
-planning documents with proper research and agent consultation.
+**PURPOSE**: Complex features requiring comprehensive planning and research integration.
 
-## Command Overview
+## When to Use This Command
 
-This command guides you through feature development using the
-**feature-planner** agent for systematic planning, followed by implementation
-with continuous plan updates.
+Use when:
+- Feature spans multiple files (>3)
+- Unfamiliar technologies or APIs involved
+- Requires architectural decisions
+- Estimated >1 day of work
 
-## Workflow
+**For simple features**: Skip this command, use the Standard Workflow directly.
 
-### 1. **Feature Planning Phase**
+## Command Flow
 
-- **Use feature-planner agent** to create comprehensive planning document
-- The agent will:
-  - Consult **research-agent** for unfamiliar technologies
-  - Leverage elixir skill knowledge for Elixir/Phoenix/Ash features
-  - Consult **senior-engineer-reviewer** for architectural decisions
-  - Create structured implementation plans with clear steps
-  - Save planning docs in the notes/features folder
+### Step 1: Create Feature Epic with feature-planner
 
-### 2. **Git Workflow**
+Invoke **feature-planner** agent with your feature description. The planner will:
+- Consult **research-agent** for unfamiliar technologies
+- Leverage elixir skill for Elixir/Phoenix/Ash patterns
+- Consult **senior-engineer-reviewer** for architecture
+- Create bd epic with subtasks
+- Leave issues in `open` status for you to claim
 
-- Check if already on an appropriate feature branch (e.g., feature/\*)
-- If not on a feature branch, create a new one
-- Use conventional commits
-- Make small commits while working, so we can better analyze changes and revert
-  if necessary
-- Do not reference claude in the commit messages
+**Output**: bd epic (bd-XXXX) with linked subtasks
 
-### 3. **Implementation with Plan Updates**
+### Step 2: Execute Using Standard Workflow
 
-- Follow the planning document created by **feature-planner**
-- After every step of implementation, update the planning document
-- Output a summary and wait for further instructions
-- Update the plan frequently as you complete tasks and discover new requirements
-- Mark completed tasks clearly with ✅ and add detailed status summaries
-- Include current status section with "what works", "what's next", and "how to
-  run"
-- Document discovered limitations immediately when found, plan next steps
+**Reference**: See AGENTS.md "Standard Workflow" (Phase 1-4)
 
-**CRITICAL**: Features are NOT complete without working tests:
+```bash
+# Check what feature-planner created
+bd ready --json
+
+# Claim the epic or first subtask
+bd update bd-XXXX --status in_progress --json
+
+# Work on it (consult agents as needed)
+[implement]
+
+# Run tests (MUST PASS)
+[test]
+
+# Run ALL review agents in parallel (MANDATORY)
+[review]
+
+# Complete and commit
+bd close bd-XXXX --reason "Feature complete, tests passing" --json
+jj commit -m "feat: feature description"
+```
+
+### Step 3: Continue with Subtasks
+
+Repeat Standard Workflow for each subtask until epic is complete.
+
+## Version Control
+
+- Use `jj commit -m "..."` for all commits
+- jj auto-stages all changes including .beads/issues.jsonl
+- Use conventional commit format: `feat:`, `fix:`, `docs:`, etc.
+- Do not reference claude in commit messages
+
+## Test Requirements
+
+**CRITICAL**: Features are NOT complete without working tests.
 
 - Every feature must have comprehensive test coverage
-- Tests must pass before considering any step complete
-- Consult domain experts for systematic test creation patterns
-- Never claim feature completion without working tests
+- Tests must pass before closing ANY issue
+- Follow Test Failure Protocol if tests fail (see AGENTS.md)
+- Never claim feature completion without passing tests
 
-## What the Feature-Planner Agent Provides
+## What feature-planner Creates
 
-The **feature-planner** agent creates comprehensive planning documents with:
+The **feature-planner** agent creates:
 
-### **Expert Research Integration**
+### bd Epic Structure
+- Parent epic issue with comprehensive description
+- Child subtasks with dependency relationships
+- All issues left in `open` status for you to claim
 
-- **research-agent**: For unfamiliar technologies, APIs, frameworks
-- Elixir skill knowledge: For Elixir, Phoenix, Ash, Ecto work
-- **senior-engineer-reviewer**: For architectural decisions
-- Documents all agent consultations performed
+### Issue Description Format
+1. **Problem Statement** - Clear description and impact
+2. **Solution Overview** - High-level approach
+3. **Agent Consultations** - Documents research performed
+4. **Technical Details** - File locations, dependencies
+5. **Success Criteria** - Measurable outcomes
+6. **Implementation Plan** - Logical steps
 
-### **Structured Planning**
+## Integration with Standard Workflow
 
-- Problem Statement with impact analysis
-- Solution Overview with design decisions
-- Technical Details with file locations and dependencies
-- Success Criteria with measurable outcomes
-- Implementation Plan broken into logical steps
+This command is a **wrapper** around AGENTS.md Standard Workflow:
 
-### **Quality Assurance**
+1. **feature-planner** creates the bd epic (replaces Phase 1 "create issue")
+2. **You follow Standard Workflow** for execution (Phase 1-4)
+3. **Repeat** for each subtask
 
-- Ensures proper research before planning
-- Breaks complex features into manageable steps
-- Defines clear success criteria and testing approaches
-- Plans for integration and architectural considerations
-
-## Planning Document Structure
-
-The **feature-planner** agent will create a planning document with the following
-structure:
-
-1. **Problem Statement** - Clear description and impact analysis
-2. **Solution Overview** - High-level approach and key decisions
-3. **Agent Consultations Performed** - Documents all expert consultations
-4. **Technical Details** - File locations, dependencies, configuration
-5. **Success Criteria** - Measurable outcomes and verification
-6. **Implementation Plan** - Logical steps with testing integration
-7. **Notes/Considerations** - Edge cases, future improvements, risks
-
-## Example Usage
-
-1. **Start Planning**: Invoke the **feature-planner** agent with your feature
-   description
-2. **Review Plan**: The agent will create a comprehensive planning document
-3. **Begin Implementation**: Follow the implementation steps in the plan
-4. **Update Progress**: Mark completed tasks and update status as you work
-5. **Review and Iterate**: Use review agents for quality assurance
-
-The **feature-planner** agent handles the complexity of research integration and
-structured planning, ensuring you have a solid foundation before implementation
-begins.
+**Reference**: See AGENTS.md for complete workflow details.

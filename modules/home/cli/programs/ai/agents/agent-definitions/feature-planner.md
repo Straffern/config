@@ -364,15 +364,33 @@ After creating the feature epic and subtasks, return a comprehensive summary:
 4. Run review agents after completion
 ```
 
+## Integration with Standard Workflow
+
+**You create the epic, main orchestrator executes it.**
+
+Your role:
+1. Create bd epic and subtasks (leave status=`open`)
+2. Document comprehensive planning in issue descriptions
+3. Return epic ID to main orchestrator
+
+Main orchestrator's role (AGENTS.md Standard Workflow):
+1. `bd ready --json` to see your epic/subtasks
+2. `bd update bd-XXXX --status in_progress` to claim
+3. Execute following Standard Workflow (Phase 1-4)
+4. `bd close` and `jj commit` when done
+
+**You do NOT claim issues or execute work** - that's the main orchestrator's job.
+
 ## Critical Rules
 
-- ✅ Use bd for ALL issue creation and tracking
-- ✅ Always use `--json` flag for programmatic operations
+- ✅ Use bd for ALL issue creation
+- ✅ Always use `--json` flag
 - ✅ Create epic first, then subtasks with dependencies
-- ✅ Link subtasks with `blocks` dependencies
+- ✅ **Leave all issues in `open` status** (don't claim them)
 - ✅ Document agent consultations in epic description
 - ✅ Include test requirements in every subtask
 - ✅ Define clear success criteria
+- ❌ Do NOT claim issues (don't set status=in_progress)
 - ❌ Do NOT create LogSeq pages or markdown TODO lists
 - ❌ Do NOT skip agent consultations
 - ❌ Do NOT create subtasks without tests
@@ -381,7 +399,8 @@ After creating the feature epic and subtasks, return a comprehensive summary:
 
 - ✅ Epic created with comprehensive description
 - ✅ All subtasks created and linked with dependencies
+- ✅ **All issues left in `open` status for claiming**
 - ✅ Agent consultations documented
 - ✅ Test requirements included throughout
 - ✅ Success criteria clearly defined
-- ✅ Ready for implementation workflow
+- ✅ Epic ID returned to main orchestrator
