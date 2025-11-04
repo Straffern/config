@@ -155,10 +155,223 @@ bd automatically syncs with git:
 - ✅ Always use `--json` flag for programmatic use
 - ✅ Link discovered work with `discovered-from` dependencies
 - ✅ Check `bd ready --json` before asking "what should I work on?"
-- ✅ Commit `.beads/issues.jsonl` with code changes
+- ✅ bd IDs always format: `bd-[hash]` (e.g., bd-f14c, bd-a1b2, bd-3e7a)
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
+
+### Complete Workflow Examples with jj
+
+These examples show EXACTLY when to use each bd command with zero ambiguity.
+
+#### Example 1: Simple Feature Work
+```
+START
+↓
+bd ready --json                          # Check what's available
+↓
+bd update bd-f14c --status in_progress --json    # Claim the feature
+↓
+[implement feature]
+↓
+[run tests - all must pass]
+↓
+bd close bd-f14c --reason "Feature complete, tests passing" --json
+↓
+jj commit -m "feat: add dark mode toggle"
+↓
+DONE
+```
+
+#### Example 2: Feature with Discovered Bug
+```
+START
+↓
+bd ready --json
+↓
+bd update bd-a1b2 --status in_progress --json
+↓
+[start implementing]
+↓
+[discover bug in existing code]
+↓
+bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2 --json
+↓
+DECISION: Fix now or later?
+  → If BLOCKING: bd update bd-a1b2 --status blocked --json
+  → If NOT BLOCKING: continue bd-a1b2
+↓
+[if blocked, switch to bug]
+bd update bd-3e7a --status in_progress --json
+↓
+[fix bug]
+↓
+bd close bd-3e7a --reason "Fixed null check" --json
+↓
+jj commit -m "fix: add null check in theme loader"
+↓
+bd update bd-a1b2 --status in_progress --json    # Unblock original work
+↓
+[finish feature]
+↓
+bd close bd-a1b2 --reason "Complete" --json
+↓
+jj commit -m "feat: implement dark mode"
+↓
+DONE
+```
+
+#### Example 3: Epic with Subtasks
+```
+START
+↓
+bd create "User authentication system" -t epic -p 1 --json    # Create parent (returns bd-9k2m)
+↓
+bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m --json          # Returns bd-4h8n
+bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m --json    # Returns bd-7j3p
+bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p --json  # Returns bd-2q5r
+↓
+bd ready --json    # Shows bd-4h8n, bd-7j3p (not bd-2q5r, it's blocked)
+↓
+bd update bd-4h8n --status in_progress --json
+↓
+[implement login form]
+↓
+bd close bd-4h8n --reason "Login form complete" --json
+↓
+jj commit -m "feat: add login form component"
+↓
+bd update bd-7j3p --status in_progress --json
+↓
+[implement password hashing]
+↓
+bd close bd-7j3p --reason "Password hashing implemented" --json
+↓
+jj commit -m "feat: add bcrypt password hashing"
+↓
+bd ready --json    # NOW shows bd-2q5r (unblocked)
+↓
+bd update bd-2q5r --status in_progress --json
+↓
+[implement sessions]
+↓
+bd close bd-2q5r --reason "Sessions working" --json
+↓
+jj commit -m "feat: add session management"
+↓
+bd close bd-9k2m --reason "All subtasks complete" --json    # Close epic
+↓
+jj commit -m "feat: complete authentication system
+
+Closes bd-9k2m"
+↓
+DONE
+```
+
+#### Example 4: Test Failure During Work
+```
+START
+↓
+bd ready --json
+↓
+bd update bd-8v1w --status in_progress --json
+↓
+[implement feature]
+↓
+mix test    # TESTS FAIL
+↓
+🚨 STOP ALL OTHER WORK
+↓
+bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w --json    # Returns bd-6d9x
+↓
+bd update bd-8v1w --status blocked --json
+↓
+bd update bd-6d9x --status in_progress --json
+↓
+[diagnose and fix test failures]
+↓
+mix test    # TESTS PASS
+↓
+bd close bd-6d9x --reason "Tests now passing" --json
+↓
+jj commit -m "fix: resolve auth test failures"
+↓
+bd update bd-8v1w --status in_progress --json    # Unblock
+↓
+mix test    # Verify still passing
+↓
+bd close bd-8v1w --reason "Feature complete, all tests pass" --json
+↓
+jj commit -m "feat: add oauth integration"
+↓
+DONE
+```
+
+#### Example 5: Multiple Small Tasks in One Session
+```
+START
+↓
+bd ready --json    # Shows bd-5m2k, bd-1n7p, bd-3r8q
+↓
+bd update bd-5m2k --status in_progress --json    # "Fix typo in docs"
+↓
+[fix typo]
+↓
+bd close bd-5m2k --reason "Typo fixed" --json
+↓
+jj commit -m "docs: fix typo in authentication guide"
+↓
+bd update bd-1n7p --status in_progress --json    # "Update dependencies"
+↓
+[update deps]
+↓
+bd close bd-1n7p --reason "Dependencies updated" --json
+↓
+jj commit -m "chore: update dependencies"
+↓
+bd update bd-3r8q --status in_progress --json    # "Refactor theme module"
+↓
+[refactor code]
+↓
+bd close bd-3r8q --reason "Refactoring complete" --json
+↓
+jj commit -m "refactor: simplify theme module structure"
+↓
+DONE
+```
+
+#### Example 6: Using jj describe (set message but NOT commit yet)
+```
+START
+↓
+bd ready --json
+↓
+bd update bd-4t2y --status in_progress --json
+↓
+[implement part 1]
+↓
+jj describe -m "feat: add user profile page (WIP)"    # Just set message, keep working
+↓
+[implement part 2]
+↓
+[run tests]
+↓
+bd close bd-4t2y --reason "Complete" --json
+↓
+jj describe -m "feat: add user profile page"    # Update message (remove WIP)
+↓
+jj new    # NOW commit and create new empty change
+↓
+DONE
+```
+
+### Key jj + bd Integration
+
+1. **jj commit -m "..."**: Sets message + commits + creates new empty change (most common)
+2. **jj describe -m "..."**: Only sets/updates message, stays on same change
+3. **jj new**: Commits current change + creates new empty change (no message update)
+4. **Pattern**: Generally `bd close` → `jj commit` for clean history
+5. **One issue per commit**: Keeps history clean and traceable
 
 ## Skills - Domain Knowledge Repository
 
