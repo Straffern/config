@@ -42,7 +42,7 @@ Every single task, no matter how trivial, must be tracked:
 ## Workflow Entry Point
 
 ```
-User request → analyze → create/claim bd issue → implement → review → close → commit
+User request → analyze → SEARCH for existing issues → claim OR create bd issue → implement → review → close → commit
 ```
 
 ---
@@ -54,14 +54,23 @@ User request → analyze → create/claim bd issue → implement → review → 
 ### Phase 1: Start
 
 ```bash
-# 1. Check available work
-bd ready --json
+# 1. SEARCH for existing work FIRST (MANDATORY - check ALL statuses)
+bd list --status open --json              # All open issues
+bd list --status in_progress --json       # Currently active work
+bd list --status blocked --json           # Blocked issues
+bd list --title "keyword" --json          # Search by title/content similarity
+bd duplicates --json                      # Check for duplicate content
 
-# 2. DECISION: Pick existing OR create new issue
-#    Existing work:
+# 2. DECISION based on search results:
+#    A) Found exact match → Claim existing issue
 bd update bd-XXXX --status in_progress
 
-#    New work:
+#    B) Found similar issue → Assess relationship
+#       - If SAME work → Use existing issue
+#       - If RELATED work → Create new with link:
+bd create "Title" -t TYPE -p PRIORITY --deps related:bd-EXISTING
+
+#    C) No match found → Create new issue
 bd create "Title" -t TYPE -p PRIORITY
 bd update bd-XXXX --status in_progress
 ```
@@ -236,8 +245,16 @@ fi
 ### Essential Commands
 
 ```bash
+# SEARCH COMMANDS (use BEFORE creating issues)
+bd list --status open --json                 # All open issues
+bd list --status in_progress --json          # Currently active
+bd list --status blocked --json              # Blocked issues  
+bd list --title "keyword" --json             # Search by title/content
+bd duplicates --json                         # Find duplicate content
 bd ready --json                              # Show unblocked work
-bd create "Title" -t TYPE -p PRIORITY        # Create issue
+
+# CRUD COMMANDS
+bd create "Title" -t TYPE -p PRIORITY        # Create issue (after search!)
 bd update bd-XXXX --status in_progress       # Claim/start work
 bd update bd-XXXX --status blocked           # Mark blocked
 bd close bd-XXXX --reason "Reason"           # Complete work
@@ -392,14 +409,35 @@ Launch in parallel:
 Q: Does this request require ANY work (code, docs, config changes)?
 ├─ NO  → Answer question, no bd issue needed
 │
-└─ YES → Q: Is there existing bd issue for this work?
-          ├─ YES → bd ready --json
-          │        bd update bd-XXXX --status in_progress
+└─ YES → SEARCH SEQUENCE (MANDATORY):
+          
+          Step 1: Search ALL existing issues
+          ├─ bd list --status open --json
+          ├─ bd list --status in_progress --json
+          ├─ bd list --status blocked --json
+          └─ bd list --title "keywords" --json
+          
+          Step 2: Check for duplicates
+          └─ bd duplicates --json
+          
+          Step 3: DECISION based on search results
+          ├─ Exact match found → Claim existing issue
+          │  └─ bd update bd-XXXX --status in_progress
+          │     Execute
+          │
+          ├─ Similar issue found → Assess relationship
+          │  ├─ Same work → Use existing issue
+          │  │  └─ bd update bd-XXXX --status in_progress
+          │  │     Execute
+          │  └─ Related work → Create with link
+          │     └─ bd create "..." --deps related:bd-XXXX
+          │        bd update bd-NEW --status in_progress
           │        Execute
           │
-          └─ NO  → bd create "..." -t TYPE -p PRIORITY
-                   bd update bd-XXXX --status in_progress
-                   Execute
+          └─ No match found → Create new issue
+             └─ bd create "..." -t TYPE -p PRIORITY
+                bd update bd-XXXX --status in_progress
+                Execute
 ```
 
 ### Should I Use a Planner?
@@ -463,10 +501,16 @@ DECIDE AUTONOMOUSLY:
 
 ## Workflow Examples
 
-### Example 1: Simple Feature Work
+### Example 1: Search Before Create (Prevents Duplicates)
 
 ```
-bd ready --json
+# User: "Add dark mode toggle to settings"
+
+# MANDATORY SEARCH FIRST
+bd list --title "dark mode" --json
+# Found: bd-f14c "Add dark mode toggle" [open]
+
+# Decision: Exact match found → Use existing issue
 bd update bd-f14c --status in_progress
 [implement feature]
 [run tests - all must pass]
@@ -475,7 +519,28 @@ bd close bd-f14c --reason "Feature complete, tests passing"
 jj commit -m "feat: add dark mode toggle"
 ```
 
-### Example 2: Feature with Discovered Bug
+### Example 2: Create When No Duplicates Found
+
+```
+# User: "Add OAuth integration"
+
+# MANDATORY SEARCH FIRST
+bd list --status open --json              # Check open
+bd list --status in_progress --json       # Check in progress
+bd list --title "oauth" --json            # Search by keyword
+bd duplicates --json                      # Check duplicates
+
+# Decision: No matches found → Safe to create
+bd create "Add OAuth integration" -t feature -p 1
+bd update bd-a1b2 --status in_progress
+[implement feature]
+[run tests]
+[run review agents]
+bd close bd-a1b2 --reason "OAuth integration complete"
+jj commit -m "feat: add OAuth integration"
+```
+
+### Example 3: Feature with Discovered Bug
 
 ```
 bd ready --json
@@ -502,7 +567,7 @@ bd close bd-a1b2 --reason "Complete"
 jj commit -m "feat: implement dark mode"
 ```
 
-### Example 3: Epic with Subtasks
+### Example 4: Epic with Subtasks
 
 ```
 # Create epic and subtasks
@@ -544,7 +609,7 @@ jj commit -m "feat: complete authentication system
 Closes bd-9k2m"
 ```
 
-### Example 4: Test Failure During Work
+### Example 5: Test Failure During Work
 
 ```
 bd ready --json
@@ -572,7 +637,7 @@ bd close bd-8v1w --reason "Feature complete, all tests pass"
 jj commit -m "feat: add oauth integration"
 ```
 
-### Example 5: Multiple Small Tasks
+### Example 6: Multiple Small Tasks
 
 ```
 bd ready --json  # Shows bd-5m2k, bd-1n7p, bd-3r8q
@@ -601,7 +666,7 @@ bd close bd-3r8q --reason "Refactoring complete"
 jj commit -m "refactor: simplify theme module structure"
 ```
 
-### Example 6: Work-in-Progress Commits
+### Example 7: Work-in-Progress Commits
 
 ```
 bd ready --json
@@ -628,6 +693,8 @@ jj new  # Commit and create new change
 **DO NOT DO THE FOLLOWING:**
 
 ❌ Using markdown TODO lists instead of bd
+❌ **Creating issues without searching for duplicates first**
+❌ **Skipping the search sequence (bd list + bd duplicates)**
 ❌ Skipping review agents ("just this once")
 ❌ Closing issues with failing tests
 ❌ Using `jj describe + jj new` instead of `jj commit` for standard workflow
@@ -648,8 +715,11 @@ jj new  # Commit and create new change
 ## Quick Reference Card
 
 ```
-START    → bd ready --json (check work) OR bd create "..." (new work)
+SEARCH   → bd list --status open/in_progress/blocked --json
+           bd list --title "keywords" --json
+           bd duplicates --json (MANDATORY before creating)
 CLAIM    → bd update bd-XXXX --status in_progress
+CREATE   → bd create "..." (ONLY after search confirms no duplicates)
 CONSULT  → research-agent (unknown tech), architecture-agent (placement), skills (domain)
 DISCOVER → bd create "..." --deps discovered-from:bd-PARENT
 BLOCK    → bd update bd-XXXX --status blocked
@@ -661,5 +731,5 @@ COMMIT   → jj commit -m "type: description"
 
 **One Rule to Rule Them All:**
 ```
-bd ready → claim → consult agents → implement → test → review → close → commit
+SEARCH (all statuses + duplicates) → claim existing OR create new → consult → implement → test → review → close → commit
 ```
