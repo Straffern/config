@@ -1,0 +1,853 @@
+We track work in Beads instead of Markdown. Run \`bd quickstart\` to see how.
+
+# Agent Guidelines for WHATWG Encoding Implementation in Zig
+
+## ⚠️ CRITICAL: Ask Clarifying Questions When Unclear
+
+**ALWAYS ask clarifying questions when requirements are ambiguous or unclear.**
+
+### Question-Asking Protocol
+
+When you receive a request that is:
+- Ambiguous or has multiple interpretations
+- Missing key details needed for implementation
+- Unclear about expected behavior or scope
+- Could be understood in different ways
+
+**YOU MUST**:
+1. ✅ **Ask ONE clarifying question at a time**
+2. ✅ **Wait for the answer before proceeding**
+3. ✅ **Continue asking questions until you have complete understanding**
+4. ✅ **Never make assumptions when you can ask**
+
+### Examples of When to Ask
+
+❓ **Ambiguous request**: "Implement encoding/decoding"
+- **Ask**: "Should this include all numeric types, or focus on specific conversions like decodeCodePoint and toDouble?"
+
+❓ **Missing details**: "Add streaming decoder support"
+- **Ask**: "Should this support all 13 byte array variants, or focus on specific types like Uint8Array?"
+
+❓ **Unclear scope**: "Optimize decoder performance"
+- **Ask**: "Which part should be prioritized? UTF-8 fast path, BOM handling, or legacy encoding support?"
+
+❓ **Multiple interpretations**: "Handle encoding labels"
+- **Ask**: "Should this handle all encoding error modes (fatal, replacement, HTML), or focus on specific modes?"
+
+### What NOT to Do
+
+❌ **Don't make assumptions and implement something that might be wrong**
+❌ **Don't ask multiple questions in one message** (ask one, wait for answer, then ask next)
+❌ **Don't proceed with unclear requirements** hoping you guessed correctly
+❌ **Don't over-explain options** in the question (keep questions concise)
+
+### Good Question Pattern
+
+```
+"I want to make sure I understand correctly: [restate what you think they mean].
+
+Is that correct, or did you mean [alternative interpretation]?"
+```
+
+**Remember**: It's better to ask and get it right than to implement the wrong thing quickly.
+
+---
+
+## ⚠️ CRITICAL: Spec-Compliant Encoding Implementation
+
+**THIS IS A WHATWG ENCODING SPECIFICATION LIBRARY** providing text encoding and decoding.
+
+### What WHATWG Encoding IS
+
+The WHATWG Encoding Standard defines **text encoding and decoding and character encoding standard**:
+
+1. **Encoders** - TextEncoder and streaming encoder for UTF-8
+2. **Decoders** - TextDecoder and streaming decoders for UTF-8, UTF-16, and legacy encodings
+3. **Encoding Labels** - Label resolution for encoding names (e.g., "utf-8", "windows-1252")
+4. **Error Modes** - fatal, replacement, and HTML error handling modes
+5. **BOM Handling** - Byte Order Mark detection and stripping
+6. **I/O Queues** - Stream processing with byte and code point queues
+7. **Legacy Encodings** - Windows-1252, GBK, Big5, Shift_JIS, EUC-KR, and more
+8. **WPT Compliance** - Passes Web Platform Tests for encoding operations
+
+### Dual Purpose
+
+This library serves two critical functions:
+
+1. **Encoding API** - TextEncoder and TextDecoder implementations
+   - Used by: All web content that processes text in different encodings
+   - Provides: UTF-8 encoding, multi-encoding decoding, streaming support
+
+2. **Streaming Decoders** - Process byte streams incrementally
+   - Decoders: UTF-8, UTF-16LE, UTF-16BE, and 30+ legacy encodings
+   - Outputs: Unicode scalar value strings with proper error handling
+   - Status: Comprehensive WPT test coverage
+
+### What Encoding is NOT
+
+❌ **NOT a JavaScript engine** - Provides encoding/decoding operations, not JS runtime
+❌ **NOT a code generator** - Parser produces AST; separate tools generate bindings
+❌ **NOT WHATWG Infra** - Encoding depends on Infra primitives (separate library)
+
+### Scope
+
+✅ **Encoders**: UTF-8 encoding with TextEncoder API
+✅ **Decoders**: Multi-encoding decoding with TextDecoder API
+✅ **Spec compliance critical**: Text content depends on precise encoding behavior
+✅ **Test against spec**: 252 tests passing, zero memory leaks (141.5M operations verified)
+
+### Test Guidelines
+
+- Use realistic encoding examples: UTF-8 encoding, legacy decoding, error modes
+- Test edge cases: invalid byte sequences, BOM handling, surrogate pairs, replacement chars
+- Focus on spec compliance: every decode step must match Encoding algorithms
+
+**Example Test**:
+```zig
+test "TextDecoder - UTF-8 decoding with BOM stripping" {
+    const allocator = std.testing.allocator;
+    var decoder = try TextDecoder.init(allocator, "utf-8", .{});
+    defer decoder.deinit();
+    
+    const input = "\xEF\xBB\xBFHello"; // UTF-8 BOM + "Hello"
+    const result = try decoder.decode(allocator, input, .{});
+    defer allocator.free(result);
+    
+    try std.testing.expectEqualStrings("Hello", result);
+}
+
+test "TextEncoder - UTF-8 encoding with error handling" {
+    const allocator = std.testing.allocator;
+    var encoder = try TextEncoder.init(allocator);
+    defer encoder.deinit();
+    
+    const input = "Hello, 世界!";
+    const result = try encoder.encode(allocator, input);
+    defer allocator.free(result);
+    
+    try std.testing.expect(result.len > 0);
+}
+```
+
+---
+
+This project uses **Agent Skills** for specialized knowledge areas. Skills are automatically loaded when relevant to your task.
+
+## WHATWG Specifications
+
+The complete WHATWG Encoding Standard specification is available in:
+- `specs/encoding.md` - Complete Encoding Standard specification (optimized markdown)
+- `specs/encoding.idl` - WebIDL interface definitions for Encoding API
+
+**Always load complete spec sections** from these files into context when implementing Encoding features:
+- **`specs/encoding.md`** - For algorithms, encoding tables, and implementation details
+- **`specs/encoding.idl`** - For interface definitions, method signatures, and Web API contracts
+
+Never rely on grep fragments - every algorithm has context and edge cases that matter.
+
+### Encoding Dependencies
+
+This library has minimal dependencies:
+- **webidl** (v0.2.0) - WebIDL types for TextEncoder/TextDecoder APIs
+  - Provides: `infra` library transitively
+- **zoop** (v0.1.1) - Code generation for WebIDL bindings
+
+**Important**: All dependencies are fetched automatically via Zig's package manager. The `infra` library provides WHATWG Infra primitives and is accessed transitively through `webidl`.
+
+## Memory Management for Encoding Operations
+
+Encoding operations use standard Zig allocation patterns - allocate for heap types, deinit when done.
+
+### Standard Allocation Pattern
+
+```zig
+// Type conversions (no allocation for primitives)
+const js_num = encoding.JSValue{ .number = 42.0 };
+const decoded = try encoding.decode(js_num);
+
+// String types (allocate for encoded text, byte sequence, scalar value string)
+const js_str = encoding.JSValue{ .string = "hello" };
+const dom_string = try encoding.decodeString(allocator, js_str);
+defer allocator.free(dom_string);
+
+// Buffer sources (allocate for output buffer, byte array)
+const buffer = try encoding.output buffer.init(allocator, 1024);
+defer buffer.deinit();
+
+// Collections (allocate for ObservableArray, Maplike, Setlike)
+var obs_array = encoding.ObservableArray(u32).init(allocator);
+defer obs_array.deinit();
+
+// Error handling (allocate for exception messages)
+var result = encoding.ErrorResult{};
+defer result.deinit(allocator);
+try result.throwEncodingError(allocator, .NotFoundError, "Not found");
+```
+
+### Arena Allocation for Parser
+
+```zig
+// Parser uses arena for AST construction
+var arena = std.heap.ArenaAllocator.init(allocator);
+defer arena.deinit();
+const parser_allocator = arena.allocator();
+
+// Decode byte stream - all AST nodes use arena
+var parser = encoding.Parser.init(parser_allocator, source);
+const ast = try parser.parse();
+
+// Serialize to JSON
+const json = try ast.toJSON(parser_allocator);
+
+// Everything freed at once when arena.deinit() is called
+```
+
+### Memory Safety
+
+- **Always use `defer`** for cleanup
+- **Always test with `std.testing.allocator`** to detect leaks
+- **Parser uses arena allocation** - all AST nodes freed together
+- **Runtime types use direct allocation** - type conversions, collections
+- **No global state** - everything takes an allocator
+
+---
+
+## Available Skills
+
+Claude automatically loads skills when relevant to your task. You don't need to manually select them.
+
+### 1. **whatwg_spec** - WHATWG Specification Reference ⭐
+
+**Automatically loaded when:**
+- Implementing Encoding features from WHATWG spec
+- Looking up specific algorithm steps for type conversions
+- Verifying IDL construct parsing (interfaces, dictionaries, etc.)
+- Understanding JavaScript binding semantics
+- Checking type conversion algorithms (ToInt32, ToString, etc.)
+- Resolving ambiguities in specification language
+
+**Provides:**
+- Direct references to `specs/encoding.md` in this project
+- Guidance on loading complete spec sections (never fragments)
+- Common algorithm locations and search patterns
+- Spec terminology and reading best practices
+- Integration with other skills (whatwg_compliance, zig_standards, testing)
+
+**Key Files**:
+- `specs/encoding.md` - Complete WHATWG Encoding Standard (optimized markdown)
+
+**Critical Rule**: Always load complete spec sections into context. Never rely on grep fragments.
+
+**Location:** `skills/whatwg_spec/`
+
+### 2. **whatwg_compliance** - Specification to Zig Mapping
+
+**Automatically loaded when:**
+- Mapping Encoding spec algorithms to Zig types
+- Understanding how to implement spec concepts in Zig
+- Need examples of spec-compliant Zig implementations
+
+**Provides:**
+- Type mapping from Encoding spec to Zig (boolean → bool, long → i32, encoded text → []const u16, BufferSource → output buffer/byte array)
+- Complete WebIDL implementation examples with numbered steps matching spec
+- Documentation patterns with Encoding spec references
+- Memory management patterns for WebIDL types
+- How to implement type conversions, error handling, collections, parser correctly
+
+**Works with**: `whatwg_spec` skill (read spec first, then map to Zig)
+
+**Location:** `skills/whatwg_compliance/`
+
+### 3. **zig_standards** - Zig Programming Patterns
+
+**Automatically loaded when:**
+- Writing or refactoring Zig code
+- Implementing algorithms
+- Managing memory with allocators
+- Handling errors
+
+**Provides:**
+- Naming conventions and code style
+- Error handling patterns
+- Memory management patterns (allocator, arena, defer)
+- Type safety best practices
+- Comptime programming patterns
+
+**Location:** `skills/zig_standards/`
+
+### 4. **testing_requirements** - Test Standards
+
+**Automatically loaded when:**
+- Writing tests
+- Ensuring test coverage
+- Verifying memory safety (no leaks)
+- Implementing TDD workflows
+
+**Provides:**
+- Test coverage requirements (happy path, edge cases, errors, memory)
+- Memory leak testing with `std.testing.allocator`
+- Test organization patterns
+- TDD workflow
+
+**Location:** `skills/testing_requirements/`
+
+### 5. **performance_optimization** - WebIDL Performance
+
+**Automatically loaded when:**
+- Optimizing encoding operations
+- Working on parser hot paths
+- Minimizing allocations in runtime
+
+**Provides:**
+- Fast paths for common conversions (decodeCodePoint, validateEncoding, toencoded text)
+- Allocation minimization in parser (arena usage, string interning)
+- Type conversion optimization (avoid unnecessary copies)
+- Collection type optimization (inline storage for small arrays)
+- Parser optimization (lexer lookahead, reduced backtracking)
+
+**Location:** `skills/performance_optimization/`
+
+### 6. **documentation_standards** - Documentation Format
+
+**Automatically loaded when:**
+- Writing inline documentation
+- Updating README.md or CHANGELOG.md
+- Documenting design decisions
+- Creating completion reports
+
+**Provides:**
+- Comprehensive module-level documentation format (`//!`)
+- Function and type documentation patterns (`///`)
+- Encoding spec reference format
+- Complete usage examples and common patterns
+- README.md update workflow
+- CHANGELOG.md format (Keep a Changelog 1.1.0)
+- FEATURE_CATALOG.md updates for new WebIDL features
+
+**Location:** `skills/documentation_standards/`
+
+### 7. **communication_protocol** - Clarifying Questions ⭐
+
+**ALWAYS ACTIVE** - Applies to every interaction and task.
+
+**Core Principle:**
+When requirements are ambiguous, unclear, or could be interpreted multiple ways, **ALWAYS ask clarifying questions** before proceeding.
+
+**Provides:**
+- Question-asking protocol (one question at a time)
+- When to ask vs. when to proceed
+- Question patterns and examples
+- Anti-patterns to avoid (assuming, option overload, paralysis)
+- Decision tree for "should I ask?"
+
+**Critical Rule:** Ask ONE clarifying question at a time. Wait for answer. Repeat until understanding is complete.
+
+**Location:** `skills/communication_protocol/`
+
+### 8. **browser_benchmarking** - WebIDL Benchmarking Strategies
+
+**Automatically loaded when:**
+- Benchmarking WebIDL type conversion performance
+- Comparing against browser WebIDL implementations
+- Identifying optimization opportunities in parser or runtime
+- Measuring performance regressions
+
+**Provides:**
+- How to benchmark WebIDL conversions against browsers (Chrome V8, Firefox SpiderMonkey, Safari JavaScriptCore)
+- WebIDL-specific optimization patterns (type conversion fast paths, string interning, inline storage)
+- Performance targets based on browser implementations (V8 bindings, Blink IDL runtime, Gecko WebIDL)
+- Real-world Web API operation testing strategies
+- Microbenchmark and macrobenchmark patterns
+
+**Key Optimizations:**
+- Type conversion fast paths (integer range checks, string validation)
+- String interning for repeated encoded text conversions
+- Inline storage for small ObservableArray/Maplike/Setlike
+- Parser lexer lookahead optimization
+- Buffer source type specialization
+
+**Location:** `skills/browser_benchmarking/`
+
+### 9. **pre_commit_checks** - Automated Quality Checks
+
+**Automatically loaded when:**
+- Preparing to commit code
+- Running pre-commit hooks
+- Ensuring code quality before push
+
+**Provides:**
+- Pre-commit hook workflow (format, build, test)
+- How to handle pre-commit failures
+- Integration with development tools (VS Code, Vim, Emacs)
+- Performance considerations for pre-commit checks
+
+**Core Checks:**
+1. ✅ Code formatting (`zig fmt --check`)
+2. ✅ Build success (`zig build`)
+3. ✅ Test success (`zig build test`)
+
+**Critical Rule**: Never commit unformatted, broken, or untested code.
+
+**Location:** `skills/pre_commit_checks/`
+
+### 10. **beads_workflow** - Task Tracking with bd ⭐
+
+**ALWAYS use bd for ALL task tracking** - No markdown TODOs or external trackers.
+
+**Automatically loaded when:**
+- Managing tasks and issues
+- Tracking work progress
+- Creating new issues
+- Checking what to work on next
+
+**Provides:**
+- Complete bd (beads) workflow for issue tracking
+- How to create, claim, update, and close issues
+- Dependency tracking with `discovered-from` links
+- Auto-sync with git (`.beads/issues.jsonl`)
+- MCP server integration for Claude Desktop
+
+**Core Commands:**
+- `bd ready --json` - Check ready work
+- `bd create "Title" -t bug|feature|task -p 0-4 --json` - Create issue
+- `bd update bd-N --status in_progress --json` - Claim issue
+- `bd close bd-N --reason "Done" --json` - Complete work
+
+**Critical Rules:**
+- ✅ Use bd for ALL task tracking
+- ✅ Always use `--json` flag
+- ✅ Link discovered work with `discovered-from`
+- ✅ Commit `.beads/issues.jsonl` with code
+- ❌ NEVER use markdown TODO lists
+
+**Location:** `skills/beads_workflow/`
+
+---
+
+## Issue Tracking with bd (beads)
+
+**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+
+### Why bd?
+
+- Dependency-aware: Track blockers and relationships between issues
+- Git-friendly: Auto-syncs to JSONL for version control
+- Agent-optimized: JSON output, ready work detection, discovered-from links
+- Prevents duplicate tracking systems and confusion
+
+### Quick Start
+
+**Check for ready work:**
+```bash
+bd ready --json
+```
+
+**Create new issues:**
+```bash
+bd create "Issue title" -t bug|feature|task -p 0-4 --json
+bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
+```
+
+**Claim and update:**
+```bash
+bd update bd-42 --status in_progress --json
+bd update bd-42 --priority 1 --json
+```
+
+**Complete work:**
+```bash
+bd close bd-42 --reason "Completed" --json
+```
+
+### Workflow for AI Agents
+
+1. **Check ready work**: `bd ready` shows unblocked issues
+2. **Claim your task**: `bd update <id> --status in_progress`
+3. **Work on it**: Implement, test, document
+4. **Discover new work?** Create linked issue:
+   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
+5. **Complete**: `bd close <id> --reason "Done"`
+
+### Important Rules
+
+- ✅ Use bd for ALL task tracking
+- ✅ Always use `--json` flag for programmatic use
+- ✅ Link discovered work with `discovered-from` dependencies
+- ✅ Check `bd ready` before asking "what should I work on?"
+- ❌ Do NOT create markdown TODO lists
+- ❌ Do NOT use external issue trackers
+
+For complete details, see `skills/beads_workflow/SKILL.md`.
+
+---
+
+## Golden Rules
+
+These apply to ALL work on this project:
+
+### 0. **Ask When Unclear** ⭐
+When requirements are ambiguous or unclear, **ASK CLARIFYING QUESTIONS** before proceeding. One question at a time. Wait for answer. Never assume.
+
+### 1. **Complete Spec Understanding**
+Load the complete WHATWG Encoding specification from `specs/encoding.md` into context. Read the full algorithm sections with proper context. Never rely on grep fragments - every algorithm has context and edge cases.
+
+### 2. **Algorithm Precision**
+encoding operations and bindings are critical for all Web APIs. Implement EXACTLY as specified, step by step. Even small deviations can break Web API compatibility.
+
+### 3. **Memory Safety**
+Zero leaks, proper cleanup with defer, test with `std.testing.allocator`. No exceptions. Parser uses arena allocation.
+
+### 4. **Test First**
+Write tests before implementation. Comprehensive unit testing for type conversions, error handling, collections, and parser.
+
+### 5. **Browser Compatibility**
+WebIDL runtime must match browser behavior. Test against edge cases and boundary conditions. When in doubt, check how browser implementations (V8 bindings, Blink IDL, Gecko WebIDL) handle it.
+
+### 6. **Performance Matters** (but spec compliance comes first)
+WebIDL conversions are used extensively by Web APIs (DOM, Fetch, URL). Optimize for speed and low allocation. But never sacrifice correctness for speed.
+
+### 7. **Use bd for Task Tracking** ⭐
+All tasks, bugs, and features tracked in bd (beads). Always use `bd ready --json` to check for work. Link discovered issues with `discovered-from`. Never use markdown TODOs.
+
+---
+
+## Critical Project Context
+
+### What Makes WebIDL Special
+
+1. **Foundation for All Web APIs** - Web content uses character encodings for text representation
+2. **JavaScript Interop** - Defines how Web APIs interact with JavaScript engines
+3. **Spec Compliance Critical** - Bugs in WebIDL cascade to every Web API implementation
+4. **Dual Purpose** - Both runtime library (type conversions) and parser (AST generation)
+5. **Used Everywhere** - Every Web API operation uses encoding operations and error handling
+
+### Code Quality
+
+- Production-ready codebase (comprehensive test coverage for all encodings)
+- Zero tolerance for memory leaks
+- Zero tolerance for breaking changes without major version
+- Zero tolerance for untested code
+- Zero tolerance for missing or incomplete documentation
+- Zero tolerance for deviating from Encoding spec
+
+### Workflow (New Features)
+
+1. **Check bd for issue** - `bd ready --json` or create new issue if needed
+2. **Claim the issue** - `bd update bd-N --status in_progress --json`
+3. **Read Encoding spec** - Load `specs/encoding.md` for algorithms and `specs/encoding.idl` for interface definitions
+4. **Understand full algorithm** - Read all steps with context, dependencies, and edge cases
+5. **Check IDL interfaces** - Review method signatures, parameters, and return types in `encoding.idl`
+6. **Implement encoder/decoder** - Use Zig idioms from `zig_standards` skill
+7. **Write tests first** - Test all algorithm steps and edge cases
+8. **Implement precisely** - Follow spec steps exactly, numbered comments
+9. **Verify** - No leaks, all tests pass, pre-commit checks pass
+10. **Document** - Inline docs with Encoding spec references (both .md and .idl)
+11. **Update CHANGELOG.md** - Document what was added
+12. **Update FEATURE_CATALOG.md** if user-facing API
+13. **Close issue** - `bd close bd-N --reason "Implemented" --json`
+
+### Workflow (Bug Fixes)
+
+1. **Check bd for issue** - or create: `bd create "Bug: ..." -t bug -p 1 --json`
+2. **Claim the issue** - `bd update bd-N --status in_progress --json`
+3. **Write failing test** that reproduces the bug
+4. **Read spec** - Load `specs/encoding.md` (algorithms) and `specs/encoding.idl` (interfaces) to verify expected behavior
+5. **Fix the bug** with minimal code change
+6. **Verify** all tests pass (including new test), pre-commit checks pass
+7. **Update** CHANGELOG.md if user-visible
+8. **Close issue** - `bd close bd-N --reason "Fixed" --json`
+
+---
+
+## Memory Tool Usage
+
+Use Claude's memory tool to persist knowledge across sessions:
+
+**Store in memory:**
+- Completed WebIDL features with implementation dates
+- Design decisions and architectural rationale
+- Performance optimization notes
+- Complex spec interpretation notes (type conversion edge cases, parser ambiguities)
+- Known gotchas and edge cases
+
+**Memory directory structure:**
+```
+memory/
+├── completed_features.json
+├── design_decisions.md
+└── spec_interpretations.md
+```
+
+---
+
+## Quick Reference
+
+### WebIDL Types (WHATWG Encoding Standard)
+
+| WebIDL Type | Zig Type | Notes |
+|-------------|----------|-------|
+| `boolean` | `bool` | JavaScript boolean |
+| `byte` | `i8` | Signed 8-bit integer |
+| `octet` | `u8` | Unsigned 8-bit integer |
+| `short` | `i16` | Signed 16-bit integer |
+| `unsigned short` | `u16` | Unsigned 16-bit integer |
+| `long` | `i32` | Signed 32-bit integer |
+| `unsigned long` | `u32` | Unsigned 32-bit integer |
+| `long long` | `i64` | Signed 64-bit integer |
+| `unsigned long long` | `u64` | Unsigned 64-bit integer |
+| `float` | `f32` | IEEE 754 single precision |
+| `double` | `f64` | IEEE 754 double precision |
+| `encoded text` | `[]const u16` | UTF-16 string |
+| `byte sequence` | `[]const u8` | Byte string (ASCII) |
+| `scalar value string` | `[]const u16` | Unicode scalar value string |
+| `output buffer` | `output buffer` | Binary buffer |
+| `Uint8Array` | `byte array(u8)` | Typed array (13 variants) |
+
+### Common WebIDL Operations
+
+```zig
+// Type conversions (WebIDL §3.2)
+const js_num = encoding.JSValue{ .number = 42.7 };
+const decoded = try encoding.decode(js_num);  // Returns 42
+
+const js_str = encoding.JSValue{ .string = "hello" };
+const dom_string = try encoding.decodeString(allocator, js_str);
+defer allocator.free(dom_string);
+
+// Error handling (WebIDL §2.8)
+var result = encoding.ErrorResult{};
+defer result.deinit(allocator);
+try result.throwEncodingError(allocator, .NotFoundError, "Element not found");
+
+// Buffer sources (WebIDL §2.9)
+const buffer = try encoding.output buffer.init(allocator, 1024);
+defer buffer.deinit();
+
+// Collections (WebIDL §2.10)
+var obs_array = encoding.ObservableArray(u32).init(allocator);
+defer obs_array.deinit();
+try obs_array.append(10);
+
+// Parser (WebIDL §2)
+var parser = encoding.Parser.init(allocator, idl_source);
+const ast = try parser.parse();
+defer ast.deinit();
+```
+
+### Common Errors
+
+```zig
+pub const WebIDLError = error{
+    // Type conversion errors
+    DecoderError,
+    EncoderError,
+    NotSupportedError,
+    
+    // Parser errors
+    SyntaxError,
+    UnexpectedToken,
+    UnexpectedEOF,
+    
+    // EncodingError types (30+)
+    NotFoundError,
+    InvalidStateError,
+    InvalidAccessError,
+    SecurityError,
+    NetworkError,
+    
+    // Memory errors
+    OutOfMemory,
+};
+```
+
+---
+
+## File Organization
+
+```
+skills/
+├── whatwg_spec/             # ⭐ WHATWG spec reference (specs/encoding.md)
+├── whatwg_compliance/       # Encoding spec to Zig type mapping and patterns
+├── communication_protocol/  # ⭐ Ask clarifying questions when unclear
+├── zig_standards/           # Zig idioms, memory patterns, errors
+├── testing_requirements/    # Test patterns, coverage, TDD
+├── performance_optimization/# WebIDL optimization patterns
+├── documentation_standards/ # Doc format, CHANGELOG, README, FEATURE_CATALOG
+├── browser_benchmarking/    # WebIDL benchmarking strategies and optimizations
+├── pre_commit_checks/       # Automated quality checks (format, build, test)
+├── beads_workflow/          # ⭐ Task tracking with bd (beads)
+└── zoop_workflow/           # Zoop integration (if applicable)
+
+specs/
+└── encoding.md                # Complete WHATWG Encoding Standard (optimized markdown)
+
+idl-output/                  # Parser output for 333 specification files
+└── *.json                   # AST JSON for each .idl file parsed
+
+.beads/
+└── issues.jsonl             # Beads issue tracking database (git-versioned)
+
+memory/                      # Persistent knowledge (memory tool)
+├── completed_features.json
+├── design_decisions.md
+└── spec_interpretations.md
+
+tests/
+└── *.zig                    # Unit tests for WebIDL features
+
+src/                         # Source code
+├── parser/                  # WebIDL parser
+│   ├── lexer.zig            # Tokenization
+│   ├── parser.zig           # AST construction
+│   ├── ast.zig              # AST node definitions
+│   └── serializer.zig       # JSON serialization
+├── types/                   # WebIDL runtime types
+│   ├── primitives.zig       # Type conversions (decodeCodePoint, toDouble, etc.)
+│   ├── strings.zig          # encoded text, byte sequence, scalar value string
+│   ├── buffer_sources.zig   # output buffer, byte array, DataView
+│   ├── collections.zig      # ObservableArray, Maplike, Setlike
+│   ├── dictionaries.zig     # Dictionary types
+│   ├── enumerations.zig     # Enum types
+│   ├── unions.zig           # Union types
+│   ├── callbacks.zig        # Callback functions and interfaces
+│   └── ...
+├── errors.zig               # EncodingError, ErrorResult
+├── extended_attrs.zig       # Extended attribute handling
+└── wrappers.zig             # Nullable, Optional, Sequence, Record
+
+Root:
+├── CHANGELOG.md
+├── FEATURE_CATALOG.md       # Complete WebIDL runtime API reference
+├── CONTRIBUTING.md
+├── AGENTS.md (this file)
+└── ... (build files)
+```
+
+---
+
+## Zero Tolerance For
+
+- Memory leaks (test with `std.testing.allocator`)
+- Breaking changes without major version bump
+- Untested code
+- Missing documentation
+- Undocumented CHANGELOG entries
+- **Deviating from Encoding spec algorithms**
+- **Browser incompatibility** (test against browser WebIDL implementations)
+- **Missing spec references** (must cite Encoding spec section)
+- **Parser regressions** (333/333 files must continue to parse)
+
+---
+
+## Dependencies
+
+This project depends on external Zig libraries. When working with dependencies:
+
+### Accessing Dependency Source Code
+
+Dependencies are cached by Zig in `~/.cache/zig/p/`. To find them:
+
+```bash
+# Find infra dependency
+find ~/.cache/zig -name "infra-0.2.0*" -type d
+
+# Current path (as of v0.2.0):
+~/.cache/zig/p/infra-0.2.0-4b_uZoxPAwA6tKFxWqTK8kleJcv-ansJKq_93rQiDHSi/
+```
+
+### Dependency Documentation
+
+1. **DEPENDENCIES.md** - Quick reference guide in repo root
+2. **Generated docs** - After `zig build docs`, see `zig-out/docs/deps/`
+3. **Source code** - Read directly from `~/.cache/zig/p/*/src/`
+4. **README** - Each dependency has README at cache path
+
+### Current Dependencies
+
+**webidl (v0.2.0)** - Direct dependency
+- Repository: https://github.com/zig-whatwg/webidl
+- Purpose: WebIDL type definitions for TextEncoder/TextDecoder APIs
+- Provides `infra` transitively (no need to declare separately)
+
+**zoop (v0.1.1)** - Direct dependency
+- Repository: https://github.com/zig-whatwg/zoop
+- Purpose: Code generation for WebIDL bindings
+- Used at build time only
+
+**infra** - Transitive dependency (via webidl)
+- Repository: https://github.com/zig-whatwg/infra
+- Purpose: WHATWG Infra Standard primitives (lists, maps, strings)
+- Spec: https://infra.spec.whatwg.org/
+
+### For LLMs / AI Assistants
+
+When you need to understand a dependency:
+
+1. **Check DEPENDENCIES.md first** - Contains common patterns and module overview
+2. **Read the source** - Use Read tool on `~/.cache/zig/p/*/src/` files
+3. **Generate docs** - Run `zig build docs` to get browsable API docs at `zig-out/docs/deps/`
+4. **Consult spec** - For WHATWG dependencies, refer to the relevant spec
+
+**Example - Reading infra source:**
+```bash
+# Find it
+find ~/.cache/zig -name "infra-0.2.0*" -type d
+
+# Read a module
+cat ~/.cache/zig/p/infra-0.2.0-*/src/ascii.zig
+```
+
+---
+
+## When in Doubt
+
+1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one question at a time)
+2. **Check bd for existing issues** - `bd ready --json` - See if work is already tracked
+3. **Read the WHATWG spec** - Load `specs/encoding.md` (algorithms) and `specs/encoding.idl` (interfaces)
+4. **Read the complete section** - Context matters, never rely on fragments
+5. **Check dependencies** - Read DEPENDENCIES.md and dependency source if needed
+6. **Load relevant skills** - Get specialized guidance
+7. **Look at existing tests** - See patterns (252 tests available)
+8. **Check FEATURE_CATALOG.md** - See existing API patterns
+9. **Follow the Golden Rules** - Especially algorithm precision
+
+---
+
+## Encoding Standard Reference
+
+**Official Spec**: https://encoding.spec.whatwg.org/
+
+**Project Files**:
+- **`specs/encoding.md`** - Complete specification in markdown format (algorithms, encoding tables, implementation notes)
+- **`specs/encoding.idl`** - WebIDL interface definitions (TextEncoder, TextDecoder, etc.)
+
+**Key Sections** (in encoding.md):
+- §1 Encodings - Character encoding definitions and labels
+- §2 Encoding API - TextEncoder, TextDecoder interfaces
+- §3 Names and labels - Encoding label resolution
+- §4 Indexes - Encoding index tables for legacy encodings
+- §5 Hooks - Extension points for HTML integration
+- §6 Legacy encodings - Windows-1252, Big5, GBK, Shift_JIS, EUC-KR, etc.
+
+**Key Interfaces** (in encoding.idl):
+- `TextEncoder` - Encodes strings to UTF-8
+- `TextDecoder` - Decodes byte streams to strings
+- `TextEncoderStream` - Streaming UTF-8 encoder
+- `TextDecoderStream` - Streaming decoder for any encoding
+
+**Reading Guide**:
+1. Start with `encoding.idl` for interface contracts and method signatures
+2. Read `encoding.md` for algorithm implementations
+3. Read all algorithm steps in order (don't skip)
+4. Check encoding tables in §4 Indexes
+5. Test against browser implementations when in doubt
+
+---
+
+**Quality over speed.** Take time to do it right. The codebase is production-ready and must stay that way.
+
+**Skills provide the details.** This file coordinates. Load skills for deep expertise.
+
+**Encoding is fundamental.** All Web content depends on correct text encoding. Precision matters.
+
+**Thank you for maintaining the high quality standards of this project!** 🎉

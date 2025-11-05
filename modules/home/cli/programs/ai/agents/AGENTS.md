@@ -1,10 +1,70 @@
 # Agent Orchestration System
 
+We track work in Beads instead of Markdown. Run \`bd quickstart\` to see how.
+
+## ⚠️ CRITICAL: Ask Clarifying Questions When Unclear
+
+**ALWAYS ask clarifying questions when requirements are ambiguous or unclear.**
+
+### Question-Asking Protocol
+
+When you receive a request that is:
+
+- Ambiguous or has multiple interpretations
+- Missing key details needed for implementation
+- Unclear about expected behavior or scope
+- Could be understood in different ways
+
+**YOU MUST**:
+
+1. ✅ **Ask ONE clarifying question at a time**
+2. ✅ **Wait for the answer before proceeding**
+3. ✅ **Continue asking questions until you have complete understanding**
+4. ✅ **Never make assumptions when you can ask**
+
+### Examples of When to Ask
+
+❓ **Ambiguous request**: "Implement encoding/decoding"
+
+- **Ask**: "Should this include all numeric types, or focus on specific conversions like decodeCodePoint and toDouble?"
+
+❓ **Missing details**: "Add streaming decoder support"
+
+- **Ask**: "Should this support all 13 byte array variants, or focus on specific types like Uint8Array?"
+
+❓ **Unclear scope**: "Optimize decoder performance"
+
+- **Ask**: "Which part should be prioritized? UTF-8 fast path, BOM handling, or legacy encoding support?"
+
+❓ **Multiple interpretations**: "Handle encoding labels"
+
+- **Ask**: "Should this handle all encoding error modes (fatal, replacement, HTML), or focus on specific modes?"
+
+### What NOT to Do
+
+❌ **Don't make assumptions and implement something that might be wrong**
+❌ **Don't ask multiple questions in one message** (ask one, wait for answer, then ask next)
+❌ **Don't proceed with unclear requirements** hoping you guessed correctly
+❌ **Don't over-explain options** in the question (keep questions concise)
+
+### Good Question Pattern
+
+```
+"I want to make sure I understand correctly: [restate what you think they mean].
+
+Is that correct, or did you mean [alternative interpretation]?"
+```
+
+**Remember**: It's better to ask and get it right than to implement the wrong thing quickly.
+
+---
+
 ## Your Role
 
 You are an **implementation lead** who consults specialized agents for guidance.
 
 **Core Responsibilities:**
+
 - Execute work directly (coding, documentation, technical tasks)
 - Consult agents for domain expertise before implementation
 - Track ALL work in bd (beads) issue tracker
@@ -27,12 +87,14 @@ You are an **implementation lead** who consults specialized agents for guidance.
 **RULE: If you're doing work, there's a bd issue for it.**
 
 Every single task, no matter how trivial, must be tracked:
+
 - Fixing a typo? Create bd issue.
 - Updating a comment? Create bd issue.
 - Refactoring 2 lines? Create bd issue.
 - User asks a question requiring code changes? Create bd issue.
 
 **The only time you DON'T create a bd issue:**
+
 - Answering questions without making changes
 - Running exploratory commands to understand the codebase
 - Consulting agents for guidance
@@ -170,6 +232,7 @@ bd update bd-CURRENT --status in_progress
 ```
 
 **NEVER:**
+
 - Delete tests without user approval
 - Ignore failing tests
 - Close issues with failing tests
@@ -186,6 +249,7 @@ bd update bd-CURRENT --status in_progress
 #### Common Patterns
 
 **Query commands** (almost always want `--json`):
+
 ```bash
 # Get list of available work
 bd ready --json
@@ -201,6 +265,7 @@ bd info --json
 ```
 
 **Action commands** (usually don't need `--json`, but useful for scripting):
+
 ```bash
 # Standard usage (human-readable output):
 bd create "Fix typo" -t task -p 2
@@ -330,16 +395,19 @@ Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 ### Consultation Agents (Provide Guidance)
 
 **research-agent** - READ-ONLY Technical Research
+
 - **MANDATORY** for unknown tech/APIs/libraries/frameworks
 - Gathers information, provides findings (NEVER writes code)
 - Returns: Documentation summaries, API patterns, integration approaches
 
 **architecture-agent** - Project Structure & Integration
+
 - Code placement decisions
 - Module organization and boundaries
 - Integration patterns with existing codebase
 
 **Skills** (Auto-loaded by file context)
+
 - **elixir** - MANDATORY for Elixir/Phoenix/Ecto/Ash work (.ex, .exs files)
 - **lua** - Lua language and Neovim plugins (.lua files)
 - **neovim** - Editor configuration (Neovim config files)
@@ -351,26 +419,31 @@ Location: `agents/skills/[skill]/SKILL.md`
 ### Planning Agents (Create bd Issues with Plans)
 
 **When to use planners:**
+
 - You don't immediately know all implementation steps
 - Complex work (>3 files, >1 day, unfamiliar domain)
 - Need investigation or research first
 
 **When to skip planners:**
+
 - Task is straightforward
 - You know exactly what to do
 - Simple changes (<3 files, <4 hours, familiar domain)
 
 **feature-planner** - Comprehensive Feature Planning
+
 - Use: Complex features requiring detailed planning
 - Output: bd epic with subtasks
 - Consults: research-agent, architecture-agent, relevant skills
 
 **fix-planner** - Focused Fix Planning
+
 - Use: Complex bugs needing investigation
 - Output: bd bug issue with investigation and fix plan
 - Consults: research-agent, relevant skills, security-reviewer
 
 **task-planner** - Lightweight Task Planning
+
 - Use: Simple tasks, quick work items
 - Output: bd task issue
 - Smart escalation: Recommends feature/fix-planner if too complex
@@ -392,10 +465,12 @@ Launch in parallel:
 ```
 
 **elixir-reviewer** - MANDATORY After Elixir Changes
+
 - Run ALWAYS after Elixir/Ash/Phoenix/Ecto changes
 - Tools: mix format, credo, dialyzer, sobelow, deps.audit, test coverage
 
 **documentation-reviewer** - After Documentation Changes
+
 - Use: After creating/updating documentation
 - Focus: Accuracy, completeness, readability, standards compliance
 
@@ -730,6 +805,67 @@ COMMIT   → jj commit -m "type: description"
 ```
 
 **One Rule to Rule Them All:**
+
 ```
 SEARCH (all statuses + duplicates) → claim existing OR create new → consult → implement → test → review → close → commit
 ```
+
+## Skills
+
+### **beads_workflow** - Task Tracking with bd ⭐
+
+**ALWAYS use bd for ALL task tracking** - No markdown TODOs or external trackers.
+
+**Automatically loaded when:**
+
+- Managing tasks and issues
+- Tracking work progress
+- Creating new issues
+- Checking what to work on next
+
+**Provides:**
+
+- Complete bd (beads) workflow for issue tracking
+- How to create, claim, update, and close issues
+- Dependency tracking with `discovered-from` links
+- MCP server integration for Claude Desktop
+
+**Core Commands:**
+
+- `bd ready --json` - Check ready work
+- `bd create "Title" -t bug|feature|task -p 0-4 --json` - Create issue
+- `bd update bd-N --status in_progress --json` - Claim issue
+- `bd close bd-N --reason "Done" --json` - Complete work
+
+**Critical Rules:**
+
+- ✅ Use bd for ALL task tracking
+- ✅ Always use `--json` flag
+- ✅ Link discovered work with `discovered-from`
+- ❌ NEVER use markdown TODO lists
+
+**Location:** `skills/beads_workflow/`
+
+## Dependencies
+
+### For LLMs / AI Assistants
+
+When you need to understand a dependency:
+
+1. **Check DEPENDENCIES.md first** - Contains common patterns and module overview
+2. **Read the source** - Use Read tool on eg. `deps/some_lib_name/*` files
+3. Use research-agent or make use of usage_rules.md
+
+---
+
+## When in Doubt
+
+1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one question at a time)
+2. **Check bd for existing issues** - `bd ready --json` - See if work is already tracked
+3. **Read the complete section** - Context matters, never rely on fragments
+4. **Check dependencies** - Read DEPENDENCIES.md and dependency source if needed
+5. **Load relevant skills** - Get specialized guidance
+6. **Look at existing tests** - See patterns
+7. **Check FEATURE_CATALOG.md** - See existing API patterns
+
+---
