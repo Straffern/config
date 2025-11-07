@@ -72,12 +72,18 @@ bd create "Issue title" -t bug|feature|task -p 0-4 --json
 
 # Issue with dependency link
 bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
+
+# Epic with hierarchical children (recommended for large features)
+bd create "Large Feature" -t epic -p 1 --no-daemon --json
+# Then create children:
+bd create "Subtask 1" -t task --parent bd-EPIC --no-daemon --json
+bd create "Subtask 2" -t task --parent bd-EPIC --no-daemon --json
 ```
 
 **Use when:**
 - Planning new work
 - Discovering bugs during implementation
-- Breaking down large features
+- Breaking down large features into organized hierarchy
 
 ### Claim and Update
 
@@ -148,6 +154,103 @@ bd create "Implement ordered set operations" -t feature -p 1 --json
 bd create "Add more test coverage for edge cases" -t task -p 2 --json
 bd create "Optimize character classification lookup table" -t task -p 3 --json
 bd create "Support UTF-32 string conversions" -t feature -p 4 --json
+```
+
+---
+
+## Hierarchical IDs: When and How to Use
+
+### Decision Guide
+
+**Should I use hierarchical child IDs (`--parent`) or dependencies (`--deps`)?**
+
+#### Use `--parent` (Hierarchical Child IDs) When:
+
+✅ **Clear epic breakdown structure**
+- You have a large feature that breaks into clear subtasks
+- Example: "Payment System" → "Stripe", "PayPal", "Refunds"
+
+✅ **Want readable, self-documenting IDs**
+- `bd-a3f8e9.1` is more readable than two unrelated hashes
+- Easy to see parent-child relationship at a glance
+
+✅ **Multiple levels of organization needed**
+- Epic → Sub-epics → Tasks (up to 3 levels)
+- Example: "E-commerce" → "Cart" → "Add item", "Remove item", "Update quantity"
+
+✅ **All children must complete for parent to complete**
+- Epic truly depends on ALL subtasks being done
+- Natural work breakdown structure
+
+**Example:**
+```bash
+bd create "User Authentication" -t epic -p 1 --no-daemon --json
+bd create "Login UI" -t task --parent bd-auth --no-daemon --json  # bd-auth.1
+bd create "Password reset" -t task --parent bd-auth --no-daemon --json  # bd-auth.2
+bd create "2FA support" -t task --parent bd-auth --no-daemon --json  # bd-auth.3
+```
+
+#### Use `--deps` (Dependency Links) When:
+
+✅ **Loose or flexible relationships**
+- Work is related but not strictly hierarchical
+- Example: Documentation related to a feature
+
+✅ **Discovered work during implementation**
+- Always use `--deps discovered-from:ID` for traceability
+- Found bugs, technical debt, missing tests
+
+✅ **Cross-cutting concerns**
+- Work that spans multiple epics
+- Shared infrastructure or utilities
+
+✅ **Retroactive linking**
+- Linking existing issues that weren't created hierarchically
+- Adding relationships after the fact
+
+**Example:**
+```bash
+bd create "Bug in validation" -t bug -p 1 --deps discovered-from:bd-feature --json
+bd create "Add API docs" -t task -p 2 --deps related:bd-feature --json
+bd create "Prerequisite task" -t task -p 1 --deps blocks:bd-feature --json
+```
+
+### Quick Comparison
+
+| Scenario | Approach | Syntax |
+|----------|----------|--------|
+| Epic with clear subtasks | Hierarchical | `--parent bd-EPIC --no-daemon` |
+| Found bug during work | Discovered link | `--deps discovered-from:bd-ID` |
+| Task blocks another | Blocking dependency | `--deps blocks:bd-ID` |
+| Related documentation | Related link | `--deps related:bd-ID` |
+| Nested epic structure | Hierarchical (3 levels) | `--parent bd-EPIC.SUB --no-daemon` |
+
+### Common Patterns
+
+**Pattern: Simple Epic (1 level)**
+```bash
+bd create "Feature X" -t epic --no-daemon --json          # bd-x
+bd create "Task 1" --parent bd-x --no-daemon --json        # bd-x.1
+bd create "Task 2" --parent bd-x --no-daemon --json        # bd-x.2
+```
+
+**Pattern: Complex Epic (2 levels)**
+```bash
+bd create "System Y" -t epic --no-daemon --json            # bd-y
+bd create "Component A" -t epic --parent bd-y --no-daemon --json  # bd-y.1
+bd create "Task A1" --parent bd-y.1 --no-daemon --json     # bd-y.1.1
+bd create "Task A2" --parent bd-y.1 --no-daemon --json     # bd-y.1.2
+```
+
+**Pattern: Mixed Approach**
+```bash
+# Hierarchical for main epic
+bd create "Feature Z" -t epic --no-daemon --json           # bd-z
+bd create "Core work" --parent bd-z --no-daemon --json     # bd-z.1
+
+# Discovered work linked separately
+bd create "Found bug" -t bug --deps discovered-from:bd-z.1 --json  # bd-abc
+bd create "Add tests" -t task --deps related:bd-z --json   # bd-def
 ```
 
 ---
@@ -330,29 +433,119 @@ bd close bd-50 --reason "Fixed null input handling" --json
 bd update bd-42 --status in_progress --json
 ```
 
-### Pattern 3: Breaking Down Large Feature
+### Pattern 3: Breaking Down Large Feature (Hierarchical)
+
+**Recommended approach using hierarchical child IDs:**
 
 ```bash
-# 1. Create epic
-bd create "Implement JSON parsing and serialization" -t epic -p 1 --json
-# Returns: bd-100
+# 1. Create epic with --no-daemon
+bd create "Implement JSON parsing and serialization" -t epic -p 1 --no-daemon --json
+# Returns: {"id": "bd-100", ...}
 
-# 2. Create subtasks
-bd create "Implement JSON string parsing" -t task -p 1 --deps discovered-from:bd-100 --json
-bd create "Implement JSON value conversion" -t task -p 1 --deps discovered-from:bd-100 --json
-bd create "Implement JSON serialization" -t task -p 1 --deps discovered-from:bd-100 --json
-bd create "Add JSON error handling" -t task -p 1 --deps discovered-from:bd-100 --json
-# ... (more subtasks)
+# 2. Create hierarchical children (auto-numbered)
+bd create "Implement JSON string parsing" -t task -p 1 \
+  --parent bd-100 --no-daemon --json
+# Returns: {"id": "bd-100.1", ...}
+
+bd create "Implement JSON value conversion" -t task -p 1 \
+  --parent bd-100 --no-daemon --json
+# Returns: {"id": "bd-100.2", ...}
+
+bd create "Implement JSON serialization" -t task -p 1 \
+  --parent bd-100 --no-daemon --json
+# Returns: {"id": "bd-100.3", ...}
+
+bd create "Add JSON error handling" -t task -p 1 \
+  --parent bd-100 --no-daemon --json
+# Returns: {"id": "bd-100.4", ...}
 
 # 3. Work on subtasks in order
-bd ready --json  # Check which are unblocked
-bd update bd-101 --status in_progress --json
+bd ready --json  # Shows bd-100.1, bd-100.2, bd-100.3, bd-100.4
+bd update bd-100.1 --status in_progress --no-daemon --json
 # ... implement
-bd close bd-101 --reason "Completed" --json
+bd close bd-100.1 --reason "Completed" --no-daemon --json
+jj commit -m "feat: implement JSON string parsing"
 
-# 4. When all subtasks done, close epic
-bd close bd-100 --reason "All JSON operations implemented" --json
+# 4. Continue with remaining subtasks...
+
+# 5. When all children done, close epic
+bd close bd-100 --reason "All JSON operations implemented" --no-daemon --json
 ```
+
+**Why use hierarchical IDs?**
+- ✅ Clear parent-child relationship (bd-100.1, bd-100.2, etc.)
+- ✅ Easy to see which tasks belong to which epic
+- ✅ Auto-numbered (no manual coordination)
+- ✅ Up to 3 levels of nesting for complex features
+
+**Alternative: Using dependencies (when hierarchy is loose)**
+
+```bash
+# Use this when relationship is not strictly hierarchical
+bd create "Epic" -t epic -p 1 --json
+bd create "Related task" -t task -p 1 --deps discovered-from:bd-100 --json
+```
+
+### Pattern 3.5: Multi-Level Epic Hierarchy
+
+**For very large features with nested structure:**
+
+```bash
+# 1. Create top-level epic
+bd create "Complete E-commerce Platform" -t epic -p 1 --no-daemon --json
+# Returns: bd-500
+
+# 2. Create child epics for major components
+bd create "Product Catalog" -t epic -p 1 --parent bd-500 --no-daemon --json
+# Returns: bd-500.1
+
+bd create "Shopping Cart" -t epic -p 1 --parent bd-500 --no-daemon --json
+# Returns: bd-500.2
+
+bd create "Checkout System" -t epic -p 1 --parent bd-500 --no-daemon --json
+# Returns: bd-500.3
+
+# 3. Break down first child epic into tasks
+bd create "Create Product model" -t task -p 1 \
+  --parent bd-500.1 --no-daemon --json
+# Returns: bd-500.1.1
+
+bd create "Add product search" -t task -p 1 \
+  --parent bd-500.1 --no-daemon --json
+# Returns: bd-500.1.2
+
+bd create "Implement filtering" -t task -p 1 \
+  --parent bd-500.1 --no-daemon --json
+# Returns: bd-500.1.3
+
+# Final structure:
+# bd-500                  Complete E-commerce Platform (epic)
+# ├── bd-500.1            Product Catalog (epic)
+# │   ├── bd-500.1.1      Create Product model (task)
+# │   ├── bd-500.1.2      Add product search (task)
+# │   └── bd-500.1.3      Implement filtering (task)
+# ├── bd-500.2            Shopping Cart (epic)
+# └── bd-500.3            Checkout System (epic)
+
+# 4. Work through hierarchy bottom-up
+bd ready --json  # Shows leaf tasks: bd-500.1.1, bd-500.1.2, bd-500.1.3
+bd update bd-500.1.1 --status in_progress --no-daemon --json
+# ... implement
+bd close bd-500.1.1 --reason "Done" --no-daemon --json
+jj commit -m "feat: create product model"
+
+# 5. Close child epic when all its tasks done
+bd close bd-500.1 --reason "Product catalog complete" --no-daemon --json
+
+# 6. Close parent epic when all child epics done
+bd close bd-500 --reason "E-commerce platform complete" --no-daemon --json
+```
+
+**Benefits of 3-level hierarchy:**
+- Perfect for large projects with clear component breakdown
+- Each level represents a logical grouping
+- Easy to track progress at each level
+- Natural work breakdown structure (WBS)
 
 ### Pattern 4: End of Work Session (Work Incomplete)
 
@@ -380,10 +573,12 @@ bd update bd-42 --status open --json
 
 - **Use bd for ALL task tracking** - No exceptions
 - **Always use `--json` flag** - For programmatic use by agents
+- **Use hierarchical IDs for epics** - Create children with `--parent` flag for clear organization
 - **Link discovered work** - Use `discovered-from` dependencies
 - **Check `bd ready`** - Before asking "what should I work on?"
 - **Update status** - Mark in_progress when starting, close when done
 - **Set appropriate priority** - P0 critical, P1 high, P2 default, P3 low, P4 backlog
+- **Include `--no-daemon`** - Required when using `--parent` flag (current limitation)
 - **Store working notes in `docs/`** - Personal analysis, progress docs (gitignored)
 - **Update CHANGELOG.md** - For user-facing changes only
 

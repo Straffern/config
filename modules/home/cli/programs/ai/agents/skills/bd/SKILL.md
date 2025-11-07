@@ -28,7 +28,7 @@ bd create "Issue title" -t bug|feature|task|epic|chore -p 0-4 --json
 
 # With description
 bd create "Issue title" -t feature -p 1 \
-  --desc "Detailed description" \
+  -d "Detailed description" \
   --json
 
 # With dependencies
@@ -45,8 +45,33 @@ bd create "Issue" -t bug \
 # Discovered work
 bd create "Found bug" -t bug -p 1 \
   --deps discovered-from:bd-42 \
-  --desc "Found while working on bd-42" \
+  -d "Found while working on bd-42" \
   --json
+
+# Hierarchical child issues (epic breakdown)
+bd create "Parent Epic" -t epic -p 1 --no-daemon --json
+# Returns: bd-a3f8e9
+
+bd create "Child task" -t task \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: bd-a3f8e9.1 (auto-numbered)
+
+bd create "Another child" -t task \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: bd-a3f8e9.2 (auto-numbered)
+
+# Nested epic (3 levels deep)
+bd create "Child epic" -t epic \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: bd-a3f8e9.3
+
+bd create "Grandchild task" -t task \
+  --parent bd-a3f8e9.3 \
+  --no-daemon --json
+# Returns: bd-a3f8e9.3.1
 ```
 
 ### Querying Issues
@@ -262,6 +287,178 @@ bd dep add bd-43 bd-42 --type parent-child --json
 - Breaking epics into subtasks
 - Hierarchical work organization
 - Multi-step features with clear parent-child structure
+
+## Hierarchical Child IDs
+
+bd supports hierarchical issue organization using dot notation for natural work breakdown structures.
+
+### Overview
+
+**Hierarchical IDs use parent hash + child number:**
+
+```
+bd-a3f8e9          [epic]  Auth System
+├── bd-a3f8e9.1    [task]  Design login UI
+├── bd-a3f8e9.2    [task]  Backend validation
+└── bd-a3f8e9.3    [epic]  Password Reset
+    ├── bd-a3f8e9.3.1  [task]  Email templates
+    └── bd-a3f8e9.3.2  [task]  Reset flow tests
+```
+
+### Creating Hierarchical Children
+
+```bash
+# 1. Create parent epic (generates hash ID)
+bd create "Auth System" -t epic -p 1 --no-daemon --json
+# Returns: {"id": "bd-a3f8e9", ...}
+
+# 2. Create child tasks (auto-numbered .1, .2, .3, etc.)
+bd create "Design login UI" -t task -p 1 \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: {"id": "bd-a3f8e9.1", ...}
+
+bd create "Backend validation" -t task -p 1 \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: {"id": "bd-a3f8e9.2", ...}
+
+# 3. Create nested epic with its own children
+bd create "Password Reset" -t epic -p 1 \
+  --parent bd-a3f8e9 \
+  --no-daemon --json
+# Returns: {"id": "bd-a3f8e9.3", ...}
+
+bd create "Email templates" -t task -p 1 \
+  --parent bd-a3f8e9.3 \
+  --no-daemon --json
+# Returns: {"id": "bd-a3f8e9.3.1", ...}
+```
+
+### Key Features
+
+**Auto-Numbering:**
+- Children are numbered sequentially (.1, .2, .3, ...)
+- No need to specify child number manually
+- Each parent maintains its own child counter
+
+**Collision-Free:**
+- Parent hash ensures unique namespace
+- No conflicts between different epics
+- Safe for distributed teams
+
+**Flexible Depth:**
+- Up to 3 levels of nesting supported
+- Common patterns:
+  - 1 level: Epic → Tasks (most projects)
+  - 2 levels: Epic → Features → Tasks (large projects)
+  - 3 levels: Epic → Features → Stories → Tasks (complex projects)
+
+**Human-Readable:**
+- Clear parent-child relationships at a glance
+- Easy to understand issue hierarchy
+- Natural work breakdown structure
+
+### When to Use Hierarchical IDs vs Dependencies
+
+**Use `--parent` (hierarchical IDs) when:**
+- ✅ Breaking down large epics into clear subtasks
+- ✅ Organizing work with strict hierarchy (epic → features → tasks)
+- ✅ Want readable, self-documenting issue structure
+- ✅ Building multi-level work breakdown structures
+- ✅ Epic completion depends on ALL children being done
+
+**Use `--deps parent-child:ID` (dependency links) when:**
+- ✅ Loose parent-child relationship
+- ✅ Related work that's not strictly hierarchical
+- ✅ Cross-cutting concerns
+- ✅ Retroactive linking of existing issues
+
+**Use `--deps blocks:ID` when:**
+- ✅ Hard dependency (work can't proceed without this)
+- ✅ Sequential tasks
+- ✅ Prerequisites
+
+**Use `--deps discovered-from:ID` when:**
+- ✅ Tracking where work originated
+- ✅ Found during implementation
+- ✅ Context preservation
+
+### Working with Hierarchical Issues
+
+```bash
+# List all children of an epic
+bd list --json | jq '.[] | select(.id | startswith("bd-a3f8e9."))'
+
+# Check epic status
+bd epic status --json
+
+# Close epic when all children done
+bd epic close-eligible --json
+
+# Work on specific child
+bd update bd-a3f8e9.1 --status in_progress --no-daemon --json
+```
+
+### Current Limitations
+
+⚠️ **Daemon Mode:** The `--parent` flag currently requires `--no-daemon` mode
+
+```bash
+# This works
+bd create "Child" --parent bd-XXXX --no-daemon --json
+
+# This fails in daemon mode
+bd create "Child" --parent bd-XXXX --json
+# Error: --parent flag not yet supported in daemon mode
+```
+
+**Workaround:** Always include `--no-daemon` when using `--parent` flag
+
+### Complete Example
+
+```bash
+# Create payment system epic
+bd create "Payment System" -t epic -p 1 --no-daemon --json
+# Returns: bd-7x9p
+
+# Create integration sub-epics
+bd create "Stripe Integration" -t epic -p 1 \
+  --parent bd-7x9p --no-daemon --json
+# Returns: bd-7x9p.1
+
+bd create "PayPal Integration" -t epic -p 1 \
+  --parent bd-7x9p --no-daemon --json
+# Returns: bd-7x9p.2
+
+# Break down Stripe integration
+bd create "Setup Stripe SDK" -t task -p 1 \
+  --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.1
+
+bd create "Implement payment flow" -t task -p 1 \
+  --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.2
+
+bd create "Add webhook handlers" -t task -p 1 \
+  --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.3
+
+# Final structure:
+# bd-7x9p              Payment System (epic)
+# ├── bd-7x9p.1        Stripe Integration (epic)
+# │   ├── bd-7x9p.1.1  Setup Stripe SDK (task)
+# │   ├── bd-7x9p.1.2  Implement payment flow (task)
+# │   └── bd-7x9p.1.3  Add webhook handlers (task)
+# └── bd-7x9p.2        PayPal Integration (epic)
+
+# Work through hierarchy
+bd ready --json  # Shows bd-7x9p.1.1, bd-7x9p.1.2, etc.
+bd update bd-7x9p.1.1 --status in_progress --no-daemon --json
+# ... implement
+bd close bd-7x9p.1.1 --reason "Done" --no-daemon --json
+jj commit -m "feat: setup Stripe SDK"
+```
 
 ## Common Workflow Patterns
 

@@ -356,7 +356,48 @@ bd dep cycles                                      # Detect cycles
 
 ### ID Format
 
-**Always**: `bd-[hash]` format (e.g., `bd-f14c`, `bd-a1b2`, `bd-3e7a`)
+**Standard IDs**: `bd-[hash]` format (e.g., `bd-f14c`, `bd-a1b2`, `bd-3e7a`)
+
+**Hierarchical Child IDs**: Epics can have hierarchical children using dot notation
+
+```
+bd-a3f8e9          [epic]  Auth System
+bd-a3f8e9.1        [task]  Design login UI
+bd-a3f8e9.2        [task]  Backend validation
+bd-a3f8e9.3        [epic]  Password Reset
+bd-a3f8e9.3.1      [task]  Email templates
+bd-a3f8e9.3.2      [task]  Reset flow tests
+```
+
+**Creating hierarchical children:**
+
+```bash
+# Create parent epic (gets hash ID automatically)
+bd create "Auth System" -t epic -p 1 --no-daemon --json
+# Returns: bd-a3f8e9
+
+# Create child tasks (auto-numbered .1, .2, .3, etc.)
+bd create "Design login UI" -t task --parent bd-a3f8e9 --no-daemon --json
+bd create "Backend validation" -t task --parent bd-a3f8e9 --no-daemon --json
+
+# Create nested epic with its own children
+bd create "Password Reset" -t epic --parent bd-a3f8e9 --no-daemon --json  # bd-a3f8e9.3
+bd create "Email templates" -t task --parent bd-a3f8e9.3 --no-daemon --json  # bd-a3f8e9.3.1
+```
+
+**Benefits:**
+- Collision-free: Parent hash ensures unique namespace
+- Human-readable: Clear parent-child relationships at a glance
+- Flexible depth: Up to 3 levels of nesting
+- No coordination needed: Each epic owns its child ID space
+
+**When to use hierarchical IDs vs dependencies:**
+- Use `--parent` for **strict hierarchical organization** (epic breakdown)
+- Use `--deps parent-child:ID` for **loose parent-child links** (related work)
+- Use `--deps blocks:ID` for **hard dependencies** (work that blocks completion)
+- Use `--deps discovered-from:ID` for **traceability** (found during work)
+
+**⚠️ Current Limitation:** `--parent` flag requires `--no-daemon` mode
 
 ---
 
@@ -642,43 +683,50 @@ bd close bd-a1b2 --reason "Complete"
 jj commit -m "feat: implement dark mode"
 ```
 
-### Example 4: Epic with Subtasks
+### Example 4: Epic with Hierarchical Subtasks
 
 ```
-# Create epic and subtasks
-bd create "User authentication system" -t epic -p 1
-bd create "Add login form" -t task -p 1 --deps parent-child:bd-9k2m
-bd create "Add password hashing" -t task -p 1 --deps parent-child:bd-9k2m
-bd create "Add session management" -t task -p 1 --deps blocks:bd-4h8n,blocks:bd-7j3p
+# Create epic with hierarchical children
+bd create "User authentication system" -t epic -p 1 --no-daemon --json
+# Returns: bd-9k2m
+
+# Create child tasks (auto-numbered)
+bd create "Add login form" -t task -p 1 --parent bd-9k2m --no-daemon --json
+# Returns: bd-9k2m.1
+
+bd create "Add password hashing" -t task -p 1 --parent bd-9k2m --no-daemon --json
+# Returns: bd-9k2m.2
+
+bd create "Add session management" -t task -p 1 --parent bd-9k2m --no-daemon --json
+# Returns: bd-9k2m.3
 
 # Work on first subtask
-bd ready --json  # Shows bd-4h8n, bd-7j3p (not bd-2q5r - blocked)
-bd update bd-4h8n --status in_progress
+bd ready --json  # Shows bd-9k2m.1, bd-9k2m.2, bd-9k2m.3
+bd update bd-9k2m.1 --status in_progress --no-daemon
 [implement login form]
 [run tests]
 [run review agents]
-bd close bd-4h8n --reason "Login form complete"
+bd close bd-9k2m.1 --reason "Login form complete" --no-daemon
 jj commit -m "feat: add login form component"
 
 # Work on second subtask
-bd update bd-7j3p --status in_progress
+bd update bd-9k2m.2 --status in_progress --no-daemon
 [implement password hashing]
 [run tests]
 [run review agents]
-bd close bd-7j3p --reason "Password hashing implemented"
+bd close bd-9k2m.2 --reason "Password hashing implemented" --no-daemon
 jj commit -m "feat: add bcrypt password hashing"
 
-# Third subtask now unblocked
-bd ready --json  # NOW shows bd-2q5r
-bd update bd-2q5r --status in_progress
+# Work on third subtask
+bd update bd-9k2m.3 --status in_progress --no-daemon
 [implement sessions]
 [run tests]
 [run review agents]
-bd close bd-2q5r --reason "Sessions working"
+bd close bd-9k2m.3 --reason "Sessions working" --no-daemon
 jj commit -m "feat: add session management"
 
 # Close epic
-bd close bd-9k2m --reason "All subtasks complete"
+bd close bd-9k2m --reason "All subtasks complete" --no-daemon
 jj commit -m "feat: complete authentication system
 
 Closes bd-9k2m"
@@ -710,6 +758,42 @@ mix test  # Verify still passing
 [run review agents]
 bd close bd-8v1w --reason "Feature complete, all tests pass"
 jj commit -m "feat: add oauth integration"
+```
+
+### Example 5.5: Nested Epic Hierarchy (3 Levels)
+
+```
+# Large feature with nested epics
+bd create "Payment System" -t epic -p 1 --no-daemon --json
+# Returns: bd-7x9p
+
+# Create child epics for major components
+bd create "Stripe Integration" -t epic -p 1 --parent bd-7x9p --no-daemon --json
+# Returns: bd-7x9p.1
+
+bd create "Refund Processing" -t epic -p 1 --parent bd-7x9p --no-daemon --json
+# Returns: bd-7x9p.2
+
+# Break down first child epic into tasks
+bd create "Setup Stripe SDK" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.1
+
+bd create "Implement payment flow" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.2
+
+bd create "Add webhook handlers" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
+# Returns: bd-7x9p.1.3
+
+# Work through the hierarchy
+bd ready --json
+bd update bd-7x9p.1.1 --status in_progress --no-daemon
+[implement]
+bd close bd-7x9p.1.1 --reason "Done" --no-daemon
+jj commit -m "feat: setup Stripe SDK"
+
+# Continue with remaining tasks...
+# When all bd-7x9p.1.x tasks done, close bd-7x9p.1
+# When all bd-7x9p.x epics done, close bd-7x9p
 ```
 
 ### Example 6: Multiple Small Tasks
