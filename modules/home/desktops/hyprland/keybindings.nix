@@ -108,6 +108,22 @@ in {
         "SUPER, Space, togglefloating,"
         "SUPER, S, pin"
         "SUPER, TAB, pseudo"
+        
+        # Transparency toggle
+        "SUPER, T, exec, hyprctl dispatch setprop \"address:$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.address')\" opaque toggle"
+        
+        # Group management
+        "SUPER, G, togglegroup"                          # Create/leave group
+        "SUPERSHIFT, G, lockgroups, toggle"              # Lock groups
+        "SUPERCONTROL, G, changegroupactive, f"          # Cycle to next window in group
+        "SUPER, comma, changegroupactive, b"             # Previous window in group
+        "SUPER, semicolon, changegroupactive, f"         # Next window in group
+        
+        # Directional group merging (merge window with adjacent group)
+        "SUPERCONTROL, h, movewindoworgroup, l"          # Merge/move with group to left
+        "SUPERCONTROL, l, movewindoworgroup, r"          # Merge/move with group to right
+        "SUPERCONTROL, k, movewindoworgroup, u"          # Merge/move with group above
+        "SUPERCONTROL, j, movewindoworgroup, d"          # Merge/move with group below
 
         "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle pwvucontrol"
         "SUPER_SHIFT, T, exec, ${pkgs.pyprland}/bin/pypr toggle term"
