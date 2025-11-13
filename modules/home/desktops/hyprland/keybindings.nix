@@ -53,6 +53,8 @@ let
     hyprctl dispatch moveactive exact $pos_x $pos_y
     hyprctl dispatch resizeactive exact $size_x $size_y
   '';
+
+
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = let
@@ -75,25 +77,24 @@ in {
           webapp ''"https://hexdocs.pm/$library/search.html?q=$search_query"''
         }; fi; fi'";
 
+      ai_chat_selector = "sh -c 'selected=$(echo -e \"T3 Chat\\nClaude\\nGrok\" | ${
+          config.${namespace}.desktops.addons.rofi.package
+        }/bin/rofi -dmenu -i -p \"AI Chat\"); case \"$selected\" in \"T3 Chat\") ${
+          webapp ''"https://t3.chat"''
+        } ;; \"Claude\") ${
+          webapp ''"https://claude.ai/new"''
+        } ;; \"Grok\") ${
+          webapp ''"https://grok.com"''
+        } ;; esac'";
+
     in {
       bind = [
         "SUPER, Return, exec, kitty"
         "SUPER, B, exec, ${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -show drun -mode drun"
-        # TODO: Make this an option on the module, such that it can be managed by individual user config.
-        "SUPER, T, exec, ${
-          rofi_prompt "Prompt T3 chat" "${webapp ''"https://unduck.link?q=''}"
-          "!t3"
-        }"
+        "SUPER, A, exec, ${ai_chat_selector}"
         "SUPER, W, exec, ${webapp_prompt}"
-
-        "SUPER, C, exec, ${
-          rofi_prompt "Claude" "${webapp ''"https://claude.ai/new?q=''}" ""
-        }"
-        "SUPER, G, exec, ${
-          rofi_prompt "Grok" "${webapp ''"https://grok.com?q=''}" ""
-        }"
         "SUPER, D, exec, ${hexdocs_prompt}"
         "SUPER, X, exec, ${webapp ''"https://x.com/"''}"
         "SUPER_SHIFT, X, exec, ${webapp ''"https://x.com/compose/post"''}"
