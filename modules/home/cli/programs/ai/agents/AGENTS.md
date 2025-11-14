@@ -77,7 +77,7 @@ User request → SEARCH → claim/create issue → consult agents → implement 
 bd ready --json                          # Unblocked issues
 bd list --status in_progress --json      # Currently active
 bd list --title "keywords" --json        # Keyword search
-bd duplicates --json                     # Find duplicates
+bd --no-daemon duplicates --json         # Find duplicates
 bd stale --days 30 --json                # Forgotten issues (30+ days)
 
 # DECISION:
@@ -180,7 +180,7 @@ bd update bd-CURRENT --status in_progress
 
 ```bash
 # Find duplicates
-bd duplicates --json
+bd --no-daemon duplicates --json
 
 # Compare candidates
 bd show bd-41 bd-42 bd-43 --json
@@ -220,7 +220,7 @@ bd show bd-41 --json
 bd ready --json                          # Unblocked work
 bd list --status in_progress --json      # Active work
 bd list --title "keywords" --json        # Keyword search
-bd duplicates --json                     # Find duplicates
+bd --no-daemon duplicates --json         # Find duplicates
 bd stale --days 30 --json                # Forgotten issues
 
 # CREATE & UPDATE (modern --deps syntax)
@@ -478,7 +478,7 @@ jj commit -m "feat: implement dark mode"
 
 # Search for duplicates
 bd list --title "oauth" --json
-bd duplicates --json
+bd --no-daemon duplicates --json
 # Found: bd-100 "OAuth integration" [open]
 #        bd-150 "Add OAuth support" [open]
 #        bd-200 "Implement OAuth" [in_progress]
@@ -548,7 +548,7 @@ jj commit -m "feat: complete authentication system"
 ## Quick Reference Card
 
 ```
-SEARCH   → bd ready + bd list --status in_progress + bd list --title "X" + bd duplicates
+SEARCH   → bd ready + bd list --status in_progress + bd list --title "X" + bd --no-daemon duplicates
 CLAIM    → bd update bd-X --status in_progress
 CREATE   → bd create "..." -t TYPE -p PRIORITY [--deps TYPE:bd-X]
 CONSULT  → research-agent, architecture-agent, skills
@@ -572,7 +572,7 @@ SEARCH (ready + in_progress + title + duplicates) → claim OR create → consul
 ## When in Doubt
 
 1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one at a time)
-2. **Check bd for existing issues** - `bd ready`, `bd list --status in_progress`, `bd duplicates`
+2. **Check bd for existing issues** - `bd ready`, `bd list --status in_progress`, `bd --no-daemon duplicates`
 3. **Consult relevant agents** - research-agent, architecture-agent, skills
 4. **Look at existing patterns** - Tests, similar features, documentation
 
