@@ -212,15 +212,17 @@ bd create "Backend validation" -t task --parent bd-a3f8e9 --no-daemon --json
 
 ```bash
 # jj auto-stages all changes including .beads/issues.jsonl
-jj commit -m "feat: implement feature (closes bd-42)"
+jj commit -m "feat: implement feature (refs bd-42)"
 
 # Verify what's included before committing
 jj diff
 
 # Alternative: Set message then commit
-jj describe -m "feat: implement feature (closes bd-42)"
+jj describe -m "feat: implement feature (refs bd-42)"
 jj new  # Commits and creates new change
 ```
+
+**Note:** Reference bd issues in commit messages for traceability. bd does not auto-close issues from commit messages - you must explicitly close them with `bd close`.
 
 **Auto-sync**: bd automatically syncs between SQLite and JSONL:
 - Changes export to `.beads/issues.jsonl` after 5s debounce
@@ -249,7 +251,7 @@ bd create "Fix edge case" -t bug --deps discovered-from:bd-42 --json
 bd close bd-42 --reason "Implemented and tested" --json
 
 # 6. Commit (jj auto-stages all changes)
-jj commit -m "feat: implement feature (closes bd-42)"
+jj commit -m "feat: implement feature (refs bd-42)"
 ```
 
 ### Epic with Subtasks (Hierarchical)

@@ -125,17 +125,21 @@ jj new  # Commit and create new change
 
 ### Commit Message Integration
 
-Reference bd issues in commit messages:
+Reference bd issues in commit messages for traceability:
 
 ```bash
-# Close issue via commit message
-jj commit -m "feat: add authentication (closes bd-42)"
-
 # Reference issue
-jj commit -m "refactor: extract validation (refs bd-42)"
+jj commit -m "feat: add authentication (refs bd-42)"
 
 # Multiple issues
-jj commit -m "fix: handle edge cases (closes bd-42, closes bd-43)"
+jj commit -m "fix: handle edge cases (refs bd-42, bd-43)"
+```
+
+**Note:** bd does NOT auto-close issues from commit messages. You must explicitly close them:
+
+```bash
+bd close bd-42 --reason "Completed" --json
+jj commit -m "feat: add authentication (refs bd-42)"
 ```
 
 ### Handling Conflicts
