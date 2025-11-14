@@ -4,7 +4,7 @@ pkgs.mkShell {
 
   packages = with pkgs; [
     nh
-    inputs.nixos-anywhere.packages.${pkgs.system}.nixos-anywhere
+    inputs.nixos-anywhere.packages.${pkgs.stdenv.hostPlatform.system}.nixos-anywhere
     python312Packages.mkdocs-material
     deploy-rs
 

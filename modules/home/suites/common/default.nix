@@ -31,7 +31,7 @@ in {
       src-cli
       # optinix
 
-      (hiPrio parallel)
+      (lib.hiPrio parallel)
       moreutils
       nvtopPackages.amd
       unzip

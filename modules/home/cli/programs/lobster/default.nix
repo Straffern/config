@@ -9,7 +9,7 @@ in {
 
   config = mkIf cfg.enable {
     home.packages =
-      [ inputs.lobster.packages.${pkgs.system}.default pkgs.ueberzugpp ];
+      [ inputs.lobster.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.ueberzugpp ];
 
     # use_ueberzugpp=true
     xdg.configFile."lobster/lobster_config.sh" = {

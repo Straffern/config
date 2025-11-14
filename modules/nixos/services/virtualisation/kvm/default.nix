@@ -10,7 +10,7 @@ in {
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
       libguestfs
-      win-virtio
+      virtio-win
       win-spice
       virt-manager
       virt-viewer
@@ -27,10 +27,6 @@ in {
         onShutdown = "shutdown";
         qemu = {
           swtpm.enable = true;
-          ovmf = {
-            enable = true;
-            packages = [ pkgs.OVMFFull.fd ];
-          };
         };
       };
     };
