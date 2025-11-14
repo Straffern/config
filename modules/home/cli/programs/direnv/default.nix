@@ -16,8 +16,10 @@ in {
       nix-direnv = enabled;
     };
     home.sessionVariables.DIRENV_LOG_FORMAT = ""; # Blank so direnv will shut up
-    home.persistence."/persist/home/${config.home.username}".directories =
-      [ ".local/share/direnv" ];
+    home.persistence."/persist/home/${config.home.username}" = {
+      allowOther = true;
+      directories = [ ".local/share/direnv" ];
+    };
     
     home.file.".config/direnv/direnv.toml".text = ''
       [global]

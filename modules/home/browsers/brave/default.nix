@@ -23,7 +23,9 @@ in {
         "--ozone-platform-hint=wayland"
       ];
     };
-    home.persistence."/persist/home/${config.home.username}".directories =
-      [ ".brave" ".cache/brave" ];
+    home.persistence."/persist/home/${config.home.username}" = {
+      allowOther = true;
+      directories = [ ".brave" ".cache/brave" ];
+    };
   };
 }

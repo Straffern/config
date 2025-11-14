@@ -7,7 +7,7 @@ in {
   options.${namespace}.cli.shells.zsh = {
     enable = mkEnableOption "Zsh";
 
-    initExtra = mkOption {
+    initContent = mkOption {
       type = types.lines;
       default = "";
     };
@@ -46,7 +46,7 @@ in {
         cat = "bat";
       };
 
-      dotDir = ".config/zsh";
+      dotDir = "${config.xdg.configHome}/zsh";
       # initExtraFirst =
       #   "source /home/${config.home.username}/${dotDir}/.p10k.zsh";
       initExtra = lib.mkMerge [
@@ -55,7 +55,7 @@ in {
           setopt HIST_SAVE_NO_DUPS
           setopt HIST_FIND_NO_DUPS
         ''
-        cfg.initExtra
+        cfg.initContent
       ];
       plugins = [
         # {

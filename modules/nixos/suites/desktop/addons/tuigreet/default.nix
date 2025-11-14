@@ -13,14 +13,14 @@ in {
       settings = rec {
         default_session = {
           command =
-            "${pkgs.greetd.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd Hyprland";
+            "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd Hyprland";
           user = "greeter";
         };
         initial_session = default_session;
       };
     };
 
-    environment.systemPackages = with pkgs; [ greetd.tuigreet ];
+    environment.systemPackages = with pkgs; [ tuigreet ];
 
     # this is a life saver.
     # literally no documentation about this anywhere.

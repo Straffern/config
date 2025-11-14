@@ -10,7 +10,9 @@ in {
 
   config = mkIf cfg.enable {
     programs.librewolf = enabled;
-    home.persistence."/persist/home/${config.home.username}".directories =
-      [ ".librewolf" ".cache/librewolf" ];
+    home.persistence."/persist/home/${config.home.username}" = {
+      allowOther = true;
+      directories = [ ".librewolf" ".cache/librewolf" ];
+    };
   };
 }
