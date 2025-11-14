@@ -49,7 +49,7 @@ in {
       dotDir = "${config.xdg.configHome}/zsh";
       # initExtraFirst =
       #   "source /home/${config.home.username}/${dotDir}/.p10k.zsh";
-      initExtra = lib.mkMerge [
+      initContent = lib.mkMerge [
         ''
           setopt APPEND_HISTORY
           setopt HIST_SAVE_NO_DUPS
