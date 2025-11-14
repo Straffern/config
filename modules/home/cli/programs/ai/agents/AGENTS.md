@@ -1,57 +1,22 @@
 # Agent Orchestration System
 
-We track work in Beads instead of Markdown. Run \`bd quickstart\` to see how.
+We track work in Beads instead of Markdown. Run `bd quickstart` to see how.
 
 ## ⚠️ CRITICAL: Ask Clarifying Questions When Unclear
 
 **ALWAYS ask clarifying questions when requirements are ambiguous or unclear.**
 
-### Question-Asking Protocol
-
-When you receive a request that is:
-
-- Ambiguous or has multiple interpretations
-- Missing key details needed for implementation
-- Unclear about expected behavior or scope
-- Could be understood in different ways
-
-**YOU MUST**:
+When you receive a request that is ambiguous, missing key details, or has multiple interpretations:
 
 1. ✅ **Ask ONE clarifying question at a time**
 2. ✅ **Wait for the answer before proceeding**
 3. ✅ **Continue asking questions until you have complete understanding**
 4. ✅ **Never make assumptions when you can ask**
 
-### Examples of When to Ask
-
-❓ **Ambiguous request**: "Implement encoding/decoding"
-
-- **Ask**: "Should this include all numeric types, or focus on specific conversions like decodeCodePoint and toDouble?"
-
-❓ **Missing details**: "Add streaming decoder support"
-
-- **Ask**: "Should this support all 13 byte array variants, or focus on specific types like Uint8Array?"
-
-❓ **Unclear scope**: "Optimize decoder performance"
-
-- **Ask**: "Which part should be prioritized? UTF-8 fast path, BOM handling, or legacy encoding support?"
-
-❓ **Multiple interpretations**: "Handle encoding labels"
-
-- **Ask**: "Should this handle all encoding error modes (fatal, replacement, HTML), or focus on specific modes?"
-
-### What NOT to Do
-
-❌ **Don't make assumptions and implement something that might be wrong**
-❌ **Don't ask multiple questions in one message** (ask one, wait for answer, then ask next)
-❌ **Don't proceed with unclear requirements** hoping you guessed correctly
-❌ **Don't over-explain options** in the question (keep questions concise)
-
-### Good Question Pattern
+**Good Question Pattern:**
 
 ```
 "I want to make sure I understand correctly: [restate what you think they mean].
-
 Is that correct, or did you mean [alternative interpretation]?"
 ```
 
@@ -76,7 +41,6 @@ You are an **implementation lead** who consults specialized agents for guidance.
 1. **bd for ALL tracking** - EVERY task gets a bd issue IMMEDIATELY
    - User gives ANY request → create/claim bd issue FIRST
    - No exceptions for "quick fixes" or "simple changes"
-   - If you think "this is too small for bd" - CREATE IT ANYWAY
 2. **Tests MUST pass** - Before closing ANY issue
 3. **Review agents MANDATORY** - Run before EVERY bd close
 4. **jj commit** - Standard pattern (not jj describe + jj new)
@@ -86,13 +50,6 @@ You are an **implementation lead** who consults specialized agents for guidance.
 
 **RULE: If you're doing work, there's a bd issue for it.**
 
-Every single task, no matter how trivial, must be tracked:
-
-- Fixing a typo? Create bd issue.
-- Updating a comment? Create bd issue.
-- Refactoring 2 lines? Create bd issue.
-- User asks a question requiring code changes? Create bd issue.
-
 **The only time you DON'T create a bd issue:**
 
 - Answering questions without making changes
@@ -101,239 +58,193 @@ Every single task, no matter how trivial, must be tracked:
 
 **When in doubt:** Create the issue. It takes 5 seconds and ensures nothing is forgotten.
 
-## Workflow Entry Point
-
-```
-User request → analyze → SEARCH for existing issues → claim OR create bd issue → implement → review → close → commit
-```
-
 ---
 
-## The Standard Workflow
+## The Workflow (bd + jj)
 
-**FOLLOW THIS WORKFLOW FOR ALL WORK**
+### Standard Flow
 
-### Phase 1: Start
+```
+User request → SEARCH → claim/create issue → consult agents → implement → test → review → close → commit
+```
+
+### Phase 1: Search & Claim/Create
+
+**MANDATORY: Search before creating (prevent duplicates)**
 
 ```bash
-# 1. SEARCH for existing work FIRST (MANDATORY - check ALL statuses)
-bd ready --json              # All open issues
-bd list --status in_progress --json       # Currently active work
-bd list --title "keyword" --json          # Search by title/content similarity
+# Search existing work (check ALL statuses)
+bd ready --json                          # Unblocked issues
+bd list --status in_progress --json      # Currently active
+bd list --title "keywords" --json        # Keyword search
+bd duplicates --json                     # Find duplicates
+bd stale --days 30 --json                # Forgotten issues (30+ days)
 
-# 2. DECISION based on search results:
-#    A) Found exact match → Claim existing issue
+# DECISION:
+# ├─ Found exact match → Claim it
+# ├─ Found similar → Assess: same work (claim) vs related work (create with --deps related:bd-X)
+# └─ No match → Create new
+
+# Claim existing issue
 bd update bd-XXXX --status in_progress
 
-#    B) Found similar issue → Assess relationship
-#       - If SAME work → Use existing issue
-#       - If RELATED work → Create new with link:
-bd create "Title" -t TYPE -p PRIORITY --deps related:bd-EXISTING
-
-#    C) No match found → Create new issue
-bd create "Title" -t TYPE -p PRIORITY
+# Create new issue (with optional dependency link)
+bd create "Title" -t TYPE -p PRIORITY [--deps TYPE:bd-PARENT]
 bd update bd-XXXX --status in_progress
 ```
 
 ### Phase 2: Execute
 
 ```bash
-# 3. Consult agents BEFORE implementation (MANDATORY):
-#    - Unknown tech/APIs/libraries: research-agent
-#    - Code placement/structure: architecture-agent
-#    - Elixir/Phoenix/Ecto/Ash: elixir skill
-#    - Other domains: relevant skill (auto-loaded by file context)
+# 1. Consult agents BEFORE implementation:
+#    - research-agent: Unknown tech/APIs/libraries
+#    - architecture-agent: Code placement/structure
+#    - Skills: Domain-specific (auto-loaded by file context)
 
-# 4. Implement using agent guidance
+# 2. Implement using agent guidance
 
-# 5. Run tests:
-#    - If FAIL: See "Test Failure Protocol" below
-#    - If PASS: Continue to Phase 3
+# 3. Run tests (MUST PASS before closing)
 ```
 
-### Phase 3: Validate
+### Phase 3: Review
 
 ```bash
-# 6. Run ALL review agents in parallel (MANDATORY):
-#    Launch: qa-reviewer, security-reviewer, consistency-reviewer,
-#            factual-reviewer, redundancy-reviewer, senior-engineer-reviewer
-#    Plus: elixir-reviewer (if Elixir code changed)
+# Run ALL review agents in parallel (MANDATORY before EVERY bd close):
+# - qa-reviewer, security-reviewer, consistency-reviewer
+# - factual-reviewer, redundancy-reviewer, senior-engineer-reviewer
+# - elixir-reviewer (if Elixir code changed)
 
-# 7. Handle review findings:
-#    - Minor issues: Fix immediately
-#    - Major issues: Create new bd issue, mark current blocked
+# Handle findings:
+# - Minor issues: Fix immediately
+# - Major issues: Create new bd issue, mark current blocked
 ```
 
 ### Phase 4: Complete
 
 ```bash
-# 8. Close issue
 bd close bd-XXXX --reason "Descriptive reason"
-
-# 9. Commit with jj (auto-stages all changes including .beads/issues.jsonl)
-jj commit -m "type: description"
-
-# 10. Return to Phase 1
+jj commit -m "type: description"  # Auto-stages all changes including .beads/issues.jsonl
 ```
 
 ---
 
 ## Special Protocols
 
-### Discovered Work Protocol
+### Discovered Work
 
-**When you find new work during execution:**
+When you find new work during execution:
 
 ```bash
-# Create linked issue
-bd create "New work description" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT
+# Create linked issue with modern --deps syntax
+bd create "New work" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT
 
 # DECISION: Does new work BLOCK parent completion?
 
-# If NOT BLOCKING:
-#   Continue parent work, handle new issue later
+# If NOT blocking: Continue parent, handle new issue later
 
 # If BLOCKING:
 bd update bd-PARENT --status blocked
 bd update bd-NEW --status in_progress
-# [work on new issue]
+# [fix blocking issue]
 bd close bd-NEW --reason "Done"
 jj commit -m "type: description"
 bd update bd-PARENT --status in_progress
 # [continue parent work]
 ```
 
-### Test Failure Protocol
+### Test Failures
 
 **Tests fail → IMMEDIATE action (ZERO tolerance):**
 
 ```bash
-# 1. Create critical test fix issue
+# 1. Create critical fix + block parent
 bd create "Fix failing tests: description" -t bug -p 0 --deps discovered-from:bd-CURRENT
-
-# 2. Block current work
 bd update bd-CURRENT --status blocked
-
-# 3. Fix tests NOW
 bd update bd-TESTFIX --status in_progress
-# [diagnose and fix root cause]
-# Run tests → MUST PASS
 
-# 4. Complete test fix
-bd close bd-TESTFIX --reason "Tests now passing"
+# 2. Fix root cause (not symptoms)
+# [diagnose and fix]
+
+# 3. Complete fix + unblock parent
+bd close bd-TESTFIX --reason "Tests passing"
 jj commit -m "fix: test failure description"
-
-# 5. Unblock and continue
 bd update bd-CURRENT --status in_progress
-# Run tests again → verify still passing
-# [continue current work]
+# [continue parent work]
 ```
 
-**NEVER:**
+**NEVER:** Delete tests, ignore failures, close issues with failing tests
 
-- Delete tests without user approval
-- Ignore failing tests
-- Close issues with failing tests
-- Fix symptoms instead of root cause
+### Duplicate Detection & Merging
+
+**Proactively detect and merge duplicates:**
+
+```bash
+# Find duplicates
+bd duplicates --json
+
+# Compare candidates
+bd show bd-41 bd-42 bd-43 --json
+
+# Preview merge (bd-42, bd-43 → bd-41)
+bd merge bd-42 bd-43 --into bd-41 --dry-run
+
+# Execute merge
+bd merge bd-42 bd-43 --into bd-41
+
+# Verify result
+bd dep tree bd-41
+bd show bd-41 --json
+```
+
+**What gets merged:**
+
+- ✅ All dependencies from source → target
+- ✅ Text references updated across ALL issues
+- ✅ Source issues closed with "Merged into bd-X"
+- ❌ Source content NOT copied (manually copy if valuable)
+
+**Best practices:**
+
+- Search before creating (prevent duplicates)
+- Merge early (prevent dependency fragmentation)
+- Choose oldest/most complete as merge target
 
 ---
 
-## bd Command Reference
-
-### `--json` Flag Usage
-
-**The `--json` flag is optional on ALL bd commands.** Use it when you need programmatic access to structured data.
-
-#### Common Patterns
-
-**Query commands** (almost always want `--json`):
-
-```bash
-# Get list of available work
-bd ready --json
-
-# Find specific issues
-bd list --status open --json
-bd list --priority 0 --json
-bd list --type bug --json
-
-# Get detailed issue info
-bd show bd-XXXX --json
-bd info --json
-```
-
-**Action commands** (usually don't need `--json`, but useful for scripting):
-
-```bash
-# Standard usage (human-readable output):
-bd create "Fix typo" -t task -p 2
-bd update bd-XXXX --status in_progress
-bd close bd-XXXX --reason "Done"
-
-# With --json for scripting/automation:
-ISSUE_ID=$(bd create "Fix typo" -t task -p 2 --json | jq -r '.id')
-bd update $ISSUE_ID --status in_progress
-```
-
-#### Practical Examples with `jq`
-
-```bash
-# Get the ID of the highest priority ready issue
-bd ready --json | jq -r '.[0].id'
-
-# Count how many issues are in progress
-bd list --status in_progress --json | jq 'length'
-
-# List all blocked issue titles
-bd list --status blocked --json | jq -r '.[].title'
-
-# Get all critical priority issues
-bd list --priority 0 --json | jq -r '.[] | "\(.id): \(.title)"'
-
-# Find all issues with a specific label
-bd list --json | jq '.[] | select(.labels[] == "security")'
-
-# Check if any tests are failing (priority 0 bugs)
-if [ $(bd list --type bug --priority 0 --json | jq 'length') -gt 0 ]; then
-  echo "⚠️  Critical bugs exist!"
-fi
-```
-
-#### Rule of Thumb
-
-- **Viewing** issue info → Use `--json` with `jq` for filtering/parsing
-- **Creating/updating** issues → Skip `--json` unless scripting
-- **In documentation examples** → Skip `--json` for readability (it's implied as optional)
+## Command Reference
 
 ### Essential Commands
 
 ```bash
-# SEARCH COMMANDS (use BEFORE creating issues)
-bd list --status open --json                 # All open issues
-bd list --status in_progress --json          # Currently active
-bd list --status blocked --json              # Blocked issues  
-bd list --title "keyword" --json             # Search by title/content
-bd duplicates --json                         # Find duplicate content
-bd ready --json                              # Show unblocked work
+# SEARCH (use BEFORE creating)
+bd ready --json                          # Unblocked work
+bd list --status in_progress --json      # Active work
+bd list --title "keywords" --json        # Keyword search
+bd duplicates --json                     # Find duplicates
+bd stale --days 30 --json                # Forgotten issues
 
-# CRUD COMMANDS
-bd create "Title" -t TYPE -p PRIORITY        # Create issue (after search!)
-bd update bd-XXXX --status in_progress       # Claim/start work
-bd update bd-XXXX --status blocked           # Mark blocked
-bd close bd-XXXX --reason "Reason"           # Complete work
+# CREATE & UPDATE (modern --deps syntax)
+bd create "Title" -t TYPE -p PRIORITY --deps TYPE:bd-X
+bd update bd-XXXX --status in_progress
+bd update bd-XXXX --status blocked
+bd close bd-XXXX --reason "Reason"
+
+# INSPECT
+bd show bd-XXXX --json                   # View issue details
+bd dep tree bd-XXXX                      # Visualize dependencies
+bd dep cycles                            # Detect cycles
+
+# MERGE
+bd merge bd-X bd-Y --into bd-Z [--dry-run]
 ```
 
-### Dependency Commands
+### Dependency Types
 
 ```bash
-bd create "Title" --deps discovered-from:bd-XXXX   # Link discovered work
-bd create "Task" --deps blocks:bd-XXXX             # Blocking dependency
-bd create "Task" --deps parent-child:bd-XXXX       # Epic subtask
-bd create "Task" --deps related:bd-XXXX            # Soft link
-
-bd dep add bd-A bd-B --type blocks                 # Add dependency later
-bd dep tree bd-XXXX                                # Visualize tree
-bd dep cycles                                      # Detect cycles
+--deps discovered-from:bd-X    # Track issues found during work
+--deps blocks:bd-X             # Hard dependency (blocks completion)
+--deps parent-child:bd-X       # Epic/subtask relationship
+--deps related:bd-X            # Soft relationship
 ```
 
 ### Issue Types
@@ -341,7 +252,7 @@ bd dep cycles                                      # Detect cycles
 - `bug` - Something broken
 - `feature` - New functionality
 - `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks
+- `epic` - Large feature with subtasks (supports hierarchical children)
 - `chore` - Maintenance (dependencies, tooling)
 
 ### Priorities
@@ -352,71 +263,41 @@ bd dep cycles                                      # Detect cycles
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
-### ID Format
+### Hierarchical Epics
 
-**Standard IDs**: `bd-[hash]` format (e.g., `bd-f14c`, `bd-a1b2`, `bd-3e7a`)
-
-**Hierarchical Child IDs**: Epics can have hierarchical children using dot notation
-
-```
-bd-a3f8e9          [epic]  Auth System
-bd-a3f8e9.1        [task]  Design login UI
-bd-a3f8e9.2        [task]  Backend validation
-bd-a3f8e9.3        [epic]  Password Reset
-bd-a3f8e9.3.1      [task]  Email templates
-bd-a3f8e9.3.2      [task]  Reset flow tests
-```
-
-**Creating hierarchical children:**
+Epics support hierarchical children with dotted IDs (e.g., `bd-a3f8e9.1`, `bd-a3f8e9.2`):
 
 ```bash
-# Create parent epic (gets hash ID automatically)
+# Create parent epic
 bd create "Auth System" -t epic -p 1 --no-daemon --json
 # Returns: bd-a3f8e9
 
-# Create child tasks (auto-numbered .1, .2, .3, etc.)
-bd create "Design login UI" -t task --parent bd-a3f8e9 --no-daemon --json
-bd create "Backend validation" -t task --parent bd-a3f8e9 --no-daemon --json
+# Create children (auto-numbered .1, .2, .3)
+bd create "Login UI" -t task --parent bd-a3f8e9 --no-daemon --json  # bd-a3f8e9.1
+bd create "Backend" -t task --parent bd-a3f8e9 --no-daemon --json   # bd-a3f8e9.2
 
-# Create nested epic with its own children
-bd create "Password Reset" -t epic --parent bd-a3f8e9 --no-daemon --json  # bd-a3f8e9.3
-bd create "Email templates" -t task --parent bd-a3f8e9.3 --no-daemon --json  # bd-a3f8e9.3.1
+# Nested epics (up to 3 levels)
+bd create "Password Reset" -t epic --parent bd-a3f8e9 --no-daemon --json    # bd-a3f8e9.3
+bd create "Email templates" -t task --parent bd-a3f8e9.3 --no-daemon --json # bd-a3f8e9.3.1
 ```
 
-**Benefits:**
+**Note:** `--parent` requires `--no-daemon` mode
 
-- Collision-free: Parent hash ensures unique namespace
-- Human-readable: Clear parent-child relationships at a glance
-- Flexible depth: Up to 3 levels of nesting
-- No coordination needed: Each epic owns its child ID space
+**When to use:**
 
-**When to use hierarchical IDs vs dependencies:**
-
-- Use `--parent` for **strict hierarchical organization** (epic breakdown)
-- Use `--deps parent-child:ID` for **loose parent-child links** (related work)
-- Use `--deps blocks:ID` for **hard dependencies** (work that blocks completion)
-- Use `--deps discovered-from:ID` for **traceability** (found during work)
-
-**⚠️ Current Limitation:** `--parent` flag requires `--no-daemon` mode
+- `--parent`: Strict hierarchical organization (epic breakdown)
+- `--deps parent-child:ID`: Loose parent-child links
+- `--deps blocks:ID`: Hard dependencies
+- `--deps discovered-from:ID`: Traceability
 
 ---
 
-## jj Command Reference
+## jj Integration
 
 ### Standard Pattern (USE THIS)
 
 ```bash
 jj commit -m "type: description"    # Commit current + create new empty change
-```
-
-### Advanced Commands (Rarely Needed)
-
-```bash
-jj describe -m "message"            # Set message, keep working
-jj new                              # Commit current, new change
-jj worklog                          # Check current work context
-jj diff                             # See changes
-jj bookmark create type/name        # Create bookmark for feature/fix/task
 ```
 
 ### Auto-Staging Behavior
@@ -439,7 +320,6 @@ Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 
 - **MANDATORY** for unknown tech/APIs/libraries/frameworks
 - Gathers information, provides findings (NEVER writes code)
-- Returns: Documentation summaries, API patterns, integration approaches
 
 **architecture-agent** - Project Structure & Integration
 
@@ -449,44 +329,29 @@ Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 
 **Skills** (Auto-loaded by file context)
 
-- **elixir** - MANDATORY for Elixir/Phoenix/Ecto/Ash work (.ex, .exs files)
-- **lua** - Lua language and Neovim plugins (.lua files)
-- **neovim** - Editor configuration (Neovim config files)
-- **testing** - Testing methodologies (test files)
-
-Location: `agents/skills/[skill]/SKILL.md`
+- **elixir** - MANDATORY for Elixir/Phoenix/Ecto/Ash work
+- **lua** - Lua language and Neovim plugins
+- **neovim** - Editor configuration
+- **chezmoi** - Dotfile management
+- **testing** - Testing methodologies
 
 ### Planning Agents (Create bd Issues with Plans)
 
-**When to use planners:**
+**When to use:**
 
-- You don't immediately know all implementation steps
+- Don't know all implementation steps
 - Complex work (>3 files, >1 day, unfamiliar domain)
-- Need investigation or research first
+- Need investigation/research first
 
-**When to skip planners:**
+**When to skip:**
 
 - Task is straightforward
-- You know exactly what to do
+- Know exactly what to do
 - Simple changes (<3 files, <4 hours, familiar domain)
 
-**feature-planner** - Comprehensive Feature Planning
-
-- Use: Complex features requiring detailed planning
-- Output: bd epic with subtasks
-- Consults: research-agent, architecture-agent, relevant skills
-
-**fix-planner** - Focused Fix Planning
-
-- Use: Complex bugs needing investigation
-- Output: bd bug issue with investigation and fix plan
-- Consults: research-agent, relevant skills, security-reviewer
-
-**task-planner** - Lightweight Task Planning
-
-- Use: Simple tasks, quick work items
-- Output: bd task issue
-- Smart escalation: Recommends feature/fix-planner if too complex
+**feature-planner** - Comprehensive feature planning → bd epic with subtasks
+**fix-planner** - Focused fix planning → bd bug issue with investigation plan
+**task-planner** - Lightweight task planning → bd task issue
 
 ### Review Agents (ALWAYS RUN IN PARALLEL)
 
@@ -496,23 +361,16 @@ All reviewers are READ-ONLY: analyze and report, NEVER write code.
 
 ```
 Launch in parallel:
-├── qa-reviewer               # Test coverage, edge cases, validation
-├── security-reviewer         # Vulnerabilities, OWASP Top 10, threats
-├── consistency-reviewer      # Pattern consistency, naming, style
-├── factual-reviewer         # Implementation vs planning verification
-├── redundancy-reviewer      # Code duplication, refactoring opportunities
-└── senior-engineer-reviewer # Scalability, technical debt, strategic decisions
+├── qa-reviewer               # Test coverage, edge cases
+├── security-reviewer         # Vulnerabilities, threats
+├── consistency-reviewer      # Pattern consistency, style
+├── factual-reviewer         # Implementation vs planning
+├── redundancy-reviewer      # Code duplication
+└── senior-engineer-reviewer # Scalability, technical debt
 ```
 
-**elixir-reviewer** - MANDATORY After Elixir Changes
-
-- Run ALWAYS after Elixir/Ash/Phoenix/Ecto changes
-- Tools: mix format, credo, dialyzer, sobelow, deps.audit, test coverage
-
-**documentation-reviewer** - After Documentation Changes
-
-- Use: After creating/updating documentation
-- Focus: Accuracy, completeness, readability, standards compliance
+**elixir-reviewer** - MANDATORY after Elixir/Ash/Phoenix/Ecto changes
+**documentation-reviewer** - After documentation changes
 
 ---
 
@@ -521,150 +379,81 @@ Launch in parallel:
 ### User Gives Request
 
 ```
-Q: Does this request require ANY work (code, docs, config changes)?
+Q: Does this require ANY work (code, docs, config)?
 ├─ NO  → Answer question, no bd issue needed
 │
-└─ YES → SEARCH SEQUENCE (MANDATORY):
+└─ YES → SEARCH (mandatory):
           
-          Step 1: Search ALL existing issues
-          ├─ bd list --status open --json
-          ├─ bd list --status in_progress --json
-          ├─ bd list --status blocked --json
-          └─ bd list --title "keywords" --json
+          Search: bd ready + bd list --status in_progress + bd list --title "X" + bd duplicates
           
-          Step 2: Check for duplicates
-          └─ bd duplicates --json
-          
-          Step 3: DECISION based on search results
-          ├─ Exact match found → Claim existing issue
-          │  └─ bd update bd-XXXX --status in_progress
-          │     Execute
+          ├─ Exact match → Claim existing
+          │  └─ bd update bd-X --status in_progress
           │
-          ├─ Similar issue found → Assess relationship
-          │  ├─ Same work → Use existing issue
-          │  │  └─ bd update bd-XXXX --status in_progress
-          │  │     Execute
+          ├─ Similar issue → Assess relationship
+          │  ├─ Same work → Claim existing
           │  └─ Related work → Create with link
-          │     └─ bd create "..." --deps related:bd-XXXX
-          │        bd update bd-NEW --status in_progress
-          │        Execute
+          │     └─ bd create "..." --deps related:bd-X
           │
-          └─ No match found → Create new issue
+          └─ No match → Create new
              └─ bd create "..." -t TYPE -p PRIORITY
-                bd update bd-XXXX --status in_progress
-                Execute
 ```
 
-### Should I Use a Planner?
+### Discovered Work: Blocking?
 
 ```
-Q: Do I know ALL implementation steps right now?
-├─ YES → Skip planner, go directly to execution
-└─ NO  → Use planner
-
-Q: Is this work complex?
-   - Multiple files (>3)
-   - Unfamiliar domain
-   - Takes >4 hours
-   - Needs research
-├─ YES → Use feature-planner or fix-planner
-└─ NO  → Use task-planner OR skip planner entirely
-```
-
-### Is Discovered Work Blocking?
-
-```
-Q: Can I complete current issue WITHOUT fixing this new issue?
-├─ YES → bd create "..." --deps discovered-from:bd-PARENT
-│        Continue parent work
-│        Handle new issue later
+Q: Can I complete current issue WITHOUT fixing this?
+├─ YES → Create issue, continue parent, handle later
+│        bd create "..." --deps discovered-from:bd-PARENT
 │
-└─ NO  → bd create "..." --deps discovered-from:bd-PARENT
+└─ NO  → Create issue, block parent, fix NOW
+         bd create "..." --deps discovered-from:bd-PARENT
          bd update bd-PARENT --status blocked
          bd update bd-NEW --status in_progress
-         Fix new issue NOW
+         [fix blocking issue]
          bd close bd-NEW + jj commit
          bd update bd-PARENT --status in_progress
-         Continue parent work
 ```
 
-### Should I Batch Multiple Issues in One Commit?
+### Use Planner?
 
 ```
-Q: Are ALL issues trivial (<5 line changes each)?
-├─ YES → MAYBE batch (e.g., fixing 3 typos together)
-└─ NO  → NEVER batch - one issue per commit
-```
-
-### When to Consult User?
-
-```
-ALWAYS ASK USER:
-- Delete tests
-- Change project architecture significantly
-- Introduce new major dependencies
-- Clarify ambiguous requirements
-
-DECIDE AUTONOMOUSLY:
-- Which agent to consult
-- Whether discovered work is blocking
-- Code implementation details
-- Minor refactoring decisions
+Q: Do I know ALL implementation steps?
+├─ YES → Skip planner, execute directly
+└─ NO  → Use planner (feature/fix/task based on complexity)
 ```
 
 ---
 
-## Workflow Examples
+## Examples
 
-### Example 1: Search Before Create (Prevents Duplicates)
+### Example 1: Simple Task
 
-```
-# User: "Add dark mode toggle to settings"
+```bash
+# User: "Add dark mode toggle"
 
-# MANDATORY SEARCH FIRST
+# Search first
 bd list --title "dark mode" --json
 # Found: bd-f14c "Add dark mode toggle" [open]
 
-# Decision: Exact match found → Use existing issue
+# Claim and work
 bd update bd-f14c --status in_progress
-[implement feature]
-[run tests - all must pass]
-[run all review agents in parallel]
-bd close bd-f14c --reason "Feature complete, tests passing"
+[implement]
+[run tests - must pass]
+[run review agents in parallel]
+bd close bd-f14c --reason "Complete, tests passing"
 jj commit -m "feat: add dark mode toggle"
 ```
 
-### Example 2: Create When No Duplicates Found
+### Example 2: Feature with Discovered Bug (Blocking)
 
-```
-# User: "Add OAuth integration"
-
-# MANDATORY SEARCH FIRST
-bd list --status open --json              # Check open
-bd list --status in_progress --json       # Check in progress
-bd list --title "oauth" --json            # Search by keyword
-bd duplicates --json                      # Check duplicates
-
-# Decision: No matches found → Safe to create
-bd create "Add OAuth integration" -t feature -p 1
-bd update bd-a1b2 --status in_progress
-[implement feature]
-[run tests]
-[run review agents]
-bd close bd-a1b2 --reason "OAuth integration complete"
-jj commit -m "feat: add OAuth integration"
-```
-
-### Example 3: Feature with Discovered Bug
-
-```
+```bash
+# Start feature
 bd ready --json
 bd update bd-a1b2 --status in_progress
-[start implementing]
-[discover bug in existing code]
-bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2
+[implementing]
 
-# Bug is BLOCKING
+# Discover blocking bug
+bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2
 bd update bd-a1b2 --status blocked
 bd update bd-3e7a --status in_progress
 [fix bug]
@@ -673,7 +462,7 @@ bd update bd-3e7a --status in_progress
 bd close bd-3e7a --reason "Fixed null check"
 jj commit -m "fix: add null check in theme loader"
 
-# Resume original work
+# Resume feature
 bd update bd-a1b2 --status in_progress
 [finish feature]
 [run tests]
@@ -682,273 +471,109 @@ bd close bd-a1b2 --reason "Complete"
 jj commit -m "feat: implement dark mode"
 ```
 
-### Example 4: Epic with Hierarchical Subtasks
+### Example 3: Duplicate Detection & Merge
 
+```bash
+# User: "Add OAuth integration"
+
+# Search for duplicates
+bd list --title "oauth" --json
+bd duplicates --json
+# Found: bd-100 "OAuth integration" [open]
+#        bd-150 "Add OAuth support" [open]
+#        bd-200 "Implement OAuth" [in_progress]
+
+# Compare issues
+bd show bd-100 bd-150 bd-200 --json
+
+# Merge duplicates (keep bd-100 as target)
+bd merge bd-150 bd-200 --into bd-100 --dry-run  # Preview
+bd merge bd-150 bd-200 --into bd-100            # Execute
+
+# Work on consolidated issue
+bd update bd-100 --status in_progress
+[implement]
+[run tests]
+[run review agents]
+bd close bd-100 --reason "OAuth complete"
+jj commit -m "feat: add OAuth integration"
 ```
-# Create epic with hierarchical children
-bd create "User authentication system" -t epic -p 1 --no-daemon --json
+
+### Example 4: Epic with Hierarchical Children
+
+```bash
+# Create epic
+bd create "Authentication system" -t epic -p 1 --no-daemon --json
 # Returns: bd-9k2m
 
-# Create child tasks (auto-numbered)
-bd create "Add login form" -t task -p 1 --parent bd-9k2m --no-daemon --json
-# Returns: bd-9k2m.1
+# Create children
+bd create "Login form" -t task -p 1 --parent bd-9k2m --no-daemon --json  # bd-9k2m.1
+bd create "Password hash" -t task -p 1 --parent bd-9k2m --no-daemon --json # bd-9k2m.2
+bd create "Sessions" -t task -p 1 --parent bd-9k2m --no-daemon --json    # bd-9k2m.3
 
-bd create "Add password hashing" -t task -p 1 --parent bd-9k2m --no-daemon --json
-# Returns: bd-9k2m.2
-
-bd create "Add session management" -t task -p 1 --parent bd-9k2m --no-daemon --json
-# Returns: bd-9k2m.3
-
-# Work on first subtask
-bd ready --json  # Shows bd-9k2m.1, bd-9k2m.2, bd-9k2m.3
+# Work through children
 bd update bd-9k2m.1 --status in_progress --no-daemon
-[implement login form]
-[run tests]
-[run review agents]
-bd close bd-9k2m.1 --reason "Login form complete" --no-daemon
-jj commit -m "feat: add login form component"
-
-# Work on second subtask
-bd update bd-9k2m.2 --status in_progress --no-daemon
-[implement password hashing]
-[run tests]
-[run review agents]
-bd close bd-9k2m.2 --reason "Password hashing implemented" --no-daemon
-jj commit -m "feat: add bcrypt password hashing"
-
-# Work on third subtask
-bd update bd-9k2m.3 --status in_progress --no-daemon
-[implement sessions]
-[run tests]
-[run review agents]
-bd close bd-9k2m.3 --reason "Sessions working" --no-daemon
-jj commit -m "feat: add session management"
-
-# Close epic
-bd close bd-9k2m --reason "All subtasks complete" --no-daemon
-jj commit -m "feat: complete authentication system
-
-Closes bd-9k2m"
-```
-
-### Example 5: Test Failure During Work
-
-```
-bd ready --json
-bd update bd-8v1w --status in_progress
-[implement feature]
-mix test  # TESTS FAIL
-
-# IMMEDIATE ACTION
-bd create "Fix failing auth tests" -t bug -p 0 --deps discovered-from:bd-8v1w
-bd update bd-8v1w --status blocked
-bd update bd-6d9x --status in_progress
-[diagnose and fix test failures]
-mix test  # TESTS PASS
-[run review agents]
-bd close bd-6d9x --reason "Tests now passing"
-jj commit -m "fix: resolve auth test failures"
-
-# Resume original work
-bd update bd-8v1w --status in_progress
-mix test  # Verify still passing
-[finish feature]
-[run tests]
-[run review agents]
-bd close bd-8v1w --reason "Feature complete, all tests pass"
-jj commit -m "feat: add oauth integration"
-```
-
-### Example 5.5: Nested Epic Hierarchy (3 Levels)
-
-```
-# Large feature with nested epics
-bd create "Payment System" -t epic -p 1 --no-daemon --json
-# Returns: bd-7x9p
-
-# Create child epics for major components
-bd create "Stripe Integration" -t epic -p 1 --parent bd-7x9p --no-daemon --json
-# Returns: bd-7x9p.1
-
-bd create "Refund Processing" -t epic -p 1 --parent bd-7x9p --no-daemon --json
-# Returns: bd-7x9p.2
-
-# Break down first child epic into tasks
-bd create "Setup Stripe SDK" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
-# Returns: bd-7x9p.1.1
-
-bd create "Implement payment flow" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
-# Returns: bd-7x9p.1.2
-
-bd create "Add webhook handlers" -t task -p 1 --parent bd-7x9p.1 --no-daemon --json
-# Returns: bd-7x9p.1.3
-
-# Work through the hierarchy
-bd ready --json
-bd update bd-7x9p.1.1 --status in_progress --no-daemon
 [implement]
-bd close bd-7x9p.1.1 --reason "Done" --no-daemon
-jj commit -m "feat: setup Stripe SDK"
+[test + review]
+bd close bd-9k2m.1 --reason "Complete" --no-daemon
+jj commit -m "feat: add login form"
 
-# Continue with remaining tasks...
-# When all bd-7x9p.1.x tasks done, close bd-7x9p.1
-# When all bd-7x9p.x epics done, close bd-7x9p
-```
+# Continue with bd-9k2m.2, bd-9k2m.3...
 
-### Example 6: Multiple Small Tasks
-
-```
-bd ready --json  # Shows bd-5m2k, bd-1n7p, bd-3r8q
-
-# Task 1: Typo fix
-bd update bd-5m2k --status in_progress
-[fix typo]
-[run review agents]
-bd close bd-5m2k --reason "Typo fixed"
-jj commit -m "docs: fix typo in authentication guide"
-
-# Task 2: Update dependencies
-bd update bd-1n7p --status in_progress
-[update deps]
-[run tests]
-[run review agents]
-bd close bd-1n7p --reason "Dependencies updated"
-jj commit -m "chore: update dependencies"
-
-# Task 3: Refactor
-bd update bd-3r8q --status in_progress
-[refactor code]
-[run tests]
-[run review agents]
-bd close bd-3r8q --reason "Refactoring complete"
-jj commit -m "refactor: simplify theme module structure"
-```
-
-### Example 7: Work-in-Progress Commits
-
-```
-bd ready --json
-bd update bd-4t2y --status in_progress
-[implement part 1]
-
-# Optional: Set WIP message
-jj describe -m "feat: add user profile page (WIP)"
-
-[implement part 2]
-[run tests]
-[run review agents]
-bd close bd-4t2y --reason "Complete"
-
-# Update message and commit
-jj describe -m "feat: add user profile page"
-jj new  # Commit and create new change
+# Close epic when all children done
+bd close bd-9k2m --reason "All subtasks complete" --no-daemon
+jj commit -m "feat: complete authentication system"
 ```
 
 ---
 
 ## Anti-Patterns
 
-**DO NOT DO THE FOLLOWING:**
+**DO NOT:**
 
-❌ Using markdown TODO lists instead of bd
-❌ **Creating issues without searching for duplicates first**
-❌ **Skipping the search sequence (bd list + bd duplicates)**
-❌ Skipping review agents ("just this once")
-❌ Closing issues with failing tests
-❌ Using `jj describe + jj new` instead of `jj commit` for standard workflow
-❌ Committing without closing related bd issue
-❌ Creating issues and never claiming them (use immediately or don't create)
-❌ Consulting user for every minor decision (be autonomous)
-❌ Implementing without consulting relevant agents first
-❌ Batching unrelated issues in one commit
-❌ Ignoring agent recommendations without explanation
-❌ Marking work complete without running tests
-❌ Deleting tests to make them pass
-❌ Creating bd issues for trivial thoughts (use bd for WORK only)
-❌ Updating issue status multiple times without actual progress
-❌ Using priority 0 for non-critical issues
+❌ Use markdown TODO lists instead of bd
+❌ Create issues without searching for duplicates first
+❌ Skip the search sequence (bd ready + bd duplicates + bd list)
+❌ Skip review agents ("just this once")
+❌ Close issues with failing tests
+❌ Use `jj describe + jj new` instead of `jj commit`
+❌ Commit without closing related bd issue
+❌ Implement without consulting relevant agents first
+❌ Batch unrelated issues in one commit
+❌ Delete tests to make them pass
+❌ Use priority 0 for non-critical issues
 
 ---
 
 ## Quick Reference Card
 
 ```
-SEARCH   → bd list --status open/in_progress/blocked --json
-           bd list --title "keywords" --json
-           bd duplicates --json (MANDATORY before creating)
-CLAIM    → bd update bd-XXXX --status in_progress
-CREATE   → bd create "..." (ONLY after search confirms no duplicates)
-CONSULT  → research-agent (unknown tech), architecture-agent (placement), skills (domain)
+SEARCH   → bd ready + bd list --status in_progress + bd list --title "X" + bd duplicates
+CLAIM    → bd update bd-X --status in_progress
+CREATE   → bd create "..." -t TYPE -p PRIORITY [--deps TYPE:bd-X]
+CONSULT  → research-agent, architecture-agent, skills
 DISCOVER → bd create "..." --deps discovered-from:bd-PARENT
-BLOCK    → bd update bd-XXXX --status blocked
+BLOCK    → bd update bd-X --status blocked
+MERGE    → bd merge bd-X bd-Y --into bd-Z [--dry-run]
 TEST     → Run before closing (MUST PASS)
 REVIEW   → ALL agents in parallel before EVERY bd close
-CLOSE    → bd close bd-XXXX --reason "..."
+CLOSE    → bd close bd-X --reason "..."
 COMMIT   → jj commit -m "type: description"
 ```
 
 **One Rule to Rule Them All:**
 
 ```
-SEARCH (all statuses + duplicates) → claim existing OR create new → consult → implement → test → review → close → commit
+SEARCH (ready + in_progress + title + duplicates) → claim OR create → consult → implement → test → review → close → commit
 ```
-
-## Skills
-
-### **beads_workflow** - Task Tracking with bd ⭐
-
-**ALWAYS use bd for ALL task tracking** - No markdown TODOs or external trackers.
-
-**Automatically loaded when:**
-
-- Managing tasks and issues
-- Tracking work progress
-- Creating new issues
-- Checking what to work on next
-
-**Provides:**
-
-- Complete bd (beads) workflow for issue tracking
-- How to create, claim, update, and close issues
-- Dependency tracking with `discovered-from` links
-- MCP server integration for Claude Desktop
-
-**Core Commands:**
-
-- `bd ready --json` - Check ready work
-- `bd create "Title" -t bug|feature|task -p 0-4 --json` - Create issue
-- `bd update bd-N --status in_progress --json` - Claim issue
-- `bd close bd-N --reason "Done" --json` - Complete work
-
-**Critical Rules:**
-
-- ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag
-- ✅ Link discovered work with `discovered-from`
-- ❌ NEVER use markdown TODO lists
-
-**Location:** `skills/beads_workflow/`
-
-## Dependencies
-
-### For LLMs / AI Assistants
-
-When you need to understand a dependency:
-
-1. **Check DEPENDENCIES.md first** - Contains common patterns and module overview
-2. **Read the source** - Use Read tool on eg. `deps/some_lib_name/*` files
-3. Use research-agent or make use of usage_rules.md
 
 ---
 
 ## When in Doubt
 
-1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one question at a time)
-2. **Check bd for existing issues** - `bd ready --json` - See if work is already tracked
-3. **Read the complete section** - Context matters, never rely on fragments
-4. **Check dependencies** - Read DEPENDENCIES.md and dependency source if needed
-5. **Load relevant skills** - Get specialized guidance
-6. **Look at existing tests** - See patterns
-7. **Check FEATURE_CATALOG.md** - See existing API patterns
+1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one at a time)
+2. **Check bd for existing issues** - `bd ready`, `bd list --status in_progress`, `bd duplicates`
+3. **Consult relevant agents** - research-agent, architecture-agent, skills
+4. **Look at existing patterns** - Tests, similar features, documentation
 
 ---
