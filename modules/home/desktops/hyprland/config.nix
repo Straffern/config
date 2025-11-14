@@ -32,6 +32,22 @@ in {
           border_size = 2;
         };
 
+        # https://wiki.hypr.land/Configuring/Variables/#group
+        group = {
+
+          groupbar = {
+            indicator_height = 0;
+            indicator_gap = 5;
+            height = 22;
+            gaps_in = 5;
+            gaps_out = 0;
+
+            gradients = true;
+            gradient_rounding = 0;
+            gradient_round_only_edges = false;
+          };
+        };
+
         # animations.enabled = false;
 
         animations = {
