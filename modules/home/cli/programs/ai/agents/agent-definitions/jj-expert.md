@@ -8,8 +8,8 @@ model: opus
 tools: Bash
 permission:
   bash:
-    "*": true
     "jj edit": false
+    "*": true
 color: green
 ---
 

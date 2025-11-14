@@ -117,11 +117,9 @@ User request → analyze → SEARCH for existing issues → claim OR create bd i
 
 ```bash
 # 1. SEARCH for existing work FIRST (MANDATORY - check ALL statuses)
-bd list --status open --json              # All open issues
+bd ready --json              # All open issues
 bd list --status in_progress --json       # Currently active work
-bd list --status blocked --json           # Blocked issues
 bd list --title "keyword" --json          # Search by title/content similarity
-bd duplicates --json                      # Check for duplicate content
 
 # 2. DECISION based on search results:
 #    A) Found exact match → Claim existing issue
@@ -386,12 +384,14 @@ bd create "Email templates" -t task --parent bd-a3f8e9.3 --no-daemon --json  # b
 ```
 
 **Benefits:**
+
 - Collision-free: Parent hash ensures unique namespace
 - Human-readable: Clear parent-child relationships at a glance
 - Flexible depth: Up to 3 levels of nesting
 - No coordination needed: Each epic owns its child ID space
 
 **When to use hierarchical IDs vs dependencies:**
+
 - Use `--parent` for **strict hierarchical organization** (epic breakdown)
 - Use `--deps parent-child:ID` for **loose parent-child links** (related work)
 - Use `--deps blocks:ID` for **hard dependencies** (work that blocks completion)
@@ -452,7 +452,6 @@ Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 - **elixir** - MANDATORY for Elixir/Phoenix/Ecto/Ash work (.ex, .exs files)
 - **lua** - Lua language and Neovim plugins (.lua files)
 - **neovim** - Editor configuration (Neovim config files)
-- **chezmoi** - Dotfile management (chezmoi dotfiles)
 - **testing** - Testing methodologies (test files)
 
 Location: `agents/skills/[skill]/SKILL.md`
