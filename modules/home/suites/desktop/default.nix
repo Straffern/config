@@ -72,7 +72,7 @@ in {
       elgato-fix
       toggle-headphones
 
-      mplayer
+      mpv
       mtpfs
       jmtpfs
       brightnessctl
