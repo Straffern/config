@@ -11,7 +11,7 @@ let
 in {
   options.${namespace}.cli.programs.git = with types; {
     enable = mkEnableOption "Git";
-    userName = mkOpt (nullOr str) "Alexander Flensborg"
+    name = mkOpt (nullOr str) "Alexander Flensborg"
       "The name appearing on the commits";
     email =
       mkOpt (nullOr str) "alex@flensborg.dev" "The email to use with git.";
@@ -38,25 +38,31 @@ in {
 
     programs.git = {
       enable = true;
-      userName = cfg.userName;
-      userEmail = cfg.email;
-
-      aliases = {
-        lg1 =
-          "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all";
-        lg2 =
-          "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'";
-        lg = "lg1";
-      };
       signing.signByDefault = true;
 
       ignores = [ ".aider*" ".beads/" ".devenv/" ".direnv/" ];
 
-      extraConfig = {
-        gpg.format = "ssh";
-        gpg.ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+      settings = {
+        user = {
+          name = cfg.name;
+          email = cfg.email;
+          signingkey = "~/.ssh/id_ed25519.pub";
+        };
+
+        alias = {
+          lg1 =
+            "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all";
+          lg2 =
+            "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'";
+          lg = "lg1";
+        };
+
+        gpg = {
+          format = "ssh";
+          ssh.allowedSignersFile = "~/.ssh/allowed_signers";
+        };
+
         commit.gpgsign = true;
-        user.signingkey = "~/.ssh/id_ed25519.pub";
 
         core = {
           editor = "nvim";

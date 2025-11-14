@@ -62,12 +62,16 @@ in {
 
     programs.ssh = {
       enable = true;
-      addKeysToAgent = "yes";
-      matchBlocks = cfg.extraHosts;
-      compression = true;
-      controlMaster = "auto";
-      controlPath = "~/.ssh/cm-%r@%h:%p";
-      controlPersist = "10m";
+      enableDefaultConfig = false;
+      matchBlocks = cfg.extraHosts // {
+        "*" = {
+          addKeysToAgent = "yes";
+          compression = true;
+          controlMaster = "auto";
+          controlPath = "~/.ssh/cm-%r@%h:%p";
+          controlPersist = "10m";
+        };
+      };
       extraOptionOverrides = {
         TCPKeepAlive = "no";
         IPQoS = "lowdelay throughput";

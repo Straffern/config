@@ -139,7 +139,7 @@ in {
           }; # e.g., #00ff00 for green
         };
 
-        signing = let gitCfg = config.programs.git.extraConfig;
+        signing = let gitCfg = config.programs.git.settings;
         in {
           backend = "ssh";
           behaviour = if gitCfg.commit.gpgsign then "own" else "never";

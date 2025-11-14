@@ -11,7 +11,7 @@ in {
       systemd.enableXdgAutostart = true;
       xwayland.enable = true;
 
-      # plugins = [ inputs.hyprland-plugins.packages.${pkgs.system}.hyprfocus ];
+      # plugins = [ inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.hyprfocus ];
       settings = {
 
         ecosystem.no_update_news = true;
