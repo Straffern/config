@@ -19,7 +19,8 @@ let
 in {
 
   programs.zsh.sessionVariables = {
-    PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
+    PATH =
+      "$XDG_BIN_HOME:$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
   };
 
   asgaard = {
