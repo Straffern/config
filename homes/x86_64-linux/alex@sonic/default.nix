@@ -47,6 +47,11 @@ in {
         convertCommands = true;
       };
       includeModelInAgents = false;
+      shellFunction = {
+        enable = true;
+        # model = null;  # Uses OpenCode's default model
+        # systemPrompt = "...";  # Custom system prompt
+      };
       # Optional: Configure specific agent providers or temperature overrides
       # agentProviders = {
       #   "elixir-expert" = "cerebras/qwen3-coder";
