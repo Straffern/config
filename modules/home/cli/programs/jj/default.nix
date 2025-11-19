@@ -105,7 +105,11 @@ in {
             "$base"
             "$right"
             "-c"
-            "wincmd J | set modifiable write"
+            "wincmd J"
+            "-c"
+            "set modifiable"
+            "-c"
+            "set write"
           ];
           program = "nvim";
           merge-tool-edits-conflict-markers = true;
@@ -475,7 +479,8 @@ in {
               diff.git(),
             )
           '';
-          git_push_bookmark = lib.mkDefault ''"${cfg.alias}/push-" ++ change_id.short()'';
+          git_push_bookmark =
+            lib.mkDefault ''"${cfg.alias}/push-" ++ change_id.short()'';
         };
 
         template-aliases = {
