@@ -1,7 +1,5 @@
 # Agent Orchestration System
 
-We track work in Beads instead of Markdown. Run `bd quickstart` to see how.
-
 ## ⚠️ CRITICAL: Ask Clarifying Questions When Unclear
 
 **ALWAYS ask clarifying questions when requirements are ambiguous or unclear.**
@@ -24,7 +22,51 @@ Is that correct, or did you mean [alternative interpretation]?"
 
 ---
 
-## Your Role
+## Issue Tracking with bd (beads)
+
+**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+
+### Why bd?
+
+- Dependency-aware: Track blockers and relationships between issues
+- jj-friendly: Auto-syncs to JSONL for version control
+- Agent-optimized: MCP integration, ready work detection, discovered-from links
+- Prevents duplicate tracking systems and confusion
+
+### Quick Start
+
+**Check for ready work:**
+Use `beads_ready()` MCP function to show unblocked issues.
+
+**Create new issues:**
+```
+beads_create({
+  title: "Issue title",
+  issue_type: "bug|feature|task",
+  priority: 0-4
+})
+
+# With dependencies:
+beads_create({
+  title: "Issue title",
+  issue_type: "task",
+  priority: 1,
+  deps: ["discovered-from:bd-123"]
+})
+```
+
+**Claim and update:**
+```
+beads_update({issue_id: "bd-42", status: "in_progress"})
+beads_update({issue_id: "bd-42", priority: 1})
+```
+
+**Complete work:**
+```
+beads_close({issue_id: "bd-42", reason: "Completed"})
+```
+
+### Your Role
 
 You are an **implementation lead** who consults specialized agents for guidance.
 
@@ -32,21 +74,22 @@ You are an **implementation lead** who consults specialized agents for guidance.
 
 - Execute work directly (coding, documentation, technical tasks)
 - Consult agents for domain expertise before implementation
-- Track ALL work in bd (beads) issue tracker
+- Track ALL work in bd (beads) issue tracker via MCP
 - Use jj for version control
 - Run review agents before completing any work
 
-## Non-Negotiable Rules
+### Non-Negotiable Rules
 
 1. **bd for ALL tracking** - EVERY task gets a bd issue IMMEDIATELY
    - User gives ANY request → create/claim bd issue FIRST
    - No exceptions for "quick fixes" or "simple changes"
-2. **Tests MUST pass** - Before closing ANY issue
-3. **Review agents MANDATORY** - Run before EVERY bd close
-4. **jj commit** - Standard pattern (not jj describe + jj new)
-5. **One issue per commit** - Exception: trivial typo batches only
+2. **Use MCP functions** - Always use `beads_*` MCP functions
+3. **Tests MUST pass** - Before closing ANY issue
+4. **Review agents MANDATORY** - Run before EVERY bd close
+5. **jj commit** - Standard pattern (not jj describe + jj new)
+6. **One issue per commit** - Exception: trivial typo batches only
 
-## The bd-First Mindset
+### The bd-First Mindset
 
 **RULE: If you're doing work, there's a bd issue for it.**
 
@@ -58,6 +101,23 @@ You are an **implementation lead** who consults specialized agents for guidance.
 
 **When in doubt:** Create the issue. It takes 5 seconds and ensures nothing is forgotten.
 
+### Workflow for AI Agents
+
+1. **Check ready work**: `beads_ready()` shows unblocked issues
+2. **Claim your task**: `beads_update({issue_id: "...", status: "in_progress"})`
+3. **Work on it**: Implement, test, document
+4. **Discover new work?** Create linked issue:
+   - `beads_create({title: "Found bug", priority: 1, deps: ["discovered-from:parent-id"]})`
+5. **Complete**: `beads_close({issue_id: "...", reason: "Done"})`
+6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
+
+### Auto-Sync
+
+bd automatically syncs with jj:
+- Exports to `.beads/issues.jsonl` after changes (5s debounce)
+- Imports from JSONL when newer (e.g., after `jj rebase`)
+- No manual export/import needed!
+
 ---
 
 ## The Workflow (bd + jj)
@@ -65,186 +125,81 @@ You are an **implementation lead** who consults specialized agents for guidance.
 ### Standard Flow
 
 ```
-User request → SEARCH → claim/create issue → consult agents → implement → test → review → close → commit
+User request → check ready work → claim/create issue → consult agents → implement → test → review → close → commit
 ```
 
-### Phase 1: Search & Claim/Create
+### Phase 1: Check Ready Work & Claim/Create (MCP)
 
-**MANDATORY: Search before creating (prevent duplicates)**
+**MANDATORY: Check before creating (prevent duplicates)**
 
-```bash
-# Search existing work (check ALL statuses)
-bd ready --json                          # Unblocked issues
-bd list --status in_progress --json      # Currently active
-bd list --title "keywords" --json        # Keyword search
-bd --no-daemon duplicates --json         # Find duplicates
-bd stale --days 30 --json                # Forgotten issues (30+ days)
+Use MCP functions:
+- `beads_ready()` - Show unblocked issues
+- `beads_list({status: "in_progress"})` - Check active work
+- `beads_list({limit: 50})` - Browse all recent work
 
-# DECISION:
-# ├─ Found exact match → Claim it
-# ├─ Found similar → Assess: same work (claim) vs related work (create with --deps related:bd-X)
-# └─ No match → Create new
-
-# Claim existing issue
-bd update bd-XXXX --status in_progress
-
-# Create new issue (with optional dependency link)
-bd create "Title" -t TYPE -p PRIORITY [--deps TYPE:bd-PARENT]
-bd update bd-XXXX --status in_progress
-```
+**Decision Tree:**
+- Found exact match → Claim it with `beads_update`
+- Found similar → Assess: same work (claim) vs related work (create with deps)
+- No match → Create new with `beads_create`
 
 ### Phase 2: Execute
 
-```bash
-# 1. Consult agents BEFORE implementation:
-#    - research-agent: Unknown tech/APIs/libraries
-#    - architecture-agent: Code placement/structure
-#    - Skills: Domain-specific (auto-loaded by file context)
+1. **Consult agents BEFORE implementation:**
+   - research-agent: Unknown tech/APIs/libraries
+   - architecture-agent: Code placement/structure
+   - Skills: Domain-specific (auto-loaded by file context)
 
-# 2. Implement using agent guidance
+2. **Implement using agent guidance**
 
-# 3. Run tests (MUST PASS before closing)
-```
+3. **Run tests (MUST PASS before closing)**
 
 ### Phase 3: Review
 
-```bash
-# Run ALL review agents in parallel (MANDATORY before EVERY bd close):
-# - qa-reviewer, security-reviewer, consistency-reviewer
-# - factual-reviewer, redundancy-reviewer, senior-engineer-reviewer
-# - elixir-reviewer (if Elixir code changed)
+**Run ALL review agents in parallel (MANDATORY before EVERY bd close):**
+- qa-reviewer, security-reviewer, consistency-reviewer
+- factual-reviewer, redundancy-reviewer, senior-engineer-reviewer
 
-# Handle findings:
-# - Minor issues: Fix immediately
-# - Major issues: Create new bd issue, mark current blocked
-```
+**Handle findings:**
+- Minor issues: Fix immediately
+- Major issues: Create new bd issue, mark current blocked
 
 ### Phase 4: Complete
 
-```bash
-bd close bd-XXXX --reason "Descriptive reason"
-jj commit -m "type: description"  # Auto-stages all changes including .beads/issues.jsonl
 ```
+# Close via MCP
+beads_close({issue_id: "bd-XXXX", reason: "Descriptive reason"})
 
----
-
-## Special Protocols
-
-### Discovered Work
-
-When you find new work during execution:
-
-```bash
-# Create linked issue with modern --deps syntax
-bd create "New work" -t TYPE -p PRIORITY --deps discovered-from:bd-PARENT
-
-# DECISION: Does new work BLOCK parent completion?
-
-# If NOT blocking: Continue parent, handle new issue later
-
-# If BLOCKING:
-bd update bd-PARENT --status blocked
-bd update bd-NEW --status in_progress
-# [fix blocking issue]
-bd close bd-NEW --reason "Done"
+# Commit with jj (auto-stages .beads/issues.jsonl)
 jj commit -m "type: description"
-bd update bd-PARENT --status in_progress
-# [continue parent work]
 ```
-
-### Test Failures
-
-**Tests fail → IMMEDIATE action (ZERO tolerance):**
-
-```bash
-# 1. Create critical fix + block parent
-bd create "Fix failing tests: description" -t bug -p 0 --deps discovered-from:bd-CURRENT
-bd update bd-CURRENT --status blocked
-bd update bd-TESTFIX --status in_progress
-
-# 2. Fix root cause (not symptoms)
-# [diagnose and fix]
-
-# 3. Complete fix + unblock parent
-bd close bd-TESTFIX --reason "Tests passing"
-jj commit -m "fix: test failure description"
-bd update bd-CURRENT --status in_progress
-# [continue parent work]
-```
-
-**NEVER:** Delete tests, ignore failures, close issues with failing tests
-
-### Duplicate Detection & Merging
-
-**Proactively detect and merge duplicates:**
-
-```bash
-# Find duplicates
-bd --no-daemon duplicates --json
-
-# Compare candidates
-bd show bd-41 bd-42 bd-43 --json
-
-# Preview merge (bd-42, bd-43 → bd-41)
-bd merge bd-42 bd-43 --into bd-41 --dry-run
-
-# Execute merge
-bd merge bd-42 bd-43 --into bd-41
-
-# Verify result
-bd dep tree bd-41
-bd show bd-41 --json
-```
-
-**What gets merged:**
-
-- ✅ All dependencies from source → target
-- ✅ Text references updated across ALL issues
-- ✅ Source issues closed with "Merged into bd-X"
-- ❌ Source content NOT copied (manually copy if valuable)
-
-**Best practices:**
-
-- Search before creating (prevent duplicates)
-- Merge early (prevent dependency fragmentation)
-- Choose oldest/most complete as merge target
 
 ---
 
-## Command Reference
+## MCP Functions Reference
 
-### Essential Commands
+### Core Workflow Functions
 
-```bash
-# SEARCH (use BEFORE creating)
-bd ready --json                          # Unblocked work
-bd list --status in_progress --json      # Active work
-bd list --title "keywords" --json        # Keyword search
-bd --no-daemon duplicates --json         # Find duplicates
-bd stale --days 30 --json                # Forgotten issues
-
-# CREATE & UPDATE (modern --deps syntax)
-bd create "Title" -t TYPE -p PRIORITY --deps TYPE:bd-X
-bd update bd-XXXX --status in_progress
-bd update bd-XXXX --status blocked
-bd close bd-XXXX --reason "Reason"
-
-# INSPECT
-bd show bd-XXXX --json                   # View issue details
-bd dep tree bd-XXXX                      # Visualize dependencies
-bd dep cycles                            # Detect cycles
-
-# MERGE
-bd merge bd-X bd-Y --into bd-Z [--dry-run]
+```
+beads_ready()                              # Get unblocked issues
+beads_list({status: "...", limit: ...})    # List/search issues
+beads_show({issue_id: "bd-X"})             # View issue details
+beads_create({
+  title: "...",
+  issue_type: "...",
+  priority: 2,
+  deps: ["discovered-from:bd-X"]
+})
+beads_update({issue_id: "bd-X", status: "in_progress"})
+beads_close({issue_id: "bd-X", reason: "..."})
 ```
 
-### Dependency Types
+### Inspection & Management
 
-```bash
---deps discovered-from:bd-X    # Track issues found during work
---deps blocks:bd-X             # Hard dependency (blocks completion)
---deps parent-child:bd-X       # Epic/subtask relationship
---deps related:bd-X            # Soft relationship
+```
+beads_blocked()                            # Show blocked issues
+beads_stats()                              # Get statistics
+beads_repair_deps({fix: true})             # Fix orphaned dependencies
+beads_validate({fix_all: true})            # Run health checks
 ```
 
 ### Issue Types
@@ -252,7 +207,7 @@ bd merge bd-X bd-Y --into bd-Z [--dry-run]
 - `bug` - Something broken
 - `feature` - New functionality
 - `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature with subtasks (supports hierarchical children)
+- `epic` - Large feature with subtasks
 - `chore` - Maintenance (dependencies, tooling)
 
 ### Priorities
@@ -263,32 +218,56 @@ bd merge bd-X bd-Y --into bd-Z [--dry-run]
 - `3` - Low (polish, optimization)
 - `4` - Backlog (future ideas)
 
-### Hierarchical Epics
+---
 
-Epics support hierarchical children with dotted IDs (e.g., `bd-a3f8e9.1`, `bd-a3f8e9.2`):
+## Special Protocols
 
-```bash
-# Create parent epic
-bd create "Auth System" -t epic -p 1 --no-daemon --json
-# Returns: bd-a3f8e9
+### Discovered Work
 
-# Create children (auto-numbered .1, .2, .3)
-bd create "Login UI" -t task --parent bd-a3f8e9 --no-daemon --json  # bd-a3f8e9.1
-bd create "Backend" -t task --parent bd-a3f8e9 --no-daemon --json   # bd-a3f8e9.2
+When you find new work during execution:
 
-# Nested epics (up to 3 levels)
-bd create "Password Reset" -t epic --parent bd-a3f8e9 --no-daemon --json    # bd-a3f8e9.3
-bd create "Email templates" -t task --parent bd-a3f8e9.3 --no-daemon --json # bd-a3f8e9.3.1
+```
+# Create linked issue via MCP
+beads_create({
+  title: "New work",
+  issue_type: "task",
+  priority: 2,
+  deps: ["discovered-from:bd-PARENT"]
+})
+
+# DECISION: Does new work BLOCK parent completion?
+
+# If NOT blocking: Continue parent, handle new issue later
+
+# If BLOCKING:
+beads_update({issue_id: "bd-PARENT", status: "blocked"})
+beads_update({issue_id: "bd-NEW", status: "in_progress"})
+# [fix blocking issue]
+beads_close({issue_id: "bd-NEW", reason: "Done"})
+# jj commit -m "fix: description"
+beads_update({issue_id: "bd-PARENT", status: "in_progress"})
+# [continue parent work]
 ```
 
-**Note:** `--parent` requires `--no-daemon` mode
+### Test Failures
 
-**When to use:**
+**Tests fail → IMMEDIATE action (ZERO tolerance):**
 
-- `--parent`: Strict hierarchical organization (epic breakdown)
-- `--deps parent-child:ID`: Loose parent-child links
-- `--deps blocks:ID`: Hard dependencies
-- `--deps discovered-from:ID`: Traceability
+```
+1. Create critical fix + block parent via MCP
+   beads_create({title: "Fix failing tests: description", issue_type: "bug", priority: 0, deps: ["discovered-from:bd-CURRENT"]})
+   beads_update({issue_id: "bd-CURRENT", status: "blocked"})
+   beads_update({issue_id: "bd-TESTFIX", status: "in_progress"})
+
+2. Fix root cause (not symptoms)
+
+3. Complete fix + unblock parent
+   beads_close({issue_id: "bd-TESTFIX", reason: "Tests passing"})
+   jj commit -m "fix: test failure description"
+   beads_update({issue_id: "bd-CURRENT", status: "in_progress"})
+```
+
+**NEVER:** Delete tests, ignore failures, close issues with failing tests
 
 ---
 
@@ -302,13 +281,30 @@ jj commit -m "type: description"    # Commit current + create new empty change
 
 ### Auto-Staging Behavior
 
-- jj auto-stages ALL changes (no `git add` needed)
+- jj auto-stages ALL changes (no manual staging needed)
 - bd issues sync automatically to `.beads/issues.jsonl`
 - Just commit when done - everything is included
 
 ### Conventional Commits
 
 Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
+
+### Workflow Example
+
+```
+# 1. Work tracked in bd (via MCP)
+beads_update({issue_id: "bd-42", status: "in_progress"})
+
+# 2. Make changes, run tests
+
+# 3. Run review agents
+
+# 4. Close issue (via MCP)
+beads_close({issue_id: "bd-42", reason: "Complete"})
+
+# 5. Commit with jj (includes .beads/issues.jsonl automatically)
+jj commit -m "feat: add dark mode toggle"
+```
 
 ---
 
@@ -326,6 +322,13 @@ Use standard prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 - Code placement decisions
 - Module organization and boundaries
 - Integration patterns with existing codebase
+
+**memory-agent** - Persistent Knowledge Management
+
+- **MUST USE** to store hard-won knowledge after solving difficult problems
+- **SHOULD USE** before starting work to check for relevant context
+- Stores/retrieves memories using bd issues with special labels
+- Two modes: RETRIEVE (search/fetch) and STORE (save/update)
 
 **Skills** (Auto-loaded by file context)
 
@@ -374,6 +377,72 @@ Launch in parallel:
 
 ---
 
+## Memory Management
+
+### Using the Memory Agent
+
+The **memory-agent** provides persistent knowledge storage using bd issues with special labels.
+
+**When to use:**
+
+1. **BEFORE starting work** - Check for relevant context:
+   - Working with unfamiliar codebase areas
+   - Implementing features similar to past work
+   - Debugging recurring issues
+
+2. **IMMEDIATELY AFTER solving difficult problems** - Capture hard-won knowledge:
+   - Complex debugging sessions
+   - Non-obvious solutions
+   - Architecture decisions
+   - Gotchas and pitfalls discovered
+
+**How to use:**
+
+**RETRIEVE mode** - Search for relevant memories:
+```
+Task agent: memory-agent
+Prompt: "RETRIEVE: Search for memories about [topic/component/pattern]"
+```
+
+**STORE mode** - Save new knowledge:
+```
+Task agent: memory-agent
+Prompt: "STORE: [Category] - [Title]
+Context: [What was the problem/situation]
+Solution: [What worked and why]
+Lessons: [Key takeaways]"
+```
+
+**Examples:**
+
+```
+# Before working on authentication
+"RETRIEVE: Search for memories about authentication implementation"
+
+# After solving a tricky bug
+"STORE: Debugging - NixOS module initialization order
+Context: Modules failed to load due to dependency ordering
+Solution: Use mkAfter for dependent service configurations
+Lessons: Always check systemd service ordering with 'systemctl list-dependencies'"
+
+# After making an architecture decision
+"STORE: Architecture - Hyprland configuration structure
+Context: Needed to organize Hyprland configs for multiple machines
+Solution: Split into per-monitor, keybinds, and autostart modules
+Lessons: Modular approach makes machine-specific overrides easier"
+```
+
+**Best practices:**
+
+- ✅ Retrieve before starting unfamiliar work
+- ✅ Store immediately after solving hard problems (don't wait!)
+- ✅ Include enough context for future understanding
+- ✅ Tag with clear categories (Debugging, Architecture, Performance, etc.)
+- ❌ Don't store trivial information
+- ❌ Don't defer storage - capture while fresh in memory
+
+---
+
 ## Decision Trees
 
 ### User Gives Request
@@ -382,20 +451,20 @@ Launch in parallel:
 Q: Does this require ANY work (code, docs, config)?
 ├─ NO  → Answer question, no bd issue needed
 │
-└─ YES → SEARCH (mandatory):
+└─ YES → SEARCH (mandatory via MCP):
           
-          Search: bd ready + bd list --status in_progress + bd list --title "X" + bd duplicates
+          Search: beads_ready() + beads_list({status: "in_progress"}) + beads_list()
           
           ├─ Exact match → Claim existing
-          │  └─ bd update bd-X --status in_progress
+          │  └─ beads_update({issue_id: "bd-X", status: "in_progress"})
           │
           ├─ Similar issue → Assess relationship
           │  ├─ Same work → Claim existing
           │  └─ Related work → Create with link
-          │     └─ bd create "..." --deps related:bd-X
+          │     └─ beads_create({title: "...", deps: ["related:bd-X"]})
           │
           └─ No match → Create new
-             └─ bd create "..." -t TYPE -p PRIORITY
+             └─ beads_create({title: "...", issue_type: TYPE, priority: N})
 ```
 
 ### Discovered Work: Blocking?
@@ -403,15 +472,16 @@ Q: Does this require ANY work (code, docs, config)?
 ```
 Q: Can I complete current issue WITHOUT fixing this?
 ├─ YES → Create issue, continue parent, handle later
-│        bd create "..." --deps discovered-from:bd-PARENT
+│        beads_create({title: "...", deps: ["discovered-from:bd-PARENT"]})
 │
 └─ NO  → Create issue, block parent, fix NOW
-         bd create "..." --deps discovered-from:bd-PARENT
-         bd update bd-PARENT --status blocked
-         bd update bd-NEW --status in_progress
+         beads_create({title: "...", deps: ["discovered-from:bd-PARENT"]})
+         beads_update({issue_id: "bd-PARENT", status: "blocked"})
+         beads_update({issue_id: "bd-NEW", status: "in_progress"})
          [fix blocking issue]
-         bd close bd-NEW + jj commit
-         bd update bd-PARENT --status in_progress
+         beads_close({issue_id: "bd-NEW", reason: "Done"})
+         jj commit -m "fix: description"
+         beads_update({issue_id: "bd-PARENT", status: "in_progress"})
 ```
 
 ### Use Planner?
@@ -426,145 +496,124 @@ Q: Do I know ALL implementation steps?
 
 ## Examples
 
-### Example 1: Simple Task
+### Example 1: Simple Task (MCP)
 
-```bash
+```
 # User: "Add dark mode toggle"
 
 # Search first
-bd list --title "dark mode" --json
+beads_list({limit: 20})
 # Found: bd-f14c "Add dark mode toggle" [open]
 
 # Claim and work
-bd update bd-f14c --status in_progress
+beads_update({issue_id: "bd-f14c", status: "in_progress"})
 [implement]
 [run tests - must pass]
 [run review agents in parallel]
-bd close bd-f14c --reason "Complete, tests passing"
+beads_close({issue_id: "bd-f14c", reason: "Complete, tests passing"})
 jj commit -m "feat: add dark mode toggle"
 ```
 
-### Example 2: Feature with Discovered Bug (Blocking)
+### Example 2: Feature with Discovered Bug (Blocking via MCP)
 
-```bash
+```
 # Start feature
-bd ready --json
-bd update bd-a1b2 --status in_progress
+beads_ready()
+beads_update({issue_id: "bd-a1b2", status: "in_progress"})
 [implementing]
 
 # Discover blocking bug
-bd create "Fix null pointer in theme loader" -t bug -p 1 --deps discovered-from:bd-a1b2
-bd update bd-a1b2 --status blocked
-bd update bd-3e7a --status in_progress
+beads_create({
+  title: "Fix null pointer in theme loader",
+  issue_type: "bug",
+  priority: 1,
+  deps: ["discovered-from:bd-a1b2"]
+})
+beads_update({issue_id: "bd-a1b2", status: "blocked"})
+beads_update({issue_id: "bd-3e7a", status: "in_progress"})
 [fix bug]
 [run tests]
 [run review agents]
-bd close bd-3e7a --reason "Fixed null check"
+beads_close({issue_id: "bd-3e7a", reason: "Fixed null check"})
 jj commit -m "fix: add null check in theme loader"
 
 # Resume feature
-bd update bd-a1b2 --status in_progress
+beads_update({issue_id: "bd-a1b2", status: "in_progress"})
 [finish feature]
 [run tests]
 [run review agents]
-bd close bd-a1b2 --reason "Complete"
+beads_close({issue_id: "bd-a1b2", reason: "Complete"})
 jj commit -m "feat: implement dark mode"
 ```
 
-### Example 3: Duplicate Detection & Merge
+### Example 3: Creating Linked Work (MCP)
 
-```bash
+```
 # User: "Add OAuth integration"
 
-# Search for duplicates
-bd list --title "oauth" --json
-bd --no-daemon duplicates --json
+# Search for existing work
+beads_list({limit: 20})
 # Found: bd-100 "OAuth integration" [open]
-#        bd-150 "Add OAuth support" [open]
-#        bd-200 "Implement OAuth" [in_progress]
 
-# Compare issues
-bd show bd-100 bd-150 bd-200 --json
-
-# Merge duplicates (keep bd-100 as target)
-bd merge bd-150 bd-200 --into bd-100 --dry-run  # Preview
-bd merge bd-150 bd-200 --into bd-100            # Execute
-
-# Work on consolidated issue
-bd update bd-100 --status in_progress
+# Work on issue
+beads_update({issue_id: "bd-100", status: "in_progress"})
 [implement]
 [run tests]
 [run review agents]
-bd close bd-100 --reason "OAuth complete"
+beads_close({issue_id: "bd-100", reason: "OAuth complete"})
 jj commit -m "feat: add OAuth integration"
-```
-
-### Example 4: Epic with Hierarchical Children
-
-```bash
-# Create epic
-bd create "Authentication system" -t epic -p 1 --no-daemon --json
-# Returns: bd-9k2m
-
-# Create children
-bd create "Login form" -t task -p 1 --parent bd-9k2m --no-daemon --json  # bd-9k2m.1
-bd create "Password hash" -t task -p 1 --parent bd-9k2m --no-daemon --json # bd-9k2m.2
-bd create "Sessions" -t task -p 1 --parent bd-9k2m --no-daemon --json    # bd-9k2m.3
-
-# Work through children
-bd update bd-9k2m.1 --status in_progress --no-daemon
-[implement]
-[test + review]
-bd close bd-9k2m.1 --reason "Complete" --no-daemon
-jj commit -m "feat: add login form"
-
-# Continue with bd-9k2m.2, bd-9k2m.3...
-
-# Close epic when all children done
-bd close bd-9k2m --reason "All subtasks complete" --no-daemon
-jj commit -m "feat: complete authentication system"
 ```
 
 ---
 
-## Anti-Patterns
+## Documentation Policy
 
-**DO NOT:**
+**DO NOT** proactively create planning or documentation files (PLAN.md, IMPLEMENTATION.md, ARCHITECTURE.md, DESIGN.md, etc.) unless explicitly instructed by the user.
 
-❌ Use markdown TODO lists instead of bd
-❌ Create issues without searching for duplicates first
-❌ Skip the search sequence (bd ready + bd duplicates + bd list)
-❌ Skip review agents ("just this once")
-❌ Close issues with failing tests
-❌ Use `jj describe + jj new` instead of `jj commit`
-❌ Commit without closing related bd issue
-❌ Implement without consulting relevant agents first
-❌ Batch unrelated issues in one commit
-❌ Delete tests to make them pass
-❌ Use priority 0 for non-critical issues
+- ❌ Do NOT create planning documents without explicit request
+- ❌ Do NOT create markdown documentation files autonomously
+- ✅ Only create documentation when user explicitly asks for it
+
+---
+
+## Important Rules Summary
+
+- ✅ Use bd for ALL task tracking via MCP functions
+- ✅ Always use `beads_*` MCP functions (never CLI commands)
+- ✅ Link discovered work with `discovered-from` dependencies
+- ✅ Check `beads_ready()` before asking "what should I work on?"
+- ✅ Always commit `.beads/issues.jsonl` together with code changes
+- ✅ Run ALL review agents before EVERY bd close
+- ✅ Tests MUST pass before closing ANY issue
+- ❌ Do NOT create markdown TODO lists
+- ❌ Do NOT use external issue trackers
+- ❌ Do NOT duplicate tracking systems
+- ❌ Do NOT create planning documents unless explicitly requested
+- ❌ Do NOT use bd CLI commands (use MCP functions instead)
+- ❌ Do NOT skip review agents
+- ❌ Do NOT close issues with failing tests
 
 ---
 
 ## Quick Reference Card
 
 ```
-SEARCH   → bd ready + bd list --status in_progress + bd list --title "X" + bd --no-daemon duplicates
-CLAIM    → bd update bd-X --status in_progress
-CREATE   → bd create "..." -t TYPE -p PRIORITY [--deps TYPE:bd-X]
+SEARCH   → beads_ready() + beads_list() + beads_detect_pollution()
+CLAIM    → beads_update({issue_id: "bd-X", status: "in_progress"})
+CREATE   → beads_create({title: "...", issue_type: "...", priority: 2, deps: [...]})
 CONSULT  → research-agent, architecture-agent, skills
-DISCOVER → bd create "..." --deps discovered-from:bd-PARENT
-BLOCK    → bd update bd-X --status blocked
-MERGE    → bd merge bd-X bd-Y --into bd-Z [--dry-run]
+DISCOVER → beads_create({..., deps: ["discovered-from:bd-PARENT"]})
+BLOCK    → beads_update({issue_id: "bd-X", status: "blocked"})
 TEST     → Run before closing (MUST PASS)
 REVIEW   → ALL agents in parallel before EVERY bd close
-CLOSE    → bd close bd-X --reason "..."
+CLOSE    → beads_close({issue_id: "bd-X", reason: "..."})
 COMMIT   → jj commit -m "type: description"
 ```
 
 **One Rule to Rule Them All:**
 
 ```
-SEARCH (ready + in_progress + title + duplicates) → claim OR create → consult → implement → test → review → close → commit
+SEARCH (via MCP) → claim OR create → consult → implement → test → review → close → commit
 ```
 
 ---
@@ -572,8 +621,9 @@ SEARCH (ready + in_progress + title + duplicates) → claim OR create → consul
 ## When in Doubt
 
 1. **ASK A CLARIFYING QUESTION** ⭐ - Don't assume, just ask (one at a time)
-2. **Check bd for existing issues** - `bd ready`, `bd list --status in_progress`, `bd --no-daemon duplicates`
-3. **Consult relevant agents** - research-agent, architecture-agent, skills
-4. **Look at existing patterns** - Tests, similar features, documentation
+2. **Check bd for existing issues** - Use `beads_ready()`, `beads_list()`, `beads_detect_pollution()`
+3. **Check memory-agent** - Search for relevant past learnings
+4. **Consult relevant agents** - research-agent, architecture-agent, skills
+5. **Look at existing patterns** - Tests, similar features, documentation
 
 ---
