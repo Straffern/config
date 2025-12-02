@@ -23,7 +23,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    persist-retro.url = "github:Geometer1729/persist-retro";
+    persist-retro.url = "github:straffern/persist-retro";
     impermanence.url = "github:nix-community/impermanence";
     lanzaboote.url = "github:nix-community/lanzaboote";
 
@@ -140,12 +140,12 @@
         disko.nixosModules.disko
         sops-nix.nixosModules.sops
         impermanence.nixosModules.impermanence
-        # persist-retro.nixosModules.persist-retro
+        persist-retro.nixosModules.persist-retro
         lanzaboote.nixosModules.lanzaboote
       ];
       homes.modules = with inputs; [
         impermanence.nixosModules.home-manager.impermanence
-        # persist-retro.nixosModules.home-manager.persist-retro
+        persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
         catppuccin.homeModules.catppuccin
       ];

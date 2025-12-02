@@ -69,6 +69,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    programs.persist-retro.enable = true;
+
     home.persistence.${cfg.persistPrefix} = {
       inherit (cfg) allowOther directories files;
       defaultDirectoryMethod = cfg.defaultDirectoryMethod;

@@ -75,6 +75,8 @@ in {
   };
 
   config = mkIf cfg.enable {
+    programs.persist-retro.enable = true;
+
     security.sudo.extraConfig = ''
       Defaults lecture = never
     '';
