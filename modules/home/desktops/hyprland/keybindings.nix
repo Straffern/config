@@ -59,7 +59,7 @@ in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = let
 
-      browser = "brave --new-window";
+      browser = "uwsm app -- brave --new-window";
       webapp = url: "${browser} --app=${url}";
 
       rofi_prompt = prompt_label: destination: append:
@@ -92,7 +92,7 @@ in {
         "SUPER, Return, exec, kitty"
         "SUPER, B, exec, ${
           config.${namespace}.desktops.addons.rofi.package
-        }/bin/rofi -show drun -mode drun"
+        }/bin/rofi -show drun -run-command 'uwsm app -- {cmd}'"
         "SUPER, A, exec, ${ai_chat_selector}"
         "SUPER, W, exec, ${webapp_prompt}"
         "SUPER, D, exec, ${hexdocs_prompt}"
