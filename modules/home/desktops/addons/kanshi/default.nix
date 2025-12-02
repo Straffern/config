@@ -13,7 +13,7 @@ in {
     services.kanshi = {
       enable = true;
       package = pkgs.kanshi;
-      systemdTarget = "hyprland-session.target";
+      systemdTarget = "graphical-session.target";
       settings = [
         {
           profile.name = "undocked";

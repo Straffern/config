@@ -120,7 +120,7 @@ in {
         exec-once = [
           # UWSM handles dbus-update-activation-environment and systemd target activation
           "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-          "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
+          # "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
           "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
           "uwsm app -- ${pkgs.pyprland}/bin/pypr"
           "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
