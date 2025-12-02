@@ -33,6 +33,12 @@ in {
       };
     };
 
+    # Persist k3s data, kubelet state, and CNI plugin state
+    ${namespace}.system.impermanence.directories = [
+      "/var/lib/rancher"
+      "/var/lib/kubelet"
+      "/var/lib/cni"
+    ];
   };
 
 }

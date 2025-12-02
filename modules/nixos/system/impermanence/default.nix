@@ -2,6 +2,46 @@
 let
   inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.system.impermanence;
+
+  # Directory type - supports both strings and attribute sets
+  directoryType = types.either types.str (types.submodule {
+    options = {
+      directory = mkOption {
+        type = types.str;
+        description = "The directory path to persist.";
+      };
+      user = mkOption {
+        type = types.str;
+        default = "root";
+        description = "Owner user of the directory.";
+      };
+      group = mkOption {
+        type = types.str;
+        default = "root";
+        description = "Owner group of the directory.";
+      };
+      mode = mkOption {
+        type = types.str;
+        default = "0755";
+        description = "Permissions mode for the directory.";
+      };
+    };
+  });
+
+  # File type - supports both strings and attribute sets
+  fileType = types.either types.str (types.submodule {
+    options = {
+      file = mkOption {
+        type = types.str;
+        description = "The file path to persist.";
+      };
+      parentDirectory = mkOption {
+        type = types.attrsOf types.str;
+        default = { };
+        description = "Permissions for the parent directory.";
+      };
+    };
+  });
 in {
   options.${namespace}.system.impermanence = {
     enable = mkEnableOption "Impermanence";
@@ -10,6 +50,27 @@ in {
       type = types.int;
       default = 30;
       description = "Remove temporary files older than this many days";
+    };
+
+    persistEntireVarLib = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Persist all of /var/lib instead of explicit per-service directories.
+        Simpler but less declarative. Useful during migration or for catch-all setups.
+      '';
+    };
+
+    directories = mkOption {
+      type = types.listOf directoryType;
+      default = [ ];
+      description = "Additional system directories to persist.";
+    };
+
+    files = mkOption {
+      type = types.listOf fileType;
+      default = [ ];
+      description = "Additional system files to persist.";
     };
   };
 
@@ -59,25 +120,32 @@ in {
     environment.persistence."/persist" = {
       hideMounts = true;
       directories = [
+        # Base system directories (always needed)
         "/srv"
-        "/.cache/nix/"
+        "/.cache/nix"
         "/etc/NetworkManager/system-connections"
-        "/var/cache/"
-        "/var/db/sudo/"
-        "/var/lib/"
-      ];
+        "/var/cache"
+        "/var/db/sudo"
+      ]
+      # Either persist all of /var/lib or just essential base directories
+      ++ (if cfg.persistEntireVarLib
+          then [ "/var/lib" ]
+          else [ "/var/lib/nixos" "/var/lib/systemd/coredump" ])
+      # Additional directories from other modules
+      ++ cfg.directories;
+
       files = [
         "/etc/machine-id"
         "/etc/ssh/ssh_host_ed25519_key"
         "/etc/ssh/ssh_host_ed25519_key.pub"
         "/etc/ssh/ssh_host_rsa_key"
         "/etc/ssh/ssh_host_rsa_key.pub"
-      ];
+      ] ++ cfg.files;
     };
 
-    systemd.tmpfiles.rules = 
+    systemd.tmpfiles.rules =
       [ "d! /persist/home 0770 root users - -" ] ++
-      (lib.mapAttrsToList (id: user: 
+      (lib.mapAttrsToList (id: user:
         "d /persist/home/${user.name} 0700 ${user.name} users - -"
       ) (lib.filterAttrs (id: user: user.enable) config.${namespace}.user));
   };

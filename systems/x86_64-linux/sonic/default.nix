@@ -12,7 +12,10 @@ in {
 
   ${namespace} = {
     system.env = { EDITOR = "nvim"; };
-    system.impermanence = enabled;
+    system.impermanence = {
+      enable = true;
+      persistEntireVarLib = true;
+    };
 
     user."1" = {
       name = "alex";

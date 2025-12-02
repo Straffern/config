@@ -30,5 +30,8 @@ in {
         };
       };
     };
+
+    # Persist VM definitions, storage pools, networks, and secrets
+    ${namespace}.system.impermanence.directories = [ "/var/lib/libvirt" ];
   };
 }

@@ -16,5 +16,8 @@ in {
         defaultNetwork.settings.dns_enabled = true;
       };
     };
+
+    # Persist container images, volumes, and storage
+    ${namespace}.system.impermanence.directories = [ "/var/lib/containers" ];
   };
 }

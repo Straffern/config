@@ -16,5 +16,8 @@ in {
         settings = { General = { Experimental = true; }; };
       };
     };
+
+    # Persist paired device keys and configurations
+    ${namespace}.system.impermanence.directories = [ "/var/lib/bluetooth" ];
   };
 }
