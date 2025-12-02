@@ -37,6 +37,9 @@ in {
       virtualisation.kvm = enabled;
       virtualisation.podman = enabled;
     };
+
+    # Enable battery optimizations for laptop
+    system.battery = enabled;
   };
 
   services.fwupd.enable = true;
@@ -51,8 +54,6 @@ in {
       to = 1764;
     }];
   };
-  # system.battery.enable =
-  #   true; # Only for laptops, they will still work without it, just improves battery life
   # system.shell.shell = "zsh";
   #
   # environment.systemPackages = with pkgs; [
