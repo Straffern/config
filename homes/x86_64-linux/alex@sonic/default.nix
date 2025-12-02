@@ -9,6 +9,14 @@ let
 
   clipy = pkgs.${namespace}.clipy;
 
+  # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
+  trayscaleWithGracefulShutdown = ''
+    uwsm app -t service \
+      -p TimeoutStopSec=5 \
+      -p 'ExecStop=${pkgs.systemdMinimal}/bin/busctl --user call dev.deedles.Trayscale /dev/deedles/Trayscale org.gtk.Actions Activate sava{sv} quit 0 0' \
+      -- ${pkgs.trayscale}/bin/trayscale --hide-window
+  '';
+
   # sshHosts = {
   #   "frostmourne" = {
   #     hostname = "%(cat ${config.sops.secrets.frostmourne_ip.path})";
@@ -28,9 +36,9 @@ in {
       hyprland = {
         enable = true;
         execOnceExtras = [
-          "${pkgs.trayscale}/bin/trayscale"
-          "${pkgs.networkmanagerapplet}/bin/nm-applet"
-          "${pkgs.blueman}/bin/blueman-applet"
+          trayscaleWithGracefulShutdown
+          "uwsm app -- ${pkgs.networkmanagerapplet}/bin/nm-applet"
+          "uwsm app -- ${pkgs.blueman}/bin/blueman-applet"
         ];
       };
     };

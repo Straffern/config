@@ -126,7 +126,7 @@ in {
           "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
           "uwsm app -- ${pkgs.solaar}/bin/solaar -w hide"
           "uwsm app -- ${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
-        ] ++ map (cmd: "uwsm app -- ${cmd}") cfg.execOnceExtras;
+        ] ++ cfg.execOnceExtras;
       };
     };
   };
