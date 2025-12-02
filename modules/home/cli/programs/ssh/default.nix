@@ -58,6 +58,8 @@ in {
       enable = true;
       keys = [ "id_ed25519" ];
       # agents = [ "gpg" "ssh" ];
+      enableZshIntegration =
+        mkIf config.${namespace}.cli.shells.zsh.enable true;
     };
 
     programs.ssh = {
