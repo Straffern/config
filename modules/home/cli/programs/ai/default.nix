@@ -1,11 +1,10 @@
-{ pkgs, config, lib, namespace, osConfig ? { }, ... }:
+{ pkgs, config, lib, namespace, ... }:
 let
   inherit (lib)
     mkIf mkEnableOption mkOption types concatStringsSep attrNames mapAttrsToList
     splitString hasInfix elem mkMerge;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.ai;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   # === Helper Functions - Core Utilities ===
   # Find index of first matching element in list
@@ -501,22 +500,23 @@ in {
     ];
 
     # AI shell command generator function
-    ${namespace}.cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
-      let
-        ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
-          model = cfg.shellFunction.model;
-          systemPrompt = cfg.shellFunction.systemPrompt;
-        };
-      in ''
-        # Load ai command generator function
-        source ${ai-shell-function}
-      ''
-    );
+    ${namespace} = {
+      cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
+        let
+          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
+            model = cfg.shellFunction.model;
+            systemPrompt = cfg.shellFunction.systemPrompt;
+          };
+        in ''
+          # Load ai command generator function
+          source ${ai-shell-function}
+        ''
+      );
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".claude" ".config/opencode" ];
-      files = [ ".claude.json" ];
+      system.persistence = {
+        directories = [ ".claude" ".config/opencode" ];
+        files = [ ".claude.json" ];
+      };
     };
   };
 }

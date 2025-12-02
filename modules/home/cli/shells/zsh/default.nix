@@ -1,9 +1,8 @@
-{ lib, pkgs, config, namespace, osConfig ? { }, ... }:
+{ lib, pkgs, config, namespace, ... }:
 let
   inherit (lib) mkEnableOption mkIf mkOption types;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.cli.shells.zsh;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   # XDG-compliant history location
   historyDir = "${config.xdg.dataHome}/zsh";
@@ -91,9 +90,6 @@ in {
 
     };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".local/share/zsh" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".local/share/zsh" ];
   };
 }

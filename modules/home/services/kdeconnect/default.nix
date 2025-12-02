@@ -1,8 +1,7 @@
-{ config, lib, namespace, osConfig ? { }, ... }:
+{ config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.services.kdeconnect;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.services.kdeconnect = {
     enable = mkEnableOption "KDEConnect service";
@@ -33,9 +32,6 @@ in {
       indicator = true;
     };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".config/kdeconnect" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".config/kdeconnect" ];
   };
 }

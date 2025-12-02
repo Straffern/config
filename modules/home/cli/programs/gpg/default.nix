@@ -1,8 +1,7 @@
-{ pkgs, config, lib, namespace, osConfig ? { }, ... }:
+{ pkgs, config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.gpg;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   # TODO: add sshKeys option
   options.${namespace}.cli.programs.gpg = { enable = mkEnableOption "GPG"; };
@@ -43,9 +42,6 @@ in {
     #   ];
     # };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".gnupg" ".local/share/keyrings" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".gnupg" ".local/share/keyrings" ];
   };
 }

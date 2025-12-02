@@ -1,9 +1,8 @@
-{ pkgs, config, lib, namespace, osConfig ? { }, ... }:
+{ pkgs, config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption types mkOption;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.git;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   rewriteURL = lib.mapAttrs' (key: value: {
     name = "url.${key}";
@@ -103,9 +102,6 @@ in {
       } // rewriteURL;
     };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".config/lazygit" ".config/jj" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".config/lazygit" ".config/jj" ];
   };
 }

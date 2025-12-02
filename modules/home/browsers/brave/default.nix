@@ -1,8 +1,7 @@
-{ lib, config, namespace, osConfig ? { }, ... }:
+{ lib, config, namespace, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.browsers.brave;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.browsers.brave = { enable = mkEnableOption "Brave"; };
 
@@ -23,9 +22,6 @@ in {
       ];
     };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".brave" ".cache/brave" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".brave" ".cache/brave" ];
   };
 }

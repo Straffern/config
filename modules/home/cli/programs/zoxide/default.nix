@@ -1,8 +1,7 @@
-{ config, lib, namespace, osConfig ? { }, ... }:
+{ config, lib, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.zoxide;
-  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.cli.programs.zoxide = {
     enable = mkEnableOption "Zoxide";
@@ -14,9 +13,6 @@ in {
       enableZshIntegration = true;
     };
 
-    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
-      allowOther = true;
-      directories = [ ".local/share/zoxide" ];
-    };
+    ${namespace}.system.persistence.directories = [ ".local/share/zoxide" ];
   };
 }
