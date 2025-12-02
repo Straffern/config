@@ -10,5 +10,8 @@ in {
   config = mkIf cfg.enable {
     networking.firewall = { enable = true; };
     networking.networkmanager.enable = true;
+    # Disable dhcpcd - NetworkManager handles DHCP
+    # dhcpcd blocks boot for ~5s waiting for carrier/lease
+    networking.dhcpcd.enable = false;
   };
 }
