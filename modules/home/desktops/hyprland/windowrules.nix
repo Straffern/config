@@ -40,7 +40,7 @@ in {
         "size 800 600, class:^(dev.deedles.Trayscale)$"
 
         # Picture-in-picture overlays
-        "windowrule = tag +pip, title:(Picture.?in.?[Pp]icture)"
+        "tag +pip, title:(Picture.?in.?[Pp]icture)"
         "float, tag:pip"
         "pin, tag:pip"
         "size 600 338, tag:pip"
