@@ -1,14 +1,14 @@
 { inputs, pkgs, config, lib, namespace, ... }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption map;
   cfg = config.${namespace}.desktops.hyprland;
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland = {
       enable = true;
 
-      systemd.enable = true;
-      systemd.enableXdgAutostart = true;
+      systemd.enable = false;
+      systemd.enableXdgAutostart = false;
       xwayland.enable = true;
 
       # plugins = [ inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.hyprfocus ];
@@ -118,15 +118,15 @@ in {
         # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
 
         exec-once = [
-          # Note: dbus-update-activation-environment is handled by systemd.enable
+          # UWSM handles dbus-update-activation-environment and systemd target activation
           "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-          "${pkgs.kanshi}/bin/kanshi"
-          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-          "${pkgs.pyprland}/bin/pypr"
-          "${pkgs.clipse}/bin/clipse -listen"
-          "${pkgs.solaar}/bin/solaar -w hide"
-          "${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
-        ] ++ cfg.execOnceExtras;
+          "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
+          "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+          "uwsm app -- ${pkgs.pyprland}/bin/pypr"
+          "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
+          "uwsm app -- ${pkgs.solaar}/bin/solaar -w hide"
+          "uwsm app -- ${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
+        ] ++ map (cmd: "uwsm app -- ${cmd}") cfg.execOnceExtras;
       };
     };
   };
