@@ -12,6 +12,7 @@ in {
 
   ${namespace} = {
     system.env = { EDITOR = "nvim"; };
+    system.impermanence = enabled;
 
     user."1" = {
       name = "alex";
@@ -60,8 +61,6 @@ in {
   #
   # system.shell.initExtra = ''eval "$(micromamba shell hook --shell zsh)"'';
   #
-
-  # impermanence.enable = true;
 
   networking.hostName = "sonic";
   boot = {

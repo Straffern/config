@@ -1,7 +1,8 @@
-{ config, lib, namespace, ... }:
+{ config, lib, namespace, osConfig ? { }, ... }:
 let
   inherit (lib) mkIf mkEnableOption literalExample types;
   cfg = config.${namespace}.cli.programs.ssh;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.cli.programs.ssh = {
     enable = mkEnableOption "SSH";
@@ -80,6 +81,11 @@ in {
         SetEnv TERM=xterm
         IdentityFile ~/.ssh/id_ed25519
       '';
+    };
+
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
+      allowOther = true;
+      directories = [ ".ssh" ];
     };
   };
 }

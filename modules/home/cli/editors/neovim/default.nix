@@ -1,8 +1,9 @@
-{ lib, pkgs, config, namespace, ... }:
+{ lib, pkgs, config, namespace, osConfig ? { }, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.editors.neovim;
   stylixEnabled = config.${namespace}.styles.stylix.enable;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.cli.editors.neovim = {
     enable = mkEnableOption "Neovim";
@@ -44,6 +45,11 @@ in {
       enable = true;
       recursive = true;
       source = ./lazyvim;
+    };
+
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
+      allowOther = true;
+      directories = [ ".local/share/nvim" ".local/state/nvim" ];
     };
   };
 }

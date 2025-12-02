@@ -1,8 +1,9 @@
-{ pkgs, config, lib, namespace, ... }:
+{ pkgs, config, lib, namespace, osConfig ? { }, ... }:
 let
   inherit (lib) mkIf mkEnableOption types mkOption;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.git;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   rewriteURL = lib.mapAttrs' (key: value: {
     name = "url.${key}";
@@ -100,6 +101,11 @@ in {
         safe.directory = cfg.safeDirs
           ++ [ "/home/${config.home.username}/.cache/nix/tarball-cache" ];
       } // rewriteURL;
+    };
+
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
+      allowOther = true;
+      directories = [ ".config/lazygit" ".config/jj" ];
     };
   };
 }

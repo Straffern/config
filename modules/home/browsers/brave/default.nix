@@ -1,13 +1,12 @@
-{ lib, config, namespace, ... }:
+{ lib, config, namespace, osConfig ? { }, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
-  # inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.browsers.brave;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 in {
   options.${namespace}.browsers.brave = { enable = mkEnableOption "Brave"; };
 
   config = mkIf cfg.enable {
-
     home.sessionVariables.KDE_USE_SESSION_KEYRING = "0";
 
     programs.brave = {
@@ -23,7 +22,8 @@ in {
         "--ozone-platform-hint=wayland"
       ];
     };
-    home.persistence."/persist/home/${config.home.username}" = {
+
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
       allowOther = true;
       directories = [ ".brave" ".cache/brave" ];
     };

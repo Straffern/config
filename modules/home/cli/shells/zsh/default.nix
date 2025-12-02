@@ -1,8 +1,13 @@
-{ lib, pkgs, config, namespace, ... }:
+{ lib, pkgs, config, namespace, osConfig ? { }, ... }:
 let
   inherit (lib) mkEnableOption mkIf mkOption types;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.cli.shells.zsh;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
+
+  # XDG-compliant history location
+  historyDir = "${config.xdg.dataHome}/zsh";
+  historyFile = "${historyDir}/history";
 in {
   options.${namespace}.cli.shells.zsh = {
     enable = mkEnableOption "Zsh";
@@ -14,7 +19,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     # users.defaultShell = pkgs.zsh;
     # users.users.root.shell = pkgs.bashInteractive;
 
@@ -28,7 +32,7 @@ in {
       history = {
         size = 5000;
         save = 5000;
-        path = "/home/${config.home.username}/.zsh_history";
+        path = historyFile;
         share = true;
         ignorePatterns = [ "ls" "ll" "cat" ];
         ignoreAllDups = true;
@@ -87,5 +91,9 @@ in {
 
     };
 
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
+      allowOther = true;
+      directories = [ ".local/share/zsh" ];
+    };
   };
 }

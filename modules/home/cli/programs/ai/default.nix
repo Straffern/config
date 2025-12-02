@@ -1,10 +1,11 @@
-{ pkgs, config, lib, namespace, ... }:
+{ pkgs, config, lib, namespace, osConfig ? { }, ... }:
 let
   inherit (lib)
     mkIf mkEnableOption mkOption types concatStringsSep attrNames mapAttrsToList
-    splitString hasInfix elem;
+    splitString hasInfix elem mkMerge;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.ai;
+  persistenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   # === Helper Functions - Core Utilities ===
   # Find index of first matching element in list
@@ -511,6 +512,12 @@ in {
         source ${ai-shell-function}
       ''
     );
+
+    home.persistence."/persist/home/${config.home.username}" = mkIf persistenceEnabled {
+      allowOther = true;
+      directories = [ ".claude" ".config/opencode" ];
+      files = [ ".claude.json" ];
+    };
   };
 }
 
