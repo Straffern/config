@@ -103,7 +103,7 @@ in {
           preserve_split = true;
         };
 
-        gestures = { workspace_swipe = true; };
+        gestures.gesture = [ "3, horizontal, workspace" ];
 
         binds.movefocus_cycles_fullscreen = true;
 
