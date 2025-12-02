@@ -9,13 +9,6 @@ in {
 
       systemd.enable = true;
       systemd.enableXdgAutostart = true;
-      # Add a small delay before starting session target to avoid race condition
-      # with systemd 258+ where the D-Bus socket might not be ready immediately
-      systemd.extraCommands = [
-        "systemctl --user stop hyprland-session.target"
-        "sleep 0.5"
-        "systemctl --user start hyprland-session.target"
-      ];
       xwayland.enable = true;
 
       # plugins = [ inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.hyprfocus ];
