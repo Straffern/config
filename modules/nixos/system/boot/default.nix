@@ -41,6 +41,10 @@ in {
           configurationLimit = 20;
           editor = false;
         };
+
+        # Reduce boot menu timeout (default 5s)
+        # Hold key during boot to show menu if needed
+        timeout = 1;
       };
 
       plymouth = { enable = cfg.plymouth; };
