@@ -121,9 +121,32 @@ window#waybar {
 
 #backlight {
   color: @lavender;
+  padding: 0 10px 0 10px;
+  border-radius: 0;
+}
+
+#power-profiles-daemon {
+  color: @lavender;
   padding: 0 10px 0 20px;
   border-radius: 10px 0 0 10px;
   margin-left: 10px;
+  background-color: @accent_fg_color;
+  margin: 8px 0;
+  padding: 5px 0;
+  padding-left: 15px;
+  padding-right: 10px;
+}
+
+#power-profiles-daemon.performance {
+  color: @red;
+}
+
+#power-profiles-daemon.balanced {
+  color: @lavender;
+}
+
+#power-profiles-daemon.power-saver {
+  color: @green;
 }
 
 #battery {

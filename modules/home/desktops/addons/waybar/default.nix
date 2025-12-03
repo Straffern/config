@@ -17,7 +17,7 @@ in {
         margin = "0 0 0 0";
         modules-left = [ "hyprland/workspaces" "tray" ];
         modules-center = [ "custom/notification" "clock" "idle_inhibitor" ];
-        modules-right = [ "backlight" "battery" "pulseaudio" "network" ];
+        modules-right = [ "power-profiles-daemon" "backlight" "battery" "pulseaudio" "network" ];
         "hyprland/workspaces" = {
           format = "{icon}";
           sort-by-number = true;
@@ -122,6 +122,17 @@ in {
         tray = {
           icon-size = 16;
           spacing = 8;
+        };
+        "power-profiles-daemon" = {
+          format = "{icon}";
+          tooltip-format = "Power profile: {profile}\nDriver: {driver}";
+          tooltip = true;
+          format-icons = {
+            default = "󰾅";
+            performance = "󰓅";
+            balanced = "󰾅";
+            power-saver = "󰌪";
+          };
         };
       }];
 

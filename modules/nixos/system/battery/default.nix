@@ -67,7 +67,17 @@ in {
     environment.systemPackages = with pkgs; [
       powertop
       acpi
+      power-profiles-daemon  # provides powerprofilesctl
     ];
+
+    # Automatically switch power profiles based on AC power state
+    # Performance when plugged in, power-saver when on battery
+    services.udev.extraRules = lib.mkIf config.services.power-profiles-daemon.enable ''
+      # When AC adapter is plugged in - switch to performance
+      SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance"
+      # When AC adapter is unplugged - switch to power-saver
+      SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver"
+    '';
 
     powerManagement.enable = true;
 
