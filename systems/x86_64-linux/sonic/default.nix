@@ -54,17 +54,8 @@ in {
       to = 1764;
     }];
   };
-  # system.shell.shell = "zsh";
-  #
-  # environment.systemPackages = with pkgs; [
-  #   # Any particular packages only for this host
-  #   micromamba
-  #   tealdeer
-  #   nodejs
-  # ];
-  #
-  # system.shell.initExtra = ''eval "$(micromamba shell hook --shell zsh)"'';
-  #
+  # AMD debug tools for s2idle/sleep diagnostics
+  environment.systemPackages = [ pkgs.asgaard.amd-debug-tools ];
 
   networking.hostName = "sonic";
   boot = {
