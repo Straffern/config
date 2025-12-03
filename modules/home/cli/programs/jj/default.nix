@@ -234,13 +234,34 @@ in {
                 printf '\x1b[1;32m$ %s\x1b[0m\n' "''${1}"
               }
 
+              usage() {
+                echo "usage: jj run-job [jj-flags...] <revset> -- <command> <args>..."
+                exit 1
+              }
+
               main() {
+                # Collect args before and after --
+                local -a jj_args=()
+                while [[ $# -gt 0 && "$1" != "--" ]]; do
+                  jj_args+=("$1")
+                  shift
+                done
+
+                [[ "''${1:-}" == "--" ]] || { echo "error: missing -- separator before command" >&2; usage; }
+                shift
+
+                [[ $# -ge 1 ]] || { echo "error: no command specified" >&2; usage; }
+                [[ ''${#jj_args[@]} -ge 1 ]] || { echo "error: no revset specified" >&2; usage; }
+
+                # Last jj_arg is the revset, rest are flags
+                local revset="''${jj_args[-1]}"
+                unset 'jj_args[-1]'
+                local -a cmd=("$@")
+
                 register_rollback_instructions
 
-                declare -r revset="$1"
-                declare -ra cmd=("''${@:2}")
                 change_ids "''${revset}" | while read -r rev; do
-                  log_and_run jj edit "''${rev}"
+                  log_and_run jj "''${jj_args[@]}" edit "''${rev}"
 
                   log_lit_command 'cd "$(jj workspace root)"'
                   cd "$(jj --ignore-working-copy workspace root)"
@@ -248,8 +269,6 @@ in {
                   log_and_run "''${cmd[@]}"
                 done
               }
-
-              [ $# -ge 2 ] || { echo "usage: jj run-job <revset> <command> <args>..."; exit 1; }
 
               main "$@"
             '';
