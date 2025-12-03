@@ -17,6 +17,7 @@ in {
       settings = [
         {
           profile.name = "undocked";
+          profile.exec = [ "sleep 0.5 && systemctl --user restart waybar" ];
           profile.outputs = [{
             criteria = "eDP-1";
             status = "enable";
@@ -25,6 +26,7 @@ in {
         }
         {
           profile.name = "home_office_laptop_docked";
+          profile.exec = [ "sleep 0.5 && systemctl --user restart waybar" ];
           profile.outputs = [
             {
               criteria = "Samsung Electric Company U32R59x H4ZN200523";
