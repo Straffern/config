@@ -103,6 +103,8 @@
 
     devenv.url = "github:cachix/devenv";
 
+    beads.url = "github:steveyegge/beads";
+
   };
 
   outputs = inputs:

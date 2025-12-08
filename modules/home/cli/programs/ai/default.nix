@@ -1,4 +1,4 @@
-{ pkgs, config, lib, namespace, ... }:
+{ inputs, pkgs, config, lib, namespace, ... }:
 let
   inherit (lib)
     mkIf mkEnableOption mkOption types concatStringsSep attrNames mapAttrsToList
@@ -467,6 +467,11 @@ in {
   };
 
   config = mkIf cfg.enable {
+    home.packages = [
+      inputs.beads.packages.${pkgs.stdenv.hostPlatform.system}.default
+      pkgs.${namespace}.bv
+    ];
+
     # Claude configuration
     home.file = lib.mkMerge [
       # Link Claude agents and commands directly
