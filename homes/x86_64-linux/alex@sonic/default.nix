@@ -57,7 +57,7 @@ in {
       includeModelInAgents = false;
       shellFunction = {
         enable = true;
-        # model = null;  # Uses OpenCode's default model
+        model = "opencode/big-pickle";
         # systemPrompt = "...";  # Custom system prompt
       };
       # Optional: Configure specific agent providers or temperature overrides
