@@ -1,4 +1,4 @@
-{ pkgs, config, lib, namespace, ... }:
+{ pkgs, config, lib, namespace, inputs, ... }:
 let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
@@ -67,7 +67,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ lazyjj jujutsu watchman difftastic ];
+    home.packages = with pkgs; [ lazyjj jujutsu watchman difftastic inputs.jjui.packages.${pkgs.system}.default ];
 
     programs.jujutsu = {
       enable = true;

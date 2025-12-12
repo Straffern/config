@@ -105,6 +105,8 @@
 
     beads.url = "github:steveyegge/beads";
 
+    jjui.url = "github:idursun/jjui";
+
   };
 
   outputs = inputs:
