@@ -40,6 +40,12 @@ in {
 
     # Enable battery optimizations for laptop
     system.battery = enabled;
+
+    # Enable hidraw for NuPhy Air75 V3 keyboard
+    hardware.hidraw = {
+      enable = true;
+      user = "alex";
+    };
   };
 
   services.fwupd.enable = true;
