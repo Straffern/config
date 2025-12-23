@@ -10,6 +10,13 @@ in {
 
     opencode = {
       enable = mkEnableOption "OpenCode configuration";
+
+      dotfilesPath = mkOption {
+        type = types.str;
+        default = "/home/${config.home.username}/.dotfiles";
+        description =
+          "Absolute path to the dotfiles repository for mutable symlinks";
+      };
     };
 
     shellFunction = {
@@ -45,7 +52,10 @@ in {
 
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
-        ".config/opencode/AGENTS.md" = { source = ./agents/AGENTS.md; };
+        ".config/opencode/AGENTS.md" = {
+          source = config.lib.file.mkOutOfStoreSymlink
+            "${cfg.opencode.dotfilesPath}/modules/home/cli/programs/ai/agents/AGENTS.md";
+        };
         ".config/opencode/skills" = {
           source = ./agents/skills;
           recursive = true;
