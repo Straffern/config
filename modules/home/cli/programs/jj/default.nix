@@ -67,7 +67,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ lazyjj jujutsu watchman difftastic inputs.jjui.packages.${pkgs.system}.default asgaard.jj-starship ];
+    home.packages = with pkgs; [
+      lazyjj
+      jujutsu
+      watchman
+      difftastic
+      inputs.jjui.packages.${pkgs.system}.default
+      asgaard.jj-starship
+    ];
 
     programs.jujutsu = {
       enable = true;
@@ -127,19 +134,20 @@ in {
             fg = "#7f00ff";
             # bg = "#7f00ff";
             italic = true;
+            bold = true;
           }; # e.g., #7f00ff for magenta
           "working_copy commit_id" = { underline = true; };
           "diff removed token" = {
-            fg = "#${colors.base08}";
+            # bg = "#${colors.base08}";
             # fg = "#${colors.base05}";
-            bg = "#ff0000";
-            underline = false;
+            fg = "#ff0000";
+            underline = true;
           }; # e.g., #ff0000 for red
           "diff added token" = {
-            fg = "#${colors.base0B}";
+            # bg = "#${colors.base0B}";
             # fg = "#${colors.base05}";
-            bg = "#007f00";
-            underline = false;
+            fg = "#007f00";
+            underline = true;
           }; # e.g., #00ff00 for green
         };
 
