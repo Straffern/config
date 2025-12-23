@@ -1,8 +1,22 @@
-{ config, lib, namespace, ... }:
+{ config, lib, namespace, pkgs, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   inherit (config.lib.stylix) colors;
   cfg = config.${namespace}.cli.programs.starship;
+  jjCfg = config.${namespace}.cli.programs.jj; # Access JJ module config
+
+  # Conditional JJ settings that only apply when JJ is enabled
+  jjStarshipSettings = lib.mkIf jjCfg.enable {
+    custom = {
+      jj = {
+        command = "${pkgs.asgaard.jj-starship}/bin/jj-starship";
+        when = "jj-starship detect";
+      };
+    };
+    # Disable built-in git modules in JJ repos to avoid conflicts
+    git_branch = { disabled = false; };
+    git_status = { disabled = false; };
+  };
 in {
   options.${namespace}.cli.programs.starship = {
     enable = mkEnableOption "Starship";
@@ -43,6 +57,7 @@ in {
           crust = "#11111b";
         };
       };
+      } // jjStarshipSettings; # Merge conditional JJ settings
     };
   };
 }

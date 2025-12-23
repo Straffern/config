@@ -67,7 +67,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ lazyjj jujutsu watchman difftastic inputs.jjui.packages.${pkgs.system}.default ];
+    home.packages = with pkgs; [ lazyjj jujutsu watchman difftastic inputs.jjui.packages.${pkgs.system}.default asgaard.jj-starship ];
 
     programs.jujutsu = {
       enable = true;
