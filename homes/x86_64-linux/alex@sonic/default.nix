@@ -48,13 +48,13 @@ in {
 
     cli.programs.ai = {
       enable = true;
-      claude.enable = true;
+      # claude.enable = true;
       opencode = {
         enable = true;
-        convertAgents = true;
-        convertCommands = true;
+        # convertAgents = true;
+        # convertCommands = true;
       };
-      includeModelInAgents = false;
+      # includeModelInAgents = false;
       shellFunction = {
         enable = true;
         model = "opencode/big-pickle";
