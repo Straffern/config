@@ -1,4 +1,4 @@
-{ config, lib, namespace, ... }:
+{ config, lib, pkgs, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
@@ -36,5 +36,9 @@ in {
       };
 
     };
+
+    environment.systemPackages = with pkgs; [
+      libnotify
+    ];
   };
 }
