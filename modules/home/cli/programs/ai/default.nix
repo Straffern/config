@@ -54,8 +54,7 @@ in {
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
         ".config/opencode/AGENTS.md" = {
-          source = config.lib.file.mkOutOfStoreSymlink
-            "${cfg.opencode.dotfilesPath}/modules/home/cli/programs/ai/agents/AGENTS.md";
+          source = config.lib.asgaard.managedSource ./agents/AGENTS.md;
         };
         ".config/opencode/skills" = {
           source = ./agents/skills;

@@ -1,50 +1,90 @@
-<h1 align="center"> <img src="./.github/assets/flake.webp" width="250px"/></h1>
-<h2 align="center">My NixOS flake template made with <a href="https://github.com/snowfallorg/lib">snowfall</a>.</h2>
+<div align="center">
+<h1>
+<img width="96" src="./.github/assets/flake.webp"></img> <br>
+  Asgaard Dotfiles
+</h1>
+</h2><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/palette/macchiato.png" width="500" />
+<br>
+<h4>
+  :warning: This config repo is constantly changing,
+  Let me know if you see something that can be improved or done better :smile: .</h4>
+</div>
 
-<h1 align="center">
-<a href='#'><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/palette/macchiato.png" width="600px"/></a>
-  <br>
-  <br>
-  <div>
-    <a href="https://github.com/Iogamaster/snowfall-starter/issues">
-        <img src="https://img.shields.io/github/issues/Iogamaster/snowfall-starter?color=fab387&labelColor=303446&style=for-the-badge">
-    </a>
-    <a href="https://github.com/Iogamaster/snowfall-starter/stargazers">
-        <img src="https://img.shields.io/github/stars/Iogamaster/snowfall-starter?color=ca9ee6&labelColor=303446&style=for-the-badge">
-    </a>
-    <a href="https://github.com/Iogamaster/snowfall-starter">
-        <img src="https://img.shields.io/github/repo-size/Iogamaster/snowfall-starter?color=ea999c&labelColor=303446&style=for-the-badge">
-    </a>
-    <a href="https://github.com/Iogamaster/snowfall-starter/blob/main/.github/LICENCE">
-        <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=MIT&logoColor=ca9ee6&colorA=313244&colorB=cba6f7"/>
-    </a>
-    <br>
-    </div>
-        <img href="https://builtwithnix.org" src="https://builtwithnix.org/badge.svg"/>
-   </h1>
-   <br>
+## 💽 Usage
 
-## My system management tool `sys`
+<details>
+  <summary>Install</summary>
 
-`sys` is a bash script I made that makes working with NixOS easier.
+To install NixOS on any of my devices I use [nixos-anywhere](https://github.com/nix-community/nixos-anywhere).
+You will need to be able to SSH to the target machine from where this command will be run. Load nix installer ISO if
+no OS on the device. You need to copy ssh keys onto the target machine:
+`mkdir -p ~/.ssh && curl https://github.com/straffern.keys > ~/.ssh/authorized_keys` in my case I can copy them from GitHub.
 
-Rebuild (in flake directory)
+```bash
+git clone git@github.com:straffern/.dotfiles.git ~/.dotfiles/
+cd ~/.dotfiles
 
-```sh
-sudo sys rebuild # or `r` as a shorthand
+nix develop
+
+nixos-anywhere --flake '.#hostname' nixos@192.168.1.8 # Replace with your IP
 ```
 
-Testing an ephemeral config:
+</details>
 
-```sh
-sudo sys test # or `t` as a shorthand
+### Building
+
+To build my config for a specific host you can do something like:
+
+```bash
+git clone git@github.com:straffern/.dotfiles.git ~/.dotfiles/
+cd ~/.dotfiles
+
+# To build system configuration
+nh os switch
+
+# To build user configuration
+nh home switch
+
+# Update all flake inputs
+nix flake update
+
+# Garbage collect and optimize store
+nh clean
+
+# Deploy to remote server (Home Lab) using deploy-rs
+sys deploy HOSTNAME # legacy wrapper for deploy-rs
+
+# Build custom ISO
+nix build .#nixosConfigurations.graphical.config.system.build.isoImage
 ```
 
-Deploying to a server (in flake directory):
+## 🚀 Features
 
-```sh
-sudo sys deploy HOSTNAME # or `d` as a shorthand
-```
+Some features of my config:
 
-## Inspiration
-<https://github.com/anotherhadi/nixy/tree/main>
+- **Snowfall Lib**: Structured to allow multiple **NixOS configurations**, including **desktop**, **laptop** and **homelab**
+- **Suites Pattern**: Composable bundles of functionality for easy machine setup
+- **Custom namespace**: All custom options live under the `asgaard` namespace
+- **Stylix**: Consistent theming with **Stylix** (Catppuccin Macchiato)
+- **Persistence**: Opt-in persistence through **Impermanence**
+- **Disk Management**: Declarative partitioning with **Disko**
+- **Secret Management**: Encrypted secrets with **sops-nix** and age
+- **Environments**: Choice of **Hyprland** or **GNOME**
+- **Development**: AI-integrated workflows with custom **OpenCode** shell tools and agents
+- **Homelab**: Managed Kubernetes clusters with **k3s** and remote deployment via **deploy-rs**
+
+## 🖼️ Showcase
+
+### Desktop (Hyprland)
+
+![terminal](./.github/assets/terminal.png)
+*(Coming soon: updated screenshots)*
+
+## Appendix
+
+### Inspired By
+
+- nixicle: https://github.com/hmajid2301/nixicle
+- Snowfall config: https://github.com/jakehamilton/config
+- My original structure: https://github.com/anotherhadi/nixy
+- Neovim UI: https://github.com/NvChad/nvchad
