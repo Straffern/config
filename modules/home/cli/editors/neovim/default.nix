@@ -36,14 +36,10 @@ in {
     };
     stylix.targets.neovim = mkIf stylixEnabled { enable = false; };
 
-    # maybe make it a symlink outside nix store?
-    # In order to work, mkOutOfStoreSymlink needs full absolute path to file on disk:
-    # https://github.com/nix-community/home-manager/issues/676#issuecomment-1595795685
-    # https://github.com/ncfavier/config/blob/954cbf4f569abe13eab456301a00560d82bd0165/modules/nix.nix#L12-L14
     xdg.configFile."nvim/lua" = {
       enable = true;
       recursive = true;
-      source = ./lazyvim;
+      source = config.lib.asgaard.managedSource ./lazyvim;
     };
 
     ${namespace}.system.persistence.directories = [ ".local/share/nvim" ".local/state/nvim" ];

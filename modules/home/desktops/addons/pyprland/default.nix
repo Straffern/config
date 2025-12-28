@@ -8,7 +8,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    xdg.configFile."hypr/pyprland.toml".source = ./pyprland.toml;
+    xdg.configFile."hypr/pyprland.toml".source = config.lib.asgaard.managedSource ./pyprland.toml;
 
     home = { packages = with pkgs; [ pyprland ]; };
   };

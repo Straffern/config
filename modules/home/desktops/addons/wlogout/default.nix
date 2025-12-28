@@ -53,7 +53,7 @@ in {
 
     xdg.configFile."wlogout/icons" = {
       recursive = true;
-      source = ./icons;
+      source = config.lib.asgaard.managedSource ./icons;
     };
   };
 }

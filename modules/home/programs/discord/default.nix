@@ -9,7 +9,7 @@ in {
 
   config = mkIf cfg.enable {
     xdg.configFile."BetterDiscord/data/stable/custom.css" = {
-      source = ./custom.css;
+      source = config.lib.asgaard.managedSource ./custom.css;
     };
     home.packages = with pkgs; [ goofcord ];
 

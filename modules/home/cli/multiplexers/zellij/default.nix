@@ -58,7 +58,7 @@ in {
   config = mkIf cfg.enable {
     home.packages = [ pkgs.tmate sesh ];
 
-    xdg.configFile."zellij/config.kdl".source = ./config.kdl;
+    xdg.configFile."zellij/config.kdl".source = config.lib.asgaard.managedSource ./config.kdl;
     xdg.configFile."zellij/layouts/default.kdl".text = ''
       layout {
           swap_tiled_layout name="vertical" {
