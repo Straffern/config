@@ -98,12 +98,14 @@
     # hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
     lobster = {
       url = "github:justchokingaround/lobster";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     devenv.url = "github:cachix/devenv";
 
     beads.url = "github:steveyegge/beads";
+
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
     jjui.url = "github:idursun/jjui";
 
@@ -133,12 +135,13 @@
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
-        devenv.overlays.default
+        # devenv.overlays.default
         # hyprland.overlays.default
         # waybar.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
+        determinate.nixosModules.default
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
         disko.nixosModules.disko

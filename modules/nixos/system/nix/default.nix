@@ -6,8 +6,6 @@ let
 in {
   options.${namespace}.system.nix = {
     enable = mkEnableOption "Manage of nix configuration.";
-    package =
-      mkOpt types.package pkgs.nixVersions.latest "Which nix package to use.";
   };
 
   config = mkIf cfg.enable {
@@ -23,9 +21,10 @@ in {
         trusted-users = [ "@wheel" "root" ];
         auto-optimise-store = lib.mkDefault true;
         use-xdg-base-directories = true;
-        experimental-features = [ "nix-command" "flakes" ];
+        experimental-features = [ "nix-command" "flakes" "parallel-eval" ];
         warn-dirty = false;
         system-features = [ "kvm" "big-parallel" "nixos-test" ];
+        eval-cores = 0;
       };
       # gc = {
       #   automatic = true;

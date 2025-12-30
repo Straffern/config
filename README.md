@@ -44,7 +44,18 @@ nh os switch
 
 # To build user configuration
 nh home switch
+```
 
+> [!IMPORTANT]
+> **Determinate Nix Migration**: If you are switching to this configuration for the first time on a standard NixOS install, use the following flags to enable the Determinate binary cache and avoid building Nix from source:
+> ```bash
+> sudo nixos-rebuild switch --flake .#HOSTNAME \
+>   --option extra-substituters https://install.determinate.systems \
+>   --option extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
+> ```
+
+### Updating
+```bash
 # Update all flake inputs
 nix flake update
 

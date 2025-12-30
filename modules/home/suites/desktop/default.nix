@@ -73,7 +73,6 @@ in {
       toggle-headphones
 
       mpv
-      mtpfs
       jmtpfs
       brightnessctl
       xdg-utils

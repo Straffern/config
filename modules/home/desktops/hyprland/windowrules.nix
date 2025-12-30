@@ -5,6 +5,8 @@ let
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = {
+      # New windowrule syntax (Hyprland 0.45+)
+      # Format: windowrule = RULE [params], MATCH_CONDITIONS
       windowrule = [
         # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
         "suppressevent maximize, class:.*"
@@ -13,7 +15,7 @@ in {
         "opacity 0.97 0.9, class:.*"
 
         # Fix some dragging issues with XWayland
-        "nofocus,class:^$,title:^$,xwayland:1,floating:1,fullscreen:0,pinned:0"
+        "nofocus, class:^$, title:^$, xwayland:1, floating:1, fullscreen:0, pinned:0"
 
         # Float and center file pickers
         "tag +picker, class:(xdg-desktop-portal-gtk|sublime_text)"
@@ -54,16 +56,12 @@ in {
 
         # Only slight opacity when unfocused
         "opacity 1 0.97, class:^(Chromium|chromium|google-chrome|google-chrome-unstable|brave-browser)$"
-        "opacity 1 1, initialTitle:^(youtube.com_/)$" # Youtube
-      ];
+        "opacity 1 1, initialTitle:^(youtube.com_/)$"
 
-      windowrulev2 = [
         "idleinhibit fullscreen, class:^(firefox)$"
         "idleinhibit fullscreen, class:^(brave)$"
-        # "float, title:^(Picture in picture)$"
-        # "pin, title:^(Picture in picture)$"
       ];
-
     };
+
   };
 }

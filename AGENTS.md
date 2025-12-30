@@ -44,7 +44,12 @@ nh os switch  # Rebuild and apply system configuration (preferred)
 nh os test    # Ephemeral test build
 nh clean      # Garbage collect and optimize store
 sys rebuild   # Legacy rebuild script
+hyprctl configerrors # Check for Hyprland configuration errors (breaking changes)
 ```
+
+## TROUBLESHOOTING
+- **Hyprland Breaking Changes**: When Hyprland updates cause issues, run `hyprctl configerrors` to get a report of invalid keywords or options in your configuration.
+- **Waybar/SwayNC Logs**: Check user journal (`journalctl --user -u waybar`) for D-Bus or rendering errors.
 
 ## NOTES
 - **Impermanence**: Root is ephemeral on some systems; state persistence via `asgaard.system.persistence`.

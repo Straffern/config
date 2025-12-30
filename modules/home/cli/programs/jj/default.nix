@@ -72,7 +72,7 @@ in {
       jujutsu
       watchman
       difftastic
-      inputs.jjui.packages.${pkgs.system}.default
+      inputs.jjui.packages.${pkgs.stdenv.hostPlatform.system}.default
       asgaard.jj-starship
     ];
 
@@ -515,11 +515,12 @@ in {
         };
 
         git = {
-          auto-local-bookmark = true;
           sign-on-push = true;
           private-commits = lib.mkDefault "blacklist()";
           write-change-id-header = true;
         };
+
+        remotes.origin.auto-track-bookmarks = "glob:*";
 
       };
     };
