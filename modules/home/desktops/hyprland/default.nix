@@ -4,7 +4,7 @@ let
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.desktops.hyprland;
 in {
-  imports = lib.snowfall.fs.get-non-default-nix-files ./.;
+  imports = [ ./config.nix ./keybindings.nix ./windowrules.nix ];
 
   options.${namespace}.desktops.hyprland = with types; {
     enable = mkEnableOption "Hyprland window manager";

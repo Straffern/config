@@ -2,7 +2,7 @@
 with lib;
 let cfg = config.${namespace}.desktops.gnome;
 in {
-  imports = lib.snowfall.fs.get-non-default-nix-files ./.;
+  imports = [ ];
 
   options.${namespace}.desktops.gnome = {
     enable = mkEnableOption "enable gnome DE";

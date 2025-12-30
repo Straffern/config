@@ -9,7 +9,7 @@ in {
     enable = mkEnableOption "Stylix";
 
     wallpaper = mkOption {
-      type = types.package;
+      type = with types; either package path;
       default = pkgs.${namespace}.wallpapers.windows-error;
       description = "The wallpaper to use for the system theme";
     };
