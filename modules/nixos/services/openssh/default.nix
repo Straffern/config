@@ -2,9 +2,9 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  cfg = config.${namespace}.services.ssh;
+  cfg = config.${namespace}.services.openssh;
 in {
-  options.${namespace}.services.ssh = { enable = mkEnableOption "SSH"; };
+  options.${namespace}.services.openssh = { enable = mkEnableOption "SSH"; };
 
   config = mkIf cfg.enable {
     services.openssh = {
