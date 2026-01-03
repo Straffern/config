@@ -29,7 +29,6 @@ in {
         ".cargo" # Rust toolchain/cache
 
         # Authentication & credentials
-        ".config/gh" # GitHub CLI auth
         ".config/github-copilot" # Copilot auth
 
         # Applications

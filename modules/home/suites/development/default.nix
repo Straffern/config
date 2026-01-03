@@ -26,6 +26,7 @@ in {
           devenv = enabled;
           eza = enabled;
           fzf = enabled;
+          gh = enabled;
           git = enabled;
           jj = enabled;
           gpg = enabled;
