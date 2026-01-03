@@ -17,10 +17,21 @@ in {
         ecosystem.no_update_news = true;
 
         input = {
-          kb_layout = "us";
+          # Use multiple keyboard layouts and switch between them with Left Alt + Right Alt
+          kb_layout = "us,dk";
+          kb_options = "grp:alts_toggle, # compose:caps";
           touchpad = {
-            disable_while_typing = false;
+            # disable_while_typing = false;
             natural_scroll = true;
+
+            # Use two-finger clicks for right-click instead of lower-right corner
+            clickfinger_behavior = true;
+
+            # Control the speed of your scrolling
+            # scroll_factor = 0.4
+
+            # Left-click-and-drag with three fingers
+            drag_3fg = 1;
           };
 
           sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
