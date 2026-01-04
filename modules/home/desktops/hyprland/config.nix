@@ -31,7 +31,7 @@ in {
             # scroll_factor = 0.4
 
             # Left-click-and-drag with three fingers
-            drag_3fg = 1;
+            # drag_3fg = 1;
           };
 
           sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
@@ -114,7 +114,7 @@ in {
           preserve_split = true;
         };
 
-        gestures.gesture = [ "3, horizontal, workspace" ];
+        gesture = [ "3, horizontal, workspace" ];
 
         binds.movefocus_cycles_fullscreen = true;
 
