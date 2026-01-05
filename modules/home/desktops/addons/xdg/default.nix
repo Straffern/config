@@ -31,19 +31,19 @@ in {
           "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
         };
         defaultApplications = {
-          "application/x-extension-htm" = "brave";
-          "application/x-extension-html" = "brave";
-          "application/x-extension-shtml" = "brave";
-          "application/x-extension-xht" = "brave";
-          "application/x-extension-xhtml" = "brave";
-          "application/xhtml+xml" = "brave";
-          "text/html" = "brave";
-          "x-scheme-handler/about" = "brave";
+          "application/x-extension-htm" = [ "brave-browser.desktop" ];
+          "application/x-extension-html" = [ "brave-browser.desktop" ];
+          "application/x-extension-shtml" = [ "brave-browser.desktop" ];
+          "application/x-extension-xht" = [ "brave-browser.desktop" ];
+          "application/x-extension-xhtml" = [ "brave-browser.desktop" ];
+          "application/xhtml+xml" = [ "brave-browser.desktop" ];
+          "text/html" = [ "brave-browser.desktop" ];
+          "x-scheme-handler/about" = [ "brave-browser.desktop" ];
           "x-scheme-handler/chrome" = [ "chromium-browser.desktop" ];
-          "x-scheme-handler/ftp" = "brave";
-          "x-scheme-handler/http" = "brave";
-          "x-scheme-handler/https" = "brave";
-          "x-scheme-handler/unknown" = "brave";
+          "x-scheme-handler/ftp" = [ "brave-browser.desktop" ];
+          "x-scheme-handler/http" = [ "brave-browser.desktop" ];
+          "x-scheme-handler/https" = [ "brave-browser.desktop" ];
+          "x-scheme-handler/unknown" = [ "brave-browser.desktop" ];
 
           "audio/*" = [ "mpv.desktop" ];
           "video/*" = [ "org.gnome.Totem.desktop" ];
@@ -53,7 +53,7 @@ in {
           "image/png" = [ "org.gnome.loupe.desktop" ];
           "image/jpg" = [ "org.gnome.loupe.desktop" ];
           "application/json" = [ "gnome-text-editor.desktop" ];
-          "application/pdf" = "brave";
+          "application/pdf" = [ "brave-browser.desktop" ];
           "application/x-gnome-saved-search" = [ "org.gnome.Nautilus.desktop" ];
           "x-scheme-handler/discord" = [ "discord.desktop" ];
           "x-scheme-handler/spotify" = [ "spotify.desktop" ];

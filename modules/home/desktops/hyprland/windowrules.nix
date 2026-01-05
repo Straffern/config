@@ -58,7 +58,7 @@ in {
         "opacity 1 1, match:initial_title ^(youtube.com_/)$"
 
         "idle_inhibit fullscreen, match:class ^(firefox)$"
-        "idle_inhibit fullscreen, match:class ^(brave)$"
+        "idle_inhibit fullscreen, match:class ^(brave-browser)$"
       ];
     };
 

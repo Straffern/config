@@ -38,10 +38,10 @@ in {
 
         window_padding_width = 10;
         scrollback_lines = 10000;
-        show_hyperlink_targets = "no";
+        show_hyperlink_targets = "yes";
         enable_audio_bell = true;
-        url_style = "none";
-        underline_hyperlinks = "never";
+        url_style = "curly";
+        underline_hyperlinks = "hover";
         copy_on_select = "clipboard";
         # symbol_map = let
         #   mappings = [
