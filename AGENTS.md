@@ -50,6 +50,7 @@ hyprctl configerrors # Check for Hyprland configuration errors (breaking changes
 ## TROUBLESHOOTING
 - **Hyprland Breaking Changes**: When Hyprland updates cause issues, run `hyprctl configerrors` to get a report of invalid keywords or options in your configuration.
 - **Waybar/SwayNC Logs**: Check user journal (`journalctl --user -u waybar`) for D-Bus or rendering errors.
+  - **Waybar Tray Error**: `Unable to replace properties on 0: Error getting properties for ID` is a benign protocol mismatch usually caused by `blueman-applet` or `nm-applet` omitting root menu properties in D-Bus calls. Safe to ignore.
 
 ## NOTES
 - **Impermanence**: Root is ephemeral on some systems; state persistence via `asgaard.system.persistence`.

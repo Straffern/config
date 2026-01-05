@@ -28,6 +28,7 @@ in {
         avahi = enabled;
         vpn = enabled;
         virtualisation.podman = enabled;
+        ydotool = enabled;
       };
 
       cli.programs = {
@@ -37,8 +38,6 @@ in {
 
     };
 
-    environment.systemPackages = with pkgs; [
-      libnotify
-    ];
+    environment.systemPackages = with pkgs; [ libnotify ];
   };
 }

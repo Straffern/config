@@ -14,6 +14,7 @@ let
     "podman"
     "kvm"
     "libvirtd"
+    "ydotool"
   ];
 
   # Define user submodule

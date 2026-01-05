@@ -15,6 +15,15 @@ in {
       pulse.enable = true;
       wireplumber.enable = true;
       jack.enable = true;
+
+      # Bluetooth codec configuration for high-quality voice
+      wireplumber.extraConfig."11-bluetooth-policy" = {
+        "monitor.bluez.properties" = {
+          "bluez5.enable-msbc" = true;
+          "bluez5.enable-sbc-xq" = true;
+          "bluez5.codecs" = [ "ldac" "aptx_hd" "aptx" "aac" "sbc_xq" "sbc" ];
+        };
+      };
     };
     programs.noisetorch.enable = true;
 

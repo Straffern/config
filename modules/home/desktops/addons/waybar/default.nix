@@ -1,7 +1,17 @@
-{ config, lib, namespace, ... }:
+{ config, lib, pkgs, namespace, ... }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.waybar;
+
+  # Get hyprwhspr tray script path if hyprwhspr is enabled
+  hyprwhsprEnabled = config.${namespace}.programs.hyprwhspr.enable or false;
+  customPyWhisperCpp = pkgs.${namespace}.pywhispercpp.override {
+    gpuSupport = config.${namespace}.programs.hyprwhspr.gpuSupport or "vulkan";
+  };
+  customHyprwhspr =
+    pkgs.${namespace}.hyprwhspr.override { pywhispercpp = customPyWhisperCpp; };
+  trayScript =
+    "${customHyprwhspr}/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh";
 in {
   options.${namespace}.desktops.addons.waybar = {
     enable = mkEnableOption "Waybar";
@@ -16,8 +26,18 @@ in {
         position = "top";
         margin = "0 0 0 0";
         modules-left = [ "hyprland/workspaces" "tray" ];
-        modules-center = [ "custom/notification" "clock" "idle_inhibitor" ];
-        modules-right = [ "power-profiles-daemon" "backlight" "battery" "pulseaudio" "network" ];
+        # NOTE: If you see "Unable to replace properties on 0: Error getting properties for ID" 
+        # in waybar logs, it is a benign protocol mismatch from tray applets (like blueman).
+        # It does not affect functionality.
+        modules-center = (lib.optional hyprwhsprEnabled "custom/hyprwhspr")
+          ++ [ "custom/notification" "clock" "idle_inhibitor" ];
+        modules-right = [
+          "power-profiles-daemon"
+          "backlight"
+          "battery"
+          "pulseaudio"
+          "network"
+        ];
         "hyprland/workspaces" = {
           format = "{icon}";
           sort-by-number = true;
@@ -61,13 +81,13 @@ in {
           format = "{} {icon}";
           "format-icons" = {
             notification = "󱅫";
-            none = "";
-            "dnd-notification" = " ";
+            none = "󰂚";
+            "dnd-notification" = " ";
             "dnd-none" = "󰂛";
-            "inhibited-notification" = " ";
-            "inhibited-none" = "";
-            "dnd-inhibited-notification" = " ";
-            "dnd-inhibited-none" = " ";
+            "inhibited-notification" = " ";
+            "inhibited-none" = "󰂚";
+            "dnd-inhibited-notification" = " ";
+            "dnd-inhibited-none" = " ";
           };
           "return-type" = "json";
           "exec-if" = "which swaync-client";
@@ -75,6 +95,16 @@ in {
           "on-click" = "sleep 0.1 && swaync-client -t -sw";
           "on-click-right" = "sleep 0.1 && swaync-client -d -sw";
           escape = true;
+        };
+        "custom/hyprwhspr" = lib.mkIf hyprwhsprEnabled {
+          tooltip = true;
+          format = "{}";
+          "return-type" = "json";
+          interval = 1;
+          "exec-on-event" = true;
+          exec = "${trayScript} status";
+          "on-click" = "${trayScript} record";
+          "on-click-right" = "${trayScript} restart";
         };
         "idle_inhibitor" = {
           format = "{icon}";
@@ -125,7 +155,9 @@ in {
         };
         "power-profiles-daemon" = {
           format = "{icon}";
-          tooltip-format = "Power profile: {profile}\nDriver: {driver}";
+          tooltip-format = ''
+            Power profile: {profile}
+            Driver: {driver}'';
           tooltip = true;
           format-icons = {
             default = "󰾅";

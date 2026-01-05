@@ -55,7 +55,8 @@ window#waybar {
 #mode,
 #tray,
 #idle_inhibitor,
-#custom-notification {
+#custom-notification,
+#custom-hyprwhspr {
   border-style: solid;
   background-color: @accent_fg_color;
   margin: 8px 0;
@@ -67,6 +68,44 @@ window#waybar {
   padding: 0 20px 0 20px;
   border-radius: 10px 0 0 10px;
   color: @lavender;
+}
+
+/* hyprwhspr speech-to-text indicator - matches upstream styling */
+#custom-hyprwhspr {
+  padding: 0 15px;
+  border-radius: 10px 0 0 10px;
+  margin-left: 10px;
+  font-weight: bold;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  transition: color 150ms ease-in-out, border-color 150ms ease-in-out;
+  color: @lavender;
+}
+
+#custom-hyprwhspr.ready {
+  color: @lavender;
+  border-color: transparent;
+}
+
+#custom-hyprwhspr.recording {
+  color: @red;
+  border-bottom-color: @red;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+#custom-hyprwhspr.stopped {
+  color: @lavender;
+  border-color: transparent;
+}
+
+#custom-hyprwhspr.error {
+  color: #d97706;
+  border-bottom-color: #d97706;
+}
+
+#custom-hyprwhspr:hover {
+  opacity: 0.8;
 }
 
 #clock {
