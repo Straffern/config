@@ -1,1 +1,33 @@
-result/
+# Ignore everything by default
+/*
+
+# Whitelist project structure
+!/.gitignore
+!/.gitattributes
+!/.sops.yaml
+!/flake.nix
+!/flake.lock
+!/treefmt.toml
+!/LICENSE
+!/README.md
+!/AGENTS.md
+!/secrets.yaml
+!/homes/
+!/lib/
+!/modules/
+!/notes/
+!/overlays/
+!/packages/
+!/shells/
+!/systems/
+
+# Global ignores (regardless of location)
+result
+result-*
+.jj/
+.hive/
+.opencode/
+.claude/
+*.swp
+*~
+.DS_Store
