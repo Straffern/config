@@ -1,4 +1,4 @@
-{ lib, namespace, pkgs, inputs, ... }:
+{ config, lib, namespace, pkgs, inputs, ... }:
 let inherit (lib.${namespace}) enabled;
 in {
 
@@ -44,7 +44,7 @@ in {
     # Enable hidraw for NuPhy Air75 V3 keyboard
     hardware.hidraw = {
       enable = true;
-      user = "alex";
+      user = config.${namespace}.user."1".name;
     };
   };
 

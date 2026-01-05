@@ -11,8 +11,8 @@ NixOS dotfiles managed via Snowfall Lib. Custom modularity through "asgaard" nam
 ```
 .
 ├── modules/    # Reusable Home Manager & NixOS modules (suites pattern)
-├── systems/    # Host configurations (grug, palantir, etc.)
-├── homes/      # User-specific configurations (alex@grug, etc.)
+├── systems/    # Host configurations (palantir, etc.)
+├── homes/      # User-specific configurations (alex@palantir, etc.)
 ├── packages/   # Custom Nix packages
 ├── overlays/   # Nixpkgs overlays
 ├── lib/        # Custom helper functions (enabled, mkOpt)
