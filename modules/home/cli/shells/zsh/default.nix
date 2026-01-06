@@ -23,7 +23,6 @@ in {
 
     programs.zsh = {
       enable = true;
-      defaultKeymap = "viins";
       enableCompletion = false;
       autosuggestion = enabled;
       syntaxHighlighting = enabled;
@@ -65,10 +64,22 @@ in {
           else
             compinit
           fi
+
+          # zsh-vi-mode configuration
+          function zvm_config() {
+            ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+            ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+            ZVM_VI_SURROUND_BINDKEY=s-prefix
+          }
         ''
         cfg.initContent
       ];
       plugins = [
+        {
+          name = "zsh-vi-mode";
+          src = pkgs.zsh-vi-mode;
+          file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
+        }
         # {
         #   name = "powerlevel10k";
         #   src = pkgs.zsh-powerlevel10k;
