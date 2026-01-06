@@ -8,6 +8,7 @@ in {
 
   config = mkIf cfg.enable {
     ${namespace} = {
+      cli.shells.zsh = enabled;
       services.openssh = enabled;
       hardware.networking = enabled;
       security.sops = enabled;

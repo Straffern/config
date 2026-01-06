@@ -23,7 +23,15 @@ in {
 
     programs.zsh = {
       enable = true;
-      enableCompletion = false;
+      enableCompletion = true;
+      completionInit = ''
+        autoload -Uz compinit
+        if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+          compinit -C
+        else
+          compinit
+        fi
+      '';
       autosuggestion = enabled;
       syntaxHighlighting = enabled;
 
@@ -56,14 +64,6 @@ in {
           setopt APPEND_HISTORY
           setopt HIST_SAVE_NO_DUPS
           setopt HIST_FIND_NO_DUPS
-
-          # Optimized compinit
-          autoload -Uz compinit
-          if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
-            compinit -C
-          else
-            compinit
-          fi
 
           # zsh-vi-mode configuration
           function zvm_config() {
