@@ -8,6 +8,13 @@ in {
   options.${namespace}.styles.stylix = {
     enable = mkEnableOption "Stylix";
 
+    useCatppuccinNative = mkOption {
+      type = types.bool;
+      default = false;
+      description =
+        "Whether to use native catppuccin modules instead of Stylix auto-theming for supported apps";
+    };
+
     wallpaper = mkOption {
       type = with types; either package path;
       default = pkgs.${namespace}.wallpapers.windows-error;
@@ -37,13 +44,14 @@ in {
     fonts.fontconfig.enable = true;
     home.packages = with pkgs; [ nerd-fonts.symbols-only open-sans ];
 
-    # TODO: Possible to use stylix instead?
+    # Catppuccin integration
+    catppuccin.enable = cfg.useCatppuccinNative;
     catppuccin.flavor = "mocha";
-    catppuccin.zsh-syntax-highlighting.enable = true;
+    catppuccin.zsh-syntax-highlighting.enable = cfg.useCatppuccinNative;
 
     stylix = {
       enable = true;
-      autoEnable = true;
+      autoEnable = !cfg.useCatppuccinNative;
       base16Scheme = lib.mkIf cfg.enableBase16 cfg.base16Scheme;
 
       iconTheme = {
