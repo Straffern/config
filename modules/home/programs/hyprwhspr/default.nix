@@ -17,11 +17,6 @@ in {
       default = "vulkan";
       description = "GPU acceleration backend for local Whisper";
     };
-
-    bluetoothAutoSwitch =
-      mkEnableOption "Auto-switch BT headset to mSBC when recording" // {
-        default = true;
-      };
   };
 
   # Configuration is managed via hyprwhspr CLI:
@@ -32,9 +27,7 @@ in {
 
   config = mkIf cfg.enable {
     # Install packages
-    home.packages = [ customHyprwhspr pkgs.ydotool pkgs.libnotify ]
-      ++ lib.optional cfg.bluetoothAutoSwitch
-      pkgs.${namespace}.hyprwhspr-bt-switcher;
+    home.packages = [ customHyprwhspr pkgs.ydotool pkgs.libnotify ];
 
     # hyprwhspr daemon service
     systemd.user.services.hyprwhspr = {
@@ -43,9 +36,6 @@ in {
         After =
           [ "graphical-session.target" "pipewire.service" "ydotool.service" ];
         PartOf = [ "graphical-session.target" ];
-        # Start bt-switcher together with hyprwhspr
-        Wants =
-          lib.optional cfg.bluetoothAutoSwitch "hyprwhspr-bt-switcher.service";
       };
       Service = {
         ExecStart = "${customHyprwhspr}/bin/hyprwhspr-daemon";
@@ -53,23 +43,6 @@ in {
         RestartSec = 2;
       };
       Install.WantedBy = [ "graphical-session.target" ];
-    };
-
-    # Bluetooth profile switcher service
-    systemd.user.services.hyprwhspr-bt-switcher = mkIf cfg.bluetoothAutoSwitch {
-      Unit = {
-        Description = "Bluetooth profile switcher for hyprwhspr";
-        After = [ "hyprwhspr.service" "pipewire.service" ];
-        # Stop together with hyprwhspr, but Wants in hyprwhspr handles starting
-        PartOf = [ "hyprwhspr.service" ];
-      };
-      Service = {
-        ExecStart = "${
-            pkgs.${namespace}.hyprwhspr-bt-switcher
-          }/bin/hyprwhspr-bt-switcher";
-        Restart = "on-failure";
-      };
-      Install.WantedBy = [ "hyprwhspr.service" ];
     };
   };
 }

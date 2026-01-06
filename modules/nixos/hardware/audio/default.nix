@@ -24,6 +24,29 @@ in {
           "bluez5.codecs" = [ "ldac" "aptx_hd" "aptx" "aac" "sbc_xq" "sbc" ];
         };
       };
+
+      # Global Microphone Priority Hierarchy
+      wireplumber.extraConfig."11-microphone-hierarchy" = {
+        "monitor.alsa.rules" = [
+          # Internal mic - base priority
+          {
+            matches = [{ "node.name" = "~alsa_input.pci.*.analog-stereo"; }];
+            actions = { update-props = { "priority.session" = 1000; }; };
+          }
+          # Webcams - slightly higher than internal
+          {
+            matches = [{ "node.name" = "~alsa_input.usb-.*webcam.*"; }];
+            actions = { update-props = { "priority.session" = 1500; }; };
+          }
+        ];
+        "monitor.bluez.rules" = [
+          # Bluetooth headsets - higher than internal/webcam
+          {
+            matches = [{ "node.name" = "~bluez_input.*"; }];
+            actions = { update-props = { "priority.session" = 2000; }; };
+          }
+        ];
+      };
     };
     programs.noisetorch.enable = true;
 
