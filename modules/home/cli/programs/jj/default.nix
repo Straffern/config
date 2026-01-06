@@ -91,7 +91,7 @@ in {
         ui = {
           default-command = "worklog";
           pager = "delta";
-          # diff-editor = "nvim-hunk";
+          diff-editor = [ "nvim" "-c" "DiffEditor $left $right $output" ];
           diff.formatter = "difftastic";
           merge-editor = "vimdiff";
 
