@@ -524,11 +524,5 @@ in {
 
       };
     };
-
-    ${namespace}.cli.shells.zsh.initContent = ''
-      autoload -U compinit
-      compinit
-      source <(jj util completion zsh)
-    '';
   };
 }

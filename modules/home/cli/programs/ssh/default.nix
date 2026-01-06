@@ -58,8 +58,7 @@ in {
       enable = true;
       keys = [ "id_ed25519" ];
       # agents = [ "gpg" "ssh" ];
-      enableZshIntegration =
-        mkIf config.${namespace}.cli.shells.zsh.enable true;
+      enableZshIntegration = false;
     };
 
     programs.ssh = {
@@ -84,6 +83,20 @@ in {
       '';
     };
 
-    ${namespace}.system.persistence.directories = [ ".ssh" ];
+    ${namespace} = {
+      system.persistence.directories = [ ".ssh" ];
+
+      cli.shells.zsh.initContent =
+        mkIf config.${namespace}.cli.shells.zsh.enable ''
+          # Optimized keychain activation
+          if [[ -f "$HOME/.keychain/$HOST-sh" ]]; then
+            source "$HOME/.keychain/$HOST-sh"
+          fi
+          if ! ssh-add -l >/dev/null 2>&1; then
+            eval "$(keychain --eval --quiet id_ed25519)"
+          fi
+        '';
+    };
+
   };
 }

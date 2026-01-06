@@ -24,7 +24,7 @@ in {
     programs.zsh = {
       enable = true;
       defaultKeymap = "viins";
-      enableCompletion = true;
+      enableCompletion = false;
       autosuggestion = enabled;
       syntaxHighlighting = enabled;
 
@@ -57,6 +57,14 @@ in {
           setopt APPEND_HISTORY
           setopt HIST_SAVE_NO_DUPS
           setopt HIST_FIND_NO_DUPS
+
+          # Optimized compinit
+          autoload -Uz compinit
+          if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+            compinit -C
+          else
+            compinit
+          fi
         ''
         cfg.initContent
       ];
