@@ -25,7 +25,7 @@ in {
 
         shell_integration = "no-cursor";
 
-        cursor_trail = 3;
+        # cursor_trail = 3;
         # font_family = "MonoLisa";
         bold_font = "auto";
         italic_font = "auto";
@@ -33,16 +33,17 @@ in {
 
         font_size = 14;
 
-        bell_path =
-          "/home/${config.home.username}/.local/share/sounds/bell.oga";
+        # bell_path =
+        #   "/home/${config.home.username}/.local/share/sounds/bell.oga";
 
         window_padding_width = 10;
         scrollback_lines = 10000;
         show_hyperlink_targets = "yes";
-        enable_audio_bell = true;
+        # enable_audio_bell = true;
         url_style = "curly";
         underline_hyperlinks = "hover";
         copy_on_select = "clipboard";
+        sync_to_monitor = "no";
         # symbol_map = let
         #   mappings = [
         #     "U+E000-U+E00A"
@@ -62,9 +63,7 @@ in {
         #     "U+F400-U+F532"
         #     "U+F0001-U+F1AF0"
         #   ];
-        #   emoji = [
-        #     "U+2600-U+26FF"
-        #   ];
+        #   emoji = [ "U+2600-U+26FF" ];
         # in [
         #   ((builtins.concatStringsSep "," emoji) + " JoyPixels")
         #   ((builtins.concatStringsSep "," mappings) + " Symbols Nerd Font Mono")
