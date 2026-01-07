@@ -6,7 +6,8 @@ let
 in {
 
   options.${namespace}.styles.stylix = {
-    enable = mkEnableOption "Stylix";
+    enable = mkEnableOption
+      "Stylix (palette can be viewed at ~/.config/stylix/palette.html)";
 
     useCatppuccinNative = mkOption {
       type = types.bool;

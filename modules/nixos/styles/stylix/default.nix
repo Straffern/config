@@ -4,7 +4,8 @@ let
   cfg = config.${namespace}.styles.stylix;
 in {
   options.${namespace}.styles.stylix = {
-    enable = mkEnableOption "Stylix";
+    enable = mkEnableOption
+      "Stylix (palette can be viewed at /etc/stylix/palette.html)";
 
     wallpaper = mkOption {
       type = with types; either package path;

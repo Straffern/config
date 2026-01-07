@@ -76,7 +76,7 @@ Some features of my config:
 - **Snowfall Lib**: Structured to allow multiple **NixOS configurations**, including **desktop**, **laptop** and **homelab**
 - **Suites Pattern**: Composable bundles of functionality for easy machine setup
 - **Custom namespace**: All custom options live under the `asgaard` namespace
-- **Stylix**: Consistent theming with **Stylix** (Catppuccin Macchiato)
+- **Stylix**: Consistent theming with **Stylix** (Catppuccin Macchiato). The generated palette can be viewed at `/etc/stylix/palette.html` (NixOS) or `~/.config/stylix/palette.html` (Home Manager).
 - **Persistence**: Opt-in persistence through **Impermanence**
 - **Disk Management**: Declarative partitioning with **Disko**
 - **Secret Management**: Encrypted secrets with **sops-nix** and age
