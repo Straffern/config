@@ -23,7 +23,7 @@ in {
       settings = {
         shell = "zsh";
 
-        shell_integration = "no-cursor";
+        shell_integration = "disabled";
 
         # cursor_trail = 3;
         # font_family = "MonoLisa";
@@ -37,13 +37,17 @@ in {
         #   "/home/${config.home.username}/.local/share/sounds/bell.oga";
 
         window_padding_width = 10;
-        scrollback_lines = 10000;
+        scrollback_lines = 5000;
         show_hyperlink_targets = "yes";
         # enable_audio_bell = true;
         url_style = "curly";
         underline_hyperlinks = "hover";
         copy_on_select = "clipboard";
-        sync_to_monitor = "no";
+        sync_to_monitor = "yes";
+        input_delay = 0;
+        repaint_delay = 2;
+        enable_audio_bell = "no";
+        visual_bell_duration = "0.0";
         # symbol_map = let
         #   mappings = [
         #     "U+E000-U+E00A"
