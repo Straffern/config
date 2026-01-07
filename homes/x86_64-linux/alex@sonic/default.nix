@@ -1,12 +1,5 @@
 { lib, pkgs, config, osConfig ? { }, format ? "unknown", namespace, ... }:
 let
-  waldl = pkgs.${namespace}.waldl.override {
-    walldir = "~/.dotfiles/packages/wallpapers/wallpapers";
-    sorting = "toplist";
-    quality = "original";
-    atleast = "2560x1440";
-  };
-
   clipy = pkgs.${namespace}.clipy;
 
   # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
@@ -45,6 +38,10 @@ in {
 
     cli.terminals.alacritty.enable = true;
     cli.programs.lobster.enable = true;
+    programs.waldl = {
+      enable = true;
+      walldir = "/home/alex/.dotfiles/packages/wallpapers/wallpapers";
+    };
 
     cli.programs.ai = {
       enable = true;
@@ -88,6 +85,6 @@ in {
 
   programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 
-  home.packages = with pkgs; [ nwg-displays waldl clipy uv ];
+  home.packages = with pkgs; [ nwg-displays clipy uv ];
   home.stateVersion = "23.11";
 }

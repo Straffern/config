@@ -24,6 +24,9 @@ in {
 
         # No transparency on media windows
         "opacity 1 1, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$"
+        "float on, match:class ^(imv)$"
+        "center on, match:class ^(imv)$"
+        "size 1200 800, match:class ^(imv)$"
 
         # Pipewire Volume Control
         "float on, match:class ^(com.saivert.pwvucontrol)$"
