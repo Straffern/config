@@ -14,11 +14,16 @@ in {
       portal = {
         enable = true;
         xdgOpenUsePortal = true;
+        config = {
+          common.default = [ "hyprland" "gtk" ];
+          hyprland = {
+            default = [ "hyprland" "gtk" ];
+            "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+          };
+        };
         extraPortals = with pkgs; [
           xdg-desktop-portal-hyprland
           xdg-desktop-portal-gtk
-          # INFO: this might only work for NixOS
-          xdg-desktop-portal-wlr
         ];
       };
     };

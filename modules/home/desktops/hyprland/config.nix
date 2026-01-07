@@ -129,8 +129,17 @@ in {
         monitor = ", preferred, auto, 1";
         # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
 
+        env = [
+          "XDG_CURRENT_DESKTOP,Hyprland"
+          "XDG_SESSION_TYPE,wayland"
+          "XDG_SESSION_DESKTOP,Hyprland"
+          "QT_QPA_PLATFORM,wayland;xcb"
+        ];
+
         exec-once = [
+          "uwsm finalize"
           # UWSM handles dbus-update-activation-environment and systemd target activation
+          "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
           "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
           # "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
           "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"

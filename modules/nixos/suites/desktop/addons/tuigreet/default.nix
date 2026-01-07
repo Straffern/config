@@ -13,7 +13,7 @@ in {
       settings = rec {
         default_session = {
           command =
-            "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start hyprland-uwsm.desktop'";
+            "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start -eD Hyprland hyprland-uwsm.desktop'";
           user = "greeter";
         };
         initial_session = default_session;
