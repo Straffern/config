@@ -72,7 +72,13 @@ in {
       desktop.enable = true;
       social.enable = true;
     };
-    styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
+    styles.stylix = {
+      wallpaper = pkgs.${namespace}.wallpapers.cat_in_window;
+      # patch = {
+      #   # contrast = 20;
+      #   recolor = false;
+      # };
+    };
     # styles.stylix.wallpaper = pkgs.${namespace}.wallpapers.osaka-jade-bg;
 
   };

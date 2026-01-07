@@ -24,7 +24,6 @@ in {
     suites.development.enable = true;
     styles.stylix = {
       enable = true;
-      enableBase16 = true;
       base16Scheme = "${pkgs.base16-schemes}/share/themes/dracula.yaml";
     };
   };
