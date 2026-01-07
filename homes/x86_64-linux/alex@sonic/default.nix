@@ -57,7 +57,7 @@ in {
       # includeModelInAgents = false;
       shellFunction = {
         enable = true;
-        model = "opencode/big-pickle";
+        model = "opencode/grok-code";
         # systemPrompt = "...";  # Custom system prompt
       };
       # Optional: Configure specific agent providers or temperature overrides
