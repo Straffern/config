@@ -3,18 +3,18 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "hyprwhspr";
-  version = "main"; # or a specific hash/tag
+  version = "2026-01-09";
 
   src = fetchFromGitHub {
     owner = "goodroot";
     repo = "hyprwhspr";
-    rev = "main";
-    hash = "sha256-44WfFllAo0cVAOFGgJNwsgVyTUXz+arw2pumiU43Pf8=";
+    rev = "164fff26a3dfb9ab9ac2ac20bb64817af15fe53b";
+    hash = "sha256-ZvRebZR/c9O62028JqoyyQn1TlAUv1ujjwZboY6C2NI=";
   };
 
   nativeBuildInputs = [ makeWrapper ];
 
-  propagatedBuildInputs = [ pywhispercpp ] ++ (with python3Packages; [
+  propagatedBuildInputs = [ pywhispercpp ydotool ] ++ (with python3Packages; [
     sounddevice
     numpy
     scipy
