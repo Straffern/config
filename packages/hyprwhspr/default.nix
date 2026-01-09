@@ -65,6 +65,14 @@ python3Packages.buildPythonApplication rec {
         # Fix shebang in tray script for NixOS
         substituteInPlace $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
           --replace-fail '#!/bin/bash' '#!${bash}/bin/bash'
+
+        # Patch ydotool service check: upstream uses user-level ydotool.service,
+        # but NixOS runs ydotoold as a system service (ydotoold.service).
+        # Fix the is_ydotoold_running() function to check the correct service.
+        substituteInPlace $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
+          --replace-fail 'systemctl --user is-active --quiet ydotool.service' \
+                         'systemctl is-active --quiet ydotoold.service'
+
         chmod +x $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh
 
     # Wrap tray script to ensure jq and pactl are available
