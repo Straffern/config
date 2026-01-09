@@ -74,6 +74,7 @@ in {
       difftastic
       inputs.jjui.packages.${pkgs.stdenv.hostPlatform.system}.default
       asgaard.jj-starship
+      asgaard.lumen
     ];
 
     programs.jujutsu = {

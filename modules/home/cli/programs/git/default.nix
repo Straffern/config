@@ -29,7 +29,7 @@ in {
 
   config = mkIf cfg.enable {
     home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
-    home.packages = with pkgs; [ lazygit lazyjj jujutsu ];
+    home.packages = with pkgs; [ lazygit lazyjj jujutsu asgaard.lumen ];
 
     home.file.".config/lazygit/config.yml".text = ''
       git:
@@ -102,6 +102,7 @@ in {
       } // rewriteURL;
     };
 
-    ${namespace}.system.persistence.directories = [ ".config/lazygit" ".config/jj" ];
+    ${namespace}.system.persistence.directories =
+      [ ".config/lazygit" ".config/jj" ];
   };
 }
