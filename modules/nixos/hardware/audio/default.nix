@@ -30,7 +30,7 @@ in {
         "monitor.alsa.rules" = [
           # Internal mic - base priority
           {
-            matches = [{ "node.name" = "~alsa_input.pci.*.analog-stereo"; }];
+            matches = [{ "node.name" = "~alsa_input.pci-*.analog-stereo"; }];
             actions = { update-props = { "priority.session" = 1000; }; };
           }
           # Webcams - slightly higher than internal
