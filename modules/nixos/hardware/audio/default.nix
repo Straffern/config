@@ -15,6 +15,18 @@ in {
       pulse.enable = true;
       wireplumber.enable = true;
       jack.enable = true;
+      raopOpenFirewall = true;
+
+      # AirPlay (RAOP) Discovery and Stability
+      extraConfig.pipewire."20-raop-discover" = {
+        "context.modules" = [{
+          name = "libpipewire-module-raop-discover";
+          args = {
+            "raop.latency.ms" = 1500;
+            "raop.encryption.type" = "RSA";
+          };
+        }];
+      };
 
       # Bluetooth codec configuration for high-quality voice
       wireplumber.extraConfig."11-bluetooth-policy" = {
@@ -56,8 +68,28 @@ in {
           }
         ];
       };
+
+      # Perceived volume scaling for AirPlay (RAOP) devices
+      wireplumber.extraConfig."11-raop-volume" = {
+        "monitor.raop.rules" = [{
+          matches = [{ "node.name" = "~raop_sink.*"; }];
+          actions = {
+            update-props = {
+              "channelmix.volume-scale" = "cubic";
+              "node.max-volume" = 1.0;
+            };
+          };
+        }];
+      };
     };
     programs.noisetorch.enable = true;
+
+    networking.firewall = {
+      # Supplement for HomePod discovery and handshake
+      allowedTCPPorts = [ 5000 7000 7100 ];
+      # Ensure mDNS is allowed for discovery
+      allowedUDPPorts = [ 5353 ];
+    };
 
     services.udev.packages = with pkgs; [ headsetcontrol ];
 
