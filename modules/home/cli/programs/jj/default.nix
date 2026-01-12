@@ -75,6 +75,7 @@ in {
       inputs.jjui.packages.${pkgs.stdenv.hostPlatform.system}.default
       asgaard.jj-starship
       asgaard.lumen
+      asgaard.jj-ryu
     ];
 
     programs.jujutsu = {
