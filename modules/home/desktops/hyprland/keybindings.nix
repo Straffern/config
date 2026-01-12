@@ -124,7 +124,7 @@ in {
         "SUPERCONTROL, k, movewindoworgroup, u" # Merge/move with group above
         "SUPERCONTROL, j, movewindoworgroup, d" # Merge/move with group below
 
-        "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle pwvucontrol"
+        "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle volume"
         "SUPER_SHIFT, T, exec, ${pkgs.pyprland}/bin/pypr toggle term"
         "SUPER, M, exec, ${pkgs.blueman}/bin/blueman-manager"
         ",XF86Launch5, exec,${pkgs.hyprlock}/bin/hyprlock"

@@ -1,11 +1,11 @@
 [pyprland]
 plugins = ["scratchpads"]
 
-[scratchpads.pwvucontrol]
+[scratchpads.volume]
 animation = "fromTop"
-command = "pwvucontrol"
-class = "pwvucontrol"
-size = "50% 80%"
+command = "pavucontrol"
+class = "org.pulseaudio.pavucontrol"
+size = "50% 60%"
 
 [scratchpads.term]
 animation = "fromTop"

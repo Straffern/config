@@ -28,10 +28,10 @@ in {
         "center on, match:class ^(imv)$"
         "size 1200 800, match:class ^(imv)$"
 
-        # Pipewire Volume Control
-        "float on, match:class ^(com.saivert.pwvucontrol)$"
-        "center on, match:class ^(com.saivert.pwvucontrol)$"
-        "size 800 600, match:class ^(com.saivert.pwvucontrol)$"
+        # Volume Control
+        "float on, match:class ^(org.pulseaudio.pavucontrol|com.saivert.pwvucontrol)$"
+        "center on, match:class ^(org.pulseaudio.pavucontrol|com.saivert.pwvucontrol)$"
+        "size 50% 60%, match:class ^(org.pulseaudio.pavucontrol|com.saivert.pwvucontrol)$"
 
         # Bluetooth Manager
         "float on, match:class ^(.blueman-manager-wrapped)$"
