@@ -25,24 +25,33 @@ in {
         };
       };
 
-      # Global Microphone Priority Hierarchy
-      wireplumber.extraConfig."11-microphone-hierarchy" = {
+      # Global Audio Device Priority Hierarchy
+      # Higher priority = preferred when multiple devices available
+      wireplumber.extraConfig."11-audio-hierarchy" = {
         "monitor.alsa.rules" = [
-          # Internal mic - base priority
+          # Internal speakers/mic - base priority
+          {
+            matches = [{ "node.name" = "~alsa_output.pci-*.analog-stereo"; }];
+            actions = { update-props = { "priority.session" = 1000; }; };
+          }
           {
             matches = [{ "node.name" = "~alsa_input.pci-*.analog-stereo"; }];
             actions = { update-props = { "priority.session" = 1000; }; };
           }
-          # Webcams - slightly higher than internal
+          # USB webcam mics - slightly higher than internal
           {
-            matches = [{ "node.name" = "~alsa_input.usb-.*webcam.*"; }];
+            matches = [{ "node.name" = "~alsa_input.usb-.*"; }];
             actions = { update-props = { "priority.session" = 1500; }; };
           }
         ];
         "monitor.bluez.rules" = [
-          # Bluetooth headsets - higher than internal/webcam
+          # Bluetooth devices - highest priority (both input and output)
           {
             matches = [{ "node.name" = "~bluez_input.*"; }];
+            actions = { update-props = { "priority.session" = 2000; }; };
+          }
+          {
+            matches = [{ "node.name" = "~bluez_output.*"; }];
             actions = { update-props = { "priority.session" = 2000; }; };
           }
         ];
