@@ -54,6 +54,9 @@ in {
       desktops.addons.xdg = enabled;
     };
 
+    # MPRIS player priority daemon - makes playerctl target last-active player
+    services.playerctld.enable = true;
+
     # Fixes tray icons: https://github.com/nix-community/home-manager/issues/2064#issuecomment-887300055
     systemd.user.targets.tray = {
       Unit = {
