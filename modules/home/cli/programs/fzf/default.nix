@@ -10,7 +10,7 @@ in {
   config = mkIf cfg.enable {
     programs.fzf = {
       enable = true;
-      enableZshIntegration = false;
+      enableZshIntegration = true;
       colors = with config.lib.stylix.colors.withHashtag;
         mkForce {
           "bg" = base00;

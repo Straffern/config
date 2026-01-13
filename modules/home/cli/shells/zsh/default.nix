@@ -44,11 +44,7 @@ in {
         ignoreAllDups = true;
 
       };
-      historySubstringSearch = {
-        enable = true;
-        searchUpKey = "^R";
-        searchDownKey = "^F";
-      };
+      historySubstringSearch = { enable = true; };
 
       shellAliases = {
         ls = "eza --icons --git";
@@ -70,6 +66,17 @@ in {
             ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
             ZVM_SYSTEM_CLIPBOARD_ENABLED=true
             ZVM_VI_SURROUND_BINDKEY=s-prefix
+          }
+
+          function zvm_after_init() {
+            # history-substring-search bindings
+            zvm_bindkey viins '^[[A' history-substring-search-up
+            zvm_bindkey viins '^[[B' history-substring-search-down
+            zvm_bindkey vicmd 'k' history-substring-search-up
+            zvm_bindkey vicmd 'j' history-substring-search-down
+
+            # fzf history search
+            zvm_bindkey viins '^R' fzf-history-widget
           }
         ''
         cfg.initContent
