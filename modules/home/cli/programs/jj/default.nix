@@ -74,7 +74,7 @@ in {
       difftastic
       inputs.jjui.packages.${pkgs.stdenv.hostPlatform.system}.default
       asgaard.jj-starship
-      asgaard.lumen
+      inputs.lumen.packages.${pkgs.system}.default
       asgaard.jj-ryu
     ];
 

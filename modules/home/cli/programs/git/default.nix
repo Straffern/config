@@ -1,4 +1,4 @@
-{ pkgs, config, lib, namespace, ... }:
+{ pkgs, config, lib, namespace, inputs, ... }:
 let
   inherit (lib) mkIf mkEnableOption types mkOption;
   inherit (lib.${namespace}) mkOpt;
@@ -29,7 +29,12 @@ in {
 
   config = mkIf cfg.enable {
     home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
-    home.packages = with pkgs; [ lazygit lazyjj jujutsu asgaard.lumen ];
+    home.packages = with pkgs; [
+      lazygit
+      lazyjj
+      jujutsu
+      inputs.lumen.packages.${pkgs.system}.default
+    ];
 
     home.file.".config/lazygit/config.yml".text = ''
       git:

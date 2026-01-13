@@ -108,6 +108,7 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
     jjui.url = "github:idursun/jjui";
+    lumen.url = "github:jnsahaj/lumen";
 
   };
 
