@@ -1,0 +1,53 @@
+--- a/src/vcs/jj.rs
++++ b/src/vcs/jj.rs
+@@ -34,6 +34,13 @@
+ 
+ use super::backend::{CommitInfo, StackedCommitInfo, VcsBackend, VcsError};
+ 
++/// Finds the nearest workspace root by walking up the directory tree.
++fn find_workspace_dir(path: &Path) -> &Path {
++    path.ancestors()
++        .find(|p| p.join(".jj").is_dir())
++        .unwrap_or(path)
++}
++
+ /// Files to exclude from diff output (same as GIT_DIFF_EXCLUSIONS in git_entity).
+ const DIFF_EXCLUDED_FILES: &[&str] = &[
+     "package-lock.json",
+@@ -117,22 +124,22 @@
+ 
+ impl JjBackend {
+     /// Load a jj workspace and repository from the given path.
+-    pub fn new(workspace_path: &Path) -> Result<Self, VcsError> {
+-        // Create minimal settings
++    /// Walks up the directory tree to find the workspace root if needed.
++    pub fn new(path: &Path) -> Result<Self, VcsError> {
++        let workspace_root = find_workspace_dir(path);
++
+         let config = StackedConfig::with_defaults();
+         let settings = UserSettings::from_config(config)
+             .map_err(|e| VcsError::Other(format!("failed to create settings: {}", e)))?;
+ 
+-        // Load workspace
+         let workspace = Workspace::load(
+             &settings,
+-            workspace_path,
++            workspace_root,
+             &StoreFactories::default(),
+             &default_working_copy_factories(),
+         )
+         .map_err(|e| VcsError::Other(format!("failed to load workspace: {}", e)))?;
+ 
+-        // Load repo at HEAD
+         let repo = workspace
+             .repo_loader()
+             .load_at_head()
+@@ -142,7 +149,7 @@
+             workspace,
+             repo,
+             settings,
+-            workspace_path: workspace_path.to_path_buf(),
++            workspace_path: workspace_root.to_path_buf(),
+         })
+     }
+ 

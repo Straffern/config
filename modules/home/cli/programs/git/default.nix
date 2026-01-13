@@ -29,12 +29,7 @@ in {
 
   config = mkIf cfg.enable {
     home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
-    home.packages = with pkgs; [
-      lazygit
-      lazyjj
-      jujutsu
-      inputs.lumen.packages.${pkgs.system}.default
-    ];
+    home.packages = with pkgs; [ lazygit lazyjj jujutsu lumen ];
 
     home.file.".config/lazygit/config.yml".text = ''
       git:
