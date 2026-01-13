@@ -57,7 +57,7 @@ in {
           source = config.lib.asgaard.managedSource ./agents/AGENTS.md;
         };
         ".config/opencode/skill" = {
-          source = ./agents/skills;
+          source = ./agents/skills/.;
           recursive = true;
         };
         # ".config/opencode/opencode.json" = { source = ./agents/opencode.json; };
