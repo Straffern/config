@@ -65,11 +65,11 @@ Skills are reusable knowledge packages. Load them on-demand for specialized task
 
 ```bash
 skills_list()                              # See available skills
-skills_use(name="swarm-coordination")      # Load a skill
+skills_use(name="learning-ststems")      # Load a skill
 skills_use(name="cli-builder", context="building a new CLI") # With context
 ```
 
-**Bundled Skills:** cli-builder, learning-systems, skill-creator, swarm-coordination, system-design, testing-patterns
+**Bundled Skills:** cli-builder, learning-systems, skill-creator, system-design, testing-patterns
 
 ## CASS - Cross-Agent Session Search
 
@@ -125,60 +125,4 @@ semantic-memory_validate(id="mem_123")
 
 **Pro tip:** Store the WHY, not just the WHAT. Future you needs context.
 
-## Swarm Coordinator Checklist (MANDATORY)
-
-When coordinating a swarm, you MUST monitor workers and review their output.
-
-### Monitor Loop
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                 COORDINATOR MONITOR LOOP                    │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. CHECK INBOX                                             │
-│     swarmmail_inbox()                                       │
-│     swarmmail_read_message(message_id=N)                    │
-│                                                             │
-│  2. CHECK STATUS                                            │
-│     swarm_status(epic_id, project_key)                      │
-│                                                             │
-│  3. REVIEW COMPLETED WORK                                   │
-│     swarm_review(project_key, epic_id, task_id, files)      │
-│     → Generates review prompt with epic context + diff      │
-│                                                             │
-│  4. SEND FEEDBACK                                           │
-│     swarm_review_feedback(                                  │
-│       project_key, task_id, worker_id,                      │
-│       status="approved|needs_changes",                      │
-│       issues="[{file, line, issue, suggestion}]"            │
-│     )                                                       │
-│                                                             │
-│  5. INTERVENE IF NEEDED                                     │
-│     - Blocked >5min → unblock or reassign                   │
-│     - File conflicts → mediate                              │
-│     - Scope creep → approve or reject                       │
-│     - 3 review failures → escalate to human                 │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Review Tools
-
-| Tool | Purpose |
-|------|---------|
-| `swarm_review` | Generate review prompt with epic context, dependencies, and git diff |
-| `swarm_review_feedback` | Send approval/rejection to worker (tracks 3-strike rule) |
-
-### Review Criteria
-
-- Does work fulfill subtask requirements?
-- Does it serve the overall epic goal?
-- Does it enable downstream tasks?
-- Type safety, no obvious bugs?
-
-### 3-Strike Rule
-
-After 3 review rejections, task is marked **blocked**. This signals an architectural problem, not "try harder."
-
-**NEVER skip the review step.** Workers complete faster when they get feedback.
+Only use jj, do not use git!
