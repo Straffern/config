@@ -41,6 +41,7 @@ in {
       xcp
       yq-go
       viddy
+      snitch
 
       kaf
 
