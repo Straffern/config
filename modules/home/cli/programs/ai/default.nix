@@ -43,8 +43,8 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [
-      inputs.beads.packages.${pkgs.stdenv.hostPlatform.system}.default
-      pkgs.${namespace}.bv
+      # inputs.beads.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # pkgs.${namespace}.bv
       pkgs.${namespace}.cass
       pkgs.ollama-vulkan
     ];
