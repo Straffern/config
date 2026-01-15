@@ -46,6 +46,7 @@ in {
       kaf
 
       lazysql
+      asgaard.lazyjournal
 
       jq
       tealdeer
