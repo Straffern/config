@@ -9,7 +9,7 @@ in {
 
     src = lumenSrc;
 
-    patches = [ ./jj-subdir.patch ];
+    # patches = [ ./jj-subdir.patch ]; # Included in Straffern/lumen fork
 
     cargoLock = {
       lockFile = "${lumenSrc}/Cargo.lock";
@@ -28,7 +28,7 @@ in {
 
     meta = {
       description = "AI-powered command line tool for Git";
-      homepage = "https://github.com/jnsahaj/lumen";
+      homepage = "https://github.com/Straffern/lumen";
       mainProgram = "lumen";
     };
   };
