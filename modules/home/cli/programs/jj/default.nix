@@ -68,7 +68,7 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-      lazyjj
+      # lazyjj
       jujutsu
       watchman
       difftastic
@@ -160,8 +160,12 @@ in {
           key = gitCfg.user.signingkey;
         };
         revsets = {
+          # Smart log revset showing your work with full context:
+          # - @: current working copy
+          # - trunk()..@: full path from trunk to your work (with ancestors for context)
+          # - heads(trunk()): all branch heads for orientation
           log =
-            "@ | ancestors(immutable_heads().., 2) | heads(immutable_heads())";
+            "present(@) | ancestors(immutable_heads().., 2) | heads(immutable_heads())";
         };
 
         aliases = let
@@ -180,9 +184,47 @@ in {
           # push the nearest bookmark
           push = [ "git" "push" "-r" "curbranch" ];
 
-          "ui" = mkExecAlias "${pkgs.jj-fzf}/bin/jj-fzf";
+          # "ui" = mkExecAlias "${pkgs.jj-fzf}/bin/jj-fzf";
 
-          "worklog" = [ "log" "-r" "(trunk()..@):: | (trunk()..@)-" ];
+          "worklog" = [ "log" "-r" "worklog()" ];
+
+          # Log my commits after a given date string
+          "after" = mkBashAlias "after" # bash
+            ''
+              source ${jj-helpers-lib}
+
+              main() {
+                if [ $# -lt 1 ]; then
+                  echo "usage: jj after <date pattern>" >&2
+                  return 1
+                fi
+
+                local when="$*"
+                when="''${when//\"/\\\"}"
+                jj log -r "mine() & author_date(after:\"''${when}\")"
+              }
+
+              main "$@"
+            '';
+
+          # Log my commits before a given date string
+          "before" = mkBashAlias "before" # bash
+            ''
+              source ${jj-helpers-lib}
+
+              main() {
+                if [ $# -lt 1 ]; then
+                  echo "usage: jj before <date pattern>" >&2
+                  return 1
+                fi
+
+                local when="$*"
+                when="''${when//\"/\\\"}"
+                jj log -r "mine() & author_date(before:\"''${when}\")"
+              }
+
+              main "$@"
+            '';
 
           # List change IDs of changes in a revset (default '@')
           "change-id" = mkBashAlias "change-id" # bash
@@ -308,11 +350,11 @@ in {
                 flow="$(change_ids 'present(bookmarks(exact:"flow"))')"
 
                 if [ -n "$flow" ]; then
-                  log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'all:parents(bookmarks(exact:"flow")) | ('"$argc_revset"')'
+                  log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) | ('"$argc_revset"')'
                 else
                   local old_children new_children flow_commit
                   old_children="$(revset 'children('"$argc_revset"')')"
-                  log_and_run jj new --no-edit 'all:'"$argc_revset" --message 'xxx:flow'
+                  log_and_run jj new --no-edit '"$argc_revset"' --message 'xxx:flow'
                   new_children="$(revset 'children('"$argc_revset"')')"
                   flow_commit="$(change_id '('"$new_children"') ~ ('"$old_children"')')"
                   log_and_run jj bookmark create flow --revision "$flow_commit"
@@ -346,7 +388,7 @@ in {
                 fi
 
                 # Otherwise, just remove the given parents
-                log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'all:parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')'
+                log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')'
               }
 
               # @cmd Move a change managed by the flow to a different revision
@@ -355,19 +397,19 @@ in {
               # @arg new! The revision to add
               changes::move() {
                 register_rollback_instructions
-                log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'all:parents(bookmarks(exact:"flow")) ~ ('"$argc_old"') | ('"$argc_new"')'
+                log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_old"') | ('"$argc_new"')'
               }
 
               # @cmd Rebase all changes managed by the flow onto a destination
               # @arg destination! Revision of the new base for changes
               rebase() {
                 register_rollback_instructions
-                log_and_run jj rebase --source 'all:roots(('"$argc_destination"')..bookmarks(exact:"flow"))' --destination "$argc_destination"
+                log_and_run jj rebase --source 'roots(('"$argc_destination"')..bookmarks(exact:"flow"))' --destination "$argc_destination"
               }
 
               # @cmd Push all flow-managed branches
               push() {
-                log_and_run jj git push --revisions 'all:trunk()..parents(bookmarks(exact:"flow"))'
+                log_and_run jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'
               }
 
               eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
@@ -391,8 +433,7 @@ in {
           retrunk = [ "rebase" "-d" "trunk()" ];
 
           # Retrunk the current stack of work.
-          reheat =
-            [ "rebase" "-d" "trunk()" "-s" "all:roots(trunk()..stack(@))" ];
+          reheat = [ "rebase" "-d" "trunk()" "-s" "roots(trunk()..stack(@))" ];
 
           # Assumes the existence of a 'megamerge' bookmark and 'trunk()' resolving
           # properly to a single commit. Then 'jj sandwich xyz' to move xyz into the
@@ -406,6 +447,12 @@ in {
           # Eject content from @ into any other change.
           # - jj eject xyz --interactive
           eject = [ "squash" "--from" "@" "--into" ];
+
+          # Log toggle aliases (NEW) - switch between compact and verbose views
+          # Compact: shows only @ and immediate context
+          llc = [ "log" "-r" "@ | @-" ];
+          # Full: shows everything (no revset filter)
+          llf = [ "log" "-r" "all()" ];
 
         };
 
@@ -493,6 +540,50 @@ in {
           # your current path to the root.
           "megamerge()" = "reachable(stack(), merges())";
 
+          # 2.1 Time-based revsets (NEW)
+          "mine_today()" = "mine() & author_date(after:'today 00:00:00')";
+          "recent()" = ''
+            committer_date(after:"1 month ago")
+          '';
+          "stale(days)" =
+            "mine() & ~::trunk() & ~last_modified(after: days ++ ' days ago')";
+
+          # 2.2 Conflict & resolution (NEW)
+          "fixable()" = "conflicts() & mine()";
+          "orphans" = "mutable() ~ ::bookmarks()";
+
+          # 2.3 Push-ready detection (NEW - complements ready())
+          "pushable()" =
+            "mine() & ~empty() & ~description(exact:'') & remote_bookmarks()..";
+          "unpushable()" = "mine() & remote_bookmarks() & ::@";
+
+          # 2.4 File & impact analysis (NEW)
+          "impacts(path)" = "files(path)";
+          "find_todo()" = "diff_contains('TODO')";
+
+          # 2.5 Bookmark & branch utilities (NEW)
+          "closest_bookmark(to)" = "heads(::to & bookmarks())";
+          "branch_start()" = "heads(::@ & trunk())+ & ::@";
+
+          # 3. worklog() aliases - composable components for worklog revset
+          # Trunk head only
+          "worklog_trunk()" = "heads(trunk())";
+          # All mutable commits without descriptions (shows full un-described portion of stacks)
+          "worklog_empty_stack()" =
+            ''mutable() & (description(exact:"") | blacklist())'';
+          # Mutable stack heads that have descriptions
+          "worklog_heads()" =
+            ''heads(mutable() ~ (description(exact:"") | blacklist()))'';
+          # Where stacks meet trunk (connection points)
+          "worklog_connections()" = "parents(roots(mutable())) & ::trunk()";
+          # Recent immutable heads not on trunk
+          "worklog_recent_immutable()" =
+            "latest(heads(immutable_heads()) ~ ::trunk(), 10)";
+
+          # Full worklog revset: trunk + empty stack commits + described heads + connections + recent immutable
+          "worklog()" =
+            "worklog_trunk() | worklog_empty_stack() | worklog_heads() | worklog_connections() | worklog_recent_immutable()";
+
         };
 
         templates = {
@@ -514,6 +605,18 @@ in {
 
         template-aliases = {
           "format_short_signature(signature)" = "signature.email().local()";
+
+          # 2.6 Template enhancements (NEW) - Terminal hyperlinks
+          "hyperlink(url, text)" = ''
+            concat(
+              raw_escape_sequence("\e]8;;" ++ url ++ "\e\\"),
+              text,
+              raw_escape_sequence("\e]8;;\e\\")
+            )
+          '';
+          "github_url(change_id)" = ''
+            "https://github.com/straffern/.dotfiles/pull/" ++ change_id.short()
+          '';
         };
 
         git = {
