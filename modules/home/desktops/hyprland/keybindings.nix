@@ -112,8 +112,8 @@ in {
           SUPER, T, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.address')" opaque toggle''
 
         # Group management
-        "SUPER, G, togglegroup" # Create/leave group
-        "SUPERSHIFT, G, lockgroups, toggle" # Lock groups
+        "SUPER, G, lockgroups, toggle" # Lock groups
+        "SUPERSHIFT, G, togglegroup" # Create/leave group
         "SUPERCONTROL, G, changegroupactive, f" # Cycle to next window in group
         "SUPER, comma, changegroupactive, b" # Previous window in group
         "SUPER, semicolon, changegroupactive, f" # Next window in group
