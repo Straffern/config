@@ -9,14 +9,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur = { url = "github:nix-community/NUR"; };
+    nur = {url = "github:nix-community/NUR";};
 
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-hardware = { url = "github:nixos/nixos-hardware"; };
+    nixos-hardware = {url = "github:nixos/nixos-hardware";};
 
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -109,29 +109,27 @@
 
     jjui.url = "github:idursun/jjui";
     lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
-
   };
 
-  outputs = inputs:
-    let
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
+  outputs = inputs: let
+    lib = inputs.snowfall-lib.mkLib {
+      inherit inputs;
+      src = ./.;
 
-        snowfall = {
-          metadata = "asgaard";
-          namespace = "asgaard";
-          meta = {
-            name = "dotfiles";
-            title = "dotfiles";
-          };
-
+      snowfall = {
+        metadata = "asgaard";
+        namespace = "asgaard";
+        meta = {
+          name = "dotfiles";
+          title = "dotfiles";
         };
       };
-    in lib.mkFlake {
+    };
+  in
+    lib.mkFlake {
       # inherit inputs;
       # src = ./.;
-      channels-config = { allowUnfree = true; };
+      channels-config = {allowUnfree = true;};
 
       overlays = with inputs; [
         nixgl.overlay
@@ -158,11 +156,11 @@
         catppuccin.homeModules.catppuccin
       ];
 
-      deploy = lib.mkDeploy { inherit (inputs) self; };
+      deploy = lib.mkDeploy {inherit (inputs) self;};
 
-      checks = builtins.mapAttrs
-        (system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+      checks =
+        builtins.mapAttrs
+        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
         inputs.deploy-rs.lib;
-
     };
 }

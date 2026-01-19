@@ -1,7 +1,5 @@
-{ inputs, ... }:
-
-final: prev:
-let lumenSrc = inputs.lumen;
+{inputs, ...}: final: _prev: let
+  lumenSrc = inputs.lumen;
 in {
   lumen = final.rustPlatform.buildRustPackage {
     pname = "lumen";
@@ -16,10 +14,11 @@ in {
       allowBuiltinFetchGit = true;
     };
 
-    nativeBuildInputs = with final; [ pkg-config perl ];
+    nativeBuildInputs = with final; [pkg-config perl];
 
     buildInputs = with final;
-      [ openssl ] ++ final.lib.optionals final.stdenv.isDarwin [
+      [openssl]
+      ++ final.lib.optionals final.stdenv.isDarwin [
         final.darwin.apple_sdk.frameworks.Security
         final.darwin.apple_sdk.frameworks.SystemConfiguration
       ];

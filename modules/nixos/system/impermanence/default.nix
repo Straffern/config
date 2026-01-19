@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.system.impermanence;
 
@@ -37,7 +41,7 @@ let
       };
       parentDirectory = mkOption {
         type = types.attrsOf types.str;
-        default = { };
+        default = {};
         description = "Permissions for the parent directory.";
       };
     };
@@ -63,13 +67,13 @@ in {
 
     directories = mkOption {
       type = types.listOf directoryType;
-      default = [ ];
+      default = [];
       description = "Additional system directories to persist.";
     };
 
     files = mkOption {
       type = types.listOf fileType;
-      default = [ ];
+      default = [];
       description = "Additional system files to persist.";
     };
   };
@@ -121,34 +125,42 @@ in {
 
     environment.persistence."/persist" = {
       hideMounts = true;
-      directories = [
-        # Base system directories (always needed)
-        "/srv"
-        "/.cache/nix"
-        "/etc/NetworkManager/system-connections"
-        "/var/cache"
-        "/var/db/sudo"
-      ]
-      # Either persist all of /var/lib or just essential base directories
-      ++ (if cfg.persistEntireVarLib
-          then [ "/var/lib" ]
-          else [ "/var/lib/nixos" "/var/lib/systemd/coredump" ])
-      # Additional directories from other modules
-      ++ cfg.directories;
+      directories =
+        [
+          # Base system directories (always needed)
+          "/srv"
+          "/.cache/nix"
+          "/etc/NetworkManager/system-connections"
+          "/var/cache"
+          "/var/db/sudo"
+        ]
+        # Either persist all of /var/lib or just essential base directories
+        ++ (
+          if cfg.persistEntireVarLib
+          then ["/var/lib"]
+          else [
+            "/var/lib/nixos"
+            "/var/lib/systemd/coredump"
+          ]
+        )
+        # Additional directories from other modules
+        ++ cfg.directories;
 
-      files = [
-        "/etc/machine-id"
-        "/etc/ssh/ssh_host_ed25519_key"
-        "/etc/ssh/ssh_host_ed25519_key.pub"
-        "/etc/ssh/ssh_host_rsa_key"
-        "/etc/ssh/ssh_host_rsa_key.pub"
-      ] ++ cfg.files;
+      files =
+        [
+          "/etc/machine-id"
+          "/etc/ssh/ssh_host_ed25519_key"
+          "/etc/ssh/ssh_host_ed25519_key.pub"
+          "/etc/ssh/ssh_host_rsa_key"
+          "/etc/ssh/ssh_host_rsa_key.pub"
+        ]
+        ++ cfg.files;
     };
 
     systemd.tmpfiles.rules =
-      [ "d! /persist/home 0770 root users - -" ] ++
-      (lib.mapAttrsToList (id: user:
-        "d /persist/home/${user.name} 0700 ${user.name} users - -"
-      ) (lib.filterAttrs (id: user: user.enable) config.${namespace}.user));
+      ["d! /persist/home 0770 root users - -"]
+      ++ (lib.mapAttrsToList
+        (_: user: "d /persist/home/${user.name} 0700 ${user.name} users - -")
+        (lib.filterAttrs (_: user: user.enable) config.${namespace}.user));
   };
 }

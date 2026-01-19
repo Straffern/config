@@ -1,12 +1,19 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.hardware.audio;
 
   # Helper to generate WirePlumber rules
-  mkRule = { name, priority }: {
-    matches = [{ "node.name" = name; }];
-    actions = { "update-props" = { "priority.session" = priority; }; };
+  mkRule = {
+    name,
+    priority,
+  }: {
+    matches = [{"node.name" = name;}];
+    actions = {"update-props" = {"priority.session" = priority;};};
   };
 in {
   options.${namespace}.hardware.audio = {
@@ -25,7 +32,7 @@ in {
           };
         };
       });
-      default = [ ];
+      default = [];
       description = "Custom microphone priority rules";
     };
   };
@@ -33,6 +40,6 @@ in {
   config = mkIf cfg.enable {
     # Microphone Hierarchy Drop-in
     xdg.configFile."wireplumber/wireplumber.conf.d/11-microphone-hierarchy.conf".text =
-      builtins.toJSON { "monitor.alsa.rules" = map mkRule cfg.priorities; };
+      builtins.toJSON {"monitor.alsa.rules" = map mkRule cfg.priorities;};
   };
 }

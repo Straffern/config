@@ -1,24 +1,27 @@
-{ options, config, lib, namespace, ... }:
+{
+  config,
+  lib,
+  namespace,
+  ...
+}:
 with lib;
-with lib.${namespace};
-let cfg = config.${namespace}.hardware.nvidia;
+with lib.${namespace}; let
+  cfg = config.${namespace}.hardware.nvidia;
 in {
   options.${namespace}.hardware.nvidia = with types; {
     enable = mkBoolOpt false "Enable drivers and patches for Nvidia hardware.";
   };
 
   config = mkIf cfg.enable {
-    services.xserver.videoDrivers = [ "nvidia" ];
+    services.xserver.videoDrivers = ["nvidia"];
     hardware.nvidia.modesetting.enable = true;
     hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
 
-    environment.variables = { CUDA_CACHE_PATH = "$XDG_CACHE_HOME/nv"; };
+    environment.variables = {CUDA_CACHE_PATH = "$XDG_CACHE_HOME/nv";};
     environment.shellAliases = {
-      nvidia-settings =
-        "nvidia-settings --config='$XDG_CONFIG_HOME'/nvidia/settings";
+      nvidia-settings = "nvidia-settings --config='$XDG_CONFIG_HOME'/nvidia/settings";
     };
 
-    environment.sessionVariables.WLR_NO_HARDWARE_CURSORS =
-      "1"; # Fix cursor rendering issue on wlr nvidia.
+    environment.sessionVariables.WLR_NO_HARDWARE_CURSORS = "1"; # Fix cursor rendering issue on wlr nvidia.
   };
 }

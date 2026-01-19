@@ -1,7 +1,12 @@
-{ lib, config, pkgs, namespace, ... }:
-let
+{
+  lib,
+  config,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
-  inherit (lib.${namespace}) mkOpt types;
+
   cfg = config.${namespace}.system.nix;
 in {
   options.${namespace}.system.nix = {
@@ -18,12 +23,12 @@ in {
 
     nix = {
       settings = {
-        trusted-users = [ "@wheel" "root" ];
+        trusted-users = ["@wheel" "root"];
         auto-optimise-store = lib.mkDefault true;
         use-xdg-base-directories = true;
-        experimental-features = [ "nix-command" "flakes" "parallel-eval" ];
+        experimental-features = ["nix-command" "flakes" "parallel-eval"];
         warn-dirty = false;
-        system-features = [ "kvm" "big-parallel" "nixos-test" ];
+        system-features = ["kvm" "big-parallel" "nixos-test"];
         eval-cores = 0;
       };
       # gc = {
@@ -51,6 +56,5 @@ in {
     #   keep-outputs = true;
     #   keep-derivations = true;
     # });
-
   };
 }

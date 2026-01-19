@@ -1,6 +1,11 @@
-{ config, lib, pkgs, namespace, ... }:
-let
-  inherit (lib) mkIf mkEnableOption mkOption types mkDefault;
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
+  inherit (lib) mkIf mkEnableOption mkOption types;
   inherit (lib.${namespace}) mkBoolOpt mkOpt;
   cfg = config.${namespace}.system.battery;
 
@@ -17,10 +22,11 @@ in {
   options.${namespace}.system.battery = with types; {
     enable = mkEnableOption "Battery optimizations and utils.";
 
-    battery = mkOpt str "BAT1" "The battery identifier in /sys/class/power_supply/.";
+    battery =
+      mkOpt str "BAT1" "The battery identifier in /sys/class/power_supply/.";
 
     powerManagement = mkOption {
-      type = enum [ "auto" "ppd" "auto-cpufreq" "tlp" ];
+      type = enum ["auto" "ppd" "auto-cpufreq" "tlp"];
       default = "auto";
       description = ''
         Power management daemon to use:
@@ -31,7 +37,7 @@ in {
       '';
     };
 
-    thermald = mkBoolOpt (isIntel) ''
+    thermald = mkBoolOpt isIntel ''
       Enable Intel thermald for thermal management.
       Only useful on Intel CPUs - automatically enabled for Intel, disabled for AMD.
     '';
@@ -62,12 +68,13 @@ in {
   config = mkIf cfg.enable {
     # Better scheduling for CPU cycles - thanks System76!!!
     # Compatible with PPD/TLP/auto-cpufreq, handles process scheduling not power management
-    services.system76-scheduler.settings.cfsProfiles.enable = cfg.enableScheduler;
+    services.system76-scheduler.settings.cfsProfiles.enable =
+      cfg.enableScheduler;
 
     environment.systemPackages = with pkgs; [
       powertop
       acpi
-      power-profiles-daemon  # provides powerprofilesctl
+      power-profiles-daemon # provides powerprofilesctl
     ];
 
     # Automatically switch power profiles based on AC power state
@@ -84,14 +91,18 @@ in {
     # Power management daemon selection
     # PPD for AMD (Framework/AMD recommended), auto-cpufreq as fallback for Intel
     services.power-profiles-daemon.enable =
-      if cfg.powerManagement == "auto" then isAmd || (!isIntel && !isAmd)
+      if cfg.powerManagement == "auto"
+      then isAmd || (!isIntel && !isAmd)
       else cfg.powerManagement == "ppd";
 
     services.auto-cpufreq = {
       enable =
-        if cfg.powerManagement == "auto" then isIntel
+        if cfg.powerManagement == "auto"
+        then isIntel
         else cfg.powerManagement == "auto-cpufreq";
-      settings = mkIf (cfg.powerManagement == "auto-cpufreq" || (cfg.powerManagement == "auto" && isIntel)) {
+      settings = mkIf (cfg.powerManagement
+        == "auto-cpufreq"
+        || (cfg.powerManagement == "auto" && isIntel)) {
         battery = {
           governor = "powersave";
           turbo = "never";
@@ -120,19 +131,20 @@ in {
 
     # Kernel sysctl for power savings
     boot.kernel.sysctl = mkIf cfg.enableKernelTweaks ({
-      # Increase dirty writeback time - reduces NVMe wakeups (default 500 = 5s)
-      "vm.dirty_writeback_centisecs" = 6000;
-    } // lib.optionalAttrs cfg.disableNmiWatchdog {
-      # Disable NMI watchdog - saves ~1W but loses automatic reboot on lockups
-      "kernel.nmi_watchdog" = 0;
-    });
+        # Increase dirty writeback time - reduces NVMe wakeups (default 500 = 5s)
+        "vm.dirty_writeback_centisecs" = 6000;
+      }
+      // lib.optionalAttrs cfg.disableNmiWatchdog {
+        # Disable NMI watchdog - saves ~1W but loses automatic reboot on lockups
+        "kernel.nmi_watchdog" = 0;
+      });
 
     # Low battery notification
     systemd.user.timers.notify-on-low-battery = mkIf cfg.lowBatteryNotification.enable {
       timerConfig.OnBootSec = "2m";
       timerConfig.OnUnitInactiveSec = "2m";
       timerConfig.Unit = "notify-on-low-battery.service";
-      wantedBy = [ "timers.target" ];
+      wantedBy = ["timers.target"];
     };
 
     systemd.user.services.notify-on-low-battery = mkIf cfg.lowBatteryNotification.enable {
@@ -141,7 +153,9 @@ in {
         export battery_capacity=$(${pkgs.coreutils}/bin/cat /sys/class/power_supply/${cfg.battery}/capacity)
         export battery_status=$(${pkgs.coreutils}/bin/cat /sys/class/power_supply/${cfg.battery}/status)
 
-        if [[ $battery_capacity -le ${toString cfg.lowBatteryNotification.threshold} && $battery_status = "Discharging" ]]; then
+        if [[ $battery_capacity -le ${
+          toString cfg.lowBatteryNotification.threshold
+        } && $battery_status = "Discharging" ]]; then
           ${pkgs.libnotify}/bin/notify-send --urgency=critical "$battery_capacity%: See you, space cowboy..."
         fi
       '';

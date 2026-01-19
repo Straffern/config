@@ -1,11 +1,17 @@
-{ options, config, pkgs, lib, namespace, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}:
 with lib;
-with lib.${namespace};
-let cfg = config.${namespace}.system.fonts;
+with lib.${namespace}; let
+  cfg = config.${namespace}.system.fonts;
 in {
   options.${namespace}.system.fonts = with types; {
     enable = mkBoolOpt false "Whether or not to manage fonts.";
-    fonts = mkOpt (listOf package) [ ] "Custom font packages to install.";
+    fonts = mkOpt (listOf package) [] "Custom font packages to install.";
   };
 
   config = mkIf cfg.enable {
@@ -14,7 +20,7 @@ in {
       LOG_ICONS = "true";
     };
 
-    environment.systemPackages = with pkgs; [ font-manager ];
+    environment.systemPackages = with pkgs; [font-manager];
 
     fonts.packages = with pkgs;
       [
@@ -23,6 +29,7 @@ in {
         noto-fonts-cjk-serif
         noto-fonts-color-emoji
         nerd-fonts.jetbrains-mono
-      ] ++ cfg.fonts;
+      ]
+      ++ cfg.fonts;
   };
 }

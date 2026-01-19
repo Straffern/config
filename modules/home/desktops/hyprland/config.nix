@@ -1,6 +1,11 @@
-{ inputs, pkgs, config, lib, namespace, ... }:
-let
-  inherit (lib) mkIf mkEnableOption map;
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
+  inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
 in {
   config = mkIf cfg.enable {
@@ -13,7 +18,6 @@ in {
 
       # plugins = [ inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.hyprfocus ];
       settings = {
-
         ecosystem.no_update_news = true;
 
         input = {
@@ -45,7 +49,6 @@ in {
 
         # https://wiki.hypr.land/Configuring/Variables/#group
         group = {
-
           groupbar = {
             indicator_height = 0;
             indicator_gap = 5;
@@ -84,7 +87,6 @@ in {
             "fade, 0, 1, linear"
             "workspaces, 0, 1, linear"
           ];
-
         };
 
         # decoration = { rounding = 5; };
@@ -114,11 +116,12 @@ in {
           preserve_split = true;
         };
 
-        gesture = [ "3, horizontal, workspace" ];
+        gesture = ["3, horizontal, workspace"];
 
         binds.movefocus_cycles_fullscreen = true;
 
-        misc = let FULLSCREEN_ONLY = 2;
+        misc = let
+          FULLSCREEN_ONLY = 2;
         in {
           vrr = FULLSCREEN_ONLY;
           disable_hyprland_logo = true;
@@ -136,18 +139,20 @@ in {
           "QT_QPA_PLATFORM,wayland;xcb"
         ];
 
-        exec-once = [
-          "uwsm finalize"
-          # UWSM handles dbus-update-activation-environment and systemd target activation
-          "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-          "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-          # "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
-          "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-          "uwsm app -- ${pkgs.pyprland}/bin/pypr"
-          "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
-          "uwsm app -- ${pkgs.solaar}/bin/solaar -w hide"
-          "uwsm app -- ${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
-        ] ++ cfg.execOnceExtras;
+        exec-once =
+          [
+            "uwsm finalize"
+            # UWSM handles dbus-update-activation-environment and systemd target activation
+            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+            "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
+            # "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
+            "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+            "uwsm app -- ${pkgs.pyprland}/bin/pypr"
+            "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
+            "uwsm app -- ${pkgs.solaar}/bin/solaar -w hide"
+            "uwsm app -- ${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
+          ]
+          ++ cfg.execOnceExtras;
       };
     };
   };

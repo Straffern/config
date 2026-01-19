@@ -1,9 +1,12 @@
-{ inputs, pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption types;
-  inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.ai;
-
 in {
   options.${namespace}.cli.programs.ai = {
     enable = mkEnableOption "AI tools (Claude Code and OpenCode)";
@@ -14,8 +17,7 @@ in {
       dotfilesPath = mkOption {
         type = types.str;
         default = "/home/${config.home.username}/.dotfiles";
-        description =
-          "Absolute path to the dotfiles repository for mutable symlinks";
+        description = "Absolute path to the dotfiles repository for mutable symlinks";
       };
     };
 
@@ -34,8 +36,7 @@ in {
 
       systemPrompt = mkOption {
         type = types.str;
-        default =
-          "Generate ONLY the exact shell command needed. No explanations, no markdown, no formatting - just the raw command. DO NOT USE ANY TOOLS.";
+        default = "Generate ONLY the exact shell command needed. No explanations, no markdown, no formatting - just the raw command. DO NOT USE ANY TOOLS.";
         description = "System prompt for command generation";
       };
     };
@@ -50,7 +51,6 @@ in {
     ];
 
     home.file = lib.mkMerge [
-
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
         ".config/opencode/AGENTS.md" = {
@@ -67,21 +67,19 @@ in {
     # AI shell command generator function
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (let
-        ai-shell-function =
-          (pkgs.callPackage ../../../../../packages/ai-shell { }) {
-            model = cfg.shellFunction.model;
-            systemPrompt = cfg.shellFunction.systemPrompt;
-          };
+        ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
+          model = cfg.shellFunction.model;
+          systemPrompt = cfg.shellFunction.systemPrompt;
+        };
       in ''
         # Load ai command generator function
         source ${ai-shell-function}
       '');
 
       system.persistence = {
-        directories = [ ".claude" ".config/opencode" ];
-        files = [ ".claude.json" ];
+        directories = [".claude" ".config/opencode"];
+        files = [".claude.json"];
       };
     };
   };
 }
-

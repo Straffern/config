@@ -1,7 +1,12 @@
-{ config, pkgs, lib, namespace, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
-  inherit (lib.${namespace}) enabled;
+
   cfg = config.${namespace}.security.yubikey;
 in {
   options.${namespace}.security.yubikey = {
@@ -11,8 +16,8 @@ in {
   config = mkIf cfg.enable {
     services = {
       pcscd.enable = true;
-      udev.packages = with pkgs; [ yubikey-personalization ];
-      dbus.packages = [ pkgs.gcr ];
+      udev.packages = with pkgs; [yubikey-personalization];
+      dbus.packages = [pkgs.gcr];
 
       # INFO: lock PC on yubikey removal
       udev.extraRules = ''
@@ -26,13 +31,13 @@ in {
     };
 
     security.pam.services = {
-      swaylock = { u2fAuth = true; };
+      swaylock = {u2fAuth = true;};
 
-      hyprlock = { u2fAuth = true; };
+      hyprlock = {u2fAuth = true;};
 
-      login = { u2fAuth = true; };
+      login = {u2fAuth = true;};
 
-      sudo = { u2fAuth = true; };
+      sudo = {u2fAuth = true;};
     };
   };
 }

@@ -1,6 +1,4 @@
-{ inputs, ... }:
-
-final: prev: {
+{...}: final: prev: {
   # Temporary overlay for jj-fzf until nixpkgs PR #455933 lands in nixos-unstable
   # The 0.33.0 package was missing preflight.sh and lib/ directory
   # Remove this overlay once nixos-unstable has jj-fzf >= 0.34.0
@@ -16,18 +14,13 @@ final: prev: {
     };
 
     strictDeps = true;
-    buildInputs = [ final.bashInteractive ];
-    nativeBuildInputs = [
-      final.bashInteractive
-      final.makeWrapper
-      final.pandoc
-      final.jujutsu
-    ];
+    buildInputs = [final.bashInteractive];
+    nativeBuildInputs = [final.bashInteractive final.makeWrapper final.pandoc final.jujutsu];
 
     dontConfigure = true;
     dontBuild = true;
-    makeFlags = [ "PREFIX=${placeholder "out"}" ];
-    patches = [ ./nix-preflight.patch ];
+    makeFlags = ["PREFIX=${placeholder "out"}"];
+    patches = [./nix-preflight.patch];
 
     postPatch = ''
       substituteInPlace lib/gen-message.py \
@@ -39,24 +32,24 @@ final: prev: {
     postInstall = ''
       wrapProgram $out/bin/jj-fzf \
         --prefix PATH : ${
-          final.lib.makeBinPath [
-            final.bashInteractive
-            final.coreutils
-            final.fzf
-            final.gawk
-            final.gnused
-            final.jujutsu
-            final.python3
-            final.unixtools.column
-          ]
-        }
+        final.lib.makeBinPath [
+          final.bashInteractive
+          final.coreutils
+          final.fzf
+          final.gawk
+          final.gnused
+          final.jujutsu
+          final.python3
+          final.unixtools.column
+        ]
+      }
     '';
 
     meta = with final.lib; {
       description = "Text UI for Jujutsu based on fzf";
       homepage = "https://github.com/tim-janik/jj-fzf";
       license = licenses.mpl20;
-      maintainers = with maintainers; [ bbigras ];
+      maintainers = with maintainers; [bbigras];
       platforms = platforms.all;
     };
   };

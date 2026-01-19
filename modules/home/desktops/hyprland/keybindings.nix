@@ -1,5 +1,10 @@
-{ pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
   laptop_lid_switch = pkgs.writeShellScriptBin "laptop_lid_switch" ''
@@ -53,38 +58,30 @@ let
     hyprctl dispatch moveactive exact $pos_x $pos_y
     hyprctl dispatch resizeactive exact $size_x $size_y
   '';
-
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = let
-
       browser = "uwsm app -- brave --new-window";
       webapp = url: "${browser} --app=${url}";
 
-      rofi_prompt = prompt_label: destination: append:
-        "sh -c 'query=$(${
-          config.${namespace}.desktops.addons.rofi.package
-        }/bin/rofi -dmenu -p \"${prompt_label}\"); [ -n \"$query\" ] && ${destination}$query${append}\"'";
       webapp_prompt = "sh -c 'query=$(${
-          config.${namespace}.desktops.addons.rofi.package
-        }/bin/rofi -dmenu -p \"Open Link as Webapp\"); [ -n \"$query\" ] && ${browser} --app=\"$query\"'";
+        config.${namespace}.desktops.addons.rofi.package
+      }/bin/rofi -dmenu -p \"Open Link as Webapp\"); [ -n \"$query\" ] && ${browser} --app=\"$query\"'";
       hexdocs_prompt = "sh -c 'query=$(${
-          config.${namespace}.desktops.addons.rofi.package
-        }/bin/rofi -dmenu -p \"HexDocs Search\"); if [ -n \"$query\" ]; then read -r library search_query <<< \"$query\"; if [ -z \"$search_query\" ]; then ${
-          webapp ''"https://hexdocs.pm/$library/"''
-        }; else ${
-          webapp ''"https://hexdocs.pm/$library/search.html?q=$search_query"''
-        }; fi; fi'";
+        config.${namespace}.desktops.addons.rofi.package
+      }/bin/rofi -dmenu -p \"HexDocs Search\"); if [ -n \"$query\" ]; then read -r library search_query <<< \"$query\"; if [ -z \"$search_query\" ]; then ${
+        webapp ''"https://hexdocs.pm/$library/"''
+      }; else ${
+        webapp ''"https://hexdocs.pm/$library/search.html?q=$search_query"''
+      }; fi; fi'";
 
-      ai_chat_selector =
-        "sh -c 'selected=$(echo -e \"T3 Chat\\nClaude\\nGrok\" | ${
-          config.${namespace}.desktops.addons.rofi.package
-        }/bin/rofi -dmenu -i -p \"AI Chat\"); case \"$selected\" in \"T3 Chat\") ${
-          webapp ''"https://t3.chat"''
-        } ;; \"Claude\") ${webapp ''"https://claude.ai/new"''} ;; \"Grok\") ${
-          webapp ''"https://grok.com"''
-        } ;; esac'";
-
+      ai_chat_selector = "sh -c 'selected=$(echo -e \"T3 Chat\\nClaude\\nGrok\" | ${
+        config.${namespace}.desktops.addons.rofi.package
+      }/bin/rofi -dmenu -i -p \"AI Chat\"); case \"$selected\" in \"T3 Chat\") ${
+        webapp ''"https://t3.chat"''
+      } ;; \"Claude\") ${webapp ''"https://claude.ai/new"''} ;; \"Grok\") ${
+        webapp ''"https://grok.com"''
+      } ;; esac'";
     in {
       bind = [
         "SUPER, Return, exec, kitty -1"
@@ -218,8 +215,7 @@ in {
         "SUPERALT, k, resizeactive, 0 -20"
         "SUPERALT, j, resizeactive, 0 20"
       ];
-      bindm =
-        [ "SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow" ];
+      bindm = ["SUPER, mouse:272, movewindow" "SUPER, mouse:273, resizewindow"];
     };
   };
 }

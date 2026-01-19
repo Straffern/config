@@ -1,9 +1,13 @@
-{ pkgs, config, lib, namespace, inputs, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.jj;
-  colors = config.lib.stylix.colors; # Access Stylix colors
 
   jj-helpers-lib = pkgs.writers.writeBash "jj-helpers-lib" ''
     shopt -s -o errexit nounset pipefail
@@ -54,15 +58,16 @@ let
       "$@"
     }
   '';
-
 in {
   options.${namespace}.cli.programs.jj = with types; {
     enable = mkEnableOption "jujutsu";
-    userName = mkOpt (nullOr str) "Alexander Flensborg"
+    userName =
+      mkOpt (nullOr str) "Alexander Flensborg"
       "The name appearing on the commits";
     email =
       mkOpt (nullOr str) "alex@flensborg.dev" "The email to use with git.";
-    alias = mkOpt (nullOr str) "straffern"
+    alias =
+      mkOpt (nullOr str) "straffern"
       "An alias for your user. Eg. Account name.";
   };
 
@@ -81,7 +86,6 @@ in {
     programs.jujutsu = {
       enable = true;
       settings = {
-
         fsmonitor.backend = "watchman";
         fsmonitor.watchman.register-snapshot-trigger = true;
 
@@ -93,7 +97,7 @@ in {
         ui = {
           default-command = "worklog";
           pager = "delta";
-          diff-editor = [ "nvim" "-c" "DiffEditor $left $right $output" ];
+          diff-editor = ["nvim" "-c" "DiffEditor $left $right $output"];
           diff.formatter = "difftastic";
           merge-editor = "vimdiff";
 
@@ -102,7 +106,7 @@ in {
 
         merge-tools.difftastic = {
           program = "${pkgs.difftastic}/bin/difft";
-          diff-args = [ "--color=always" "$left" "$right" ];
+          diff-args = ["--color=always" "$left" "$right"];
         };
         merge-tools.vimdiff = {
           merge-args = [
@@ -138,7 +142,7 @@ in {
             italic = true;
             bold = true;
           }; # e.g., #7f00ff for magenta
-          "working_copy commit_id" = { underline = true; };
+          "working_copy commit_id" = {underline = true;};
           "diff removed token" = {
             # bg = "#${colors.base08}";
             # fg = "#${colors.base05}";
@@ -153,10 +157,14 @@ in {
           }; # e.g., #00ff00 for green
         };
 
-        signing = let gitCfg = config.programs.git.settings;
+        signing = let
+          gitCfg = config.programs.git.settings;
         in {
           backend = "ssh";
-          behaviour = if gitCfg.commit.gpgsign then "own" else "never";
+          behaviour =
+            if gitCfg.commit.gpgsign
+            then "own"
+            else "never";
           key = gitCfg.user.signingkey;
         };
         revsets = {
@@ -164,32 +172,33 @@ in {
           # - @: current working copy
           # - trunk()..@: full path from trunk to your work (with ancestors for context)
           # - heads(trunk()): all branch heads for orientation
-          log =
-            "present(@) | ancestors(immutable_heads().., 2) | heads(immutable_heads())";
+          log = "present(@) | ancestors(immutable_heads().., 2) | heads(immutable_heads())";
         };
 
         aliases = let
-          mkExecAlias = program: [ "util" "exec" "--" program ];
+          mkExecAlias = program: ["util" "exec" "--" program];
           mkBashAlias = name: text:
             mkExecAlias
             (lib.getExe (pkgs.writers.writeBashBin "jj-${name}" text));
         in {
           # create named bookmark at HEAD
-          name = [ "bookmark" "create" "-r" "head" ];
+          name = ["bookmark" "create" "-r" "head"];
           # update bookmark <arg> to point to HEAD
-          update = [ "bookmark" "move" "--to" "head" ];
+          update = ["bookmark" "move" "--to" "head"];
           # pull up the nearest bookmarks to the last described commit
-          tug = [ "bookmark" "move" "--from" "curbranch" "--to" "latest" ];
+          tug = ["bookmark" "move" "--from" "curbranch" "--to" "latest"];
 
           # push the nearest bookmark
-          push = [ "git" "push" "-r" "curbranch" ];
+          push = ["git" "push" "-r" "curbranch"];
 
           # "ui" = mkExecAlias "${pkgs.jj-fzf}/bin/jj-fzf";
 
-          "worklog" = [ "log" "-r" "worklog()" ];
+          "worklog" = ["log" "-r" "worklog()"];
 
           # Log my commits after a given date string
-          "after" = mkBashAlias "after" # bash
+          "after" =
+            mkBashAlias "after" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -208,7 +217,9 @@ in {
             '';
 
           # Log my commits before a given date string
-          "before" = mkBashAlias "before" # bash
+          "before" =
+            mkBashAlias "before" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -227,7 +238,9 @@ in {
             '';
 
           # List change IDs of changes in a revset (default '@')
-          "change-id" = mkBashAlias "change-id" # bash
+          "change-id" =
+            mkBashAlias "change-id" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -244,7 +257,9 @@ in {
             '';
 
           # List commit IDs of changes in a revset (default '@')
-          "commit-id" = mkBashAlias "commit-id" # bash
+          "commit-id" =
+            mkBashAlias "commit-id" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -261,7 +276,9 @@ in {
             '';
 
           # List names of bookmarks pointing to changes in a revset (default '@')
-          "bookmark-names" = mkBashAlias "bookmark-names" # bash
+          "bookmark-names" =
+            mkBashAlias "bookmark-names" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -278,7 +295,9 @@ in {
 
           # Run a command at every revision in a revset
           # TODO: replace when `jj run` isn't a stub anymore
-          "run-job" = mkBashAlias "run-job" # bash
+          "run-job" =
+            mkBashAlias "run-job" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -325,7 +344,9 @@ in {
               main "$@"
             '';
 
-          "flow" = mkBashAlias "flow" # bash
+          "flow" =
+            mkBashAlias "flow" # bash
+            
             ''
               source ${jj-helpers-lib}
 
@@ -416,44 +437,43 @@ in {
             '';
 
           # Convenient shorthands.
-          d = [ "diff" ];
-          s = [ "show" ];
-          ll = [ "log" "-T" "builtin_log_detailed" ];
-          nt = [ "new" "trunk()" ];
+          d = ["diff"];
+          s = ["show"];
+          ll = ["log" "-T" "builtin_log_detailed"];
+          nt = ["new" "trunk()"];
 
           # Get all open stacks of work.
-          open = [ "log" "-r" "open()" ];
+          open = ["log" "-r" "open()"];
 
           # Better name, IMO.
-          credit = [ "file" "annotate" ];
+          credit = ["file" "annotate"];
 
           # Retrunk a series. Typically used as `jj retrunk -s ...`, and notably can be
           # used with open:
           # - jj retrunk -s 'all:roots(open())'
-          retrunk = [ "rebase" "-d" "trunk()" ];
+          retrunk = ["rebase" "-d" "trunk()"];
 
           # Retrunk the current stack of work.
-          reheat = [ "rebase" "-d" "trunk()" "-s" "roots(trunk()..stack(@))" ];
+          reheat = ["rebase" "-d" "trunk()" "-s" "roots(trunk()..stack(@))"];
 
           # Assumes the existence of a 'megamerge' bookmark and 'trunk()' resolving
           # properly to a single commit. Then 'jj sandwich xyz' to move xyz into the
           # megamerge in parallel to everything else.
-          sandwich = [ "rebase" "-B" "megamerge()" "-A" "trunk()" "-r" ];
+          sandwich = ["rebase" "-B" "megamerge()" "-A" "trunk()" "-r"];
 
           # Take content from any change, and move it into @.
           # - jj consume xyz path/to/file`
-          consume = [ "squash" "--into" "@" "--from" ];
+          consume = ["squash" "--into" "@" "--from"];
 
           # Eject content from @ into any other change.
           # - jj eject xyz --interactive
-          eject = [ "squash" "--from" "@" "--into" ];
+          eject = ["squash" "--from" "@" "--into"];
 
           # Log toggle aliases (NEW) - switch between compact and verbose views
           # Compact: shows only @ and immediate context
-          llc = [ "log" "-r" "@ | @-" ];
+          llc = ["log" "-r" "@ | @-"];
           # Full: shows everything (no revset filter)
-          llf = [ "log" "-r" "all()" ];
-
+          llf = ["log" "-r" "all()"];
         };
 
         revset-aliases = {
@@ -469,10 +489,8 @@ in {
           "nextbranch" = "roots(@:: & branchesandheads)";
 
           # graph utilities
-          "symdiff(x, y)" =
-            "(x ~ y) | (y ~ x)"; # commits in either x or y, but not both
-          "lr(x, y)" =
-            "fork_point(x | y)..(x | y)"; # lr(x, y) is what 'git log' calls x...y
+          "symdiff(x, y)" = "(x ~ y) | (y ~ x)"; # commits in either x or y, but not both
+          "lr(x, y)" = "fork_point(x | y)..(x | y)"; # lr(x, y) is what 'git log' calls x...y
           "vee(x, y)" = "fork_point(x | y) | (fork_point(x | y)..(x | y))";
 
           # work utilities
@@ -483,16 +501,16 @@ in {
           # commit info
           "user(x)" = "author(x) | committer(x)";
           "mine()" = let
-            names = [ cfg.userName ];
-            emails = [ cfg.email ];
+            names = [cfg.userName];
+            emails = [cfg.email];
             toAuthor = x: "author(exact:${builtins.toJSON x})";
-          in builtins.concatStringsSep " | "
-          (builtins.map toAuthor (emails ++ names));
+          in
+            builtins.concatStringsSep " | "
+            (builtins.map toAuthor (emails ++ names));
 
           # By default, show the repo trunk, the remote bookmarks, and all remote tags. We
           # don't want to change these in most cases, but in some repos it's useful.
-          "immutable_heads()" =
-            "present(trunk()) | remote_bookmarks() | tags()";
+          "immutable_heads()" = "present(trunk()) | remote_bookmarks() | tags()";
           # Useful to ignore this, in many repos. For repos like `jj` these are
           # consistently populated with a bunch of auto-generated commits, so ignoring it
           # is often nice.
@@ -500,14 +518,12 @@ in {
 
           # trunk() by default resolves to the latest 'main'/'master' remote bookmark. May
           # require customization for repos like nixpkgs.
-          "trunk()" =
-            "latest((present(main) | present(master)) & remote_bookmarks())";
+          "trunk()" = "latest((present(main) | present(master)) & remote_bookmarks())";
 
           # Private and WIP commits that should never be pushed anywhere. Often part of
           # work-in-progress merge stacks.
           "wip()" = "description(glob-i:'^wip:*')";
-          "private()" =
-            "description(regex:'^[xX]+:') | description(glob:'private:*')";
+          "private()" = "description(regex:'^[xX]+:') | description(glob:'private:*')";
           "blacklist()" = "wip() | private()";
           # stack(x, n) is the set of mutable commits reachable from 'x', with 'n'
           # parents. 'n' is often useful to customize the display and return set for
@@ -545,16 +561,14 @@ in {
           "recent()" = ''
             committer_date(after:"1 month ago")
           '';
-          "stale(days)" =
-            "mine() & ~::trunk() & ~last_modified(after: days ++ ' days ago')";
+          "stale(days)" = "mine() & ~::trunk() & ~last_modified(after: days ++ ' days ago')";
 
           # 2.2 Conflict & resolution (NEW)
           "fixable()" = "conflicts() & mine()";
           "orphans" = "mutable() ~ ::bookmarks()";
 
           # 2.3 Push-ready detection (NEW - complements ready())
-          "pushable()" =
-            "mine() & ~empty() & ~description(exact:'') & remote_bookmarks()..";
+          "pushable()" = "mine() & ~empty() & ~description(exact:'') & remote_bookmarks()..";
           "unpushable()" = "mine() & remote_bookmarks() & ::@";
 
           # 2.4 File & impact analysis (NEW)
@@ -569,21 +583,16 @@ in {
           # Trunk head only
           "worklog_trunk()" = "heads(trunk())";
           # All mutable commits without descriptions (shows full un-described portion of stacks)
-          "worklog_empty_stack()" =
-            ''mutable() & (description(exact:"") | blacklist())'';
+          "worklog_empty_stack()" = ''mutable() & (description(exact:"") | blacklist())'';
           # Mutable stack heads that have descriptions
-          "worklog_heads()" =
-            ''heads(mutable() ~ (description(exact:"") | blacklist()))'';
+          "worklog_heads()" = ''heads(mutable() ~ (description(exact:"") | blacklist()))'';
           # Where stacks meet trunk (connection points)
           "worklog_connections()" = "parents(roots(mutable())) & ::trunk()";
           # Recent immutable heads not on trunk
-          "worklog_recent_immutable()" =
-            "latest(heads(immutable_heads()) ~ ::trunk(), 10)";
+          "worklog_recent_immutable()" = "latest(heads(immutable_heads()) ~ ::trunk(), 10)";
 
           # Full worklog revset: trunk + empty stack commits + described heads + connections + recent immutable
-          "worklog()" =
-            "worklog_trunk() | worklog_empty_stack() | worklog_heads() | worklog_connections() | worklog_recent_immutable()";
-
+          "worklog()" = "worklog_trunk() | worklog_empty_stack() | worklog_heads() | worklog_connections() | worklog_recent_immutable()";
         };
 
         templates = {
@@ -626,7 +635,6 @@ in {
         };
 
         remotes.origin.auto-track-bookmarks = "glob:*";
-
       };
     };
   };
