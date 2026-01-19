@@ -1,4 +1,4 @@
-{...}: _final: prev: {
+_: _final: prev: {
   efitools = prev.efitools.overrideAttrs (old: {
     # Fix for GCC 15 / C23 where 'bool' is a keyword.
     # efitools tries to typedef it, which causes a conflict.

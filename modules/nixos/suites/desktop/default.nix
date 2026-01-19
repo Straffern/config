@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.desktop;
@@ -10,7 +15,7 @@ in {
 
   config = mkIf cfg.enable {
     # System-level configurations
-    boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+    boot.binfmt.emulatedSystems = ["aarch64-linux"];
 
     # Namespace-specific configurations
     ${namespace} = {
@@ -20,7 +25,7 @@ in {
       };
       suites = {
         common = enabled;
-        desktop.addons = { nautilus = enabled; };
+        desktop.addons = {nautilus = enabled;};
       };
       system.boot.plymouth = true;
 
@@ -35,9 +40,8 @@ in {
         nh = enabled;
         nix-ld = enabled;
       };
-
     };
 
-    environment.systemPackages = with pkgs; [ libnotify ];
+    environment.systemPackages = with pkgs; [libnotify];
   };
 }

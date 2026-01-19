@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.suites.desktop.addons.nautilus;
 in {
@@ -13,10 +18,8 @@ in {
 
     environment = {
       sessionVariables = {
-        NAUTILUS_EXTENSION_DIR =
-          "${config.system.path}/lib/nautilus/extensions-4";
-        NAUTILUS_4_EXTENSION_DIR =
-          "${config.system.path}/lib/nautilus/extensions-4";
+        NAUTILUS_EXTENSION_DIR = "${config.system.path}/lib/nautilus/extensions-4";
+        NAUTILUS_4_EXTENSION_DIR = "${config.system.path}/lib/nautilus/extensions-4";
         GST_PLUGIN_SYSTEM_PATH_1_0 =
           lib.makeSearchPathOutput "lib" "lib/gstreamer-1.0"
           (with pkgs.gst_all_1; [
@@ -27,7 +30,7 @@ in {
           ]);
       };
 
-      pathsToLink = [ "/share/nautilus-python/extensions" ];
+      pathsToLink = ["/share/nautilus-python/extensions"];
 
       systemPackages = with pkgs; [
         ffmpegthumbnailer # thumbnails
@@ -39,7 +42,7 @@ in {
 
     snowfallorg.users.${config.${namespace}.user."1".name}.home.config = {
       dconf.settings = {
-        "org/gnome/desktop/privacy" = { remember-recent-files = false; };
+        "org/gnome/desktop/privacy" = {remember-recent-files = false;};
         "com/github/stunkymonkey/nautilus-open-any-terminal" = {
           terminal = "kitty";
         };

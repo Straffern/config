@@ -5,7 +5,7 @@
   namespace,
   ...
 }: let
-  clipy = pkgs.${namespace}.clipy;
+  inherit (pkgs.${namespace}) clipy;
 
   # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
   trayscaleWithGracefulShutdown = ''
@@ -37,34 +37,24 @@ in {
       };
     };
 
-    cli.terminals.alacritty.enable = true;
-    cli.programs.lobster.enable = true;
+    cli = {
+      terminals.alacritty.enable = true;
+      programs = {
+        lobster.enable = true;
+        ai = {
+          enable = true;
+          opencode = {enable = true;};
+          shellFunction = {
+            enable = true;
+            model = "opencode/grok-code";
+            # systemPrompt = "...";  # Custom system prompt
+          };
+        };
+      };
+    };
     programs.waldl = {
       enable = true;
       walldir = "/home/alex/.dotfiles/packages/wallpapers/wallpapers";
-    };
-
-    cli.programs.ai = {
-      enable = true;
-      # claude.enable = true;
-      opencode = {
-        enable = true;
-        # convertAgents = true;
-        # convertCommands = true;
-      };
-      # includeModelInAgents = false;
-      shellFunction = {
-        enable = true;
-        model = "opencode/grok-code";
-        # systemPrompt = "...";  # Custom system prompt
-      };
-      # Optional: Configure specific agent providers or temperature overrides
-      # agentProviders = {
-      #   "elixir-expert" = "cerebras/qwen3-coder";
-      # };
-      # temperatureOverrides = {
-      #   "creative-agent" = 0.7;
-      # };
     };
     suites = {
       desktop.enable = true;

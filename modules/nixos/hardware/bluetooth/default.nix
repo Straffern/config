@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.hardware.bluetoothctl;
 in {
@@ -13,11 +17,11 @@ in {
       bluetooth = {
         enable = true;
         powerOnBoot = false;
-        settings = { General = { Experimental = true; }; };
+        settings = {General = {Experimental = true;};};
       };
     };
 
     # Persist paired device keys and configurations
-    ${namespace}.system.impermanence.directories = [ "/var/lib/bluetooth" ];
+    ${namespace}.system.impermanence.directories = ["/var/lib/bluetooth"];
   };
 }

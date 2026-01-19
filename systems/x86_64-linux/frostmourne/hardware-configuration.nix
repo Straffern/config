@@ -8,34 +8,37 @@
 }: {
   imports = [(modulesPath + "/profiles/qemu-guest.nix")];
 
-  boot.initrd.availableKernelModules = ["ata_piix" "virtio_pci" "virtio_scsi" "sd_mod"];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-intel"];
-  boot.extraModulePackages = [];
+  boot = {
+    initrd = {
+      availableKernelModules = ["ata_piix" "virtio_pci" "virtio_scsi" "sd_mod"];
+      kernelModules = [];
+    };
+    kernelModules = ["kvm-intel"];
+    extraModulePackages = [];
+    kernel.sysctl = {
+      # Disable IP forwarding
+      "net.ipv4.conf.all.forwarding" = 1;
 
-  boot.kernel.sysctl = {
-    # Disable IP forwarding
-    "net.ipv4.conf.all.forwarding" = 1;
+      # Enable reverse path filtering
+      "net.ipv4.conf.default.rp_filter" = 1;
+      "net.ipv4.conf.all.rp_filter" = 1;
 
-    # Enable reverse path filtering
-    "net.ipv4.conf.default.rp_filter" = 1;
-    "net.ipv4.conf.all.rp_filter" = 1;
+      # Enable SYN cookies
+      "net.ipv4.tcp_syncookies" = 1;
 
-    # Enable SYN cookies
-    "net.ipv4.tcp_syncookies" = 1;
-
-    # # Restricts access to kernel logs
-    # "kernel.dmesg_restrict" = 1;
-    #
-    # # Controls exposure of kernel pointer addresses
-    # "kernel.kptr_restrict" = 2;
-    #
-    # # Controls process tracing capabilities
-    # "kernel.yama.ptrace_scope" = 1;
-    #
-    # # Enable logging of suspicious network packets
-    # "net.ipv4.conf.all.log_martians" = 1;
-    # "net.ipv4.conf.default.log_martians" = 1;
+      # # Restricts access to kernel logs
+      # "kernel.dmesg_restrict" = 1;
+      #
+      # # Controls exposure of kernel pointer addresses
+      # "kernel.kptr_restrict" = 2;
+      #
+      # # Controls process tracing capabilities
+      # "kernel.yama.ptrace_scope" = 1;
+      #
+      # # Enable logging of suspicious network packets
+      # "net.ipv4.conf.all.log_martians" = 1;
+      # "net.ipv4.conf.default.log_martians" = 1;
+    };
   };
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking

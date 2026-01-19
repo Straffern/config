@@ -1,10 +1,13 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
 
   cfg = config.${namespace}.services.k3s;
-
 in {
   options.${namespace}.services.k3s = {
     enable = mkEnableOption "k3s";
@@ -12,11 +15,12 @@ in {
     serverAddr = mkOpt (types.nullOr types.str) null "the addr of the server";
   };
   config = mkIf cfg.enable {
-
-    assertions = [{
-      assertion = cfg.role != "agent" || cfg.serverAddr != null;
-      message = "serverAddr must be set when role is 'agent'";
-    }];
+    assertions = [
+      {
+        assertion = cfg.role != "agent" || cfg.serverAddr != null;
+        message = "serverAddr must be set when role is 'agent'";
+      }
+    ];
     sops.secrets.k3s_token = {
       sopsFile = ../../suites/kubernetes/secrets.yaml;
     };
@@ -40,5 +44,4 @@ in {
       "/var/lib/cni"
     ];
   };
-
 }

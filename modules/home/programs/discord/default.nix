@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.programs.discord;
 in {
@@ -11,8 +16,8 @@ in {
     xdg.configFile."BetterDiscord/data/stable/custom.css" = {
       source = ./custom.css;
     };
-    home.packages = with pkgs; [ goofcord ];
+    home.packages = with pkgs; [goofcord];
 
-    ${namespace}.system.persistence.directories = [ ".config/goofcord" ];
+    ${namespace}.system.persistence.directories = [".config/goofcord"];
   };
 }

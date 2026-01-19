@@ -1,5 +1,8 @@
-{ lib, rustPlatform, fetchFromGitHub }:
-
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+}:
 rustPlatform.buildRustPackage {
   pname = "jj-starship";
   version = "0.2.1";
@@ -12,10 +15,10 @@ rustPlatform.buildRustPackage {
   };
 
   cargoHash = "sha256-dGutKgOG0gPDYcTODrBUmmJBl2k437E5/lz+9cFzgs4=";
-  
+
   # JJ-only: exclude git2 dependency
-  buildFeatures = [ ]; # Empty features (JJ-only, no git)
-  
+  buildFeatures = []; # Empty features (JJ-only, no git)
+
   # Disable tests for faster builds
   doCheck = false;
 
@@ -23,7 +26,7 @@ rustPlatform.buildRustPackage {
     description = "Unified Starship prompt module for Jujutsu (JJ) repositories - JJ only";
     homepage = "https://github.com/dmmulroy/jj-starship";
     license = licenses.mit;
-    maintainers = [ ];
+    maintainers = [];
     platforms = platforms.all;
   };
 }

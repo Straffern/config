@@ -1,9 +1,13 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.browsers.brave;
 in {
-  options.${namespace}.browsers.brave = { enable = mkEnableOption "Brave"; };
+  options.${namespace}.browsers.brave = {enable = mkEnableOption "Brave";};
 
   config = mkIf cfg.enable {
     home.sessionVariables.KDE_USE_SESSION_KEYRING = "0";
@@ -22,6 +26,6 @@ in {
       ];
     };
 
-    ${namespace}.system.persistence.directories = [ ".brave" ".cache/brave" ];
+    ${namespace}.system.persistence.directories = [".brave" ".cache/brave"];
   };
 }

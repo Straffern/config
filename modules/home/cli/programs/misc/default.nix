@@ -1,5 +1,10 @@
-{ config, pkgs, lib, namespace, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf;
   inherit (lib.${namespace}) mkBoolOpt;
   cfg = config.${namespace}.cli.programs.misc;

@@ -1,9 +1,13 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.htop;
 in {
-  options.${namespace}.cli.programs.htop = { enable = mkEnableOption "htop"; };
+  options.${namespace}.cli.programs.htop = {enable = mkEnableOption "htop";};
 
   config = mkIf cfg.enable {
     programs.htop = {

@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   cfg = config.${namespace}.suites.desktop.addons.hyprland;
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;

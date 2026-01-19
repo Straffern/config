@@ -1,19 +1,22 @@
-{ lib, pkgs, config, namespace, ... }:
-let
-
+{
+  lib,
+  pkgs,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkOption mkEnableOption types;
   cfg = config.${namespace}.styles.stylix;
 in {
-
   options.${namespace}.styles.stylix = {
-    enable = mkEnableOption
+    enable =
+      mkEnableOption
       "Stylix (palette can be viewed at ~/.config/stylix/palette.html)";
 
     useCatppuccinNative = mkOption {
       type = types.bool;
       default = false;
-      description =
-        "Whether to use native catppuccin modules instead of Stylix auto-theming for supported apps";
+      description = "Whether to use native catppuccin modules instead of Stylix auto-theming for supported apps";
     };
 
     wallpaper = mkOption {
@@ -25,12 +28,11 @@ in {
     base16Scheme = mkOption {
       type = types.nullOr types.path;
       default = null;
-      description =
-        "The base16 color scheme to use. If null, a scheme will be generated from the wallpaper.";
+      description = "The base16 color scheme to use. If null, a scheme will be generated from the wallpaper.";
     };
 
     polarity = mkOption {
-      type = types.enum [ "light" "dark" ];
+      type = types.enum ["light" "dark"];
       default = "dark";
       description = "Whether to use a light or dark color scheme";
     };
@@ -65,13 +67,12 @@ in {
       }
       {
         assertion = cfg.patch.recolor -> cfg.base16Scheme != null;
-        message =
-          "stylix.patch.recolor requires a manual stylix.base16Scheme to avoid infinite recursion";
+        message = "stylix.patch.recolor requires a manual stylix.base16Scheme to avoid infinite recursion";
       }
     ];
 
     fonts.fontconfig.enable = true;
-    home.packages = with pkgs; [ nerd-fonts.symbols-only open-sans ];
+    home.packages = with pkgs; [nerd-fonts.symbols-only open-sans];
 
     # Catppuccin integration
     catppuccin.enable = cfg.useCatppuccinNative;
@@ -95,7 +96,7 @@ in {
       targets = {
         librewolf = {
           firefoxGnomeTheme.enable = true;
-          profileNames = [ "Default" ];
+          profileNames = ["Default"];
         };
       };
 
@@ -105,44 +106,51 @@ in {
         # a scheme from the image we are currently processing.
         canRecolor = cfg.patch.recolor && cfg.base16Scheme != null;
 
-        isModified = cfg.patch.brightness != 0 || cfg.patch.contrast != 0
+        isModified =
+          cfg.patch.brightness
+          != 0
+          || cfg.patch.contrast != 0
           || canRecolor;
 
-        colors = if canRecolor then config.lib.stylix.colors else { };
-        palette = lib.concatStringsSep " " (map (k: "#${colors.${k}}")
-          (lib.sort lib.lessThan (lib.attrNames colors)));
+        colors =
+          if canRecolor
+          then config.lib.stylix.colors
+          else {};
+        palette =
+          lib.concatStringsSep " " (map (k: "#${colors.${k}}")
+            (lib.sort lib.lessThan (lib.attrNames colors)));
+      in
+        if isModified
+        then
+          pkgs.runCommand "modified-wallpaper.png" {
+            nativeBuildInputs = with pkgs; [imagemagick lutgen];
+          } ''
+            set -euo pipefail
+            cp "${cfg.wallpaper}" ./temp_image
+            chmod +w ./temp_image
 
-      in if isModified then
-        pkgs.runCommand "modified-wallpaper.png" {
-          nativeBuildInputs = with pkgs; [ imagemagick lutgen ];
-        } ''
-          set -euo pipefail
-          cp "${cfg.wallpaper}" ./temp_image
-          chmod +w ./temp_image
+            ${lib.optionalString (canRecolor && colors != {}) ''
+              ${
+                lib.getExe pkgs.lutgen
+              } apply ./temp_image -p ${palette} -o ./temp_image
+            ''}
 
-          ${lib.optionalString (canRecolor && colors != { }) ''
-            ${
-              lib.getExe pkgs.lutgen
-            } apply ./temp_image -p ${palette} -o ./temp_image
-          ''}
+            ${lib.optionalString
+              (cfg.patch.brightness != 0 || cfg.patch.contrast != 0) ''
+                ${
+                  lib.getExe' pkgs.imagemagick "magick"
+                } ./temp_image -brightness-contrast ${
+                  toString cfg.patch.brightness
+                },${toString cfg.patch.contrast} ./temp_image
+              ''}
 
-          ${lib.optionalString
-          (cfg.patch.brightness != 0 || cfg.patch.contrast != 0) ''
-            ${
-              lib.getExe' pkgs.imagemagick "magick"
-            } ./temp_image -brightness-contrast ${
-              toString cfg.patch.brightness
-            },${toString cfg.patch.contrast} ./temp_image
-          ''}
-
-          cp ./temp_image $out
-        ''
-      else
-        cfg.wallpaper;
+            cp ./temp_image $out
+          ''
+        else cfg.wallpaper;
 
       polarity = cfg.polarity;
 
-      opacity = { terminal = 0.9; };
+      opacity = {terminal = 0.9;};
 
       cursor = {
         name = "Bibata-Modern-Classic";

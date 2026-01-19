@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{lib, ...}: {
   disko.devices = {
     disk.disk1 = {
       device = lib.mkDefault "/dev/sda";
@@ -20,7 +20,7 @@
               format = "vfat";
               mountpoint = "/boot";
               # Add explicit FAT32 formatting
-              extraArgs = [ "-F" "32" ];
+              extraArgs = ["-F" "32"];
             };
           };
           root = {
@@ -44,8 +44,7 @@
               type = "filesystem";
               format = "ext4";
               mountpoint = "/";
-              mountOptions =
-                [ "defaults" "errors=remount-ro" ]; # Added safety option
+              mountOptions = ["defaults" "errors=remount-ro"]; # Added safety option
             };
           };
         };

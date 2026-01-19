@@ -1,5 +1,10 @@
-{ pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.kanshi;
 in {
@@ -8,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [ kanshi ];
+    home.packages = with pkgs; [kanshi];
 
     services.kanshi = {
       enable = true;
@@ -17,16 +22,18 @@ in {
       settings = [
         {
           profile.name = "undocked";
-          profile.exec = [ "sleep 0.5 && systemctl --user restart waybar" ];
-          profile.outputs = [{
-            criteria = "eDP-1";
-            status = "enable";
-            position = "0,0";
-          }];
+          profile.exec = ["sleep 0.5 && systemctl --user restart waybar"];
+          profile.outputs = [
+            {
+              criteria = "eDP-1";
+              status = "enable";
+              position = "0,0";
+            }
+          ];
         }
         {
           profile.name = "home_office_laptop_docked";
-          profile.exec = [ "sleep 0.5 && systemctl --user restart waybar" ];
+          profile.exec = ["sleep 0.5 && systemctl --user restart waybar"];
           profile.outputs = [
             {
               criteria = "Samsung Electric Company U32R59x H4ZN200523";

@@ -3,7 +3,7 @@
   namespace,
   ...
 }: let
-  clipy = pkgs.${namespace}.clipy;
+  inherit (pkgs.${namespace}) clipy;
 in {
   programs.zsh.sessionVariables = {
     PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";

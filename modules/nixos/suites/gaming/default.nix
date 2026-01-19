@@ -1,14 +1,19 @@
-{ config, lib, pkgs, namespace, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}:
 with lib;
-with lib.${namespace};
-let cfg = config.${namespace}.suites.gaming;
+with lib.${namespace}; let
+  cfg = config.${namespace}.suites.gaming;
 in {
   options.${namespace}.suites.gaming = with types; {
     enable = mkBoolOpt false "Enable the gaming suite";
   };
 
   config = mkIf cfg.enable {
-
     hardware = {
       # xpadneo.enable = true;
       # xone.enable = true;
@@ -35,15 +40,15 @@ in {
       steam = {
         enable = true;
         package =
-          pkgs.steam.override { extraPkgs = p: with p; [ mangohud gamemode ]; };
+          pkgs.steam.override {extraPkgs = p: with p; [mangohud gamemode];};
         dedicatedServer.openFirewall = true;
         remotePlay.openFirewall = true;
         gamescopeSession.enable = true;
-        extraCompatPackages = with pkgs; [ proton-ge-bin ];
+        extraCompatPackages = with pkgs; [proton-ge-bin];
       };
     };
 
-    services.xserver.videoDrivers = [ "amdgpu" ];
+    services.xserver.videoDrivers = ["amdgpu"];
     environment.variables = {
       RUSTICL_ENABLE = "radeonsi";
       ROC_ENABLE_PRE_VEGA = "1";

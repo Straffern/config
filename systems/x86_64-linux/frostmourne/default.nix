@@ -1,8 +1,12 @@
-{ lib, namespace, pkgs, ... }:
-let inherit (lib.${namespace}) enabled;
+{
+  lib,
+  namespace,
+  pkgs,
+  ...
+}: let
+  inherit (lib.${namespace}) enabled;
 in {
-
-  imports = [ ./disko.nix ./hardware-configuration.nix ];
+  imports = [./disko.nix ./hardware-configuration.nix];
 
   ${namespace} = {
     system.boot.bios = enabled;
@@ -15,7 +19,7 @@ in {
       authorizedKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJhTYisdHd7YcoN8MbBduHSnJthNpEvFum2rmLuS4LwV alex@flensborg.dev"
       ];
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
     };
     user."2" = {
       name = "niko";
@@ -25,10 +29,9 @@ in {
     };
   };
 
-  environment.systemPackages = [ pkgs.home-manager ];
+  environment.systemPackages = [pkgs.home-manager];
 
   # ======================== DO NOT CHANGE THIS ========================
   system.stateVersion = "23.11";
   # ======================== DO NOT CHANGE THIS ========================
-
 }

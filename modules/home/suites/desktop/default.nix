@@ -1,6 +1,11 @@
-{ pkgs, config, lib, namespace, ... }:
-with lib;
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}:
+with lib; let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.desktop;
   elgato-fix = pkgs.writeScriptBin "elgato-fix" ''
@@ -61,7 +66,7 @@ in {
     systemd.user.targets.tray = {
       Unit = {
         Description = "Home Manager System Tray";
-        Requires = [ "graphical-session-pre.target" ];
+        Requires = ["graphical-session-pre.target"];
       };
     };
 

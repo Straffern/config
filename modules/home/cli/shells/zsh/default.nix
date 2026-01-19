@@ -1,5 +1,10 @@
-{ lib, pkgs, config, namespace, ... }:
-let
+{
+  lib,
+  pkgs,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf mkOption types;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.cli.shells.zsh;
@@ -40,11 +45,10 @@ in {
         save = 5000;
         path = historyFile;
         share = true;
-        ignorePatterns = [ "ls" "ll" "cat" ];
+        ignorePatterns = ["ls" "ll" "cat"];
         ignoreAllDups = true;
-
       };
-      historySubstringSearch = { enable = true; };
+      historySubstringSearch = {enable = true;};
 
       shellAliases = {
         ls = "eza --icons --git";
@@ -113,9 +117,8 @@ in {
           };
         }
       ];
-
     };
 
-    ${namespace}.system.persistence.directories = [ ".local/share/zsh" ];
+    ${namespace}.system.persistence.directories = [".local/share/zsh"];
   };
 }

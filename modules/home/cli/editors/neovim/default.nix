@@ -1,5 +1,10 @@
-{ lib, pkgs, config, namespace, ... }:
-let
+{
+  lib,
+  pkgs,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.editors.neovim;
   stylixEnabled = config.${namespace}.styles.stylix.enable;
@@ -34,7 +39,7 @@ in {
       vimAlias = true;
       vimdiffAlias = true;
     };
-    stylix.targets.neovim = mkIf stylixEnabled { enable = false; };
+    stylix.targets.neovim = mkIf stylixEnabled {enable = false;};
 
     xdg.configFile."nvim/lua" = {
       enable = true;
@@ -42,6 +47,6 @@ in {
       source = config.lib.asgaard.managedSource ./lazyvim;
     };
 
-    ${namespace}.system.persistence.directories = [ ".local/share/nvim" ".local/state/nvim" ];
+    ${namespace}.system.persistence.directories = [".local/share/nvim" ".local/state/nvim"];
   };
 }

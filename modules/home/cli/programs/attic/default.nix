@@ -1,5 +1,10 @@
-{ pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.attic;
 in {
@@ -8,9 +13,9 @@ in {
   };
 
   config = mkIf cfg.enable {
-    sops.secrets.netrc = { sopsFile = ../../../secrets.yaml; };
+    sops.secrets.netrc = {sopsFile = ../../../secrets.yaml;};
 
-    home.packages = with pkgs; [ attic-client ];
+    home.packages = with pkgs; [attic-client];
 
     nix.settings = {
       trusted-substituters = [

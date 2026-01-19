@@ -1,5 +1,10 @@
-{ lib, config, inputs, namespace, ... }:
-let
+{
+  lib,
+  config,
+  inputs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.nix-index;
 in {
@@ -7,7 +12,7 @@ in {
     enable = mkEnableOption "Nix index";
   };
 
-  imports = with inputs; [ nix-index-database.homeModules.nix-index ];
+  imports = with inputs; [nix-index-database.homeModules.nix-index];
 
   config = mkIf cfg.enable {
     programs.nix-index = {

@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.terminals.foot;
 in {
@@ -18,7 +22,7 @@ in {
           selection-target = "clipboard";
         };
 
-        scrollback = { lines = 10000; };
+        scrollback = {lines = 10000;};
       };
     };
   };

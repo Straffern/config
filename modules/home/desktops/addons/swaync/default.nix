@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.swaync;
 in {
@@ -10,7 +14,7 @@ in {
   config = mkIf cfg.enable {
     services.swaync = {
       enable = true;
-      settings = { };
+      settings = {};
       style = builtins.readFile ./swaync.css;
     };
   };

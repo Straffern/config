@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.services.tailscale;
 in {
@@ -20,6 +24,6 @@ in {
     systemd.services.tailscaled.serviceConfig.LogLevelMax = "notice";
 
     # Persist node keys and authentication state
-    ${namespace}.system.impermanence.directories = [ "/var/lib/tailscale" ];
+    ${namespace}.system.impermanence.directories = ["/var/lib/tailscale"];
   };
 }

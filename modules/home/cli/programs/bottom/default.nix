@@ -1,11 +1,16 @@
-{ config, lib, namespace, ... }:
+{
+  config,
+  lib,
+  namespace,
+  ...
+}:
 with lib;
-with lib.${namespace};
-let cfg = config.${namespace}.cli.programs.bottom;
+with lib.${namespace}; let
+  cfg = config.${namespace}.cli.programs.bottom;
 in {
   options.${namespace}.cli.programs.bottom = with types; {
     enable = mkBoolOpt false "Whether or not to enable bottom";
   };
 
-  config = mkIf cfg.enable { programs.bottom = { enable = true; }; };
+  config = mkIf cfg.enable {programs.bottom = {enable = true;};};
 }

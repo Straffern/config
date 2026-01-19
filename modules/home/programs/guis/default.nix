@@ -1,6 +1,12 @@
-{ config, pkgs, lib, namespace, ... }:
-with lib;
-let cfg = config.${namespace}.programs.guis;
+{
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}:
+with lib; let
+  cfg = config.${namespace}.programs.guis;
 in {
   options.${namespace}.programs.guis = {
     enable = mkEnableOption "Gnome adwaita GUI applications";

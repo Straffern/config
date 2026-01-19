@@ -1,5 +1,10 @@
-{ lib, config, namespace, pkgs, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.development;
@@ -9,8 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-
-    home.packages = with pkgs; [ btop python3 ];
+    home.packages = with pkgs; [btop python3];
     ${namespace} = {
       cli = {
         editors.neovim = enabled;

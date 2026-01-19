@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.common;
@@ -19,6 +23,5 @@ in {
       };
       styles.stylix = enabled;
     };
-
   };
 }

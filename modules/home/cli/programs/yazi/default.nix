@@ -1,9 +1,14 @@
-{ pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.yazi;
 in {
-  options.${namespace}.cli.programs.yazi = { enable = mkEnableOption "Yazi"; };
+  options.${namespace}.cli.programs.yazi = {enable = mkEnableOption "Yazi";};
 
   config = mkIf cfg.enable {
     programs.yazi = {

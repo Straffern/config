@@ -1,6 +1,10 @@
 # Tofi is a dmeny-like application launcher
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.tofi;
   background = "#${config.lib.stylix.colors.base00}70";

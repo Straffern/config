@@ -1,5 +1,10 @@
-{ config, namespace, lib, pkgs, ... }:
-let
+{
+  config,
+  namespace,
+  lib,
+  pkgs,
+  ...
+}: let
   cfg = config.${namespace}.suites.desktop.addons.tuigreet;
   inherit (lib) mkIf mkEnableOption;
 in {
@@ -12,15 +17,14 @@ in {
       enable = true;
       settings = rec {
         default_session = {
-          command =
-            "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start -eD Hyprland hyprland-uwsm.desktop'";
+          command = "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start -eD Hyprland hyprland-uwsm.desktop'";
           user = "greeter";
         };
         initial_session = default_session;
       };
     };
 
-    environment.systemPackages = with pkgs; [ tuigreet ];
+    environment.systemPackages = with pkgs; [tuigreet];
 
     # this is a life saver.
     # literally no documentation about this anywhere.
@@ -44,6 +48,5 @@ in {
     systemd.user.extraConfig = ''
       DefaultTimeoutStopSec=10s
     '';
-
   };
 }

@@ -1,5 +1,11 @@
-{ inputs, config, pkgs, lib, namespace, ... }:
-let
+{
+  inputs,
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.roles.video;
@@ -9,8 +15,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    xdg.configFile."obs-studio/themes".source =
-      "${inputs.catppuccin-obs}/themes";
+    xdg.configFile."obs-studio/themes".source = "${inputs.catppuccin-obs}/themes";
 
     programs.obs-studio = enabled;
 

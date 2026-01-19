@@ -1,5 +1,10 @@
-{ lib, pkgs, config, namespace, ... }:
-let
+{
+  lib,
+  pkgs,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.services.virtualisation.kvm;
 in {
@@ -22,7 +27,7 @@ in {
 
       libvirtd = {
         enable = true;
-        allowedBridges = [ "nm-bridge" "virbr0" ];
+        allowedBridges = ["nm-bridge" "virbr0"];
         onBoot = "ignore";
         onShutdown = "shutdown";
         qemu = {
@@ -32,6 +37,6 @@ in {
     };
 
     # Persist VM definitions, storage pools, networks, and secrets
-    ${namespace}.system.impermanence.directories = [ "/var/lib/libvirt" ];
+    ${namespace}.system.impermanence.directories = ["/var/lib/libvirt"];
   };
 }

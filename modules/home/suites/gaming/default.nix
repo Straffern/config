@@ -1,5 +1,10 @@
-{ config, pkgs, lib, namespace, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.suites.gaming;
 in {
@@ -11,11 +16,11 @@ in {
     programs.mangohud = {
       enable = true;
       enableSessionWide = true;
-      settings = { cpu_load_change = true; };
+      settings = {cpu_load_change = true;};
     };
 
-    home.packages = with pkgs; [ lutris bottles ];
+    home.packages = with pkgs; [lutris bottles];
 
-    ${namespace}.system.persistence.directories = [ ".steam" ".local/share/Steam" ];
+    ${namespace}.system.persistence.directories = [".steam" ".local/share/Steam"];
   };
 }

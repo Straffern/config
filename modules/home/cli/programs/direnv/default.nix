@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   inherit (lib.${namespace}) enabled;
 
@@ -23,6 +27,6 @@ in {
       log_filter = "^$"
     '';
 
-    ${namespace}.system.persistence.directories = [ ".local/share/direnv" ];
+    ${namespace}.system.persistence.directories = [".local/share/direnv"];
   };
 }

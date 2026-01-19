@@ -1,4 +1,8 @@
-{ writeShellScriptBin, fzf, ... }:
+{
+  writeShellScriptBin,
+  fzf,
+  ...
+}:
 writeShellScriptBin "clipy" ''
   #!/usr/bin/env bash
 

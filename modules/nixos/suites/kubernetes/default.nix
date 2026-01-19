@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption types mkIf;
   inherit (lib.${namespace}) mkOpt;
 
@@ -7,21 +11,25 @@ let
 in {
   options.${namespace}.suites.kubernetes = {
     enable = mkEnableOption "Enable kubernetes configuration";
-    role = mkOpt (types.nullOr types.str) "server"
+    role =
+      mkOpt (types.nullOr types.str) "server"
       "Whether this node is a server or agent";
-    serverAddr = mkOpt (types.nullOr types.str) null
+    serverAddr =
+      mkOpt (types.nullOr types.str) null
       "Address of the server node (required when role is 'agent')";
   };
 
   config = mkIf cfg.enable {
     # Validate that serverAddr is set when role is agent
-    assertions = [{
-      assertion = cfg.role != "agent" || cfg.serverAddr != null;
-      message = "serverAddr must be set when role is 'agent'";
-    }];
+    assertions = [
+      {
+        assertion = cfg.role != "agent" || cfg.serverAddr != null;
+        message = "serverAddr must be set when role is 'agent'";
+      }
+    ];
 
     ${namespace} = {
-      suites = { server.enable = true; };
+      suites = {server.enable = true;};
       services.k3s = {
         enable = true;
         role = cfg.role;
@@ -30,9 +38,9 @@ in {
     };
 
     networking.firewall = {
-      allowedUDPPorts = [ 53 8472 ];
+      allowedUDPPorts = [53 8472];
 
-      allowedTCPPorts = [ 22 53 6443 6444 9000 445 139 ];
+      allowedTCPPorts = [22 53 6443 6444 9000 445 139];
     };
   };
 }

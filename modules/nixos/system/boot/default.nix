@@ -1,5 +1,10 @@
-{ lib, config, pkgs, namespace, ... }:
-let
+{
+  lib,
+  config,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) mkBoolOpt;
 
@@ -13,8 +18,8 @@ in {
 
   config = mkIf cfg.enable {
     environment.systemPackages = with pkgs;
-      [ efibootmgr efitools efivar fwupd ]
-      ++ lib.optionals cfg.secureBoot [ sbctl ];
+      [efibootmgr efitools efivar fwupd]
+      ++ lib.optionals cfg.secureBoot [sbctl];
 
     boot = {
       # TODO: if plymouth on
@@ -34,7 +39,7 @@ in {
       };
 
       loader = {
-        efi = { canTouchEfiVariables = true; };
+        efi = {canTouchEfiVariables = true;};
 
         systemd-boot = {
           enable = !cfg.secureBoot;
@@ -47,7 +52,7 @@ in {
         timeout = 1;
       };
 
-      plymouth = { enable = cfg.plymouth; };
+      plymouth = {enable = cfg.plymouth;};
     };
 
     # services.fwupd.enable = true;

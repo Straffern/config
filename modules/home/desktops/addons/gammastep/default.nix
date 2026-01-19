@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.gammastep;
 in {
@@ -15,7 +19,7 @@ in {
         day = 6000;
         night = 4600;
       };
-      settings = { general.adjustment-method = "wayland"; };
+      settings = {general.adjustment-method = "wayland";};
     };
   };
 }

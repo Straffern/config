@@ -1,5 +1,8 @@
-{ lib, buildGoModule, fetchFromGitHub }:
-
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 buildGoModule rec {
   pname = "lazyjournal";
   version = "0.8.3";
@@ -13,13 +16,12 @@ buildGoModule rec {
 
   vendorHash = "sha256-Wl8DmEBt1YtTk9QEvWybSWRQm0Lnfd5q3C/wg+gP33g=";
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = ["-s" "-w"];
 
   doCheck = false;
 
   meta = with lib; {
-    description =
-      "TUI for journalctl, file system logs, Docker and Podman containers";
+    description = "TUI for journalctl, file system logs, Docker and Podman containers";
     homepage = "https://github.com/Lifailon/lazyjournal";
     license = licenses.mit;
     mainProgram = "lazyjournal";

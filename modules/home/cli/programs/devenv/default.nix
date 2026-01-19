@@ -1,5 +1,10 @@
-{ lib, pkgs, config, namespace, ... }:
-let
+{
+  lib,
+  pkgs,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.programs.devenv;
 in {
@@ -8,8 +13,8 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.devenv ];
+    home.packages = [pkgs.devenv];
 
-    ${namespace}.system.persistence.directories = [ ".config/devenv" ".local/share/devenv" ];
+    ${namespace}.system.persistence.directories = [".config/devenv" ".local/share/devenv"];
   };
 }

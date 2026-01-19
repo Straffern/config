@@ -1,5 +1,11 @@
-{ inputs, pkgs, config, lib, namespace, ... }:
-let
+{
+  inputs,
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.lobster;
 in {
@@ -8,8 +14,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages =
-      [ inputs.lobster.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.ueberzugpp ];
+    home.packages = [inputs.lobster.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.ueberzugpp];
 
     # use_ueberzugpp=true
     xdg.configFile."lobster/lobster_config.sh" = {

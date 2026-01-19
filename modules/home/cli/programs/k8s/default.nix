@@ -1,5 +1,10 @@
-{ pkgs, config, lib, namespace, ... }:
-let
+{
+  pkgs,
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.k8s;
 in {
@@ -8,7 +13,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    programs = { k9s = { enable = true; }; };
+    programs = {k9s = {enable = true;};};
 
     home.packages = with pkgs; [
       kubectl

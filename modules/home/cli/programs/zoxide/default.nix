@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.zoxide;
 in {
@@ -13,6 +17,6 @@ in {
       enableZshIntegration = true;
     };
 
-    ${namespace}.system.persistence.directories = [ ".local/share/zoxide" ];
+    ${namespace}.system.persistence.directories = [".local/share/zoxide"];
   };
 }

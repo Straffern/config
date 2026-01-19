@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkOption mkEnableOption types mkIf;
   cfg = config.${namespace}.mutable;
 in {

@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   # inherit (lib.${namespace})
   cfg = config.${namespace}.system.locale;
@@ -23,7 +27,7 @@ in {
         LC_TIME = "en_US.UTF-8";
       };
     };
-    # consider: 
+    # consider:
     # services.automatic-timezoned.enable = true;
 
     time.timeZone = "Europe/Copenhagen";

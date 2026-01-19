@@ -1,14 +1,19 @@
-{ config, lib, namespace, pkgs, ... }:
-let inherit (lib.${namespace}) enabled;
+{
+  config,
+  lib,
+  namespace,
+  pkgs,
+  ...
+}: let
+  inherit (lib.${namespace}) enabled;
 in {
-
-  imports = [ ./disko.nix ./hardware-configuration.nix ];
+  imports = [./disko.nix ./hardware-configuration.nix];
 
   ${namespace} = {
     system.boot.bios = enabled;
     system.boot.enable = lib.mkForce false;
 
-    suites = { server.enable = true; };
+    suites = {server.enable = true;};
     # suites.kubernetes = enabled;
 
     cli.programs.nix-ld = enabled;
@@ -18,7 +23,7 @@ in {
       authorizedKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJhTYisdHd7YcoN8MbBduHSnJthNpEvFum2rmLuS4LwV alex@flensborg.dev"
       ];
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
       shell = pkgs.zsh;
     };
   };
@@ -35,17 +40,18 @@ in {
     owner = config.${namespace}.user."1".name;
     group = "users";
     mode = "644";
-    path = "/home/" + config.${namespace}.user."1".name
+    path =
+      "/home/"
+      + config.${namespace}.user."1".name
       + "/.ssh/id_ed25519.pub";
     sopsFile = ../../../secrets.yaml;
   };
 
-  environment.systemPackages = [ pkgs.home-manager ];
+  environment.systemPackages = [pkgs.home-manager];
 
   programs.zsh.enable = true;
 
   # ======================== DO NOT CHANGE THIS ========================
   system.stateVersion = "23.11";
   # ======================== DO NOT CHANGE THIS ========================
-
 }

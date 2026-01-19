@@ -1,6 +1,14 @@
-{ lib, python3Packages, fetchFromGitHub, makeWrapper, ydotool, bash, jq
-, pulseaudio, pywhispercpp ? null }:
-
+{
+  lib,
+  python3Packages,
+  fetchFromGitHub,
+  makeWrapper,
+  ydotool,
+  bash,
+  jq,
+  pulseaudio,
+  pywhispercpp ? null,
+}:
 python3Packages.buildPythonApplication rec {
   pname = "hyprwhspr";
   version = "2026-01-09";
@@ -12,23 +20,25 @@ python3Packages.buildPythonApplication rec {
     hash = "sha256-ZvRebZR/c9O62028JqoyyQn1TlAUv1ujjwZboY6C2NI=";
   };
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [makeWrapper];
 
-  propagatedBuildInputs = [ pywhispercpp ydotool ] ++ (with python3Packages; [
-    sounddevice
-    numpy
-    scipy
-    evdev
-    pyperclip
-    requests
-    websocket-client
-    psutil
-    pyudev
-    pulsectl
-    dbus-python
-    rich
-    pygobject3
-  ]);
+  propagatedBuildInputs =
+    [pywhispercpp ydotool]
+    ++ (with python3Packages; [
+      sounddevice
+      numpy
+      scipy
+      evdev
+      pyperclip
+      requests
+      websocket-client
+      psutil
+      pyudev
+      pulsectl
+      dbus-python
+      rich
+      pygobject3
+    ]);
 
   # We need to install the library files and the bin script
   # hyprwhspr doesn't have a standard setup.py
@@ -48,8 +58,8 @@ python3Packages.buildPythonApplication rec {
         makeWrapper ${python3Packages.python}/bin/python $out/bin/hyprwhspr \
           --prefix PYTHONPATH : "$PYTHONPATH:$out/lib/hyprwhspr/lib" \
           --prefix PYTHONPATH : "${
-            python3Packages.makePythonPath propagatedBuildInputs
-          }" \
+      python3Packages.makePythonPath propagatedBuildInputs
+    }" \
           --set HYPRWHSPR_ROOT "$out/lib/hyprwhspr" \
           --add-flags "$out/lib/hyprwhspr/lib/cli.py"
 
@@ -57,8 +67,8 @@ python3Packages.buildPythonApplication rec {
         makeWrapper ${python3Packages.python}/bin/python $out/bin/hyprwhspr-daemon \
           --prefix PYTHONPATH : "$PYTHONPATH:$out/lib/hyprwhspr/lib" \
           --prefix PYTHONPATH : "${
-            python3Packages.makePythonPath propagatedBuildInputs
-          }" \
+      python3Packages.makePythonPath propagatedBuildInputs
+    }" \
           --set HYPRWHSPR_ROOT "$out/lib/hyprwhspr" \
           --add-flags "$out/lib/hyprwhspr/lib/main.py"
 
@@ -80,13 +90,13 @@ python3Packages.buildPythonApplication rec {
        $out/lib/hyprwhspr/config/hyprland/.hyprwhspr-tray-unwrapped.sh
     makeWrapper $out/lib/hyprwhspr/config/hyprland/.hyprwhspr-tray-unwrapped.sh \
       $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
-      --prefix PATH : "${lib.makeBinPath [ jq pulseaudio ]}"
+      --prefix PATH : "${lib.makeBinPath [jq pulseaudio]}"
   '';
 
   meta = with lib; {
     description = "Native speech-to-text for Hyprland";
     homepage = "https://github.com/goodroot/hyprwhspr";
     license = licenses.mit;
-    maintainers = [ ];
+    maintainers = [];
   };
 }

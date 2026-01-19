@@ -1,7 +1,7 @@
-{ lib, ... }:
+{lib, ...}:
 with lib; rec {
   mkOpt = type: default: description:
-    mkOption { inherit type default description; };
+    mkOption {inherit type default description;};
 
   mkOpt' = type: default: mkOpt type default null;
 
@@ -27,7 +27,7 @@ with lib; rec {
   #@ Type -> Any -> String
   mkPackageOpt' = mkOpt types.package;
 
-  enabled = { enable = true; };
+  enabled = {enable = true;};
 
-  disabled = { enable = false; };
+  disabled = {enable = false;};
 }

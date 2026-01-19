@@ -1,5 +1,10 @@
-{ config, lib, namespace, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  pkgs,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.gh;
 in {
@@ -15,9 +20,9 @@ in {
         prompt = "enabled";
       };
       gitCredentialHelper.enable = true;
-      extensions = with pkgs; [ gh-dash gh-eco ];
+      extensions = with pkgs; [gh-dash gh-eco];
     };
 
-    ${namespace}.system.persistence.directories = [ ".config/gh" ];
+    ${namespace}.system.persistence.directories = [".config/gh"];
   };
 }

@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.pyprland;
 in {
@@ -10,6 +15,6 @@ in {
   config = mkIf cfg.enable {
     xdg.configFile."hypr/pyprland.toml".source = ./pyprland.toml;
 
-    home = { packages = with pkgs; [ pyprland ]; };
+    home = {packages = with pkgs; [pyprland];};
   };
 }

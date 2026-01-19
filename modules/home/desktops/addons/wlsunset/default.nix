@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.desktops.addons.wlsunset;
 in {

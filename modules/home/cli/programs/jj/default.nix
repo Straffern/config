@@ -3,6 +3,7 @@
   config,
   lib,
   namespace,
+  inputs,
   ...
 }: let
   inherit (lib) mkIf mkEnableOption types;

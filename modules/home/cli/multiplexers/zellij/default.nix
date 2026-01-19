@@ -1,5 +1,10 @@
-{ pkgs, lib, config, namespace, ... }:
-let
+{
+  pkgs,
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   inherit (config.lib.stylix) colors;
   cfg = config.${namespace}.cli.multiplexers.zellij;
@@ -56,7 +61,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.tmate sesh ];
+    home.packages = [pkgs.tmate sesh];
 
     xdg.configFile."zellij/config.kdl".source = config.lib.asgaard.managedSource ./config.kdl;
     xdg.configFile."zellij/layouts/default.kdl".text = ''

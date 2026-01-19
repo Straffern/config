@@ -1,5 +1,10 @@
-{ pkgs, lib, config, namespace, ... }:
-let
+{
+  pkgs,
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.podman;
 in {

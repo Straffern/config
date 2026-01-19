@@ -1,5 +1,10 @@
-{ lib, config, pkgs, namespace, ... }:
-let
+{
+  lib,
+  config,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.suites.server;
 in {
@@ -8,7 +13,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     ${namespace} = {
       suites.common.enable = true;
       services = {
@@ -25,11 +29,13 @@ in {
     #   };
     # };
 
-    environment = {
-      systemPackages = [ pkgs.nfs-utils pkgs.openiscsi pkgs.dnsutils ];
-      # Print the URL instead on servers
-      variables.BROWSER = "echo";
-    } // lib.optionalAttrs
+    environment =
+      {
+        systemPackages = [pkgs.nfs-utils pkgs.openiscsi pkgs.dnsutils];
+        # Print the URL instead on servers
+        variables.BROWSER = "echo";
+      }
+      // lib.optionalAttrs
       (lib.versionAtLeast (lib.versions.majorMinor lib.version) "24.05") {
         # Don't install the /lib/ld-linux.so.2 and /lib64/ld-linux-x86-64.so.2
         # stubs. Server users should know what they are doing.
@@ -68,8 +74,7 @@ in {
     systemd = {
       services.NetworkManager-wait-online.enable = false;
       network.wait-online.enable = false;
-      tmpfiles.rules =
-        [ "L+ /usr/local/bin - - - - /run/current-system/sw/bin/" ];
+      tmpfiles.rules = ["L+ /usr/local/bin - - - - /run/current-system/sw/bin/"];
 
       # Given that our systems are headless, emergency mode is useless.
       # We prefer the system to attempt to continue booting so

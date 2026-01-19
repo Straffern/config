@@ -1,7 +1,22 @@
-{ stdenv, fetchFromGitLab, cmake, pipewire, mbedtls, makeWrapper, pkg-config
-, opencv, curl, crow, nlohmann_json, glib, sysprof, wayland, wayland-protocols
-, glm, ... }:
-
+{
+  stdenv,
+  fetchFromGitLab,
+  cmake,
+  pipewire,
+  mbedtls,
+  makeWrapper,
+  pkg-config,
+  opencv,
+  curl,
+  crow,
+  nlohmann_json,
+  glib,
+  sysprof,
+  wayland,
+  wayland-protocols,
+  glm,
+  ...
+}:
 stdenv.mkDerivation {
   pname = "huenicorn";
   version = "1.0.0"; # Adjust to the desired version
@@ -10,11 +25,10 @@ stdenv.mkDerivation {
     owner = "openjowelsofts";
     repo = "huenicorn";
     rev = "v1.0.10"; # Use a specific tag or commit hash
-    sha256 =
-      "0hvi45wcl2rsfdv5migldx3hcdsikwz4zxddak77qx6sj8j38lvp"; # Placeholder; update this
+    sha256 = "0hvi45wcl2rsfdv5migldx3hcdsikwz4zxddak77qx6sj8j38lvp"; # Placeholder; update this
   };
 
-  nativeBuildInputs = [ cmake makeWrapper pkg-config ];
+  nativeBuildInputs = [cmake makeWrapper pkg-config];
   buildInputs = [
     pipewire
     mbedtls

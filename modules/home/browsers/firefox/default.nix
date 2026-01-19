@@ -1,5 +1,9 @@
-{ lib, config, namespace, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  ...
+}: let
   inherit (lib) mkEnableOption mkIf;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.browsers.firefox;
@@ -11,6 +15,6 @@ in {
   config = mkIf cfg.enable {
     programs.librewolf = enabled;
 
-    ${namespace}.system.persistence.directories = [ ".librewolf" ".cache/librewolf" ];
+    ${namespace}.system.persistence.directories = [".librewolf" ".cache/librewolf"];
   };
 }

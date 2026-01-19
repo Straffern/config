@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.security.audit;
 in {
@@ -88,7 +93,7 @@ in {
     };
 
     # Install audit utilities
-    environment.systemPackages = with pkgs; [ audit ];
+    environment.systemPackages = with pkgs; [audit];
 
     # Setup logrotate if enabled
     services.logrotate = mkIf cfg.logRotate.enable {
@@ -108,16 +113,14 @@ in {
     };
 
     # Add kernel parameters for auditing
-    boot.kernelParams =
-      [ "audit=1" "audit_backlog_limit=${toString cfg.backlogLimit}" ];
+    boot.kernelParams = ["audit=1" "audit_backlog_limit=${toString cfg.backlogLimit}"];
 
     # Enable immediate reporting of audit events
     boot.initrd.systemd.enable = true;
     systemd.services.auditd = {
       serviceConfig = {
-        ExecStartPost = [ "${pkgs.audit}/bin/auditctl -e 1" ];
+        ExecStartPost = ["${pkgs.audit}/bin/auditctl -e 1"];
       };
     };
   };
 }
-

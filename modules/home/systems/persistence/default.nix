@@ -1,5 +1,10 @@
-{ lib, config, namespace, osConfig ? { }, ... }:
-let
+{
+  lib,
+  config,
+  namespace,
+  osConfig ? {},
+  ...
+}: let
   inherit (lib) mkIf mkOption types;
   inherit (lib.${namespace}) mkBoolOpt;
 
@@ -16,7 +21,7 @@ let
         description = "The directory path to be linked.";
       };
       method = mkOption {
-        type = types.enum [ "bindfs" "symlink" ];
+        type = types.enum ["bindfs" "symlink"];
         default = cfg.defaultDirectoryMethod;
         description = "The linking method for this directory.";
       };
@@ -24,7 +29,8 @@ let
   });
 in {
   options.${namespace}.system.persistence = {
-    enable = mkBoolOpt impermanenceEnabled
+    enable =
+      mkBoolOpt impermanenceEnabled
       "Whether to enable home persistence. Automatically enabled when NixOS impermanence is active.";
 
     persistPrefix = mkOption {
@@ -40,7 +46,7 @@ in {
     };
 
     defaultDirectoryMethod = mkOption {
-      type = types.enum [ "bindfs" "symlink" ];
+      type = types.enum ["bindfs" "symlink"];
       default = "bindfs";
       description = ''
         Default linking method for directories.
@@ -51,20 +57,23 @@ in {
 
     directories = mkOption {
       type = types.listOf directoryType;
-      default = [ ];
+      default = [];
       description = "Directories to persist.";
       example = [
         ".config/my-app"
         ".local/share/my-app"
-        { directory = ".local/share/Steam"; method = "symlink"; }
+        {
+          directory = ".local/share/Steam";
+          method = "symlink";
+        }
       ];
     };
 
     files = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       description = "Files to persist.";
-      example = [ ".screenrc" ".my-config-file" ];
+      example = [".screenrc" ".my-config-file"];
     };
   };
 

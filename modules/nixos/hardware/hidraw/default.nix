@@ -1,5 +1,10 @@
-{ config, lib, pkgs, namespace, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf mkEnableOption mkOption;
   inherit (lib.types) str nullOr;
   cfg = config.${namespace}.hardware.hidraw;
@@ -24,7 +29,7 @@ in {
 
     users.groups.hidraw = {};
 
-    users.users.${cfg.user}.extraGroups = [ "hidraw" ];
+    users.users.${cfg.user}.extraGroups = ["hidraw"];
 
     services.udev.extraRules = ''
       KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="hidraw"

@@ -1,4 +1,4 @@
-{...}: final: prev: {
+_: final: prev: {
   # Temporary overlay for jj-fzf until nixpkgs PR #455933 lands in nixos-unstable
   # The 0.33.0 package was missing preflight.sh and lib/ directory
   # Remove this overlay once nixos-unstable has jj-fzf >= 0.34.0

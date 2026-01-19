@@ -1,7 +1,12 @@
-{ config, lib, namespace, ... }:
+{
+  config,
+  lib,
+  namespace,
+  ...
+}:
 with lib;
-with lib.${namespace};
-let cfg = config.${namespace}.cli.terminals.alacritty;
+with lib.${namespace}; let
+  cfg = config.${namespace}.cli.terminals.alacritty;
 in {
   options.${namespace}.cli.terminals.alacritty = with types; {
     enable = mkBoolOpt false "enable alacritty terminal emulator";
@@ -12,7 +17,7 @@ in {
       enable = true;
 
       settings = {
-        shell = { program = "zsh"; };
+        shell = {program = "zsh";};
 
         window = {
           padding = {
@@ -22,14 +27,16 @@ in {
           decorations = "none";
         };
 
-        selection = { save_to_clipboard = true; };
+        selection = {save_to_clipboard = true;};
 
-        mouse_bindings = [{
-          mouse = "Right";
-          action = "Paste";
-        }];
+        mouse_bindings = [
+          {
+            mouse = "Right";
+            action = "Paste";
+          }
+        ];
 
-        env = { TERM = "xterm-256color"; };
+        env = {TERM = "xterm-256color";};
       };
     };
   };
