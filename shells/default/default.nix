@@ -1,4 +1,8 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  ...
+}:
 pkgs.mkShell {
   NIX_CONFIG = "extra-experimental-features = nix-command flakes";
 
@@ -8,6 +12,7 @@ pkgs.mkShell {
     python312Packages.mkdocs-material
     deploy-rs
 
+    nixd
     statix
     deadnix
     alejandra
