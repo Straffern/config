@@ -1,5 +1,9 @@
-{ config, lib, namespace, ... }:
-let
+{
+  config,
+  lib,
+  namespace,
+  ...
+}: let
   inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
 in {
@@ -21,6 +25,10 @@ in {
         "float on, match:tag picker, match:title ^(Open.*Files?|Save.*Files?|All Files|Save)"
         "center on, match:tag picker, match:title ^(Open.*Files?|Save.*Files?|All Files|Save)"
         "size 800 600, match:tag picker"
+
+        # Drop-down terminal
+        "float on, match:class ^(kitty-dropterm)$"
+        "move 50%-w/2 5%, match:class ^(kitty-dropterm)$"
 
         # No transparency on media windows
         "opacity 1 1, match:class ^(zoom|vlc|mpv|org.kde.kdenlive|com.obsproject.Studio|com.github.PintaProject.Pinta|imv|org.gnome.NautilusPreviewer)$"
@@ -64,6 +72,5 @@ in {
         "idle_inhibit fullscreen, match:class ^(brave-browser)$"
       ];
     };
-
   };
 }
