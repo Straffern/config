@@ -42,11 +42,13 @@ in {
     };
 
     # To prevent getting stuck at shutdown
-    # System-level timeout (for system services)
-    systemd.settings.Manager.DefaultTimeoutStopSec = "10s";
-    # User-level timeout (for uwsm user services)
-    systemd.user.extraConfig = ''
-      DefaultTimeoutStopSec=10s
-    '';
+    systemd = {
+      # System-level timeout (for system services)
+      settings.Manager.DefaultTimeoutStopSec = "10s";
+      # User-level timeout (for uwsm user services)
+      user.extraConfig = ''
+        DefaultTimeoutStopSec=10s
+      '';
+    };
   };
 }

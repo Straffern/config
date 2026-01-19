@@ -35,13 +35,15 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
-    home.packages = with pkgs; [lazygit lazyjj jujutsu lumen];
+    home = {
+      file.".ssh/allowed_signers".text = "* ${cfg.allowedSigners}";
+      packages = with pkgs; [lazygit lazyjj jujutsu lumen];
 
-    home.file.".config/lazygit/config.yml".text = ''
-      git:
-        overrideGpg: true
-    '';
+      file.".config/lazygit/config.yml".text = ''
+        git:
+          overrideGpg: true
+      '';
+    };
 
     programs.git = {
       enable = true;
@@ -52,8 +54,7 @@ in {
       settings =
         {
           user = {
-            name = cfg.name;
-            email = cfg.email;
+            inherit (cfg) name email;
             signingkey = "~/.ssh/id_ed25519.pub";
           };
 

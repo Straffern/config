@@ -22,6 +22,6 @@ in {
         efiSupport = true;
         efiInstallAsRemovable = true;
       }
-      // (lib.optionalAttrs (cfg.device != null) {device = cfg.device;});
+      // (lib.optionalAttrs (cfg.device != null) {inherit (cfg) device;});
   };
 }

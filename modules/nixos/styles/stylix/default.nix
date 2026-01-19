@@ -136,7 +136,7 @@ in {
           ''
         else cfg.wallpaper;
 
-      polarity = cfg.polarity;
+      inherit (cfg) polarity;
 
       cursor = {
         name = "Bibata-Modern-Classic";

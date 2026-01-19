@@ -32,8 +32,7 @@ in {
       suites = {server.enable = true;};
       services.k3s = {
         enable = true;
-        role = cfg.role;
-        serverAddr = cfg.serverAddr;
+        inherit (cfg) role serverAddr;
       };
     };
 

@@ -21,31 +21,35 @@ in {
       systemdTarget = "graphical-session.target";
       settings = [
         {
-          profile.name = "undocked";
-          profile.exec = ["sleep 0.5 && systemctl --user restart waybar"];
-          profile.outputs = [
-            {
-              criteria = "eDP-1";
-              status = "enable";
-              position = "0,0";
-            }
-          ];
+          profile = {
+            name = "undocked";
+            exec = ["sleep 0.5 && systemctl --user restart waybar"];
+            outputs = [
+              {
+                criteria = "eDP-1";
+                status = "enable";
+                position = "0,0";
+              }
+            ];
+          };
         }
         {
-          profile.name = "home_office_laptop_docked";
-          profile.exec = ["sleep 0.5 && systemctl --user restart waybar"];
-          profile.outputs = [
-            {
-              criteria = "Samsung Electric Company U32R59x H4ZN200523";
-              position = "0,0";
-              # mode = "2560x1440@59.95100Hz";
-              mode = "3840x2160@60.00Hz";
-            }
-            {
-              criteria = "eDP-1";
-              status = "disable";
-            }
-          ];
+          profile = {
+            name = "home_office_laptop_docked";
+            exec = ["sleep 0.5 && systemctl --user restart waybar"];
+            outputs = [
+              {
+                criteria = "Samsung Electric Company U32R59x H4ZN200523";
+                position = "0,0";
+                # mode = "2560x1440@59.95100Hz";
+                mode = "3840x2160@60.00Hz";
+              }
+              {
+                criteria = "eDP-1";
+                status = "disable";
+              }
+            ];
+          };
         }
         # {
         #   profile.name = "home_office";

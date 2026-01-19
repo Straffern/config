@@ -68,8 +68,7 @@ in {
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (let
         ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
-          model = cfg.shellFunction.model;
-          systemPrompt = cfg.shellFunction.systemPrompt;
+          inherit (cfg.shellFunction) model systemPrompt;
         };
       in ''
         # Load ai command generator function

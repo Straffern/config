@@ -17,7 +17,7 @@ in {
   config = mkIf cfg.enable {
     programs.nix-ld = {
       enable = true;
-      libraries = cfg.libraries;
+      inherit (cfg) libraries;
     };
   };
 }

@@ -89,7 +89,7 @@ in {
       # '';
 
       # Add custom rules if provided
-      rules = cfg.rules;
+      inherit (cfg) rules;
     };
 
     # Install audit utilities
@@ -100,7 +100,7 @@ in {
       enable = true;
       settings = {
         "/var/log/audit/audit.log" = {
-          frequency = cfg.logRotate.frequency;
+          inherit (cfg.logRotate) frequency;
           rotate = cfg.logRotate.keep;
           create = "0600 root root";
           missingok = true;

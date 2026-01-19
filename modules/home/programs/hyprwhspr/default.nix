@@ -10,7 +10,7 @@
 
   # Custom packages with proper GPU support and pywhispercpp
   customPyWhisperCpp =
-    pkgs.${namespace}.pywhispercpp.override {gpuSupport = cfg.gpuSupport;};
+    pkgs.${namespace}.pywhispercpp.override {inherit (cfg) gpuSupport;};
   customHyprwhspr =
     pkgs.${namespace}.hyprwhspr.override {pywhispercpp = customPyWhisperCpp;};
 in {

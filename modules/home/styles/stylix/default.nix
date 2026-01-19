@@ -75,9 +75,11 @@ in {
     home.packages = with pkgs; [nerd-fonts.symbols-only open-sans];
 
     # Catppuccin integration
-    catppuccin.enable = cfg.useCatppuccinNative;
-    catppuccin.flavor = "mocha";
-    catppuccin.zsh-syntax-highlighting.enable = cfg.useCatppuccinNative;
+    catppuccin = {
+      enable = cfg.useCatppuccinNative;
+      flavor = "mocha";
+      zsh-syntax-highlighting.enable = cfg.useCatppuccinNative;
+    };
 
     stylix = {
       enable = true;
@@ -148,7 +150,7 @@ in {
           ''
         else cfg.wallpaper;
 
-      polarity = cfg.polarity;
+      inherit (cfg) polarity;
 
       opacity = {terminal = 0.9;};
 

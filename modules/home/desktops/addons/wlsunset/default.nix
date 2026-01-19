@@ -26,8 +26,7 @@ in {
   config = mkIf cfg.enable {
     services.wlsunset = {
       enable = true;
-      latitude = cfg.latitude;
-      longitude = cfg.longitude;
+      inherit (cfg) latitude longitude;
     };
   };
 }

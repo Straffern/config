@@ -68,8 +68,59 @@ in {
   config = mkIf cfg.enable {
     # Better scheduling for CPU cycles - thanks System76!!!
     # Compatible with PPD/TLP/auto-cpufreq, handles process scheduling not power management
-    services.system76-scheduler.settings.cfsProfiles.enable =
-      cfg.enableScheduler;
+    services = {
+      system76-scheduler.settings.cfsProfiles.enable = cfg.enableScheduler;
+
+      # Automatically switch power profiles based on AC power state
+      # Performance when plugged in, power-saver when on battery
+      udev.extraRules = lib.mkIf config.services.power-profiles-daemon.enable ''
+        # When AC adapter is plugged in - switch to performance
+        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance"
+        # When AC adapter is unplugged - switch to power-saver
+        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver"
+      '';
+
+      # Power management daemon selection
+      # PPD for AMD (Framework/AMD recommended), auto-cpufreq as fallback for Intel
+      power-profiles-daemon.enable =
+        if cfg.powerManagement == "auto"
+        then isAmd || (!isIntel && !isAmd)
+        else cfg.powerManagement == "ppd";
+
+      auto-cpufreq = {
+        enable =
+          if cfg.powerManagement == "auto"
+          then isIntel
+          else cfg.powerManagement == "auto-cpufreq";
+        settings = mkIf (cfg.powerManagement
+          == "auto-cpufreq"
+          || (cfg.powerManagement == "auto" && isIntel)) {
+          battery = {
+            governor = "powersave";
+            turbo = "never";
+          };
+          charger = {
+            governor = "performance";
+            turbo = "auto";
+          };
+        };
+      };
+
+      tlp = {
+        enable = cfg.powerManagement == "tlp";
+        settings = mkIf (cfg.powerManagement == "tlp") {
+          CPU_SCALING_GOVERNOR_ON_AC = "performance";
+          CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+          CPU_BOOST_ON_AC = 1;
+          CPU_BOOST_ON_BAT = 0;
+          # USB autosuspend can cause issues, disable by default
+          USB_AUTOSUSPEND = 0;
+        };
+      };
+
+      # thermald is Intel-specific - only enable on Intel CPUs
+      thermald.enable = cfg.thermald;
+    };
 
     environment.systemPackages = with pkgs; [
       powertop
@@ -77,57 +128,7 @@ in {
       power-profiles-daemon # provides powerprofilesctl
     ];
 
-    # Automatically switch power profiles based on AC power state
-    # Performance when plugged in, power-saver when on battery
-    services.udev.extraRules = lib.mkIf config.services.power-profiles-daemon.enable ''
-      # When AC adapter is plugged in - switch to performance
-      SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance"
-      # When AC adapter is unplugged - switch to power-saver
-      SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver"
-    '';
-
     powerManagement.enable = true;
-
-    # Power management daemon selection
-    # PPD for AMD (Framework/AMD recommended), auto-cpufreq as fallback for Intel
-    services.power-profiles-daemon.enable =
-      if cfg.powerManagement == "auto"
-      then isAmd || (!isIntel && !isAmd)
-      else cfg.powerManagement == "ppd";
-
-    services.auto-cpufreq = {
-      enable =
-        if cfg.powerManagement == "auto"
-        then isIntel
-        else cfg.powerManagement == "auto-cpufreq";
-      settings = mkIf (cfg.powerManagement
-        == "auto-cpufreq"
-        || (cfg.powerManagement == "auto" && isIntel)) {
-        battery = {
-          governor = "powersave";
-          turbo = "never";
-        };
-        charger = {
-          governor = "performance";
-          turbo = "auto";
-        };
-      };
-    };
-
-    services.tlp = {
-      enable = cfg.powerManagement == "tlp";
-      settings = mkIf (cfg.powerManagement == "tlp") {
-        CPU_SCALING_GOVERNOR_ON_AC = "performance";
-        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-        CPU_BOOST_ON_AC = 1;
-        CPU_BOOST_ON_BAT = 0;
-        # USB autosuspend can cause issues, disable by default
-        USB_AUTOSUSPEND = 0;
-      };
-    };
-
-    # thermald is Intel-specific - only enable on Intel CPUs
-    services.thermald.enable = cfg.thermald;
 
     # Kernel sysctl for power savings
     boot.kernel.sysctl = mkIf cfg.enableKernelTweaks ({
@@ -141,9 +142,11 @@ in {
 
     # Low battery notification
     systemd.user.timers.notify-on-low-battery = mkIf cfg.lowBatteryNotification.enable {
-      timerConfig.OnBootSec = "2m";
-      timerConfig.OnUnitInactiveSec = "2m";
-      timerConfig.Unit = "notify-on-low-battery.service";
+      timerConfig = {
+        OnBootSec = "2m";
+        OnUnitInactiveSec = "2m";
+        Unit = "notify-on-low-battery.service";
+      };
       wantedBy = ["timers.target"];
     };
 

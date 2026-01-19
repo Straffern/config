@@ -63,9 +63,9 @@ in {
             openssh.authorizedKeys.keys = user.authorizedKeys;
           }
           (mkIf (user.initialHashedPassword != null) {
-            initialHashedPassword = user.initialHashedPassword;
+            inherit (user) initialHashedPassword;
           })
-          (mkIf (user.shell != null) {shell = user.shell;})
+          (mkIf (user.shell != null) {inherit (user) shell;})
           user.extraOptions
         ])))
       config.${namespace}.user;

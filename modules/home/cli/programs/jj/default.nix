@@ -91,7 +91,7 @@ in {
         fsmonitor.watchman.register-snapshot-trigger = true;
 
         user = {
-          email = cfg.email;
+          inherit (cfg) email;
           name = cfg.userName;
         };
 
