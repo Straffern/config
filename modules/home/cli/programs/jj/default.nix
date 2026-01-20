@@ -635,7 +635,7 @@ in {
           write-change-id-header = true;
         };
 
-        remotes.origin.auto-track-bookmarks = "glob:*";
+        remotes.origin.auto-track-bookmarks = "glob:straffern/*";
       };
     };
   };
