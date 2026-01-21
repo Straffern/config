@@ -20,7 +20,7 @@ in {
         prompt = "enabled";
       };
       gitCredentialHelper.enable = true;
-      extensions = with pkgs; [gh-dash gh-eco];
+      extensions = with pkgs; [gh-dash gh-eco asgaard.gh-fork-cleanup];
     };
 
     ${namespace}.system.persistence.directories = [".config/gh"];
