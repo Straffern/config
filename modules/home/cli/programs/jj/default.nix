@@ -443,6 +443,9 @@ in {
           ll = ["log" "-T" "builtin_log_detailed"];
           nt = ["new" "trunk()"];
 
+          # Full branch view from trunk to @ including descendants
+          branch = ["log" "-r" "trunk()..@ | @::"];
+
           # Get all open stacks of work.
           open = ["log" "-r" "open()"];
 
@@ -579,6 +582,9 @@ in {
           # 2.5 Bookmark & branch utilities (NEW)
           "closest_bookmark(to)" = "heads(::to & bookmarks())";
           "branch_start()" = "heads(::@ & trunk())+ & ::@";
+
+          # Full branch from trunk to @ including descendants (ignores immutability)
+          "br()" = "trunk()..@ | @::";
 
           # 3. worklog() aliases - composable components for worklog revset
           # Trunk head only
