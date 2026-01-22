@@ -1,5 +1,4 @@
 {
-  inputs,
   config,
   pkgs,
   lib,
@@ -8,21 +7,20 @@
 }: let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
-  cfg = config.${namespace}.roles.video;
+  cfg = config.${namespace}.suites.video;
 in {
-  options.${namespace}.roles.video = {
-    enable = mkEnableOption "Video editting and recording suite";
+  options.${namespace}.suites.video = {
+    enable = mkEnableOption "Video editing and recording suite";
   };
 
   config = mkIf cfg.enable {
-    xdg.configFile."obs-studio/themes".source = "${inputs.catppuccin-obs}/themes";
-
     programs.obs-studio = enabled;
 
     home.packages = with pkgs; [
       audacity
       kdePackages.kdenlive
       davinci-resolve-studio
+      webcamoid
     ];
   };
 }

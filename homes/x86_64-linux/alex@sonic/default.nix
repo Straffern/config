@@ -75,6 +75,6 @@ in {
 
   programs.ssh.includes = [config.sops.secrets.ssh_config.path];
 
-  home.packages = with pkgs; [nwg-displays clipy uv];
+  home.packages = with pkgs; [nwg-displays clipy uv webcamoid];
   home.stateVersion = "23.11";
 }

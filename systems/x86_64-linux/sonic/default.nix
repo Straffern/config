@@ -52,6 +52,9 @@ in {
       enable = true;
       user = config.${namespace}.user."1".name;
     };
+
+    # Virtual camera support for webcamoid/OBS
+    hardware.akvcam = enabled;
   };
 
   services.fwupd.enable = true;

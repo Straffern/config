@@ -6,9 +6,9 @@
   ...
 }: let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.${namespace}.roles.gamedev;
+  cfg = config.${namespace}.suites.gamedev;
 in {
-  options.${namespace}.roles.gamedev = {
+  options.${namespace}.suites.gamedev = {
     enable = mkEnableOption "Game dev suite";
   };
 
