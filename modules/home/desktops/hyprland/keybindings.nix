@@ -66,7 +66,7 @@ in {
 
       webapp_prompt = "sh -c 'query=$(${
         config.${namespace}.desktops.addons.rofi.package
-      }/bin/rofi -dmenu -p \"Open Link as Webapp\"); [ -n \"$query\" ] && ${browser} --app=\"$query\"'";
+      }/bin/rofi -dmenu -p \"Open Link as Webapp\"); if [ -n \"$query\" ]; then case \"$query\" in http://*|https://*) url=\"$query\" ;; *) url=\"https://$query\" ;; esac; ${browser} --app=\"$url\"; fi'";
       hexdocs_prompt = "sh -c 'query=$(${
         config.${namespace}.desktops.addons.rofi.package
       }/bin/rofi -dmenu -p \"HexDocs Search\"); if [ -n \"$query\" ]; then read -r library search_query <<< \"$query\"; if [ -z \"$search_query\" ]; then ${
