@@ -9,6 +9,7 @@
   cfg = config.${namespace}.desktops.hyprland;
 in {
   config = mkIf cfg.enable {
+    home.packages = [pkgs.hyprpicker];
     wayland.windowManager.hyprland = {
       enable = true;
 
