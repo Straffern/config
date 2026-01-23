@@ -54,7 +54,7 @@ in {
     };
 
     # Virtual camera support for webcamoid/OBS
-    hardware.akvcam = enabled;
+    # hardware.akvcam = enabled;
   };
 
   services.fwupd.enable = true;
