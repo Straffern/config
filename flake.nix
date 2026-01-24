@@ -150,7 +150,6 @@
         lanzaboote.nixosModules.lanzaboote
       ];
       homes.modules = with inputs; [
-        impermanence.nixosModules.home-manager.impermanence
         persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
         catppuccin.homeModules.catppuccin

@@ -86,7 +86,7 @@ in {
       autoEnable = !cfg.useCatppuccinNative;
       base16Scheme = lib.mkIf (cfg.base16Scheme != null) cfg.base16Scheme;
 
-      iconTheme = {
+      icons = {
         enable = true;
         package = pkgs.catppuccin-papirus-folders.override {
           flavor = "mocha";
