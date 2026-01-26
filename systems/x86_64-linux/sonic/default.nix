@@ -53,8 +53,8 @@ in {
       user = config.${namespace}.user."1".name;
     };
 
-    # Virtual camera support for webcamoid/OBS
-    # hardware.akvcam = enabled;
+    # Virtual camera support with color temperature correction
+    hardware.v4l2loopback = enabled;
   };
 
   services.fwupd.enable = true;
