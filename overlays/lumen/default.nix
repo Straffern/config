@@ -9,18 +9,17 @@ in {
 
     # patches = [ ./jj-subdir.patch ]; # Included in Straffern/lumen fork
 
-    cargoLock = {
-      lockFile = "${lumenSrc}/Cargo.lock";
-      allowBuiltinFetchGit = true;
-    };
+    # Use cargoHash instead of cargoLock for deterministic builds
+    # (avoids allowBuiltinFetchGit which causes cache misses)
+    cargoHash = "sha256-21SGMIssPN6bowJlevU5lCWKHu3Cwy9fU8Vt3aib1JE=";
 
     nativeBuildInputs = with final; [pkg-config perl];
 
     buildInputs = with final;
       [openssl]
-      ++ final.lib.optionals final.stdenv.isDarwin [
-        final.darwin.apple_sdk.frameworks.Security
-        final.darwin.apple_sdk.frameworks.SystemConfiguration
+      ++ lib.optionals stdenv.isDarwin [
+        darwin.apple_sdk.frameworks.Security
+        darwin.apple_sdk.frameworks.SystemConfiguration
       ];
 
     doCheck = false;

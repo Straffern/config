@@ -1,0 +1,32 @@
+# Overlay to use misaelaguayo's zellij fork with kitty image protocol support
+# https://github.com/misaelaguayo/zellij
+_: _final: prev: {
+  zellij = prev.zellij.overrideAttrs (old: {
+    version = "0.44.0-kitty-graphics";
+
+    src = prev.fetchFromGitHub {
+      owner = "misaelaguayo";
+      repo = "zellij";
+      rev = "31f64a7fa27380e467312840e7d51bb86d8e5192"; # "Implement kitty image protocol"
+      hash = "sha256-wcEsojrbdi7f5EuY8vxKbGJC42AdphAl35iuNCM40UI=";
+    };
+
+    cargoDeps = prev.rustPlatform.fetchCargoVendor {
+      inherit (old) pname;
+      version = "0.44.0-kitty-graphics";
+      src = prev.fetchFromGitHub {
+        owner = "misaelaguayo";
+        repo = "zellij";
+        rev = "31f64a7fa27380e467312840e7d51bb86d8e5192";
+        hash = "sha256-wcEsojrbdi7f5EuY8vxKbGJC42AdphAl35iuNCM40UI=";
+      };
+      hash = "sha256-RG3eOiHbdSQGDfntu/GzjdsBiHS/dnDMNXDE3pp8jFM=";
+    };
+
+    # Skip tests - fork's test code has outdated TerminalPane::new() signature
+    doCheck = false;
+
+    # Skip version check - fork reports upstream version (0.44.0) not our custom suffix
+    dontVersionCheck = true;
+  });
+}

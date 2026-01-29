@@ -374,53 +374,7 @@ in {
           eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
         '';
 
-      # ══════════════════════════════════════════════════════════════════════════
-      # Workspace add with repo hooks support
-      # Creates workspaces at <repo-root>/.workspaces/<name>
-      # Executes <repo-root>/.jj/hooks/post-workspace-add if it exists
-      # ══════════════════════════════════════════════════════════════════════════
-
-      "wa" =
-        mkBashAlias "wa" # bash
-        
-        ''
-          source ${jj-helpers-lib}
-
-          main() {
-            if [ $# -lt 1 ]; then
-              echo "usage: jj wa <workspace-name> [jj workspace add args...]" >&2
-              return 1
-            fi
-
-            local name="$1"; shift
-
-            # Get true repo root (handles running from workspaces)
-            # - Workspaces have .jj/repo as a FILE containing path to shared repo
-            # - Main repos have .jj/repo as a DIRECTORY
-            local root
-            if [ -f "$JJ_WORKSPACE_ROOT/.jj/repo" ]; then
-              # We're in a workspace - .jj/repo contains path like /path/to/main/.jj/repo
-              root=$(dirname "$(dirname "$(cat "$JJ_WORKSPACE_ROOT/.jj/repo")")")
-            else
-              # We're in the main repo
-              root="$JJ_WORKSPACE_ROOT"
-            fi
-
-            local dest="$root/.workspaces/$name"
-
-            log_and_run jj workspace add "$dest" "$@"
-
-            # Execute repo-specific hook if it exists
-            local hook="$root/.jj/hooks/post-workspace-add"
-            if [ -x "$hook" ]; then
-              log_and_run "$hook" "$dest"
-            elif [ -f "$hook" ]; then
-              log_and_run bash "$hook" "$dest"
-            fi
-          }
-
-          main "$@"
-        '';
+      # NOTE: `jj wa` alias removed - replaced by `ww` tool (github:Straffern/ww)
     };
   };
 }

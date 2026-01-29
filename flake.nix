@@ -3,13 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur = {url = "github:nix-community/NUR";};
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     snowfall-lib = {
       url = "github:snowfallorg/lib";
@@ -24,10 +28,23 @@
     };
 
     persist-retro.url = "github:straffern/persist-retro";
-    impermanence.url = "github:nix-community/impermanence";
-    lanzaboote.url = "github:nix-community/lanzaboote";
 
-    nixgl.url = "github:nix-community/nixGL";
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixgl = {
+      url = "github:nix-community/nixGL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # NOTE: Intentionally NOT following nixpkgs - indexes are version-specific
     nix-index-database.url = "github:nix-community/nix-index-database";
 
     disko = {
@@ -53,22 +70,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # hyprland.url = "github:hyprwm/Hyprland";
-    # waybar = {
-    #   url = "github:Alexays/Waybar";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-    # hyprland-plugins = {
-    #   url = "github:hyprwm/hyprland-plugins";
-    #   inputs.hyprland.follows = "hyprland";
-    # };
+    # NOTE: hyprnix disabled - binary cache is incomplete, causing:
+    # - ABI mismatches (GCC 14/15) when packages are built locally
+    # - FetchContent failures (git not available in sandbox)
+    # Using nixpkgs hyprland ecosystem packages instead.
+    # hyprnix.url = "github:hyprwm/hyprnix";
 
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Terminal
 
-    # zjstatus = { url = "github:dj95/zjstatus"; };
+    zjstatus.url = "github:dj95/zjstatus";
 
     # Homelab
 
@@ -89,26 +102,32 @@
 
     # Styling
 
-    stylix.url = "github:danth/stylix";
-    catppuccin.url = "github:catppuccin/nix";
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # nix-colors.url = "github:IogaMaster/nix-colors";
     # prism.url = "github:IogaMaster/prism";
 
     # hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
-    lobster = {
-      url = "github:justchokingaround/lobster";
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
+    lobster.url = "github:justchokingaround/lobster";
 
     devenv.url = "github:cachix/devenv";
 
-    beads.url = "github:steveyegge/beads";
-
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
-    jjui.url = "github:idursun/jjui";
+    jjui = {
+      url = "github:idursun/jjui";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
+    ww.url = "github:Straffern/ww/add-nix-flake";
   };
 
   outputs = inputs: let
@@ -134,9 +153,11 @@
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
-        # devenv.overlays.default
-        # hyprland.overlays.default
-        # waybar.overlays.default
+        devenv.overlays.default
+        #
+        # NOTE: hyprnix removed - binary cache incomplete, causes build failures
+        # (ABI mismatches, FetchContent requiring git in sandbox)
+        # Using nixpkgs hyprland ecosystem packages instead.
       ];
 
       systems.modules.nixos = with inputs; [

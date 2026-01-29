@@ -30,6 +30,9 @@ in {
       enable = true;
       enableCompletion = true;
       completionInit = ''
+        # Add custom completions directory to fpath
+        fpath=(${config.xdg.configHome}/zsh/completions $fpath)
+
         autoload -Uz compinit
         if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
           compinit -C

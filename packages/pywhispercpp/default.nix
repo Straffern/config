@@ -1,95 +1,97 @@
 {
   lib,
-  python3Packages,
-  fetchFromGitHub,
-  cmake,
-  ninja,
-  ffmpeg,
-  which,
+  inputs,
+  system,
   vulkan-loader,
   vulkan-headers,
   shaderc,
   rocmPackages,
-  autoPatchelfHook,
   gpuSupport ? "vulkan", # "vulkan", "rocm", or "none"
-}:
-python3Packages.buildPythonPackage rec {
-  pname = "pywhispercpp";
-  version = "1.4.0";
-  pyproject = true;
-
-  src = fetchFromGitHub {
-    owner = "abdeladim-s";
-    repo = "pywhispercpp";
-    rev = "v${version}";
-    hash = "sha256-Xo8CQqOeDrQQTgYcV5EkSKCZkbkI1WVeW7OqL0CEQ9Q=";
-    fetchSubmodules = true;
+}: let
+  # Use stable nixpkgs for Python toolchain to avoid rebuilds on unstable updates
+  pkgsStable = import inputs.nixpkgs-stable {
+    inherit system;
+    config.allowUnfree = true;
   };
+  python3Packages = pkgsStable.python3Packages;
+in
+  python3Packages.buildPythonPackage rec {
+    pname = "pywhispercpp";
+    version = "1.4.0";
+    pyproject = true;
 
-  nativeBuildInputs =
-    [
-      python3Packages.setuptools
-      python3Packages.cython
-      which
-      cmake
-      ninja
-      python3Packages.scikit-build
-      autoPatchelfHook
-    ]
-    ++ lib.optionals (gpuSupport == "vulkan") [shaderc];
+    src = pkgsStable.fetchFromGitHub {
+      owner = "abdeladim-s";
+      repo = "pywhispercpp";
+      rev = "v${version}";
+      hash = "sha256-Xo8CQqOeDrQQTgYcV5EkSKCZkbkI1WVeW7OqL0CEQ9Q=";
+      fetchSubmodules = true;
+    };
 
-  dontUseCmakeConfigure = true;
+    nativeBuildInputs =
+      [
+        python3Packages.setuptools
+        python3Packages.cython
+        pkgsStable.which
+        pkgsStable.cmake
+        pkgsStable.ninja
+        python3Packages.scikit-build
+        pkgsStable.autoPatchelfHook
+      ]
+      ++ lib.optionals (gpuSupport == "vulkan") [shaderc];
 
-  build-system = with python3Packages; [setuptools cython setuptools-scm];
+    dontUseCmakeConfigure = true;
 
-  buildInputs =
-    [python3Packages.pybind11 ffmpeg]
-    ++ lib.optionals (gpuSupport == "vulkan") [
-      vulkan-loader
-      vulkan-headers
-      shaderc
-    ]
-    ++ lib.optionals (gpuSupport == "rocm") [
-      rocmPackages.clr
-      rocmPackages.rocblas
-      rocmPackages.hipblas
-    ];
+    build-system = with python3Packages; [setuptools cython setuptools-scm];
 
-  # Vulkan loader needed at runtime for GPU acceleration
-  propagatedBuildInputs = with python3Packages;
-    [numpy requests tqdm platformdirs]
-    ++ lib.optionals (gpuSupport == "vulkan") [vulkan-loader];
+    buildInputs =
+      [python3Packages.pybind11 pkgsStable.ffmpeg]
+      ++ lib.optionals (gpuSupport == "vulkan") [
+        vulkan-loader
+        vulkan-headers
+        shaderc
+      ]
+      ++ lib.optionals (gpuSupport == "rocm") [
+        rocmPackages.clr
+        rocmPackages.rocblas
+        rocmPackages.hipblas
+      ];
 
-  postPatch = ''
-    substituteInPlace pyproject.toml \
-      --replace-fail '"repairwheel",' "" \
-      --replace-fail '"ninja",' "" \
-      --replace-fail '"cmake>=3.12",' ""
-  '';
+    # Vulkan loader needed at runtime for GPU acceleration
+    propagatedBuildInputs = with python3Packages;
+      [numpy requests tqdm platformdirs]
+      ++ lib.optionals (gpuSupport == "vulkan") [vulkan-loader];
 
-  # pywhispercpp setup.py converts ALL env vars to -D CMake flags (line 153-154)
-  # Use GGML_VULKAN=1 (not WHISPER_VULKAN which is deprecated)
-  preBuild =
-    ''
-      export NO_REPAIR=1
-    ''
-    + lib.optionalString (gpuSupport == "vulkan") ''
-      export GGML_VULKAN=1
-    ''
-    + lib.optionalString (gpuSupport == "rocm") ''
-      export GGML_HIPBLAS=1
+    postPatch = ''
+      substituteInPlace pyproject.toml \
+        --replace-fail '"repairwheel",' "" \
+        --replace-fail '"ninja",' "" \
+        --replace-fail '"cmake>=3.12",' ""
     '';
 
-  postInstall = ''
-    find $out -type f -name "*.so*" -exec patchelf --set-rpath '$ORIGIN' {} \;
-  '';
+    # pywhispercpp setup.py converts ALL env vars to -D CMake flags (line 153-154)
+    # Use GGML_VULKAN=1 (not WHISPER_VULKAN which is deprecated)
+    preBuild =
+      ''
+        export NO_REPAIR=1
+      ''
+      + lib.optionalString (gpuSupport == "vulkan") ''
+        export GGML_VULKAN=1
+      ''
+      + lib.optionalString (gpuSupport == "rocm") ''
+        export GGML_HIPBLAS=1
+      '';
 
-  pythonImportsCheck = ["pywhispercpp"];
+    postInstall = ''
+      find $out -type f -name "*.so*" -exec patchelf --set-rpath '$ORIGIN' {} \;
+    '';
 
-  meta = with lib; {
-    description = "Python bindings for whisper.cpp";
-    homepage = "https://github.com/abdeladim-s/pywhispercpp";
-    license = licenses.mit;
-    maintainers = [];
-  };
-}
+    pythonImportsCheck = ["pywhispercpp"];
+
+    meta = with lib; {
+      description = "Python bindings for whisper.cpp";
+      homepage = "https://github.com/abdeladim-s/pywhispercpp";
+      license = licenses.mit;
+      maintainers = [];
+    };
+  }

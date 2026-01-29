@@ -48,6 +48,7 @@ nh home switch
 
 > [!IMPORTANT]
 > **Determinate Nix Migration**: If you are switching to this configuration for the first time on a standard NixOS install, use the following flags to enable the Determinate binary cache and avoid building Nix from source:
+>
 > ```bash
 > sudo nixos-rebuild switch --flake .#HOSTNAME \
 >   --option extra-substituters https://install.determinate.systems \
@@ -55,9 +56,13 @@ nh home switch
 > ```
 
 ### Updating
+
 ```bash
 # Update all flake inputs
 nix flake update
+
+# use this to update in case of github rate limit:
+nix flake update --option access-tokens "github.com=$(gh auth token)"
 
 # Garbage collect and optimize store
 nh clean
@@ -95,7 +100,7 @@ Some features of my config:
 
 ### Inspired By
 
-- nixicle: https://github.com/hmajid2301/nixicle
-- Snowfall config: https://github.com/jakehamilton/config
-- My original structure: https://github.com/anotherhadi/nixy
-- Neovim UI: https://github.com/NvChad/nvchad
+- nixicle: <https://github.com/hmajid2301/nixicle>
+- Snowfall config: <https://github.com/jakehamilton/config>
+- My original structure: <https://github.com/anotherhadi/nixy>
+- Neovim UI: <https://github.com/NvChad/nvchad>
