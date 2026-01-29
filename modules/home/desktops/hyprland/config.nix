@@ -7,6 +7,16 @@
 }: let
   inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
+
+  # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
+  trayscaleWithGracefulShutdown = ''
+    uwsm app -t service \
+      -p TimeoutStopSec=5 \
+      -p 'Restart=on-failure' \
+      -p 'RestartSec=5' \
+      -p 'ExecStop=${pkgs.systemdMinimal}/bin/busctl --user call dev.deedles.Trayscale /dev/deedles/Trayscale org.gtk.Actions Activate sava{sv} quit 0 0' \
+      -- ${pkgs.trayscale}/bin/trayscale --hide-window
+  '';
 in {
   config = mkIf cfg.enable {
     home.packages = [pkgs.hyprpicker];
@@ -146,12 +156,15 @@ in {
             # UWSM handles dbus-update-activation-environment and systemd target activation
             "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
             "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-            # "uwsm app -- ${pkgs.kanshi}/bin/kanshi"
-            "uwsm app -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-            "uwsm app -- ${pkgs.pyprland}/bin/pypr"
-            "uwsm app -- ${pkgs.clipse}/bin/clipse -listen"
-            "uwsm app -- ${pkgs.solaar}/bin/solaar -w hide"
-            "uwsm app -- ${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-indicator"
+            # Services with restart resilience for Hyprland crash recovery
+            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
+            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.clipse}/bin/clipse -listen"
+            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.solaar}/bin/solaar -w hide"
+            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.networkmanagerapplet}/bin/nm-applet"
+            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.blueman}/bin/blueman-applet"
+            trayscaleWithGracefulShutdown
+            # kdeconnect-indicator managed by services.kdeconnect.indicator (HM systemd service)
+            # pyprland managed via systemd.user.services.pyprland
           ]
           ++ cfg.execOnceExtras;
       };

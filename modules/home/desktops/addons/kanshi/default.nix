@@ -85,5 +85,16 @@ in {
         # }
       ];
     };
+
+    # Survive Hyprland crash restarts: wait for new Wayland socket before retrying
+    systemd.user.services.kanshi = {
+      Unit = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        RestartSec = 5;
+      };
+    };
   };
 }

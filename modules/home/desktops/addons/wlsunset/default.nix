@@ -28,5 +28,17 @@ in {
       enable = true;
       inherit (cfg) latitude longitude;
     };
+
+    # Survive Hyprland crash restarts: add restart policy and wait for new Wayland socket
+    systemd.user.services.wlsunset = {
+      Unit = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+    };
   };
 }

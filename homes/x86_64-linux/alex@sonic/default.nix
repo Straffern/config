@@ -6,36 +6,13 @@
   ...
 }: let
   inherit (pkgs.${namespace}) clipy;
-
-  # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
-  trayscaleWithGracefulShutdown = ''
-    uwsm app -t service \
-      -p TimeoutStopSec=5 \
-      -p 'ExecStop=${pkgs.systemdMinimal}/bin/busctl --user call dev.deedles.Trayscale /dev/deedles/Trayscale org.gtk.Actions Activate sava{sv} quit 0 0' \
-      -- ${pkgs.trayscale}/bin/trayscale --hide-window
-  '';
-  # sshHosts = {
-  #   "frostmourne" = {
-  #     hostname = "%(cat ${config.sops.secrets.frostmourne_ip.path})";
-  #     user = "alex";
-  #   };
-  # };
 in {
   programs.zsh.sessionVariables = {
     PATH = "$XDG_BIN_HOME:$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
   };
 
   asgaard = {
-    desktops = {
-      hyprland = {
-        enable = true;
-        execOnceExtras = [
-          trayscaleWithGracefulShutdown
-          "uwsm app -- ${pkgs.networkmanagerapplet}/bin/nm-applet"
-          "uwsm app -- ${pkgs.blueman}/bin/blueman-applet"
-        ];
-      };
-    };
+    desktops.hyprland.enable = true;
 
     cli = {
       terminals.alacritty.enable = true;

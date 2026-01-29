@@ -177,5 +177,16 @@ in {
 
       style = builtins.readFile ./styles.css;
     };
+
+    # Survive Hyprland crash restarts: wait for new Wayland socket before retrying
+    systemd.user.services.waybar = {
+      Unit = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        RestartSec = 5;
+      };
+    };
   };
 }

@@ -22,6 +22,23 @@ in {
 
     xdg.configFile."pypr/config.toml".source = ./pyprland.toml;
 
-    home = {packages = with pkgs; [pyprland];};
+    home.packages = with pkgs; [pyprland];
+
+    # Pyprland daemon: survive Hyprland crash restarts
+    systemd.user.services.pyprland = {
+      Unit = {
+        Description = "Pyprland Hyprland plugins daemon";
+        After = ["graphical-session.target"];
+        PartOf = ["graphical-session.target"];
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        ExecStart = "${pkgs.pyprland}/bin/pypr";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+      Install.WantedBy = ["graphical-session.target"];
+    };
   };
 }

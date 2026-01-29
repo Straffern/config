@@ -36,6 +36,18 @@ in {
       indicator = true;
     };
 
+    # Survive Hyprland crash restarts: broaden restart policy and wait for new Wayland socket
+    systemd.user.services.kdeconnect-indicator = {
+      Unit = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        Restart = lib.mkForce "on-failure";
+        RestartSec = 5;
+      };
+    };
+
     ${namespace}.system.persistence.directories = [".config/kdeconnect"];
   };
 }
