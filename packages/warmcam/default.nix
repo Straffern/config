@@ -149,11 +149,11 @@ writeShellScriptBin "warmcam" ''
       -vf "colortemperature=temperature=''${TEMPERATURE}:mix=''${MIX}" \
       -f v4l2 -pix_fmt yuyv422 \
       "$OUTPUT_DEVICE" &
-    
+
     FFPID=$!
     echo "$FFPID" > "$PIDFILE"
     sleep 1
-    
+
     # Check if ffmpeg started successfully
     if kill -0 "$FFPID" 2>/dev/null; then
       echo "warmcam started with PID $FFPID"
