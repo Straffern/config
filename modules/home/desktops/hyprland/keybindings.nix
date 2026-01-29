@@ -85,6 +85,7 @@ in {
     in {
       bind = [
         "SUPER, Return, exec, kitty -1"
+        "SUPERSHIFT, Return, exec, ${pkgs.${namespace}.kitty-same-cwd}/bin/kitty-same-cwd"
         "SUPER, B, exec, ${
           config.${namespace}.desktops.addons.rofi.package
         }/bin/rofi -show drun -run-command 'uwsm app -- {cmd}'"
