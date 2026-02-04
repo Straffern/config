@@ -26,7 +26,7 @@ in {
         trusted-users = ["@wheel" "root"];
         auto-optimise-store = lib.mkDefault true;
         use-xdg-base-directories = true;
-        experimental-features = ["nix-command" "flakes" "parallel-eval"];
+        experimental-features = ["nix-command" "flakes" "parallel-eval" "pipe-operators"];
         warn-dirty = false;
         system-features = ["kvm" "big-parallel" "nixos-test"];
         eval-cores = 0;
