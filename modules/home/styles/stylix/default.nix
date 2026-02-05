@@ -96,6 +96,10 @@ in {
       };
 
       targets = {
+        # Disable DE-specific targets that create unused XDG autostart entries on Hyprland
+        gnome.enable = false;
+        kde.enable = false;
+
         librewolf = {
           firefoxGnomeTheme.enable = true;
           profileNames = ["Default"];

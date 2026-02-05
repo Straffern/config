@@ -12,6 +12,9 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Lower RestartSec from HM default (10s) for faster recovery after crashes
+    systemd.user.services.hypridle.Service.RestartSec = lib.mkForce 5;
+
     services.hypridle = {
       enable = true;
       settings = {

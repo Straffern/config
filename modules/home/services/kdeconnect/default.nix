@@ -36,7 +36,23 @@ in {
       indicator = true;
     };
 
+    # Suppress duplicate XDG autostart: daemon is already managed by kdeconnect.service
+    xdg.configFile."autostart/org.kde.kdeconnect.daemon.desktop".text = ''
+      [Desktop Entry]
+      Hidden=true
+    '';
+
     # Survive Hyprland crash restarts: broaden restart policy and wait for new Wayland socket
+    systemd.user.services.kdeconnect = {
+      Unit = {
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        Restart = lib.mkForce "on-failure";
+        RestartSec = 5;
+      };
+    };
     systemd.user.services.kdeconnect-indicator = {
       Unit = {
         StartLimitIntervalSec = 60;

@@ -19,6 +19,12 @@
   '';
 in {
   config = mkIf cfg.enable {
+    # Suppress duplicate XDG autostart: blueman-applet is already launched via uwsm exec-once
+    xdg.configFile."autostart/blueman.desktop".text = ''
+      [Desktop Entry]
+      Hidden=true
+    '';
+
     home.packages = [pkgs.hyprpicker];
     wayland.windowManager.hyprland = {
       enable = true;
