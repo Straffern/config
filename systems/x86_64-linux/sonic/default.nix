@@ -85,6 +85,8 @@ in {
     resumeDevice = "/dev/disk/by-label/nixos";
   };
 
+  nix.settings.eval-cores = 16;
+
   # ======================== DO NOT CHANGE THIS ========================
   system.stateVersion = "23.11";
   # ======================== DO NOT CHANGE THIS ========================
