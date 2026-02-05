@@ -128,6 +128,11 @@
     };
     lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
     ww.url = "github:Straffern/ww/add-nix-flake";
+
+    pyprland = {
+      url = "github:hyprland-community/pyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: let

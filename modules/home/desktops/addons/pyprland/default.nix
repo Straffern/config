@@ -13,7 +13,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-    xdg.configFile."hypr/pyprland.toml".source = ./pyprland.toml;
+    nix.settings = {
+      trusted-substituters = ["https://hyprland-community.cachix.org"];
+      trusted-public-keys = [
+        "hyprland-community.cachix.org-1:5dTHY+TjAJjnQs23X+vwMQG4va7j+zmvkTKoYuSXnmE="
+      ];
+    };
+
+    xdg.configFile."pypr/config.toml".source = ./pyprland.toml;
 
     home = {packages = with pkgs; [pyprland];};
   };
