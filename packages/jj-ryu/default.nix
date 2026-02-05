@@ -9,16 +9,16 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "jj-ryu";
-  version = "0.0.1-alpha.9+fix-relative-paths";
+  version = "0.0.1-alpha.11";
 
   src = fetchFromGitHub {
-    owner = "Straffern";
+    owner = "dmmulroy";
     repo = "jj-ryu";
-    rev = "cf983a5369867ec1410a9b53b1815ef4dae8c13e";
-    hash = "sha256-Ny8yWxatakKwvo1mztrHi9T7yIFrYZZz4zKpZe1PitE=";
+    rev = "aade8d5acb9c2411828f38049a9b42a4b14529b8";
+    hash = "sha256-gE4lvqyC2LRAWNDUGePklORWjyEofs/dHLHVBAub424=";
   };
 
-  cargoHash = "sha256-1lexTIKR0QCqFeblkGxf18zCSklYMdtHbfmm2hrdK88=";
+  cargoHash = "sha256-OD1DpV4s6tgOnDEAfJWScdSKqtYArbqIJVClOtUCYa4=";
 
   nativeBuildInputs = [pkg-config];
 
