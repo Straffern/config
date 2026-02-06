@@ -16,13 +16,13 @@
 in
   python3Packages.buildPythonApplication rec {
     pname = "hyprwhspr";
-    version = "2026-01-09";
+    version = "1.18.14";
 
     src = pkgsStable.fetchFromGitHub {
       owner = "goodroot";
       repo = "hyprwhspr";
-      rev = "164fff26a3dfb9ab9ac2ac20bb64817af15fe53b";
-      hash = "sha256-ZvRebZR/c9O62028JqoyyQn1TlAUv1ujjwZboY6C2NI=";
+      rev = "v1.18.14";
+      hash = "sha256-peo/GRLZ9wSQ0/MX5hFQhv+MBfDHquIjTgKIJNu6te0=";
     };
 
     nativeBuildInputs = [pkgsStable.makeWrapper];
@@ -81,12 +81,14 @@ in
           substituteInPlace $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
             --replace-fail '#!/bin/bash' '#!${pkgsStable.bash}/bin/bash'
 
-          # Patch ydotool service check: upstream uses user-level ydotool.service,
+          # Patch ydotool service commands: upstream uses user-level ydotool.service,
           # but NixOS runs ydotoold as a system service (ydotoold.service).
-          # Fix the is_ydotoold_running() function to check the correct service.
+          # Fix both the status check and start command.
           substituteInPlace $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
             --replace-fail 'systemctl --user is-active --quiet ydotool.service' \
-                           'systemctl is-active --quiet ydotoold.service'
+                           'systemctl is-active --quiet ydotoold.service' \
+            --replace-fail 'systemctl --user start ydotool.service' \
+                           'systemctl start ydotoold.service'
 
           chmod +x $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh
 
