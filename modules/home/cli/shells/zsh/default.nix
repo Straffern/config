@@ -33,10 +33,10 @@ in {
         # Add custom completions directory to fpath
         fpath=(${config.xdg.configHome}/zsh/completions $fpath)
 
+        # HM owns compinit (NixOS enableGlobalCompInit = false).
+        # Use -C to skip fpath rescan when dump is fresh (< 1 day old).
         autoload -Uz compinit
-        # extendedglob required for (#qN.m-1) glob qualifier
-        setopt local_options extendedglob
-        if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
+        if [[ -f ''${ZDOTDIR:-$HOME}/.zcompdump && $(find ''${ZDOTDIR:-$HOME}/.zcompdump -mtime -1 2>/dev/null) ]]; then
           compinit -C
         else
           compinit
