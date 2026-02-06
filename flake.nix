@@ -127,7 +127,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
-    ww.url = "github:Straffern/ww/add-nix-flake";
+    ww.url = "github:Straffern/ww/delete-when-prs-merged";
 
     pyprland = {
       url = "github:hyprland-community/pyprland";
