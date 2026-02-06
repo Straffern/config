@@ -34,6 +34,8 @@ in {
         fpath=(${config.xdg.configHome}/zsh/completions $fpath)
 
         autoload -Uz compinit
+        # extendedglob required for (#qN.m-1) glob qualifier
+        setopt local_options extendedglob
         if [[ -n ''${ZDOTDIR:-$HOME}/.zcompdump(#qN.m-1) ]]; then
           compinit -C
         else
