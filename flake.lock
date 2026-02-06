@@ -2337,11 +2337,11 @@
         "nixpkgs-unstable": "nixpkgs-unstable"
       },
       "locked": {
-        "lastModified": 1770363833,
-        "narHash": "sha256-TK/yoIJ4tSu+/mVXFZTkYpvDUdVD4Gh45FWTMXBU0uc=",
+        "lastModified": 1770370947,
+        "narHash": "sha256-rnMplIk89SXwtGuP6v/OimlfgZ3FvPtNTd2Dsgiqz+g=",
         "owner": "Straffern",
         "repo": "ww",
-        "rev": "79df4fc6bc917e36a343a528f90b22a89a0d4f44",
+        "rev": "806b3a95a574d7420e4f08d6a93a0db8bab78b5f",
         "type": "github"
       },
       "original": {
