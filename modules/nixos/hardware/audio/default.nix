@@ -67,14 +67,16 @@ in {
                 }
               ];
               "monitor.bluez.rules" = [
-                # Bluetooth devices - highest priority (both input and output)
-                {
-                  matches = [{"node.name" = "~bluez_input.*";}];
-                  actions = {update-props = {"priority.session" = 2000;};};
-                }
+                # Bluetooth output - high priority for sink selection
                 {
                   matches = [{"node.name" = "~bluez_output.*";}];
                   actions = {update-props = {"priority.session" = 2000;};};
+                }
+                # Bluetooth input - higher than output so WirePlumber
+                # picks the actual mic over the sink loopback as default source
+                {
+                  matches = [{"node.name" = "~bluez_input.*";}];
+                  actions = {update-props = {"priority.session" = 2500;};};
                 }
               ];
             };
