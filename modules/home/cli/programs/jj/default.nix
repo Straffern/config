@@ -69,7 +69,7 @@ in {
           default-command = "worklog";
           pager = "delta";
           diff-editor = ["nvim" "-c" "DiffEditor $left $right $output"];
-          diff.formatter = "difftastic";
+          diff.formatter = ["difft" "--color=always" "$left" "$right"];
           merge-editor = "vimdiff";
 
           # show-cryptographic-signatures = true;
