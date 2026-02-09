@@ -29,7 +29,7 @@ in {
       Unit = {
         Description = "Pyprland Hyprland plugins daemon";
         After = ["graphical-session.target"];
-        PartOf = ["graphical-session.target"];
+        BindsTo = ["graphical-session.target"];
         StartLimitIntervalSec = 60;
         StartLimitBurst = 5;
       };
