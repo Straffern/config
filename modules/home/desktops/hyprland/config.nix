@@ -146,7 +146,7 @@ in {
           force_default_wallpaper = 0;
         };
 
-        monitor = ", preferred, auto, 1";
+        monitor = ", preferred, auto, 1, bitdepth, 10";
         # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
 
         env = [
