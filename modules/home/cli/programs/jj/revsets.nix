@@ -16,11 +16,11 @@ in {
 
       "head" = "git_head()";
       "latest" = "latest(curbranch..@ ~ subject(exact:'') ~ empty())";
-      "bases" = "dev";
+      # Common ancestor of trunk and the working copy (useful base reference)
+      "bases" = "fork_point(trunk() | @)";
 
-      # trunk() by default resolves to the latest 'main'/'master' remote bookmark.
-      # May require customization for repos like nixpkgs.
-      "trunk()" = "latest((present(main) | present(master)) & remote_bookmarks())";
+      # Intentionally do not define trunk() here.
+      # Prefer jj defaults and/or per-repo overrides (e.g. .jj/repo/config.toml).
 
       # ══════════════════════════════════════════════════════════════════════════
       # Branch/bookmark utilities
@@ -30,12 +30,15 @@ in {
       "branches" = "downstream(trunk(), bookmarks())";
       "heads" = "heads(trunk()::)";
       "leafs" = "branches | heads";
-      "curbranch" = "latest(branches::@- & branches)";
-      "nextbranch" = "roots(@:: & branchesandheads)";
+      # Nearest bookmark on the current path (restricted to downstream-of-trunk bookmarks)
+      "curbranch" = "heads(::@- & branches)";
+      # Next bookmark/head reachable from @ (closest descendants)
+      "nextbranch" = "roots(@:: & leafs)";
 
       # Bookmark utilities
       "closest_bookmark(to)" = "heads(::to & bookmarks())";
-      "branch_start()" = "heads(::@ & trunk())+ & ::@";
+      # First commit(s) on the path from trunk() to @
+      "branch_start()" = "roots(trunk()..@)";
 
       # Full branch from trunk to @ including descendants (ignores immutability)
       "br()" = "trunk()..@ | @::";
@@ -86,7 +89,7 @@ in {
       # WIP/Private commits - should never be pushed
       # ══════════════════════════════════════════════════════════════════════════
 
-      "wip()" = "description(glob-i:'^wip:*')";
+      "wip()" = ''subject(glob-i:"wip:*")'';
       "private()" = "description(regex:'^[xX]+:') | description(glob:'private:*')";
       "blacklist()" = "wip() | private()";
 
@@ -113,7 +116,8 @@ in {
 
       # The set of 'ready()' commits - open commits but nothing blacklisted or their children.
       # Often used with gerrit: `jj gerrit send -r 'ready()' --dry-run`
-      "ready()" = "open() ~ blacklist()::";
+      # Keep this strictly mutable so it can safely feed push/send operations
+      "ready()" = "(open() & mutable()) ~ blacklist():: ~ description(exact:'')";
 
       # Find the latest megamerge. Mostly useful in combination with other aliases.
       # Assumes there's only one megamerge on your current path to the root.
@@ -125,7 +129,9 @@ in {
 
       "mine_today()" = "mine() & author_date(after:'today 00:00:00')";
       "recent()" = ''committer_date(after:"1 month ago")'';
-      "stale(days)" = "mine() & ~::trunk() & ~last_modified(after: days ++ ' days ago')";
+      # Usage: stale() (defaults to 30 days), or stale(before:"2 weeks ago")
+      "stale()" = ''stale(before:"30 days ago")'';
+      "stale(pat)" = "mine() & ~::trunk() & committer_date(pat)";
 
       # ══════════════════════════════════════════════════════════════════════════
       # Conflict & resolution
@@ -138,15 +144,22 @@ in {
       # Push-ready detection (complements ready())
       # ══════════════════════════════════════════════════════════════════════════
 
-      "pushable()" = "mine() & ~empty() & ~description(exact:'') & remote_bookmarks()..";
-      "unpushable()" = "mine() & remote_bookmarks() & ::@";
+      # All open work that is ready() and not yet contained in any remote bookmark.
+      # Useful with `jj git push -r 'pushable()'`.
+      "pushable()" = "ready() & remote_bookmarks()..";
+      # Open work that still needs cleanup before it can be pushed.
+      "unpushable()" = "open() ~ pushable()";
+
+      # Nearest pushable head on the path to `to`.
+      # Must resolve to exactly one commit (fail loudly if ambiguous).
+      "closest_pushable(to)" = "exactly(heads(::to & pushable()), 1)";
 
       # ══════════════════════════════════════════════════════════════════════════
       # File & impact analysis
       # ══════════════════════════════════════════════════════════════════════════
 
       "impacts(path)" = "files(path)";
-      "find_todo()" = "diff_contains('TODO')";
+      "find_todo()" = ''diff_lines("*TODO*")'';
 
       # ══════════════════════════════════════════════════════════════════════════
       # Worklog aliases - composable components for worklog revset

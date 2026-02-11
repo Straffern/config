@@ -76,10 +76,12 @@ in {
       name = ["bookmark" "create" "-r" "head"];
       # Update bookmark <arg> to point to HEAD
       update = ["bookmark" "move" "--to" "head"];
-      # Pull up the nearest bookmarks to the last described commit
-      tug = ["bookmark" "move" "--from" "curbranch" "--to" "latest"];
+      # Pull up the nearest bookmark to the nearest pushable head
+      tug = ["bookmark" "move" "--from" "closest_bookmark(@)" "--to" "closest_pushable(@)"];
       # Push the nearest bookmark
       push = ["git" "push" "-r" "curbranch"];
+      # Push everything that is ready() and not yet on any remote bookmark
+      push-ready = ["git" "push" "-r" "pushable()"];
 
       # ══════════════════════════════════════════════════════════════════════════
       # Log/view shorthands
@@ -95,6 +97,7 @@ in {
       branch = ["log" "-r" "trunk()..@ | @::"];
       # Get all open stacks of work
       open = ["log" "-r" "open()"];
+      pushable = ["log" "-r" "pushable()"];
       # Better name, IMO
       credit = ["file" "annotate"];
 
