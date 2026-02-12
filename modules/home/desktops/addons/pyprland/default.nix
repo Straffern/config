@@ -7,6 +7,7 @@
 }: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.pyprland;
+  sessionTarget = config.wayland.systemd.target;
 in {
   options.${namespace}.desktops.addons.pyprland = {
     enable = mkEnableOption "Pyprland plugins for hyprland";
@@ -28,17 +29,18 @@ in {
     systemd.user.services.pyprland = {
       Unit = {
         Description = "Pyprland Hyprland plugins daemon";
-        After = ["graphical-session.target"];
-        BindsTo = ["graphical-session.target"];
+        After = [sessionTarget];
+        PartOf = [sessionTarget];
+        BindsTo = [sessionTarget];
         StartLimitIntervalSec = 60;
         StartLimitBurst = 5;
       };
       Service = {
         ExecStart = "${pkgs.pyprland}/bin/pypr";
-        Restart = "on-failure";
+        Restart = "always";
         RestartSec = 5;
       };
-      Install.WantedBy = ["graphical-session.target"];
+      Install.WantedBy = [sessionTarget];
     };
   };
 }

@@ -159,8 +159,7 @@ in {
         exec-once =
           [
             "uwsm finalize"
-            # UWSM handles dbus-update-activation-environment and systemd target activation
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+            # UWSM handles core activation environment and session target activation.
             "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
             # Services with restart resilience for Hyprland crash recovery
             "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"

@@ -12,8 +12,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-    # Lower RestartSec from HM default (10s) for faster recovery after crashes
-    systemd.user.services.hypridle.Service.RestartSec = lib.mkForce 5;
+    # Add only missing lifecycle hardening; keep upstream HM unit defaults.
+    systemd.user.services.hypridle.Unit = {
+      BindsTo = [config.services.hypridle.systemdTarget];
+      StartLimitIntervalSec = 60;
+      StartLimitBurst = 5;
+    };
 
     services.hypridle = {
       enable = true;
