@@ -1,7 +1,7 @@
 return {
 	{
 		"ThePrimeagen/99",
-		dependencies = { "hrsh7th/nvim-cmp" },
+		dependencies = { "saghen/blink.cmp" },
 		config = function()
 			local _99 = require("99")
 			local cwd = vim.uv.cwd()
@@ -14,11 +14,11 @@ return {
 					custom_rules = {
 						"scratch/custom_rules/",
 					},
-					source = "cmp",
+					source = "blink",
 				},
 				md_files = {
 					"AGENT.md",
-					"CLAUDE.md",
+					"AGENTS.md",
 				},
 			})
 		end,
