@@ -23,7 +23,7 @@ in {
           opencode = {enable = true;};
           shellFunction = {
             enable = true;
-            model = "opencode/grok-code";
+            model = "opencode/gpt-5-nano";
             # systemPrompt = "...";  # Custom system prompt
           };
         };
