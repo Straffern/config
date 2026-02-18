@@ -1,75 +1,30 @@
-# 🧑‍💻 Agents
+- In all interaction and commit messages, be extremely concise and sacrifice grammar for the sake of concision.
 
-## ⚠️ CRITICAL: Ask Clarifying Questions When Unclear
+## Code Quality Standards
 
-**ALWAYS ask clarifying questions when requirements are ambiguous or unclear.**
+- Make minimal, surgical changes
+- **Abstractions**: Consciously constrained, pragmatically parameterised, doggedly documented
 
-When you receive a request that is ambiguous, missing key details, or has multiple interpretations:
+### **ENTROPY REMINDER**
 
-1. ✅ **Ask ONE clarifying question at a time**
-2. ✅ **Wait for the answer before proceeding**
-3. ✅ **Continue asking questions until you have complete understanding**
-4. ✅ **Never make assumptions when you can ask**
+This codebase will outlive you. Every shortcut you take becomes
+someone else's burden. Every hack compounds into technical debt
+that slows the whole team down.
 
-**Good Question Pattern:**
+You are not just writing code. You are shaping the future of this
+project. The patterns you establish will be copied. The corners
+you cut will be cut again.
 
-```
-"I want to make sure I understand correctly: [restate what you think they mean].
-Is that correct, or did you mean [alternative interpretation]?"
-```
+**Fight entropy. Leave the codebase better than you found it.**
 
-**Remember**: It's better to ask and get it right than to implement the wrong thing quickly.
+## Testing
 
----
+- Write tests that verify semantically correct behavior
+- **Failing tests are acceptable** when they expose genuine bugs and test correct behavior
 
-## Documentation Policy
+## Plans
 
-**DO NOT** proactively create planning or documentation files (PLAN.md, IMPLEMENTATION.md, ARCHITECTURE.md, DESIGN.md, etc.) unless explicitly instructed by the user.
-
-- ❌ Do NOT create planning documents without explicit request
-- ❌ Do NOT create markdown documentation files autonomously
-- ✅ Only create documentation when user explicitly asks for it
-
----
-
-## Essential Rules Summary
-
-- ✅ **Ask clarifying questions** when requirements are unclear
-- ✅ **Consult agents** before implementation for domain expertise
-- ✅ **Run review agents** before completing significant work
-- ✅ **Follow documentation policy** - no proactive planning docs
-- ❌ **Do NOT create duplicate tracking** systems
-- ❌ **Do NOT skip agent consultation** when needed
-
----
-
-## When in Doubt
-
-1. **Ask a clarifying question** - Don't assume, just ask (one at a time)
-2. **Consult relevant skills** -  Seek advice from relevant skills
-3. **Look at existing patterns** - Tests, similar features, documentation
-
----
-
-## Skills - Knowledge Injection
-
-Skills are reusable knowledge packages. Load them on-demand for specialized tasks.
-
-### When to Use
-
-- Before unfamiliar work - check if a skill exists
-- When you need domain-specific patterns
-- For complex workflows that benefit from guidance
-
-### Usage
-
-```bash
-skills_list()                              # See available skills
-skills_use(name="learning-ststems")      # Load a skill
-skills_use(name="cli-builder", context="building a new CLI") # With context
-```
-
-**Bundled Skills:** cli-builder, learning-systems, skill-creator, system-design, testing-patterns
+- At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammar for the sake of concision.
 
 ## CASS - Cross-Agent Session Search
 
@@ -99,4 +54,4 @@ cass_expand(path="/path", line=42, context=10)
 
 **Pro tip:** Query CASS at the START of complex tasks. Past solutions save time.
 
-Only use jj, do not use git!
+Only use jj, NEVER USE git!
