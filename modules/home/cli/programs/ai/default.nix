@@ -44,8 +44,6 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [
-      # inputs.beads.packages.${pkgs.stdenv.hostPlatform.system}.default
-      # pkgs.${namespace}.bv
       pkgs.${namespace}.cass
       pkgs.ollama-vulkan
     ];
@@ -54,10 +52,10 @@ in {
       # OpenCode orchestration documentation
       (lib.mkIf cfg.opencode.enable {
         ".config/opencode/AGENTS.md" = {
-          source = config.lib.asgaard.managedSource ./agents/AGENTS.md;
+          source = config.lib.asgaard.managedSource ./AGENTS.md;
         };
         ".config/opencode/skill" = {
-          source = ./agents/skills/.;
+          source = ./skills/.;
           recursive = true;
         };
         # ".config/opencode/opencode.json" = { source = ./agents/opencode.json; };
@@ -77,7 +75,6 @@ in {
 
       system.persistence = {
         directories = [".claude" ".config/opencode"];
-        files = [".claude.json"];
       };
     };
   };
