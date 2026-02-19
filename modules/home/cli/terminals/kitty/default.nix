@@ -46,8 +46,10 @@ in {
 
         font_size = 14;
 
-        # bell_path =
-        #   "/home/${config.home.username}/.local/share/sounds/bell.oga";
+        bell_path = "${config.xdg.dataHome}/sounds/bell.oga";
+        # Fallback: bypass compositor bell path and call PipeWire directly.
+        # enable_audio_bell = "no";
+        # command_on_bell = "/run/current-system/sw/bin/pw-play ${config.xdg.dataHome}/sounds/bell.oga";
 
         window_padding_width = 10;
         scrollback_lines = 5000;
@@ -59,7 +61,7 @@ in {
         sync_to_monitor = "yes";
         input_delay = 0;
         repaint_delay = 2;
-        enable_audio_bell = "no";
+        enable_audio_bell = "yes";
         visual_bell_duration = "0.0";
         # symbol_map = let
         #   mappings = [

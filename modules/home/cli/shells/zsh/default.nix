@@ -70,6 +70,16 @@ in {
           setopt HIST_SAVE_NO_DUPS
           setopt HIST_FIND_NO_DUPS
 
+          export SUDO_PROMPT=$'\a[sudo] password for %p: '
+          # SUDO_PROMPT is text-only, it cannot execute commands.
+          # If wanted, use this wrapper to notify right before sudo prompts:
+          # sudo() {
+          #   if ! command sudo -n true 2>/dev/null; then
+          #     command -v notify-send >/dev/null && notify-send "sudo" "Password prompt incoming"
+          #   fi
+          #   command sudo "$@"
+          # }
+
           # zsh-vi-mode configuration
           function zvm_config() {
             ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
