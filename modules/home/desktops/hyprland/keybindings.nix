@@ -102,15 +102,11 @@
       }
     ')"
 
-    if [[ "$fullscreen" != "0" ]]; then
-      hyprctl dispatch setprop "address:$address" opaque false
-      hyprctl dispatch setprop "address:$address" opacity_fullscreen "$next" lock
-      hyprctl dispatch setprop "address:$address" opacity_fullscreen_override true lock
-    else
-      hyprctl dispatch setprop "address:$address" opaque false
-      hyprctl dispatch setprop "address:$address" opacity "$next" lock
-      hyprctl dispatch setprop "address:$address" opacity_override true lock
-    fi
+    hyprctl dispatch setprop "address:$address" opaque false
+    hyprctl dispatch setprop "address:$address" opacity "$next" lock
+    hyprctl dispatch setprop "address:$address" opacity_override true lock
+    hyprctl dispatch setprop "address:$address" opacity_fullscreen "$next" lock
+    hyprctl dispatch setprop "address:$address" opacity_fullscreen_override true lock
   '';
 
   toggle_transparency = pkgs.writeShellScriptBin "toggle_transparency" ''
@@ -134,10 +130,8 @@
 
     if [[ "$fullscreen" != "0" ]]; then
       opacity_prop="opacity_fullscreen"
-      override_prop="opacity_fullscreen_override"
     else
       opacity_prop="opacity"
-      override_prop="opacity_override"
     fi
 
     current="$(hyprctl getprop "address:$address" "$opacity_prop" 2>/dev/null)"
@@ -154,8 +148,10 @@
         next="$transparent_opacity"
       fi
 
-      hyprctl dispatch setprop "address:$address" "$opacity_prop" "$next" lock
-      hyprctl dispatch setprop "address:$address" "$override_prop" true lock
+      hyprctl dispatch setprop "address:$address" opacity "$next" lock
+      hyprctl dispatch setprop "address:$address" opacity_override true lock
+      hyprctl dispatch setprop "address:$address" opacity_fullscreen "$next" lock
+      hyprctl dispatch setprop "address:$address" opacity_fullscreen_override true lock
       hyprctl dispatch setprop "address:$address" opaque false
     else
       hyprctl dispatch setprop "address:$address" opaque true
