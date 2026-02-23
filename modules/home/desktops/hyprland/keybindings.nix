@@ -58,6 +58,109 @@
     hyprctl dispatch moveactive exact $pos_x $pos_y
     hyprctl dispatch resizeactive exact $size_x $size_y
   '';
+
+  adjust_opacity = pkgs.writeShellScriptBin "adjust_opacity" ''
+    #!/usr/bin/env bash
+
+    direction="$1"
+
+    case "$direction" in
+      up|down) ;;
+      *) exit 1 ;;
+    esac
+
+    window_json="$(hyprctl activewindow -j 2>/dev/null)"
+
+    if [[ -z "$window_json" ]]; then
+      exit 0
+    fi
+
+    address="$(printf '%s' "$window_json" | ${pkgs.jq}/bin/jq -r '.address')"
+    fullscreen="$(printf '%s' "$window_json" | ${pkgs.jq}/bin/jq -r '.fullscreen // 0')"
+
+    if [[ -z "$address" || "$address" == "null" ]]; then
+      exit 0
+    fi
+
+    if [[ "$fullscreen" != "0" ]]; then
+      current="$(hyprctl getprop "address:$address" opacity_fullscreen 2>/dev/null)"
+    else
+      current="$(hyprctl getprop "address:$address" opacity 2>/dev/null)"
+    fi
+
+    if [[ -z "$current" ]]; then
+      exit 0
+    fi
+
+    next="$(${pkgs.gawk}/bin/awk -v current="$current" -v direction="$direction" '
+      BEGIN {
+        step = 0.05
+        value = current + (direction == "up" ? step : -step)
+        if (value < 0.2) value = 0.2
+        if (value > 1.0) value = 1.0
+        printf "%.2f", value
+      }
+    ')"
+
+    if [[ "$fullscreen" != "0" ]]; then
+      hyprctl dispatch setprop "address:$address" opaque false
+      hyprctl dispatch setprop "address:$address" opacity_fullscreen "$next" lock
+      hyprctl dispatch setprop "address:$address" opacity_fullscreen_override true lock
+    else
+      hyprctl dispatch setprop "address:$address" opaque false
+      hyprctl dispatch setprop "address:$address" opacity "$next" lock
+      hyprctl dispatch setprop "address:$address" opacity_override true lock
+    fi
+  '';
+
+  toggle_transparency = pkgs.writeShellScriptBin "toggle_transparency" ''
+    #!/usr/bin/env bash
+
+    transparent_opacity="0.75"
+
+    window_json="$(hyprctl activewindow -j 2>/dev/null)"
+
+    if [[ -z "$window_json" ]]; then
+      exit 0
+    fi
+
+    address="$(printf '%s' "$window_json" | ${pkgs.jq}/bin/jq -r '.address')"
+    fullscreen="$(printf '%s' "$window_json" | ${pkgs.jq}/bin/jq -r '.fullscreen // 0')"
+    opaque="$(hyprctl getprop "address:$address" opaque 2>/dev/null)"
+
+    if [[ -z "$address" || "$address" == "null" ]]; then
+      exit 0
+    fi
+
+    if [[ "$fullscreen" != "0" ]]; then
+      opacity_prop="opacity_fullscreen"
+      override_prop="opacity_fullscreen_override"
+    else
+      opacity_prop="opacity"
+      override_prop="opacity_override"
+    fi
+
+    current="$(hyprctl getprop "address:$address" "$opacity_prop" 2>/dev/null)"
+
+    if [[ -z "$current" ]]; then
+      exit 0
+    fi
+
+    if [[ "$opaque" == "true" ]]; then
+      next="$current"
+      is_effectively_opaque="$(${pkgs.gawk}/bin/awk -v opacity="$current" 'BEGIN { print (opacity >= 0.99 ? 1 : 0) }')"
+
+      if [[ "$is_effectively_opaque" == "1" ]]; then
+        next="$transparent_opacity"
+      fi
+
+      hyprctl dispatch setprop "address:$address" "$opacity_prop" "$next" lock
+      hyprctl dispatch setprop "address:$address" "$override_prop" true lock
+      hyprctl dispatch setprop "address:$address" opaque false
+    else
+      hyprctl dispatch setprop "address:$address" opaque true
+    fi
+  '';
 in {
   config = mkIf cfg.enable {
     wayland.windowManager.hyprland.settings = let
@@ -106,8 +209,9 @@ in {
         "SUPER, TAB, pseudo"
 
         # Transparency toggle
-        ''
-          SUPER, T, exec, hyprctl dispatch setprop "address:$(hyprctl activewindow -j | ${pkgs.jq}/bin/jq -r '.address')" opaque toggle''
+        "SUPER, T, exec, ${toggle_transparency}/bin/toggle_transparency"
+        "SUPERSHIFT, bracketright, exec, ${adjust_opacity}/bin/adjust_opacity up"
+        "SUPERSHIFT, bracketleft, exec, ${adjust_opacity}/bin/adjust_opacity down"
 
         # Group management
         "SUPER, G, lockgroups, toggle" # Lock groups

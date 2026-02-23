@@ -34,6 +34,7 @@ in {
 
       settings = {
         shell = "zsh";
+        background_opacity = mkForce 1.0;
         allow_remote_control = "socket-only";
         listen_on = "unix:/tmp/kitty";
         shell_integration = "enabled";

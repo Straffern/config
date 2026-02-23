@@ -26,6 +26,9 @@ in {
         "center on, match:tag picker, match:title ^(Open.*Files?|Save.*Files?|All Files|Save)"
         "size 800 600, match:tag picker"
 
+        # Terminal windows: transparent by default
+        "opacity 0.9 0.8, match:class ^(kitty|kitty-dropterm)$"
+
         # Drop-down terminal
         "float on, match:class ^(kitty-dropterm)$"
         "move 50%-w/2 5%, match:class ^(kitty-dropterm)$"
