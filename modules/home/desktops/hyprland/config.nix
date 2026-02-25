@@ -161,9 +161,11 @@ in {
             "uwsm finalize"
             # UWSM handles core activation environment and session target activation.
             "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
+            "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+            "systemctl --user restart pyprland.service"
             # Services with restart resilience for Hyprland crash recovery
             "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.clipse}/bin/clipse -listen"
+            "uwsm app -t service -p 'Restart=always' -p 'RestartSec=5' -- ${pkgs.clipse}/bin/clipse -listen"
             "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.solaar}/bin/solaar -w hide"
             "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.networkmanagerapplet}/bin/nm-applet"
             "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.blueman}/bin/blueman-applet"

@@ -36,7 +36,7 @@ in {
         StartLimitBurst = 5;
       };
       Service = {
-        Restart = "on-failure";
+        Restart = "always";
         RestartSec = 5;
       };
     };

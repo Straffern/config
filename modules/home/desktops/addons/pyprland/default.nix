@@ -31,9 +31,6 @@ in {
         Description = "Pyprland Hyprland plugins daemon";
         After = [sessionTarget];
         PartOf = [sessionTarget];
-        BindsTo = [sessionTarget];
-        StartLimitIntervalSec = 60;
-        StartLimitBurst = 5;
       };
       Service = {
         ExecStart = "${pkgs.pyprland}/bin/pypr";
