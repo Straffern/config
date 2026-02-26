@@ -33,6 +33,8 @@ in {
       enableZshIntegration = true;
       settings =
         {
+          command_timeout = 2000;
+          scan_timeout = 100;
           # palette = lib.mkDefault "custom";
           # palettes.custom = {
           #   rosewater = "#${colors.base06}";
