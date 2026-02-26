@@ -31,6 +31,7 @@ in {
       waybar.enable = true;
       wlogout.enable = true;
       wlsunset.enable = true;
+      tray-services.enable = true;
 
       pyprland.enable = true;
       hyprpaper.enable = true;

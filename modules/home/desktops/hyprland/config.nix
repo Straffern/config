@@ -7,25 +7,10 @@
 }: let
   inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
-
-  # Trayscale doesn't respond to SIGTERM, needs D-Bus quit action for graceful shutdown
-  trayscaleWithGracefulShutdown = ''
-    uwsm app -t service \
-      -p TimeoutStopSec=5 \
-      -p 'Restart=on-failure' \
-      -p 'RestartSec=5' \
-      -p 'ExecStop=${pkgs.systemdMinimal}/bin/busctl --user call dev.deedles.Trayscale /dev/deedles/Trayscale org.gtk.Actions Activate sava{sv} quit 0 0' \
-      -- ${pkgs.trayscale}/bin/trayscale --hide-window
-  '';
 in {
   config = mkIf cfg.enable {
-    # Suppress duplicate XDG autostart: blueman-applet is already launched via uwsm exec-once
-    xdg.configFile."autostart/blueman.desktop".text = ''
-      [Desktop Entry]
-      Hidden=true
-    '';
-
     home.packages = [pkgs.hyprpicker];
+
     wayland.windowManager.hyprland = {
       enable = true;
 
@@ -163,15 +148,7 @@ in {
             "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
             "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
             "systemctl --user restart pyprland.service"
-            # Services with restart resilience for Hyprland crash recovery
-            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
-            "uwsm app -t service -p 'Restart=always' -p 'RestartSec=5' -- ${pkgs.clipse}/bin/clipse -listen"
-            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.solaar}/bin/solaar -w hide"
-            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.networkmanagerapplet}/bin/nm-applet"
-            "uwsm app -t service -p 'Restart=on-failure' -p 'RestartSec=5' -- ${pkgs.blueman}/bin/blueman-applet"
-            trayscaleWithGracefulShutdown
-            # kdeconnect-indicator managed by services.kdeconnect.indicator (HM systemd service)
-            # pyprland managed via systemd.user.services.pyprland
+            # Persistent tray/background daemons are managed by user systemd units.
           ]
           ++ cfg.execOnceExtras;
       };
