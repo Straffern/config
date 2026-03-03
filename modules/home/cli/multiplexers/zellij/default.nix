@@ -40,12 +40,19 @@
     fi
     # extracts the directory name from the absolute path
     SESSION_TITLE=$(basename "$ZOXIDE_RESULT")
+    CURRENT_SESSION="$ZELLIJ_SESSION_NAME"
 
     # get the list of sessions
     SESSION_LIST=$(zellij list-sessions -s)
 
     # checks if SESSION_TITLE is in the session list
     if printf '%s\n' "$SESSION_LIST" | grep -Fxq "$SESSION_TITLE"; then
+      # zellij panics when trying to attach to the current session
+      if [ -n "$ZELLIJ" ] && [ "$SESSION_TITLE" = "$CURRENT_SESSION" ]; then
+        zellij action new-tab --name "$SESSION_TITLE" --cwd "$ZOXIDE_RESULT"
+        exit 0
+      fi
+
       # if so, attach to existing session
       zellij attach "$SESSION_TITLE"
     else
@@ -61,7 +68,10 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = [pkgs.tmate sesh];
+    home.packages = [
+      pkgs.tmate
+      sesh
+    ];
 
     xdg.configFile."zellij/config.kdl".source = config.lib.asgaard.managedSource ./config.kdl;
     xdg.configFile."zellij/layouts/default.kdl".text = ''
