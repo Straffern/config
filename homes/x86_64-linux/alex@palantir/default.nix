@@ -13,13 +13,9 @@ in {
     cli.shells.zsh.enable = true;
     cli.programs.ai = {
       enable = true;
-      claude.enable = true;
       opencode = {
         enable = true;
-        convertAgents = true;
-        convertCommands = true;
       };
-      includeModelInAgents = false;
     };
     suites.development.enable = true;
     styles.stylix = {

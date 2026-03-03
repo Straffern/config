@@ -1,11 +1,18 @@
 {
   lib,
   config,
+  options,
   namespace,
   osConfig ? {},
   ...
 }: let
-  inherit (lib) mkIf mkOption types;
+  inherit
+    (lib)
+    mkIf
+    mkOption
+    optionalAttrs
+    types
+    ;
   inherit (lib.${namespace}) mkBoolOpt;
 
   cfg = config.${namespace}.system.persistence;
@@ -14,24 +21,27 @@
   impermanenceEnabled = osConfig.${namespace}.system.impermanence.enable or false;
 
   # Directory entry type - supports both strings and { directory, method } attrsets
-  directoryType = types.either types.str (types.submodule {
-    options = {
-      directory = mkOption {
-        type = types.str;
-        description = "The directory path to be linked.";
+  directoryType = types.either types.str (
+    types.submodule {
+      options = {
+        directory = mkOption {
+          type = types.str;
+          description = "The directory path to be linked.";
+        };
+        method = mkOption {
+          type = types.enum [
+            "bindfs"
+            "symlink"
+          ];
+          default = cfg.defaultDirectoryMethod;
+          description = "The linking method for this directory.";
+        };
       };
-      method = mkOption {
-        type = types.enum ["bindfs" "symlink"];
-        default = cfg.defaultDirectoryMethod;
-        description = "The linking method for this directory.";
-      };
-    };
-  });
+    }
+  );
 in {
   options.${namespace}.system.persistence = {
-    enable =
-      mkBoolOpt impermanenceEnabled
-      "Whether to enable home persistence. Automatically enabled when NixOS impermanence is active.";
+    enable = mkBoolOpt impermanenceEnabled "Whether to enable home persistence. Automatically enabled when NixOS impermanence is active.";
 
     persistPrefix = mkOption {
       type = types.str;
@@ -46,7 +56,10 @@ in {
     };
 
     defaultDirectoryMethod = mkOption {
-      type = types.enum ["bindfs" "symlink"];
+      type = types.enum [
+        "bindfs"
+        "symlink"
+      ];
       default = "bindfs";
       description = ''
         Default linking method for directories.
@@ -73,15 +86,27 @@ in {
       type = types.listOf types.str;
       default = [];
       description = "Files to persist.";
-      example = [".screenrc" ".my-config-file"];
+      example = [
+        ".screenrc"
+        ".my-config-file"
+      ];
     };
   };
 
-  config = mkIf cfg.enable {
-    programs.persist-retro.enable = true;
-
-    home.persistence.${cfg.persistPrefix} = {
-      inherit (cfg) allowOther directories files defaultDirectoryMethod;
-    };
-  };
+  config = mkIf cfg.enable (
+    {
+      programs.persist-retro.enable = true;
+    }
+    // optionalAttrs (options ? home.persistence) {
+      home.persistence.${cfg.persistPrefix} = {
+        inherit
+          (cfg)
+          allowOther
+          directories
+          files
+          defaultDirectoryMethod
+          ;
+      };
+    }
+  );
 }
