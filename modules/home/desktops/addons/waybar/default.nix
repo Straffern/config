@@ -4,7 +4,8 @@
   pkgs,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.waybar;
 
@@ -13,10 +14,10 @@
   customPyWhisperCpp = pkgs.${namespace}.pywhispercpp.override {
     gpuSupport = config.${namespace}.programs.hyprwhspr.gpuSupport or "vulkan";
   };
-  customHyprwhspr =
-    pkgs.${namespace}.hyprwhspr.override {pywhispercpp = customPyWhisperCpp;};
+  customHyprwhspr = pkgs.${namespace}.hyprwhspr.override { pywhispercpp = customPyWhisperCpp; };
   trayScript = "${customHyprwhspr}/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh";
-in {
+in
+{
   options.${namespace}.desktops.addons.waybar = {
     enable = mkEnableOption "Waybar";
   };
@@ -30,13 +31,18 @@ in {
           layer = "top";
           position = "top";
           margin = "0 0 0 0";
-          modules-left = ["hyprland/workspaces" "tray"];
+          modules-left = [
+            "hyprland/workspaces"
+            "tray"
+          ];
           # NOTE: If you see "Unable to replace properties on 0: Error getting properties for ID"
           # in waybar logs, it is a benign protocol mismatch from tray applets (like blueman).
           # It does not affect functionality.
-          modules-center =
-            (lib.optional hyprwhsprEnabled "custom/hyprwhspr")
-            ++ ["custom/notification" "clock" "idle_inhibitor"];
+          modules-center = (lib.optional hyprwhsprEnabled "custom/hyprwhspr") ++ [
+            "custom/notification"
+            "clock"
+            "idle_inhibitor"
+          ];
           modules-right = [
             "power-profiles-daemon"
             "backlight"
@@ -119,7 +125,9 @@ in {
               deactivated = "  ";
             };
           };
-          backlight = {format = " {percent}%";};
+          backlight = {
+            format = " {percent}%";
+          };
           battery = {
             states = {
               good = 80;
@@ -129,7 +137,13 @@ in {
             format = "{icon} {capacity}%";
             format-alt = "{time}";
             format-charging = "  {capacity}%";
-            format-icons = ["󰁻 " "󰁽 " "󰁿 " "󰂁 " "󰂂 "];
+            format-icons = [
+              "󰁻 "
+              "󰁽 "
+              "󰁿 "
+              "󰂁 "
+              "󰂂 "
+            ];
           };
           network = {
             interval = 1;
@@ -152,7 +166,10 @@ in {
             format-icons = {
               headphone = "  ";
               headset = "  ";
-              default = ["  " "  "];
+              default = [
+                "  "
+                "  "
+              ];
             };
           };
           tray = {
@@ -185,6 +202,9 @@ in {
         StartLimitBurst = 5;
       };
       Service = {
+        ExecStartPost = [
+          "${pkgs.systemd}/bin/systemctl --user try-restart pyprland.service"
+        ];
         RestartSec = 5;
       };
     };
