@@ -1,6 +1,6 @@
 return {
 	{
-		"HotThoughts/jjui.nvim",
+		"Straffern/jjui.nvim",
 		cmd = {
 			"JJUI",
 			"JJUICurrentFile",
