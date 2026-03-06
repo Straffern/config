@@ -203,7 +203,7 @@ in
       };
       Service = {
         ExecStartPost = [
-          "${pkgs.systemd}/bin/systemctl --user try-restart pyprland.service"
+          "${pkgs.systemd}/bin/systemctl --user try-restart pyprland.service hypridle.service"
         ];
         RestartSec = 5;
       };
