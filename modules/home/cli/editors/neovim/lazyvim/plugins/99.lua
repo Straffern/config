@@ -7,10 +7,53 @@ return {
 		},
 		config = function()
 			local _99 = require("99")
+			local BaseProvider = _99.Providers.BaseProvider
+			local PiAgentProvider = setmetatable({}, { __index = BaseProvider })
+
+			function PiAgentProvider._build_command(_, query, context)
+				return {
+					"pi",
+					"-p",
+					"--no-session",
+					"--model",
+					context.model,
+					query,
+				}
+			end
+
+			function PiAgentProvider.fetch_models(callback)
+				vim.system({ "pi", "--list-models" }, { text = true }, function(obj)
+					vim.schedule(function()
+						if obj.code ~= 0 then
+							callback(nil, "Failed to fetch models from pi")
+							return
+						end
+
+						local models = {}
+						for _, line in ipairs(vim.split(obj.stdout, "\n", { trimempty = true })) do
+							local parts = vim.split(line, "%s+", { trimempty = true })
+							if #parts >= 2 and parts[1] ~= "provider" then
+								table.insert(models, parts[1] .. "/" .. parts[2])
+							end
+						end
+
+						callback(models, nil)
+					end)
+				end)
+			end
+
+			function PiAgentProvider._get_provider_name()
+				return "PiAgentProvider"
+			end
+
+			function PiAgentProvider._get_default_model()
+				return "anthropic/claude-sonnet-4-6"
+			end
+
+			_99.Providers.PiAgentProvider = PiAgentProvider
 
 			_99.setup({
-				provider = _99.Providers.OpenCodeProvider,
-				model = "openai/gpt-5.3-codex",
+				provider = _99.Providers.PiAgentProvider,
 				display_errors = true,
 				auto_add_skills = true,
 				tmp_dir = "./.tmp",
