@@ -4,14 +4,12 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf;
   cfg = config.${namespace}.desktops.hyprland;
-in
-{
+in {
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.hyprpicker ];
+    home.packages = [pkgs.hyprpicker pkgs.asgaard.hyprlock-recover];
 
     wayland.windowManager.hyprland = {
       enable = true;
@@ -120,20 +118,18 @@ in
           preserve_split = true;
         };
 
-        gesture = [ "3, horizontal, workspace" ];
+        gesture = ["3, horizontal, workspace"];
 
         binds.movefocus_cycles_fullscreen = true;
 
-        misc =
-          let
-            FULLSCREEN_ONLY = 2;
-          in
-          {
-            vrr = FULLSCREEN_ONLY;
-            disable_hyprland_logo = true;
-            disable_splash_rendering = true;
-            force_default_wallpaper = 0;
-          };
+        misc = let
+          FULLSCREEN_ONLY = 2;
+        in {
+          vrr = FULLSCREEN_ONLY;
+          disable_hyprland_logo = true;
+          disable_splash_rendering = true;
+          force_default_wallpaper = 0;
+        };
 
         monitor = ", preferred, auto, 1, bitdepth, 10";
         # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
@@ -145,14 +141,15 @@ in
           "QT_QPA_PLATFORM,wayland;xcb"
         ];
 
-        exec-once = [
-          "uwsm finalize"
-          # UWSM handles core activation environment and session target activation.
-          "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-          "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
-          # Persistent tray/background daemons are managed by user systemd units.
-        ]
-        ++ cfg.execOnceExtras;
+        exec-once =
+          [
+            "uwsm finalize"
+            # UWSM handles core activation environment and session target activation.
+            "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
+            "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+            # Persistent tray/background daemons are managed by user systemd units.
+          ]
+          ++ cfg.execOnceExtras;
       };
     };
   };
