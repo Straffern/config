@@ -9,7 +9,8 @@
 
   # foreground = "rgba(216, 222, 233, 0.70)";
 
-  foreground = "rgb(${config.lib.stylix.colors.base05})";
+  foreground = "rgba(${config.lib.stylix.colors.base05}b3)";
+  shadow = "rgba(${config.lib.stylix.colors.base00}99)";
   font = config.stylix.fonts.serif.name;
 in {
   options.${namespace}.desktops.addons.hyprlock = {
@@ -40,6 +41,9 @@ in {
             monitor = "";
             text = ''cmd[update:1000] echo -e "$(date +"%A, %B %d")"'';
             color = foreground;
+            shadow_passes = 2;
+            shadow_size = 4;
+            shadow_color = shadow;
             font_size = 28;
             font_family = font + " Bold";
             position = "0, 490";
@@ -51,6 +55,9 @@ in {
             monitor = "";
             text = ''cmd[update:1000] echo "<span>$(date +"%I:%M")</span>"'';
             color = foreground;
+            shadow_passes = 2;
+            shadow_size = 6;
+            shadow_color = shadow;
             font_size = 160;
             font_family = "steelfish outline regular";
             position = "0, 370";
@@ -62,6 +69,9 @@ in {
             monitor = "";
             text = "    $USER";
             color = foreground;
+            shadow_passes = 2;
+            shadow_size = 4;
+            shadow_color = shadow;
             font_size = 18;
             font_family = font + " Bold";
             position = "0, -180";
