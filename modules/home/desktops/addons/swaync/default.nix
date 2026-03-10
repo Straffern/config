@@ -14,7 +14,18 @@ in {
   config = mkIf cfg.enable {
     services.swaync = {
       enable = true;
-      settings = {};
+      settings = {
+        widgets = ["title" "dnd" "notifications"];
+        widget-config = {
+          title = {
+            text = "Notifications";
+            clear-all-button = true;
+            button-text = "Clear All";
+          };
+          dnd.text = "Do Not Disturb";
+          notifications.vexpand = true;
+        };
+      };
       style = builtins.readFile ./swaync.css;
     };
 

@@ -44,7 +44,6 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = [
-      pkgs.${namespace}.cass
       pkgs.ollama-vulkan
     ];
 

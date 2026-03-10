@@ -17,7 +17,7 @@ in {
       enable = true;
       settings = rec {
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start -eD Hyprland hyprland-uwsm.desktop'";
+          command = "${pkgs.tuigreet}/bin/tuigreet --remember --asterisks --container-padding 2 --time --time-format '%I:%M %p | %a • %h | %F' --cmd 'uwsm start -F -eD Hyprland -- start-hyprland'";
           user = "greeter";
         };
         initial_session = default_session;

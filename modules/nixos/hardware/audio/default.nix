@@ -88,6 +88,7 @@ in {
                   matches = [{"node.name" = "~raop_sink.*";}];
                   actions = {
                     update-props = {
+                      "priority.session" = 100;
                       "channelmix.volume-scale" = "cubic";
                       "node.max-volume" = 1.0;
                     };
@@ -99,7 +100,7 @@ in {
         };
       };
 
-      udev.packages = with pkgs; [headsetcontrol];
+      # udev.packages = with pkgs; [headsetcontrol];
     };
     programs.noisetorch.enable = true;
 
@@ -113,8 +114,8 @@ in {
     environment.systemPackages = with pkgs; [
       pavucontrol
 
-      headsetcontrol
-      headset-charge-indicator
+      # headsetcontrol
+      # headset-charge-indicator
       pulsemixer
     ];
   };

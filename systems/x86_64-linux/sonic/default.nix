@@ -81,7 +81,7 @@ in {
   boot = {
     kernelParams = ["resume_offset=533760"];
     supportedFilesystems = lib.mkForce ["btrfs"];
-    kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-lts-lto-zen4;
     resumeDevice = "/dev/disk/by-label/nixos";
   };
 

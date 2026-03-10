@@ -2,11 +2,11 @@
   description = "";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -70,12 +70,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # NOTE: hyprnix disabled - binary cache is incomplete, causing:
-    # - ABI mismatches (GCC 14/15) when packages are built locally
-    # - FetchContent failures (git not available in sandbox)
-    # Using nixpkgs hyprland ecosystem packages instead.
-    # hyprnix.url = "github:hyprwm/hyprnix";
-
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -103,7 +97,7 @@
     # Styling
 
     stylix = {
-      url = "github:danth/stylix";
+      url = "github:nix-community/stylix/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -122,17 +116,26 @@
 
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
-    jjui = {
-      url = "github:idursun/jjui";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
-    ww.url = "github:Straffern/ww/delete-when-prs-merged";
+    ww.url = "github:omihirofumi/ww";
 
+    hyprland.url = "github:hyprwm/hyprland";
     pyprland = {
       url = "github:hyprland-community/pyprland";
+      inputs.nixpkgs.follows = "hyprland/nixpkgs";
+    };
+
+    hyprpaper = {
+      url = "github:hyprwm/hyprpaper";
+      inputs.nixpkgs.follows = "hyprland/nixpkgs";
+    };
+
+    hyprland-preview-share-picker = {
+      url = "git+https://github.com/WhySoBad/hyprland-preview-share-picker?submodules=1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
   outputs = inputs: let
@@ -159,13 +162,24 @@
         nixgl.overlay
         nur.overlays.default
         devenv.overlays.default
-        #
-        # NOTE: hyprnix removed - binary cache incomplete, causes build failures
-        # (ABI mismatches, FetchContent requiring git in sandbox)
-        # Using nixpkgs hyprland ecosystem packages instead.
+        # Hypr* addons + uwsm from nixos-unstable (hyprpaper from its own flake — needs unreleased protocol v2 fix)
+        (final: _prev: {
+          hyprpaper = hyprpaper.packages.${final.system}.hyprpaper;
+          inherit
+            (unstable.legacyPackages.${final.system})
+            jujutsu
+            jjui
+            hyprlock
+            hypridle
+            hyprpicker
+            uwsm
+            ;
+        })
+        nix-cachyos-kernel.overlays.pinned
       ];
 
       systems.modules.nixos = with inputs; [
+        hyprland.nixosModules.default
         determinate.nixosModules.default
         home-manager.nixosModules.home-manager
         stylix.nixosModules.stylix
@@ -176,6 +190,7 @@
         lanzaboote.nixosModules.lanzaboote
       ];
       homes.modules = with inputs; [
+        hyprland.homeManagerModules.default
         persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
         catppuccin.homeModules.catppuccin

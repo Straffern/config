@@ -1,31 +1,25 @@
 {
   lib,
-  inputs,
-  system,
+  pkgs,
   ydotool,
   jq,
   pulseaudio,
   pywhispercpp ? null,
 }: let
-  # Use stable nixpkgs for Python toolchain to avoid rebuilds on unstable updates
-  pkgsStable = import inputs.nixpkgs-stable {
-    inherit system;
-    config.allowUnfree = true;
-  };
-  python3Packages = pkgsStable.python3Packages;
+  python3Packages = pkgs.python3Packages;
 in
   python3Packages.buildPythonApplication rec {
     pname = "hyprwhspr";
-    version = "1.18.14";
+    version = "1.21.0";
 
-    src = pkgsStable.fetchFromGitHub {
+    src = pkgs.fetchFromGitHub {
       owner = "goodroot";
       repo = "hyprwhspr";
-      rev = "v1.18.14";
-      hash = "sha256-peo/GRLZ9wSQ0/MX5hFQhv+MBfDHquIjTgKIJNu6te0=";
+      rev = "v1.21.0";
+      hash = "sha256-oGNy0UVEmRGk7yaIcm0tpzSmKWFUxeclorJdrssfZ8s=";
     };
 
-    nativeBuildInputs = [pkgsStable.makeWrapper];
+    nativeBuildInputs = [pkgs.makeWrapper];
 
     propagatedBuildInputs =
       [pywhispercpp ydotool]
@@ -79,7 +73,7 @@ in
 
           # Fix shebang in tray script for NixOS
           substituteInPlace $out/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh \
-            --replace-fail '#!/bin/bash' '#!${pkgsStable.bash}/bin/bash'
+            --replace-fail '#!/bin/bash' '#!${pkgs.bash}/bin/bash'
 
           # Patch ydotool service commands: upstream uses user-level ydotool.service,
           # but NixOS runs ydotoold as a system service (ydotoold.service).

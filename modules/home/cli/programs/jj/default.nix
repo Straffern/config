@@ -33,7 +33,7 @@ in {
         jujutsu
         watchman
         difftastic
-        inputs.jjui.packages.${pkgs.stdenv.hostPlatform.system}.default
+        jjui
         ww
         asgaard.jj-starship
         lumen

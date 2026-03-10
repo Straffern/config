@@ -11,146 +11,151 @@ in {
   config = mkIf cfg.enable {
     home.packages = [pkgs.hyprpicker pkgs.asgaard.hyprlock-recover];
 
-    wayland.windowManager.hyprland = {
-      enable = true;
+    wayland.windowManager.hyprland =
+      {
+        enable = true;
 
-      systemd.enable = false;
-      systemd.enableXdgAutostart = false;
-      xwayland.enable = true;
+        systemd.enable = false;
+        systemd.enableXdgAutostart = false;
+        xwayland.enable = true;
 
-      # plugins = [ inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system}.hyprfocus ];
-      settings = {
-        ecosystem.no_update_news = true;
+        # plugins = [pkgs.hyprlandPlugins.hyprfocus];
+        settings = {
+          ecosystem.no_update_news = true;
 
-        input = {
-          # Use multiple keyboard layouts and switch between them with Left Alt + Right Alt
-          kb_layout = "us,dk";
-          kb_options = "grp:alts_toggle, # compose:caps";
-          touchpad = {
-            # disable_while_typing = false;
-            natural_scroll = true;
+          input = {
+            # Use multiple keyboard layouts and switch between them with Left Alt + Right Alt
+            kb_layout = "us,dk";
+            kb_options = "grp:alts_toggle, # compose:caps";
+            touchpad = {
+              # disable_while_typing = false;
+              natural_scroll = true;
 
-            # Use two-finger clicks for right-click instead of lower-right corner
-            clickfinger_behavior = true;
+              # Use two-finger clicks for right-click instead of lower-right corner
+              clickfinger_behavior = true;
 
-            # Control the speed of your scrolling
-            # scroll_factor = 0.4
+              # Control the speed of your scrolling
+              # scroll_factor = 0.4
 
-            # Left-click-and-drag with three fingers
-            # drag_3fg = 1;
+              # Left-click-and-drag with three fingers
+              # drag_3fg = 1;
+            };
+
+            sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
           };
 
-          sensitivity = 0.5; # -1.0 - 1.0, 0 means no modification.
-        };
-
-        general = {
-          gaps_in = 5;
-          gaps_out = 10;
-          border_size = 2;
-        };
-
-        # https://wiki.hypr.land/Configuring/Variables/#group
-        group = {
-          groupbar = {
-            indicator_height = 0;
-            indicator_gap = 5;
-            height = 22;
+          general = {
             gaps_in = 5;
-            gaps_out = 0;
-
-            gradients = true;
-            gradient_rounding = 0;
-            gradient_round_only_edges = false;
+            gaps_out = 10;
+            border_size = 2;
           };
-        };
 
-        # animations.enabled = false;
+          # https://wiki.hypr.land/Configuring/Variables/#group
+          group = {
+            groupbar = {
+              indicator_height = 0;
+              indicator_gap = 5;
+              height = 22;
+              gaps_in = 5;
+              gaps_out = 0;
 
-        animations = {
-          enabled = true;
+              gradients = true;
+              gradient_rounding = 0;
+              gradient_round_only_edges = false;
+            };
+          };
 
-          bezier = [
-            "flashCurve, 0.22, 1, 0.36, 1" # This is an "easeOutQuint" curve
-            "linear, 0.0, 0.0, 1.0, 1.0"
+          # animations.enabled = false;
+
+          animations = {
+            enabled = true;
+
+            bezier = [
+              "flashCurve, 0.22, 1, 0.36, 1" # This is an "easeOutQuint" curve
+              "linear, 0.0, 0.0, 1.0, 1.0"
+            ];
+
+            animation = [
+              # Format: name, on, speed, curve
+              # "hyprfocusIn, 1, 2, flashCurve"
+              # "hyprfocusOut, 1, 2, linear"
+
+              # Format: name, on, speed, curve, style
+              "windows, 0, 1, linear"
+              "windowsIn, 0, 1, linear"
+              "windowsOut, 0, 1, linear"
+              "windowsMove, 0, 1, linear"
+              "border, 0, 1, linear"
+              "borderangle, 0, 1, linear"
+              "fade, 0, 1, linear"
+              "workspaces, 0, 1, linear"
+            ];
+          };
+
+          # decoration = { rounding = 5; };
+
+          # https://wiki.hyprland.org/Configuring/Variables/#decoration
+          decoration = {
+            rounding = 0;
+
+            shadow = {
+              enabled = true;
+              range = 2;
+              render_power = 3;
+            };
+
+            # https://wiki.hyprland.org/Configuring/Variables/#blur
+            blur = {
+              enabled = true;
+              size = 3;
+              passes = 1;
+
+              vibrancy = 0.1696;
+            };
+          };
+
+          dwindle = {
+            pseudotile = true;
+            preserve_split = true;
+          };
+
+          gesture = ["3, horizontal, workspace"];
+
+          binds.movefocus_cycles_fullscreen = true;
+
+          misc = let
+            FULLSCREEN_ONLY = 2;
+          in {
+            vrr = FULLSCREEN_ONLY;
+            disable_hyprland_logo = true;
+            disable_splash_rendering = true;
+            force_default_wallpaper = 0;
+          };
+
+          monitor = ", preferred, auto, 1, bitdepth, 10";
+          # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
+
+          env = [
+            "XDG_CURRENT_DESKTOP,Hyprland"
+            "XDG_SESSION_TYPE,wayland"
+            "XDG_SESSION_DESKTOP,Hyprland"
+            "QT_QPA_PLATFORM,wayland;xcb"
           ];
 
-          animation = [
-            # Format: name, on, speed, curve
-            # "hyprfocusIn, 1, 2, flashCurve"
-            # "hyprfocusOut, 1, 2, linear"
-
-            # Format: name, on, speed, curve, style
-            "windows, 0, 1, linear"
-            "windowsIn, 0, 1, linear"
-            "windowsOut, 0, 1, linear"
-            "windowsMove, 0, 1, linear"
-            "border, 0, 1, linear"
-            "borderangle, 0, 1, linear"
-            "fade, 0, 1, linear"
-            "workspaces, 0, 1, linear"
-          ];
+          exec-once =
+            [
+              "uwsm finalize"
+              # UWSM handles core activation environment and session target activation.
+              "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
+              "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+              # Persistent tray/background daemons are managed by user systemd units.
+            ]
+            ++ cfg.execOnceExtras;
         };
-
-        # decoration = { rounding = 5; };
-
-        # https://wiki.hyprland.org/Configuring/Variables/#decoration
-        decoration = {
-          rounding = 0;
-
-          shadow = {
-            enabled = true;
-            range = 2;
-            render_power = 3;
-          };
-
-          # https://wiki.hyprland.org/Configuring/Variables/#blur
-          blur = {
-            enabled = true;
-            size = 3;
-            passes = 1;
-
-            vibrancy = 0.1696;
-          };
-        };
-
-        dwindle = {
-          pseudotile = true;
-          preserve_split = true;
-        };
-
-        gesture = ["3, horizontal, workspace"];
-
-        binds.movefocus_cycles_fullscreen = true;
-
-        misc = let
-          FULLSCREEN_ONLY = 2;
-        in {
-          vrr = FULLSCREEN_ONLY;
-          disable_hyprland_logo = true;
-          disable_splash_rendering = true;
-          force_default_wallpaper = 0;
-        };
-
-        monitor = ", preferred, auto, 1, bitdepth, 10";
-        # source = [ "${config.home.homeDirectory}/.config/hypr/monitors.conf" ];
-
-        env = [
-          "XDG_CURRENT_DESKTOP,Hyprland"
-          "XDG_SESSION_TYPE,wayland"
-          "XDG_SESSION_DESKTOP,Hyprland"
-          "QT_QPA_PLATFORM,wayland;xcb"
-        ];
-
-        exec-once =
-          [
-            "uwsm finalize"
-            # UWSM handles core activation environment and session target activation.
-            "systemctl --user import-environment QT_QPA_PLATFORMTHEME"
-            "systemctl --user import-environment HYPRLAND_INSTANCE_SIGNATURE WAYLAND_DISPLAY XDG_RUNTIME_DIR"
-            # Persistent tray/background daemons are managed by user systemd units.
-          ]
-          ++ cfg.execOnceExtras;
+        # NixOS programs.hyprland provides the package and portal; avoid
+        # duplicating them via HM (saves closure size and prevents version drift).
+        package = null;
+        portalPackage = null;
       };
-    };
   };
 }

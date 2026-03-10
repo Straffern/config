@@ -26,32 +26,4 @@ you cut will be cut again.
 
 - At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammar for the sake of concision.
 
-## CASS - Cross-Agent Session Search
-
-Search across ALL your AI coding agent histories before solving problems from scratch.
-
-### When to Use
-
-- **BEFORE implementing anything**: check if any agent solved it before
-- **Debugging**: "what did I try last time this error happened?"
-- **Learning patterns**: "how did Cursor handle this API?"
-
-### Usage
-
-```bash
-# Search all agents
-cass_search(query="authentication token refresh", limit=5)
-
-# Filter by agent/time
-cass_search(query="useEffect cleanup", agent="claude", days=7)
-
-# View specific result
-cass_view(path="/path/from/search", line=42)
-
-# Expand context around match
-cass_expand(path="/path", line=42, context=10)
-```
-
-**Pro tip:** Query CASS at the START of complex tasks. Past solutions save time.
-
 Only use jj, NEVER USE git!

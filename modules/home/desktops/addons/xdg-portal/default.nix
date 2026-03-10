@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   namespace,
@@ -7,6 +8,8 @@
 }: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.xdg-portal;
+  hyprlandPortalPackage = config.wayland.windowManager.hyprland.portalPackage;
+  hyprland-preview-share-picker = inputs.hyprland-preview-share-picker.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   options.${namespace}.desktops.addons.xdg-portal = {
     enable = mkEnableOption "Xdg-portal hyprland & gtk";
@@ -15,7 +18,7 @@ in {
   config = mkIf cfg.enable {
     xdg = {
       portal = {
-        enable = true;
+        enable = lib.mkForce true;
         xdgOpenUsePortal = true;
         config = {
           common.default = ["hyprland" "gtk"];
@@ -24,11 +27,19 @@ in {
             "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
           };
         };
-        extraPortals = with pkgs; [
-          xdg-desktop-portal-hyprland
-          xdg-desktop-portal-gtk
-        ];
+        extraPortals =
+          lib.optionals (hyprlandPortalPackage != null) [hyprlandPortalPackage]
+          ++ [pkgs.xdg-desktop-portal-gtk];
       };
     };
+
+    # Screen share picker: GTK4/Rust alternative to hyprland-share-picker
+    # (avoids Qt6 QProxyStyle crash). Requires xdph custom_picker_binary.
+    home.packages = [hyprland-preview-share-picker pkgs.slurp];
+    xdg.configFile."hypr/xdph.conf".text = ''
+      screencopy {
+        custom_picker_binary = ${lib.getExe hyprland-preview-share-picker}
+      }
+    '';
   };
 }

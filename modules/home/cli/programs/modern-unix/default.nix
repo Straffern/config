@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   config,
   lib,
   namespace,
@@ -7,6 +8,7 @@
 }: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.modern-unix;
+  unstable = inputs.unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in {
   options.${namespace}.cli.programs.modern-unix = {
     enable = mkEnableOption "Modern unix tools";
@@ -45,7 +47,7 @@ in {
       xcp
       yq-go
       viddy
-      snitch
+      unstable.snitch
 
       kaf
 

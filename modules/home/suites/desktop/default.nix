@@ -78,8 +78,8 @@ in {
 
     # TODO: move this to somewhere
     home.packages = with pkgs; [
-      elgato-fix
-      toggle-headphones
+      # elgato-fix
+      # toggle-headphones
 
       mpv
       jmtpfs

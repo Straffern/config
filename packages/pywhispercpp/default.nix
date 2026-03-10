@@ -1,30 +1,24 @@
 {
   lib,
-  inputs,
-  system,
+  pkgs,
   vulkan-loader,
   vulkan-headers,
   shaderc,
   rocmPackages,
   gpuSupport ? "vulkan", # "vulkan", "rocm", or "none"
 }: let
-  # Use stable nixpkgs for Python toolchain to avoid rebuilds on unstable updates
-  pkgsStable = import inputs.nixpkgs-stable {
-    inherit system;
-    config.allowUnfree = true;
-  };
-  python3Packages = pkgsStable.python3Packages;
+  python3Packages = pkgs.python3Packages;
 in
   python3Packages.buildPythonPackage rec {
     pname = "pywhispercpp";
-    version = "1.4.0";
+    version = "1.4.1";
     pyproject = true;
 
-    src = pkgsStable.fetchFromGitHub {
-      owner = "abdeladim-s";
+    src = pkgs.fetchFromGitHub {
+      owner = "absadiki";
       repo = "pywhispercpp";
       rev = "v${version}";
-      hash = "sha256-Xo8CQqOeDrQQTgYcV5EkSKCZkbkI1WVeW7OqL0CEQ9Q=";
+      hash = "sha256-8PhI6YDpJQ4F2M96ehG95C/SJ7ZbmyZ0KprgjWjQEzQ=";
       fetchSubmodules = true;
     };
 
@@ -32,11 +26,11 @@ in
       [
         python3Packages.setuptools
         python3Packages.cython
-        pkgsStable.which
-        pkgsStable.cmake
-        pkgsStable.ninja
+        pkgs.which
+        pkgs.cmake
+        pkgs.ninja
         python3Packages.scikit-build
-        pkgsStable.autoPatchelfHook
+        pkgs.autoPatchelfHook
       ]
       ++ lib.optionals (gpuSupport == "vulkan") [shaderc];
 
@@ -45,7 +39,7 @@ in
     build-system = with python3Packages; [setuptools cython setuptools-scm];
 
     buildInputs =
-      [python3Packages.pybind11 pkgsStable.ffmpeg]
+      [python3Packages.pybind11 pkgs.ffmpeg]
       ++ lib.optionals (gpuSupport == "vulkan") [
         vulkan-loader
         vulkan-headers
@@ -90,7 +84,7 @@ in
 
     meta = with lib; {
       description = "Python bindings for whisper.cpp";
-      homepage = "https://github.com/abdeladim-s/pywhispercpp";
+      homepage = "https://github.com/absadiki/pywhispercpp";
       license = licenses.mit;
       maintainers = [];
     };

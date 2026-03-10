@@ -196,7 +196,10 @@ in {
         "SUPER, Y, exec, ${webapp ''"https://youtube.com/"''}"
         "SUPER, O, exec, ${webapp ''"https://panel.orionoid.com/"''}"
 
-        "SUPER, slash, togglesplit,"
+        # Speech-to-text (hyprwhspr) — uses CLI→FIFO instead of evdev shortcut
+        "SUPERALT, D, exec, hyprwhspr record toggle"
+
+        "SUPER, slash, layoutmsg, togglesplit"
         "SUPER, Q, killactive,"
         "SUPER, F, Fullscreen,0"
         "SUPER, R, exec, ${resize}/bin/resize"
@@ -225,9 +228,9 @@ in {
         "SUPER, V, exec, ${pkgs.pyprland}/bin/pypr toggle volume"
         "SUPER_SHIFT, T, exec, ${pkgs.pyprland}/bin/pypr toggle term"
         "SUPER, M, exec, ${pkgs.blueman}/bin/blueman-manager"
-        ",XF86Launch5, exec,${pkgs.hyprlock}/bin/hyprlock"
-        ",XF86Launch4, exec,${pkgs.hyprlock}/bin/hyprlock"
-        "SUPER,backspace, exec,${pkgs.hyprlock}/bin/hyprlock"
+        ",XF86Launch5, exec,${config.programs.hyprlock.package}/bin/hyprlock"
+        ",XF86Launch4, exec,${config.programs.hyprlock.package}/bin/hyprlock"
+        "SUPER,backspace, exec,${config.programs.hyprlock.package}/bin/hyprlock"
         "CTRL_SUPER,backspace, exec,wlogout --column-spacing 50 --row-spacing 50"
         # ",Print, exec,grimblast --notify copysave area"
         "SUPERALT,P, exec,grimblast --notify copysave area"
