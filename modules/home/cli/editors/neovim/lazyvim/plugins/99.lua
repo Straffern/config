@@ -53,7 +53,8 @@ return {
 			_99.Providers.PiAgentProvider = PiAgentProvider
 
 			_99.setup({
-				provider = _99.Providers.PiAgentProvider,
+				provider = _99.Providers.OpenCodeProvider,
+				model = "openai/gpt-5.4",
 				display_errors = true,
 				auto_add_skills = true,
 				tmp_dir = "./.tmp",
