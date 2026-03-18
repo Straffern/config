@@ -19,6 +19,7 @@ in {
         avahi.enable = true;
         tailscale.enable = true;
       };
+      security.fail2ban.enable = true;
     };
 
     # services = {

@@ -25,10 +25,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = let
-      ww = inputs.ww.packages.${pkgs.stdenv.hostPlatform.system}.default;
-    in
-      with pkgs; [
+    home.packages = with pkgs; [
         # lazyjj
         jujutsu
         watchman
@@ -47,11 +44,9 @@ in {
     '';
 
     # ww completion - pre-generated at build time (fast)
-    xdg.configFile."zsh/completions/_ww".source = let
-      ww = inputs.ww.packages.${pkgs.stdenv.hostPlatform.system}.default;
-    in
+    xdg.configFile."zsh/completions/_ww".source =
       pkgs.runCommand "ww-zsh-completion" {} ''
-        ${ww}/bin/ww completion zsh > $out
+        ${pkgs.ww}/bin/ww completion zsh > $out
       '';
 
     programs.jujutsu = {

@@ -94,6 +94,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # AI Agent Gateway
+    nix-openclaw = {
+      url = "github:openclaw/nix-openclaw";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # OpenViking — external context-engine plugin for OpenClaw
+    openviking = {
+      url = "github:volcengine/OpenViking";
+      flake = false;
+    };
+
     # Styling
 
     stylix = {
@@ -176,6 +188,7 @@
             ;
         })
         nix-cachyos-kernel.overlays.pinned
+        nix-openclaw.overlays.default
       ];
 
       systems.modules.nixos = with inputs; [
@@ -188,6 +201,7 @@
         impermanence.nixosModules.impermanence
         persist-retro.nixosModules.persist-retro
         lanzaboote.nixosModules.lanzaboote
+        nix-openclaw.nixosModules.openclaw-gateway
       ];
       homes.modules = with inputs; [
         hyprland.homeManagerModules.default

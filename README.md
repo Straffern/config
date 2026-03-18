@@ -68,7 +68,7 @@ nix flake update --option access-tokens "github.com=$(gh auth token)"
 nh clean
 
 # Deploy to remote server (Home Lab) using deploy-rs
-sys deploy HOSTNAME # legacy wrapper for deploy-rs
+deploy HOSTNAME
 
 # Build custom ISO
 nix build .#nixosConfigurations.graphical.config.system.build.isoImage
