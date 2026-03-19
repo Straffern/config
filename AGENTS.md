@@ -66,3 +66,27 @@ hyprctl configerrors # Check for Hyprland configuration errors (breaking changes
 
 - **Neverr** use git commands.
 - **Always** use jj commands.
+
+<cog>
+# Cog
+
+Code intelligence, persistent memory, and interactive debugging.
+Skills (`cog-code-query`, `cog-debug`, `cog-mem`, `cog-mem-validate`) contain full tool docs and workflows.
+
+**Truth hierarchy:** Current code > User statements > Cog knowledge.
+
+## Delegation
+
+- **Code exploration**: use `cog_code_explore` / `cog_code_query`, not shell search. Skill: `cog-code-query`.
+- **Debugging**: delegate to `cog-debug` sub-agent. State QUESTION, HYPOTHESIS, TEST.
+- **Memory**: delegate to `cog-mem` sub-agent first when prior knowledge may help. It handles recall, escalation to code exploration, and learning in one pass.
+- **Post-task**: delegate to `cog-mem-validate` to learn durable knowledge and consolidate short-term memories. Do not call memory tools directly from the primary agent for consolidation.
+
+## Memory gate (before responding)
+
+1. Prior knowledge might have helped and you never delegated to `cog-mem` -> do that first.
+2. Used `cog_code_explore` and learned something durable, or this task created short-term memory -> delegate to `cog-mem-validate`.
+3. Modified code for a concept in memory -> call `cog_mem_refactor`.
+
+If none apply, respond directly. Do not mention this checklist.
+</cog>

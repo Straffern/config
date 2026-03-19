@@ -45,6 +45,7 @@ in {
   config = mkIf cfg.enable {
     home.packages = [
       pkgs.ollama-vulkan
+      pkgs.asgaard.cog-cli
     ];
 
     home.file = lib.mkMerge [
