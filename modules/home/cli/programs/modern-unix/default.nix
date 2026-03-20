@@ -8,7 +8,10 @@
 }: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.modern-unix;
-  unstable = inputs.unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  unstable = import inputs.unstable {
+    localSystem = pkgs.stdenv.hostPlatform;
+    inherit (pkgs) config;
+  };
 in {
   options.${namespace}.cli.programs.modern-unix = {
     enable = mkEnableOption "Modern unix tools";

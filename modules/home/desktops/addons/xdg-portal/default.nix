@@ -38,7 +38,7 @@ in {
     home.packages = [hyprland-preview-share-picker pkgs.slurp];
     xdg.configFile."hypr/xdph.conf".text = ''
       screencopy {
-        custom_picker_binary = ${lib.getExe hyprland-preview-share-picker}
+        custom_picker_binary = ${lib.getExe' hyprland-preview-share-picker "hyprland-preview-share-picker"}
       }
     '';
   };

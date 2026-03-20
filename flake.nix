@@ -175,10 +175,15 @@
         nur.overlays.default
         devenv.overlays.default
         # Hypr* addons + uwsm from nixos-unstable (hyprpaper from its own flake — needs unreleased protocol v2 fix)
-        (final: _prev: {
-          hyprpaper = hyprpaper.packages.${final.system}.hyprpaper;
+        (final: prev: let
+          unstablePkgs = import unstable {
+            localSystem = final.stdenv.hostPlatform;
+            inherit (prev) config;
+          };
+        in {
+          hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
           inherit
-            (unstable.legacyPackages.${final.system})
+            (unstablePkgs)
             bun
             jujutsu
             jjui
