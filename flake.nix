@@ -179,6 +179,7 @@
           hyprpaper = hyprpaper.packages.${final.system}.hyprpaper;
           inherit
             (unstable.legacyPackages.${final.system})
+            bun
             jujutsu
             jjui
             hyprlock
