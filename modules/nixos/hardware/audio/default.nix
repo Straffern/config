@@ -51,6 +51,12 @@ in {
             # Higher priority = preferred when multiple devices available
             "11-audio-hierarchy" = {
               "monitor.alsa.rules" = [
+                # HDMI output - lowest priority; never auto-select
+                # (prevents fallback to HDMI during BT profile switches)
+                {
+                  matches = [{"node.name" = "~alsa_output.pci-*.hdmi-stereo*";}];
+                  actions = {update-props = {"priority.session" = 100;};};
+                }
                 # Internal speakers/mic - base priority
                 {
                   matches = [{"node.name" = "~alsa_output.pci-*.analog-stereo";}];
