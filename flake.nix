@@ -147,6 +147,27 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # DankLinux
+    dms = {
+      url = "github:AvengeMedia/DankMaterialShell/stable";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    danksearch = {
+      url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
@@ -174,7 +195,7 @@
         nixgl.overlay
         nur.overlays.default
         devenv.overlays.default
-        # Hypr* addons + uwsm from nixos-unstable (hyprpaper from its own flake — needs unreleased protocol v2 fix)
+        # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
         (final: prev: let
           unstablePkgs = import unstable {
             localSystem = final.stdenv.hostPlatform;
@@ -191,6 +212,7 @@
             hypridle
             hyprpicker
             uwsm
+            dgop
             ;
         })
         nix-cachyos-kernel.overlays.pinned
@@ -208,12 +230,19 @@
         persist-retro.nixosModules.persist-retro
         lanzaboote.nixosModules.lanzaboote
         nix-openclaw.nixosModules.openclaw-gateway
+        dms.nixosModules.default
+        dms.nixosModules.greeter
       ];
       homes.modules = with inputs; [
         hyprland.homeManagerModules.default
         persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
         catppuccin.homeModules.catppuccin
+        niri.homeModules.niri
+        dms.homeModules.dank-material-shell
+        dms.homeModules.niri
+        danksearch.homeModules.dsearch
+        noctalia.homeModules.default
       ];
 
       deploy = lib.mkDeploy {inherit (inputs) self;};

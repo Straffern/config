@@ -24,6 +24,7 @@ in {
       };
       security.sops = enabled;
       styles.stylix = enabled;
+      styles.fonts = enabled;
 
       programs = {guis = enabled;};
 

@@ -4,11 +4,16 @@
   namespace,
   ...
 }: let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption mkOption types;
   cfg = config.${namespace}.services.kdeconnect;
 in {
   options.${namespace}.services.kdeconnect = {
     enable = mkEnableOption "KDEConnect service";
+    indicator = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Show KDE Connect tray indicator. Disable when the desktop shell provides its own notification integration.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -33,7 +38,7 @@ in {
 
     services.kdeconnect = {
       enable = true;
-      indicator = true;
+      inherit (cfg) indicator;
     };
 
     # Suppress duplicate XDG autostart: daemon is already managed by kdeconnect.service
@@ -42,7 +47,7 @@ in {
       Hidden=true
     '';
 
-    # Survive Hyprland crash restarts: broaden restart policy and wait for new Wayland socket
+    # Survive crash restarts: broaden restart policy
     systemd.user.services.kdeconnect = {
       Unit = {
         StartLimitIntervalSec = 60;
@@ -53,7 +58,7 @@ in {
         RestartSec = 5;
       };
     };
-    systemd.user.services.kdeconnect-indicator = {
+    systemd.user.services.kdeconnect-indicator = mkIf cfg.indicator {
       Unit = {
         StartLimitIntervalSec = 60;
         StartLimitBurst = 5;

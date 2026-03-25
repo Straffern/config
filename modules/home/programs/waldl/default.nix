@@ -8,7 +8,6 @@
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.programs.waldl;
-  inherit (config.lib.stylix) colors;
 
   waldl-pkg = pkgs.${namespace}.waldl;
 
@@ -85,13 +84,15 @@ in {
 
     # nsxiv uses Nsxiv.* Xresources (not Sxiv.* like the old sxiv).
     # Stylix only generates Sxiv.*, so we add the nsxiv equivalents here.
-    xresources.properties = mkIf (cfg.viewer == "nsxiv") {
+    xresources.properties = mkIf (cfg.viewer == "nsxiv" && config.stylix.enable) (let
+      inherit (config.lib.stylix) colors;
+    in {
       "Nsxiv.window.background" = "#${colors.base00}";
       "Nsxiv.window.foreground" = "#${colors.base05}";
       "Nsxiv.bar.background" = "#${colors.base01}";
       "Nsxiv.bar.foreground" = "#${colors.base05}";
       "Nsxiv.bar.font" = "${config.stylix.fonts.sansSerif.name}-${toString config.stylix.fonts.sizes.applications}";
-    };
+    });
 
     sops.secrets.wallhaven_key =
       mkIf sopsEnabled {sopsFile = ../../../../secrets.yaml;};

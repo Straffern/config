@@ -7,6 +7,7 @@
 with lib;
 with lib.${namespace}; let
   cfg = config.${namespace}.cli.terminals.kitty;
+  dmsEnabled = config.programs.dank-material-shell.enable;
   kittyScrollbackKitten = "~/.local/share/nvim/lazy/kitty-scrollback.nvim/python/kitty_scrollback_nvim.py";
 in {
   options.${namespace}.cli.terminals.kitty = with types; {
@@ -17,15 +18,20 @@ in {
     programs.kitty = {
       enable = true;
 
-      extraConfig = ''
-        symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
+      extraConfig =
+        ''
+          symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
 
-        # kitty-scrollback.nvim
-        action_alias kitty_scrollback_nvim kitten ${kittyScrollbackKitten}
-        map shift+escape kitty_scrollback_nvim
-        map ctrl+shift+escape kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
-        mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
-      '';
+          # kitty-scrollback.nvim
+          action_alias kitty_scrollback_nvim kitten ${kittyScrollbackKitten}
+          map shift+escape kitty_scrollback_nvim
+          map ctrl+shift+escape kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
+          mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
+        ''
+        + lib.optionalString dmsEnabled ''
+          include dank-tabs.conf
+          include dank-theme.conf
+        '';
 
       keybindings = {
         "super+j" = "no_op";
@@ -34,7 +40,7 @@ in {
 
       settings = {
         shell = "zsh";
-        background_opacity = mkForce 1.0;
+        background_opacity = mkIf (!dmsEnabled) (mkForce 1.0);
         allow_remote_control = "socket-only";
         listen_on = "unix:/tmp/kitty";
         shell_integration = "enabled";
@@ -45,7 +51,7 @@ in {
         italic_font = "auto";
         bold_italic_font = "auto";
 
-        font_size = 14;
+        font_size = mkIf (!dmsEnabled) 14;
 
         bell_path = "${config.xdg.dataHome}/sounds/bell.oga";
         # Fallback: bypass compositor bell path and call PipeWire directly.

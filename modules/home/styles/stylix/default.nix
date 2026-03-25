@@ -71,9 +71,6 @@ in {
       }
     ];
 
-    fonts.fontconfig.enable = true;
-    home.packages = with pkgs; [nerd-fonts.symbols-only open-sans];
-
     # Catppuccin integration
     catppuccin = {
       enable = cfg.useCatppuccinNative;

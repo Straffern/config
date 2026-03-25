@@ -37,7 +37,10 @@ in {
     suites = {
       desktop = {
         enable = true;
-        addons = {hyprland = enabled;};
+        addons = {
+          niri = enabled;
+          dms = enabled;
+        };
       };
       gaming = enabled;
     };

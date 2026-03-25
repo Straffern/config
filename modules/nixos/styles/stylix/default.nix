@@ -65,21 +65,6 @@ in {
       }
     ];
 
-    fonts = {
-      enableDefaultPackages = true;
-      fontDir.enable = true;
-      fontconfig = {
-        enable = true;
-
-        localConf = ''
-          <alias>
-            <family>monospace</family>
-            <prefer><family>Symbols Nerd Font</family></prefer>
-          </alias>
-        '';
-      };
-    };
-
     stylix = {
       enable = true;
       autoEnable = true;

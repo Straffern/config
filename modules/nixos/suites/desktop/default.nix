@@ -43,5 +43,8 @@ in {
     };
 
     environment.systemPackages = with pkgs; [libnotify];
+
+    # UPower: battery reporting for desktop shells (DMS battery widget, WirePlumber).
+    services.upower.enable = true;
   };
 }

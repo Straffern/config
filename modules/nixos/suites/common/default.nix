@@ -22,6 +22,7 @@ in {
         locale = enabled;
       };
       styles.stylix = enabled;
+      styles.fonts = enabled;
     };
   };
 }

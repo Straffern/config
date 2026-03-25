@@ -1,0 +1,120 @@
+themes {
+    dank-shell {
+        text_unselected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        text_selected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color8.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        ribbon_unselected {
+            base "{{dank16.color0.default.hex}}"
+            background "{{dank16.color7.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color15.default.hex}}"
+            emphasis_2 "{{dank16.color12.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        ribbon_selected {
+            base "{{dank16.color0.default.hex}}"
+            background "{{dank16.color10.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color11.default.hex}}"
+            emphasis_2 "{{dank16.color13.default.hex}}"
+            emphasis_3 "{{dank16.color12.default.hex}}"
+        }
+        table_title {
+            base "{{dank16.color10.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        table_cell_unselected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        table_cell_selected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color8.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        list_unselected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        list_selected {
+            base "{{dank16.color15.default.hex}}"
+            background "{{dank16.color8.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color10.default.hex}}"
+            emphasis_3 "{{dank16.color13.default.hex}}"
+        }
+        frame_selected {
+            base "{{dank16.color12.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color9.default.hex}}"
+            emphasis_1 "{{dank16.color14.default.hex}}"
+            emphasis_2 "{{dank16.color13.default.hex}}"
+            emphasis_3 "{{dank16.color0.default.hex}}"
+        }
+        frame_highlight {
+            base "{{dank16.color9.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color13.default.hex}}"
+            emphasis_1 "{{dank16.color9.default.hex}}"
+            emphasis_2 "{{dank16.color9.default.hex}}"
+            emphasis_3 "{{dank16.color9.default.hex}}"
+        }
+        exit_code_success {
+            base "{{dank16.color10.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color14.default.hex}}"
+            emphasis_1 "{{dank16.color0.default.hex}}"
+            emphasis_2 "{{dank16.color13.default.hex}}"
+            emphasis_3 "{{dank16.color12.default.hex}}"
+        }
+        exit_code_error {
+            base "{{dank16.color9.default.hex}}"
+            background "{{dank16.color0.default.hex}}"
+            emphasis_0 "{{dank16.color11.default.hex}}"
+            emphasis_1 "{{dank16.color0.default.hex}}"
+            emphasis_2 "{{dank16.color0.default.hex}}"
+            emphasis_3 "{{dank16.color0.default.hex}}"
+        }
+        multiplayer_user_colors {
+            player_1 "{{dank16.color13.default.hex}}"
+            player_2 "{{dank16.color12.default.hex}}"
+            player_3 "{{dank16.color0.default.hex}}"
+            player_4 "{{dank16.color11.default.hex}}"
+            player_5 "{{dank16.color14.default.hex}}"
+            player_6 "{{dank16.color0.default.hex}}"
+            player_7 "{{dank16.color9.default.hex}}"
+            player_8 "{{dank16.color0.default.hex}}"
+            player_9 "{{dank16.color0.default.hex}}"
+            player_10 "{{dank16.color0.default.hex}}"
+        }
+    }
+}
