@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://devenv.sh/devenv.schema.json
+
+# Disable devenv 2.0's TUI shell reload — its PTY wrapper breaks
+# terminal graphics protocols (Kitty/SIXEL). See cachix/devenv#2614.
+reload: false
+
+inputs:
+  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling
+  rust-overlay:
+    url: github:oxalica/rust-overlay
+    inputs:
+      nixpkgs:
+        follows: nixpkgs

@@ -11,109 +11,87 @@
 
   waldl-pkg = pkgs.${namespace}.waldl;
 
-  # Handle API Key from sops if sops is enabled
   sopsEnabled = config.${namespace}.security.sops.enable;
 
-  apiKeyScript =
-    if sopsEnabled
-    then "export WALDL_API_KEY=$(cat ${config.sops.secrets.wallhaven_key.path})"
-    else if cfg.apiKeyFile != null
-    then "export WALDL_API_KEY=$(cat ${cfg.apiKeyFile})"
-    else if cfg.apiKey != ""
-    then ''export WALDL_API_KEY="${cfg.apiKey}"''
-    else "";
+  # Build the TOML config matching waldl's Config struct.
+  tomlConfig = let
+    # [general]
+    general =
+      {wallpaper_dir = cfg.walldir;}
+      // lib.optionalAttrs (cfg.wallpaperCommand != null) {
+        wallpaper_command = cfg.wallpaperCommand;
+      }
+      // lib.optionalAttrs (cfg.previewCommand != null) {
+        preview_command = cfg.previewCommand;
+      };
 
-  # Only write WALDL_* vars when explicitly set (non-null)
-  # This allows the settings file to persist user choices at runtime
-  configContent = lib.concatStringsSep "\n" (lib.filter (s: s != "") [
-    (lib.optionalString (cfg.sorting != null)
-      ''WALDL_SORTING="${cfg.sorting}"'')
-    (lib.optionalString (cfg.purity != null) ''WALDL_PURITY="${cfg.purity}"'')
-    (lib.optionalString (cfg.categories != null)
-      ''WALDL_CATEGORIES="${cfg.categories}"'')
-    (lib.optionalString (cfg.atleast != null)
-      ''WALDL_ATLEAST="${cfg.atleast}"'')
-    ''WALDL_MAX_PAGES="${toString cfg.maxPages}"''
-    ''WALDL_WALLDIR="${cfg.walldir}"''
-    ''MENU="${cfg.menu}"''
-    ''VIEWER="${cfg.viewer}"''
-    (lib.optionalString (cfg.postDownloadCmd != "")
-      ''WALDL_POST_DOWNLOAD_CMD="${cfg.postDownloadCmd}"'')
-  ]);
+    # [api] — key_file is the preferred path; key is a fallback
+    api =
+      lib.optionalAttrs (cfg.apiKey != "") {key = cfg.apiKey;}
+      // lib.optionalAttrs (cfg.apiKeyFile != null) {
+        key_file = toString cfg.apiKeyFile;
+      }
+      // lib.optionalAttrs sopsEnabled {
+        key_file = config.sops.secrets.wallhaven_key.path;
+      };
+
+    # [defaults] — only emit non-null overrides
+    defaults =
+      lib.optionalAttrs (cfg.sorting != null) {sorting = cfg.sorting;}
+      // lib.optionalAttrs (cfg.purity != null) {purity = cfg.purity;}
+      // lib.optionalAttrs (cfg.categories != null) {categories = cfg.categories;}
+      // lib.optionalAttrs (cfg.atleast != null) {atleast = cfg.atleast;}
+      // lib.optionalAttrs (cfg.toplistRange != null) {toplist_range = cfg.toplistRange;};
+  in {
+    inherit general api;
+    defaults = defaults;
+  };
 in {
   options.${namespace}.programs.waldl = {
-    enable = mkEnableOption "Enable waldl Wallhaven downloader";
+    enable = mkEnableOption "Enable waldl Wallhaven wallpaper browser TUI";
+
+    walldir =
+      mkOpt types.str
+      "${config.home.homeDirectory}/Pictures/wallpapers/wallhaven"
+      "Directory to save wallpapers";
+
+    wallpaperCommand =
+      mkOpt (types.nullOr types.str) null
+      "Command to set wallpaper. {path} is replaced with the file path.";
+
+    previewCommand =
+      mkOpt (types.nullOr types.str) null
+      "Command to preview an image externally. {path} is replaced.";
 
     sorting =
       mkOpt (types.nullOr types.str) null
-      "Override sorting order (null = use runtime settings)";
+      "Default sorting (date_added, relevance, random, favorites, toplist, views)";
     purity =
       mkOpt (types.nullOr types.str) null
-      "Override purity bitfield (null = use runtime settings)";
+      "Purity bitfield (100=SFW, 010=Sketchy, 001=NSFW, combinations)";
     categories =
       mkOpt (types.nullOr types.str) null
-      "Override categories bitfield (null = use runtime settings)";
+      "Category bitfield (100=General, 010=Anime, 001=People, combinations)";
     atleast =
       mkOpt (types.nullOr types.str) null
-      "Override minimum resolution (null = use runtime settings)";
-    maxPages = mkOpt types.int 2 "Number of pages to fetch";
-    walldir =
-      mkOpt types.str
-      "${config.home.homeDirectory}/.local/share/wallpapers/wallhaven"
-      "Directory to save wallpapers";
-    menu =
-      mkOpt (types.enum ["rofi" "tofi" "dmenu"]) "rofi" "Menu tool to use";
-    viewer = mkOpt (types.enum ["nsxiv" "imv"]) "nsxiv" "Image viewer to use";
+      "Minimum resolution (e.g. 1920x1080, or auto to detect)";
+    toplistRange =
+      mkOpt (types.nullOr types.str) null
+      "Toplist time range (1d, 3d, 1w, 1M, 3M, 6M, 1y)";
 
-    apiKey = mkOpt types.str "" "Wallhaven API Key (stored in Nix store!)";
+    apiKey = mkOpt types.str "" "Wallhaven API key (stored in Nix store — use apiKeyFile instead)";
     apiKeyFile =
-      mkOpt (types.nullOr types.path) null
-      "Path to file containing API Key (recommended)";
-
-    postDownloadCmd =
-      mkOpt types.str ""
-      "Command to run after downloading (e.g. to set wallpaper)";
-
-    applyWallpaper =
-      mkOpt types.bool false
-      "Automatically set postDownloadCmd for Hyprland if enabled";
+      mkOpt (types.nullOr types.str) null
+      "Path to file containing API key (e.g. sops-nix secret)";
   };
 
   config = mkIf cfg.enable {
     home.packages = [waldl-pkg];
 
-    # nsxiv uses Nsxiv.* Xresources (not Sxiv.* like the old sxiv).
-    # Stylix only generates Sxiv.*, so we add the nsxiv equivalents here.
-    xresources.properties = mkIf (cfg.viewer == "nsxiv" && config.stylix.enable) (let
-      inherit (config.lib.stylix) colors;
-    in {
-      "Nsxiv.window.background" = "#${colors.base00}";
-      "Nsxiv.window.foreground" = "#${colors.base05}";
-      "Nsxiv.bar.background" = "#${colors.base01}";
-      "Nsxiv.bar.foreground" = "#${colors.base05}";
-      "Nsxiv.bar.font" = "${config.stylix.fonts.sansSerif.name}-${toString config.stylix.fonts.sizes.applications}";
-    });
-
     sops.secrets.wallhaven_key =
       mkIf sopsEnabled {sopsFile = ../../../../secrets.yaml;};
 
-    xdg.configFile."waldl/config".text = configContent + "\n" + apiKeyScript;
-
-    # Integration with Hyprland/Hyprpaper
-    ${namespace}.programs.waldl.postDownloadCmd =
-      mkIf (cfg.applyWallpaper && config.${namespace}.desktops.hyprland.enable)
-      (lib.mkDefault ''
-        # Basic hyprpaper application logic
-        # This assumes hyprpaper is running and configured
-        latest_img=\$(ls -t "${cfg.walldir}" | head -n 1)
-        if [[ -n "\$latest_img" ]]; then
-          full_path="${cfg.walldir}/\$latest_img"
-          hyprctl hyprpaper preload "\$full_path"
-          # Apply to all monitors for simplicity
-          for mon in \$(hyprctl monitors -j | jq -r '.[] | .name'); do
-            hyprctl hyprpaper wallpaper "\$mon,\$full_path"
-          done
-        fi
-      '');
+    xdg.configFile."waldl/config.toml".source =
+      (pkgs.formats.toml {}).generate "waldl-config.toml" tomlConfig;
   };
 }
