@@ -44,6 +44,10 @@ in {
       package = pkgs.niri;
       settings = {
         # input.focus-follows-mouse.enable = true;
+        input.keyboard.xkb = {
+          layout = "us,dk";
+          options = "grp:alts_toggle";
+        };
 
         # Screencasting: dynamic cast target + windowed fullscreen (niri ≥25.05).
         # S = screencast; modifier escalation: Shift=window, Ctrl+Shift=monitor, Ctrl=clear.
