@@ -38,7 +38,10 @@ in {
 
       cli.programs = {
         nh = enabled;
-        nix-ld = enabled;
+        nix-ld = {
+          enable = true;
+          libraries = with pkgs; [zlib];
+        };
       };
     };
 

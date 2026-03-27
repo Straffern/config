@@ -8,7 +8,7 @@
   inherit (pkgs.${namespace}) clipy;
 in {
   programs.zsh.sessionVariables = {
-    PATH = "$XDG_BIN_HOME:$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
+    PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
   };
 
   asgaard = {
@@ -21,6 +21,7 @@ in {
       terminals.alacritty.enable = true;
       programs = {
         lobster.enable = true;
+        omp.enable = true;
         ai = {
           enable = true;
           opencode = {enable = true;};
