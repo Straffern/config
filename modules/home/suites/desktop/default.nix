@@ -55,7 +55,7 @@ in {
         kdeconnect = enabled;
         spotify = enabled;
       };
-      programs.hyprwhspr = enabled;
+      programs.voxtype = enabled;
       desktops.addons.xdg = enabled;
     };
 

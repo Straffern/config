@@ -56,7 +56,7 @@ window#waybar {
 #tray,
 #idle_inhibitor,
 #custom-notification,
-#custom-hyprwhspr {
+#custom-voxtype {
   border-style: solid;
   background-color: @accent_fg_color;
   margin: 8px 0;
@@ -70,8 +70,8 @@ window#waybar {
   color: @lavender;
 }
 
-/* hyprwhspr speech-to-text indicator - matches upstream styling */
-#custom-hyprwhspr {
+/* voxtype speech-to-text indicator */
+#custom-voxtype {
   padding: 0 15px;
   border-radius: 10px 0 0 10px;
   margin-left: 10px;
@@ -82,29 +82,29 @@ window#waybar {
   color: @lavender;
 }
 
-#custom-hyprwhspr.ready {
+#custom-voxtype.idle {
   color: @lavender;
   border-color: transparent;
 }
 
-#custom-hyprwhspr.recording {
+#custom-voxtype.recording {
   color: @red;
   border-bottom-color: @red;
   font-family: monospace;
   letter-spacing: 0.5px;
 }
 
-#custom-hyprwhspr.stopped {
+#custom-voxtype.transcribing {
   color: @lavender;
   border-color: transparent;
 }
 
-#custom-hyprwhspr.error {
+#custom-voxtype.error {
   color: #d97706;
   border-bottom-color: #d97706;
 }
 
-#custom-hyprwhspr:hover {
+#custom-voxtype:hover {
   opacity: 0.8;
 }
 

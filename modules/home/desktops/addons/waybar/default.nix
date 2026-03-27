@@ -9,13 +9,8 @@ let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.waybar;
 
-  # Get hyprwhspr tray script path if hyprwhspr is enabled
-  hyprwhsprEnabled = config.${namespace}.programs.hyprwhspr.enable or false;
-  customPyWhisperCpp = pkgs.${namespace}.pywhispercpp.override {
-    gpuSupport = config.${namespace}.programs.hyprwhspr.gpuSupport or "vulkan";
-  };
-  customHyprwhspr = pkgs.${namespace}.hyprwhspr.override { pywhispercpp = customPyWhisperCpp; };
-  trayScript = "${customHyprwhspr}/lib/hyprwhspr/config/hyprland/hyprwhspr-tray.sh";
+  voxtypeEnabled = config.${namespace}.programs.voxtype.enable or false;
+  voxtypePkg = pkgs.${namespace}.voxtype;
 in
 {
   options.${namespace}.desktops.addons.waybar = {
@@ -38,7 +33,7 @@ in
           # NOTE: If you see "Unable to replace properties on 0: Error getting properties for ID"
           # in waybar logs, it is a benign protocol mismatch from tray applets (like blueman).
           # It does not affect functionality.
-          modules-center = (lib.optional hyprwhsprEnabled "custom/hyprwhspr") ++ [
+          modules-center = (lib.optional voxtypeEnabled "custom/voxtype") ++ [
             "custom/notification"
             "clock"
             "idle_inhibitor"
@@ -108,15 +103,14 @@ in
             "on-click-right" = "sleep 0.1 && swaync-client -d -sw";
             escape = true;
           };
-          "custom/hyprwhspr" = lib.mkIf hyprwhsprEnabled {
+          "custom/voxtype" = lib.mkIf voxtypeEnabled {
             tooltip = true;
             format = "{}";
             "return-type" = "json";
             interval = 1;
-            "exec-on-event" = true;
-            exec = "${trayScript} status";
-            "on-click" = "${trayScript} record";
-            "on-click-right" = "${trayScript} restart";
+            exec = "${voxtypePkg}/bin/voxtype status --json";
+            "on-click" = "${voxtypePkg}/bin/voxtype record start";
+            "on-click-right" = "systemctl --user restart voxtype.service";
           };
           "idle_inhibitor" = {
             format = "{icon}";
