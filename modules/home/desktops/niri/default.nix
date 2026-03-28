@@ -39,6 +39,9 @@ in {
       }
     ];
 
+    # Output profile switching (dock/undock) — compositor-agnostic, kanshi speaks wlr-output-management.
+    ${namespace}.desktops.addons.kanshi.enable = true;
+
     # Keep HM niri schema aligned with the compositor actually installed by nixpkgs.
     programs.niri = {
       package = pkgs.niri;

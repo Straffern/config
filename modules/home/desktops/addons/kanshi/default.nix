@@ -5,8 +5,13 @@
   namespace,
   ...
 }: let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption optionals;
   cfg = config.${namespace}.desktops.addons.kanshi;
+  waybarEnabled = config.${namespace}.desktops.addons.waybar.enable or false;
+
+  # Restart waybar on profile switch so it re-renders for the new output layout.
+  # Only relevant when waybar is the active bar (not DMS/noctalia).
+  profileExec = optionals waybarEnabled ["sleep 0.5 && systemctl --user restart waybar"];
 in {
   options.${namespace}.desktops.addons.kanshi = {
     enable = mkEnableOption "Kanshi display addon";
@@ -23,7 +28,7 @@ in {
         {
           profile = {
             name = "undocked";
-            exec = ["sleep 0.5 && systemctl --user restart waybar"];
+            exec = profileExec;
             outputs = [
               {
                 criteria = "eDP-1";
@@ -36,7 +41,7 @@ in {
         {
           profile = {
             name = "home_office_laptop_docked";
-            exec = ["sleep 0.5 && systemctl --user restart waybar"];
+            exec = profileExec;
             outputs = [
               {
                 criteria = "Samsung Electric Company U32R59x H4ZN200523";
@@ -86,7 +91,7 @@ in {
       ];
     };
 
-    # Survive Hyprland crash restarts: wait for new Wayland socket before retrying
+    # Survive compositor crash restarts: wait for new Wayland socket before retrying
     systemd.user.services.kanshi = {
       Unit = {
         StartLimitIntervalSec = 60;
