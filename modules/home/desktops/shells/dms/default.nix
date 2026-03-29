@@ -152,6 +152,37 @@ in {
         [Desktop Entry]
         Hidden=true
       '';
+
+      # Harden DMS restart — upstream unit (from the DMS package) has
+      # StartLimitInterval=10s which is too tight: a single crash + coredump
+      # processing delay exhausts the budget. When rate-limited, the unit enters
+      # `failed` and never auto-restarts, leaving niri in a locked-with-no-locker
+      # state (ext-session-lock-v1 spec forbids auto-unlock on locker death).
+      # The rescue service fires on rate-limit exhaustion, waits for display state
+      # to stabilize, then resets and restarts DMS.
+      #
+      # Drop-in (not systemd.user.services.dms) because the unit ships from the
+      # DMS package via XDG_DATA_DIRS; an HM unit would shadow it entirely.
+      xdg.configFile."systemd/user/dms.service.d/50-crash-recovery.conf".text = ''
+        [Unit]
+        StartLimitIntervalSec=60
+        StartLimitBurst=5
+        OnFailure=dms-rescue.service
+
+        [Service]
+        RestartSec=3
+      '';
+
+      # Rescue oneshot — new unit, so systemd.user.services is fine here.
+      systemd.user.services.dms-rescue = {
+        Unit.Description = "DMS crash rescue — delayed restart after rate-limit exhaustion";
+        Service = {
+          Type = "oneshot";
+          # 8s delay: niri needs time to settle outputs after dock/undock/suspend.
+          # reset-failed clears the rate-limit counter so the next start succeeds.
+          ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 8 && systemctl --user reset-failed dms.service 2>/dev/null; exec systemctl --user start dms.service'";
+        };
+      };
     }
 
     # ── Niri compositor integration ──
