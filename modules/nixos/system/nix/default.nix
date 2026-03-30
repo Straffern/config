@@ -30,16 +30,25 @@ in {
         warn-dirty = false;
         system-features = ["kvm" "big-parallel" "nixos-test"];
 
+        # Cache/query performance
+        connect-timeout = 15;
+        stalled-download-timeout = 30;
+        download-attempts = 2;
+        http-connections = 128;
+        max-substitution-jobs = 128;
+        fallback = true;
+        narinfo-cache-negative-ttl = 21600;
+
         # Binary caches
         substituters = [
           "https://cache.nixos.org"
-          "https://nix-community.cachix.org"
-          "https://devenv.cachix.org"
-          "https://hyprland.cachix.org"
+          "https://devenv.cachix.org?priority=41"
+          "https://nix-community.cachix.org?priority=42"
+          "https://hyprland.cachix.org?priority=43"
+          "https://attic.xuyh0120.win/lantian?priority=44"
 
           # cachyos nixos-kernel
-          "https://cache.garnix.io"
-          "https://attic.xuyh0120.win/lantian"
+          "https://cache.garnix.io?priority=50"
           # "https://hyprland-community.cachix.org"
         ];
         trusted-public-keys = [
