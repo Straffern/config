@@ -287,8 +287,70 @@ in {
 
       "flow" =
         mkBashAlias "flow" # bash
-        
+
         ''
+          flow_help() {
+            cat <<'EOF'
+jj flow — manage a branch-of-branches megamerge
+
+Use flow when one workstream spans multiple related branches and you want a
+single synthetic bookmark to keep them moving together. Use plain stacked
+commits/bookmarks when each change can stand on its own or you do not need the
+control node.
+
+The `flow` bookmark is synthetic control state: it marks the flow, but the real
+work items are the parent branches beneath it.
+
+Subcommands
+  jj flow tip
+    Advance the flow tip by creating a new commit at the current flow bookmark.
+    Use when you want to continue the flow from its current head.
+
+  jj flow changes add <revset>
+    Add an existing revision to the flow.
+    Use when a change already exists and should become part of the flow.
+    If the flow bookmark exists, this rebases the flow parents to include the
+    new revision; otherwise it seeds a new flow commit and bookmark.
+
+  jj flow changes remove <revset>
+    Remove a revision from the flow.
+    Use when a change should stop being tracked by the flow.
+    If removing the last parent would empty the flow, the synthetic bookmark is
+    deleted.
+
+  jj flow changes move <old> <new>
+    Move a tracked change from one revision to another.
+    Use when the work belongs on a different revision but should stay in the
+    same flow.
+
+  jj flow rebase <destination>
+    Rebase every flow-managed change onto a new base.
+    Use when trunk/base moved and the whole flow should follow.
+    This rebases all revisions rooted under the flow bookmark onto the
+    destination.
+
+  jj flow push
+    Push the flow-managed branches.
+    Use when you want to publish the branches currently tracked by the flow.
+    Push only affects the bookmarked parent branches, not unrelated commits.
+
+Practical notes
+  - The flow bookmark is synthetic control state. Do not treat it like a normal
+    change to edit by hand.
+  - `jj flow push` only publishes the branches referenced by the flow
+    bookmark's parents.
+  - `jj flow` subcommands keep their existing argc behavior; this help page only
+    handles the top-level help path.
+EOF
+          }
+
+          case "''${1-}" in
+            --help|-h)
+              flow_help
+              exit 0
+              ;;
+          esac
+
           source ${jj-helpers-lib}
 
           # @describe Manage a branch-of-branches for a megamerge workflow

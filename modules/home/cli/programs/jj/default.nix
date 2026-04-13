@@ -41,6 +41,18 @@ in {
     programs.zsh.initContent = lib.mkAfter ''
       # ww - jj workspace wrapper
       eval "$(ww init zsh)"
+
+      # jj - route `jj help flow ...` to the flow wrapper without changing
+      # other help or command invocations.
+      jj() {
+        emulate -L zsh
+        if [[ ''${1-} == help && ''${2-} == flow ]]; then
+          shift 2
+          command jj flow "$@" --help
+        else
+          command jj "$@"
+        fi
+      }
     '';
 
     # ww completion - pre-generated at build time (fast)
