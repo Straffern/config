@@ -339,14 +339,207 @@ Practical notes
     change to edit by hand.
   - `jj flow push` only publishes the branches referenced by the flow
     bookmark's parents.
-  - `jj flow` subcommands keep their existing argc behavior; this help page only
-    handles the top-level help path.
+  - Run `jj help flow <subcommand>` for focused help on one operation.
 EOF
           }
 
-          case "''${1-}" in
-            --help|-h)
+          flow_tip_help() {
+            cat <<'EOF'
+jj flow tip — open work at flow head
+
+Usage
+  jj flow tip
+
+What it does
+  Creates a new working-copy commit on top of the synthetic `flow` bookmark.
+  This gives you one place to test or integrate all flow-managed branches
+  together.
+
+When to use
+  - You already built a flow with `jj flow changes add ...`
+  - You want merged local context for testing or integration work
+  - You want to continue from current flow head without changing tracked
+    parents yet
+
+Notes
+  - This does not add new branches to the flow.
+  - If fixes belong in underlying branches, move or squash them back there.
+EOF
+          }
+
+          flow_changes_help() {
+            cat <<'EOF'
+jj flow changes — manage tracked branches inside flow
+
+Usage
+  jj flow changes add <revset>
+  jj flow changes remove <revset>
+  jj flow changes move <old> <new>
+
+What it manages
+  The `flow` bookmark is a synthetic merge commit. Its parents are the real
+  branches tracked by the flow. `changes` updates that parent set.
+
+Subcommands
+  add <revset>
+    Start tracking an existing revision in the flow.
+
+  remove <revset>
+    Stop tracking one or more revisions.
+
+  move <old> <new>
+    Replace one tracked revision with another.
+
+When to use
+  - add: branch now belongs in shared integration flow
+  - remove: branch landed, abandoned, or no longer belongs
+  - move: branch was rewritten/replaced and flow should follow new head
+EOF
+          }
+
+          flow_changes_add_help() {
+            cat <<'EOF'
+jj flow changes add — start tracking revision in flow
+
+Usage
+  jj flow changes add <revset>
+
+What it does
+  Adds matching revision to parent set of synthetic `flow` bookmark.
+  If `flow` already exists, rebases flow commit so new revision becomes one of
+  its parents. If `flow` does not exist yet, seeds new empty control commit and
+  bookmarks it as `flow`.
+
+When to use
+  - Existing branch should participate in shared integration flow
+  - You want `jj flow tip` to see this revision together with other tracked
+    branches
+
+Tips
+  - Prefer adding stable branch heads or bookmarked revisions.
+  - After adding, use `jj flow tip` for integration work above combined graph.
+EOF
+          }
+
+          flow_changes_remove_help() {
+            cat <<'EOF'
+jj flow changes remove — stop tracking revision in flow
+
+Usage
+  jj flow changes remove <revset>
+
+What it does
+  Removes matching revision from parent set of synthetic `flow` bookmark.
+  If that would leave no tracked parents, the command deletes the `flow`
+  bookmark and abandons empty control commit when possible.
+
+When to use
+  - Branch landed and should leave integration flow
+  - Branch was dropped or split elsewhere
+  - Flow should shrink to remaining active branches only
+
+Tips
+  - Run after merges to keep flow honest.
+  - Re-run `jj flow rebase trunk()` if base also moved.
+EOF
+          }
+
+          flow_changes_move_help() {
+            cat <<'EOF'
+jj flow changes move — replace tracked revision
+
+Usage
+  jj flow changes move <old> <new>
+
+What it does
+  Removes `<old>` from flow parent set and adds `<new>` in same operation.
+  Use this when work was rewritten, duplicated, or moved to another revision
+  but should stay part of same integration flow.
+
+When to use
+  - You replaced a tracked head with another revision
+  - A branch was rewritten and flow should follow rewritten node
+
+Tips
+  - Prefer this over separate remove/add when intent is one-for-one swap.
+EOF
+          }
+
+          flow_rebase_help() {
+            cat <<'EOF'
+jj flow rebase — move whole flow to new base
+
+Usage
+  jj flow rebase <destination>
+
+What it does
+  Rebases all revisions rooted under the synthetic `flow` bookmark onto new
+  destination. Use this to carry entire integration bundle forward when trunk
+  or another shared base moved.
+
+When to use
+  - trunk advanced and flow should follow
+  - shared base branch changed under all tracked work
+
+Tips
+  - `jj git fetch` first if remote base changed.
+  - Resolve conflicts once at flow level, then continue integration/testing.
+EOF
+          }
+
+          flow_push_help() {
+            cat <<'EOF'
+jj flow push — publish tracked branch heads
+
+Usage
+  jj flow push
+
+What it does
+  Runs `jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'`.
+  In practice this publishes bookmarked parent branches tracked by flow, not
+  synthetic `flow` bookmark itself.
+
+When to use
+  - You want to publish current tracked branch heads together
+  - You updated several related branches and want one push entrypoint
+
+Tips
+  - Unbookmarked commits are not published by this command.
+  - Keep real branch bookmarks on tracked parents if you expect push to work.
+EOF
+          }
+
+          case "$#:$*" in
+            0:|1:--help|1:-h)
               flow_help
+              exit 0
+              ;;
+            2:tip\ --help|2:tip\ -h)
+              flow_tip_help
+              exit 0
+              ;;
+            2:changes\ --help|2:changes\ -h)
+              flow_changes_help
+              exit 0
+              ;;
+            3:changes\ add\ --help|3:changes\ add\ -h)
+              flow_changes_add_help
+              exit 0
+              ;;
+            3:changes\ remove\ --help|3:changes\ remove\ -h)
+              flow_changes_remove_help
+              exit 0
+              ;;
+            3:changes\ move\ --help|3:changes\ move\ -h)
+              flow_changes_move_help
+              exit 0
+              ;;
+            2:rebase\ --help|2:rebase\ -h)
+              flow_rebase_help
+              exit 0
+              ;;
+            2:push\ --help|2:push\ -h)
+              flow_push_help
               exit 0
               ;;
           esac
