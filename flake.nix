@@ -122,7 +122,7 @@
 
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
-    lumen.url = "github:Straffern/lumen/fix-working-tree-path-resolution";
+    lumen.url = "github:jnsahaj/lumen/v2.22.0";
     ww.url = "github:omihirofumi/ww";
 
     hyprland.url = "github:hyprwm/hyprland";

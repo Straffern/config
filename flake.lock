@@ -2225,16 +2225,16 @@
         "nixpkgs": "nixpkgs_9"
       },
       "locked": {
-        "lastModified": 1768503524,
-        "narHash": "sha256-2tL0HXYVRt8Cn0a7swXgDPW7qfVFVVynlSqdpZ+SVko=",
-        "owner": "Straffern",
+        "lastModified": 1775519993,
+        "narHash": "sha256-ILAVTEo8t9+4QkIKJNPxMP7U3fSX2j3kqi9W99BdRB4=",
+        "owner": "jnsahaj",
         "repo": "lumen",
-        "rev": "a451725b5834465eb484a2a59f9bc28271444c08",
+        "rev": "6053b4ef3bc341332809ebfc712964cdeca902e6",
         "type": "github"
       },
       "original": {
-        "owner": "Straffern",
-        "ref": "fix-working-tree-path-resolution",
+        "owner": "jnsahaj",
+        "ref": "v2.22.0",
         "repo": "lumen",
         "type": "github"
       }

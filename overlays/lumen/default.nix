@@ -3,15 +3,16 @@
 in {
   lumen = final.rustPlatform.buildRustPackage {
     pname = "lumen";
-    version = "2.15.0";
+    version = "2.22.0";
 
     src = lumenSrc;
 
-    # patches = [ ./jj-subdir.patch ]; # Included in Straffern/lumen fork
+    # Rebased upstream PR #110 fix for workspace-root path resolution.
+    patches = [ ./jj-subdir.patch ];
 
     # Use cargoHash instead of cargoLock for deterministic builds
     # (avoids allowBuiltinFetchGit which causes cache misses)
-    cargoHash = "sha256-21SGMIssPN6bowJlevU5lCWKHu3Cwy9fU8Vt3aib1JE=";
+    cargoHash = "sha256-gQ8CMB29uce9SIqE8lmMELtz8vfrxUeyQjiI8rHdn6Y=";
 
     nativeBuildInputs = with final; [pkg-config perl];
 
@@ -26,7 +27,7 @@ in {
 
     meta = {
       description = "AI-powered command line tool for Git";
-      homepage = "https://github.com/Straffern/lumen";
+      homepage = "https://github.com/jnsahaj/lumen";
       mainProgram = "lumen";
     };
   };
