@@ -1,6 +1,8 @@
 {
   config,
   lib,
+  pkgs,
+  inputs,
   namespace,
   ...
 }: let
@@ -16,6 +18,9 @@ in {
       NIXOS_OZONE_WL = "1";
     };
 
-    programs.niri.enable = true;
+    programs.niri = {
+      enable = true;
+      package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
+    };
   };
 }

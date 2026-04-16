@@ -13,11 +13,17 @@ in {
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [nixgl.nixGLIntel nix-output-monitor nvd];
+    home.packages = with pkgs; [
+      nixgl.nixGLIntel
+      nix-output-monitor
+      nvd
+    ];
 
     systemd.user.startServices = "sd-switch";
 
-    programs = {home-manager.enable = true;};
+    programs = {
+      home-manager.enable = true;
+    };
 
     home.sessionVariables = {
       NH_FLAKE = "/home/${config.home.username}/.dotfiles";
@@ -31,6 +37,7 @@ in {
           "https://numtide.cachix.org?priority=42"
           "https://devenv.cachix.org"
           "https://hyprland.cachix.org"
+          "https://niri.cachix.org"
         ];
 
         trusted-public-keys = [
@@ -39,9 +46,13 @@ in {
           "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
           "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
           "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+          "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
         ];
 
-        experimental-features = ["nix-command" "flakes"];
+        experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
         warn-dirty = false;
         use-xdg-base-directories = true;
       };

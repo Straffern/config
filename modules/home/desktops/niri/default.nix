@@ -2,10 +2,17 @@
   config,
   lib,
   pkgs,
+  inputs,
   namespace,
   ...
 }: let
-  inherit (lib) mkEnableOption mkIf mkOption types;
+  inherit
+    (lib)
+    mkEnableOption
+    mkIf
+    mkOption
+    types
+    ;
   cfg = config.${namespace}.desktops.niri;
 
   # Prefer kitty whenever available; fall back only if it is disabled everywhere.
@@ -42,9 +49,10 @@ in {
     # Output profile switching (dock/undock) — compositor-agnostic, kanshi speaks wlr-output-management.
     ${namespace}.desktops.addons.kanshi.enable = true;
 
-    # Keep HM niri schema aligned with the compositor actually installed by nixpkgs.
+    # Blur landed upstream before nixpkgs package here caught up.
+    # Use same updated niri input for runtime package and config validation.
     programs.niri = {
-      package = pkgs.niri;
+      package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
       settings = {
         # input.focus-follows-mouse.enable = true;
         input.keyboard.xkb = {
@@ -73,7 +81,7 @@ in {
           };
         };
 
-        # Red indicator on windows actively targeted by a screencast.
+        # Red indicator on windows actively targeted by screencast.
         window-rules = [
           {
             matches = [{is-window-cast-target = true;}];

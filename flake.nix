@@ -20,7 +20,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-hardware = {url = "github:nixos/nixos-hardware";};
+    nixos-hardware = {
+      url = "github:nixos/nixos-hardware";
+    };
 
     sops-nix = {
       url = "github:mic92/sops-nix";
@@ -143,7 +145,7 @@
 
     # DankLinux
     dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
+      url = "github:AvengeMedia/DankMaterialShell/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -183,32 +185,36 @@
     lib.mkFlake {
       # inherit inputs;
       # src = ./.;
-      channels-config = {allowUnfree = true;};
+      channels-config = {
+        allowUnfree = true;
+      };
 
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
         devenv.overlays.default
         # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
-        (final: prev: let
-          unstablePkgs = import unstable {
-            localSystem = final.stdenv.hostPlatform;
-            inherit (prev) config;
-          };
-        in {
-          hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
-          inherit
-            (unstablePkgs)
-            bun
-            jujutsu
-            jjui
-            hyprlock
-            hypridle
-            hyprpicker
-            uwsm
-            dgop
-            ;
-        })
+        (
+          final: prev: let
+            unstablePkgs = import unstable {
+              localSystem = final.stdenv.hostPlatform;
+              inherit (prev) config;
+            };
+          in {
+            hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
+            inherit
+              (unstablePkgs)
+              bun
+              jujutsu
+              jjui
+              hyprlock
+              hypridle
+              hyprpicker
+              uwsm
+              dgop
+              ;
+          }
+        )
         nix-cachyos-kernel.overlays.pinned
       ];
 
@@ -241,8 +247,9 @@
       deploy = lib.mkDeploy {inherit (inputs) self;};
 
       checks =
-        builtins.mapAttrs
-        (_system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy)
+        builtins.mapAttrs (
+          _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+        )
         inputs.deploy-rs.lib;
     };
 }

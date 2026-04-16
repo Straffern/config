@@ -23,12 +23,19 @@ in {
 
     nix = {
       settings = {
-        trusted-users = ["@wheel" "root"];
+        trusted-users = [
+          "@wheel"
+          "root"
+        ];
         auto-optimise-store = lib.mkDefault true;
         use-xdg-base-directories = true;
         experimental-features = ["pipe-operators"];
         warn-dirty = false;
-        system-features = ["kvm" "big-parallel" "nixos-test"];
+        system-features = [
+          "kvm"
+          "big-parallel"
+          "nixos-test"
+        ];
 
         # Cache/query performance
         connect-timeout = 15;
@@ -45,7 +52,8 @@ in {
           "https://devenv.cachix.org?priority=41"
           "https://nix-community.cachix.org?priority=42"
           "https://hyprland.cachix.org?priority=43"
-          "https://attic.xuyh0120.win/lantian?priority=44"
+          "https://niri.cachix.org?priority=44"
+          "https://attic.xuyh0120.win/lantian?priority=45"
 
           # cachyos nixos-kernel
           "https://cache.garnix.io?priority=50"
@@ -56,6 +64,7 @@ in {
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
           "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+          "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
 
           "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
           "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="

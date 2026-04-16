@@ -6,7 +6,15 @@
   namespace,
   ...
 }: let
-  inherit (lib) concatStringsSep escapeShellArg mkEnableOption mkForce mkIf mkMerge;
+  inherit
+    (lib)
+    concatStringsSep
+    escapeShellArg
+    mkEnableOption
+    mkForce
+    mkIf
+    mkMerge
+    ;
   cfg = config.${namespace}.desktops.shells.dms;
 
   niriEnabled = config.${namespace}.desktops.niri.enable or false;
@@ -19,10 +27,12 @@
 
   # --- DMS settings bootstrap (compositor-agnostic) ---
 
-  dmsSettingsBootstrap = pkgs.writeText "dms-settings-bootstrap.json" (builtins.toJSON {
-    gtkThemingEnabled = true;
-    matugenTemplateNeovim = true;
-  });
+  dmsSettingsBootstrap = pkgs.writeText "dms-settings-bootstrap.json" (
+    builtins.toJSON {
+      gtkThemingEnabled = true;
+      matugenTemplateNeovim = true;
+    }
+  );
 
   bootstrapDmsSettings = let
     settingsPath = "${config.xdg.configHome}/DankMaterialShell/settings.json";
@@ -77,19 +87,27 @@
   # --- Niri-specific: KDL config fragments from DMS source ---
 
   dmsNiriFiles = {
-    colors = pkgs.writeText "dms-niri-colors.kdl" (builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-colors.kdl");
-    layout = pkgs.writeText "dms-niri-layout.kdl" (builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-layout.kdl");
-    alttab = pkgs.writeText "dms-niri-alttab.kdl" (builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-alttab.kdl");
+    colors = pkgs.writeText "dms-niri-colors.kdl" (
+      builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-colors.kdl"
+    );
+    layout = pkgs.writeText "dms-niri-layout.kdl" (
+      builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-layout.kdl"
+    );
+    alttab = pkgs.writeText "dms-niri-alttab.kdl" (
+      builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-alttab.kdl"
+    );
     binds = pkgs.writeText "dms-niri-binds.kdl" (
-      builtins.replaceStrings
-      ["{{TERMINAL_COMMAND}}"]
-      [terminalCommand]
-      (builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-binds.kdl")
+      builtins.replaceStrings ["{{TERMINAL_COMMAND}}"] [terminalCommand] (
+        builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-binds.kdl"
+      )
     );
     outputs = pkgs.writeText "dms-niri-outputs.kdl" "";
     cursor = pkgs.writeText "dms-niri-cursor.kdl" "";
     windowrules = pkgs.writeText "dms-niri-windowrules.kdl" "";
-    wpblur = pkgs.writeText "dms-niri-wpblur.kdl" (builtins.readFile "${inputs.dms}/quickshell/Services/niri-wpblur.kdl");
+
+    wpblur = pkgs.writeText "dms-niri-wpblur.kdl" (
+      builtins.readFile "${inputs.dms}/quickshell/Services/niri-wpblur.kdl"
+    );
   };
 
   niriFilesToInclude = [
@@ -100,11 +118,12 @@
     "outputs"
     "cursor"
     "windowrules"
+
     "wpblur"
   ];
 
-  installMissingNiriFile = name:
-    installMissingFile dmsNiriFiles.${name} "${config.xdg.configHome}/niri/dms/${name}.kdl";
+  installMissingNiriFile = name: installMissingFile dmsNiriFiles.${name} "${config.xdg.configHome}/niri/dms/${name}.kdl";
+  bootstrappedNiriFiles = niriFilesToInclude;
 in {
   options.${namespace}.desktops.shells.dms = {
     enable = mkEnableOption "DankMaterialShell desktop shell";
@@ -208,7 +227,7 @@ in {
           dms_dir=${escapeShellArg "${config.xdg.configHome}/niri/dms"}
           $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$dms_dir"
 
-          ${concatStringsSep "\n" (map installMissingNiriFile niriFilesToInclude)}
+          ${concatStringsSep "\n" (map installMissingNiriFile bootstrappedNiriFiles)}
         '';
       };
     })
