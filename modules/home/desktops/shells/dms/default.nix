@@ -168,10 +168,32 @@ in
     {
       programs.dank-material-shell = {
         enable = true;
-        systemd.enable = false;
+        systemd.enable = true;
         enableSystemMonitoring = true;
         enableDynamicTheming = true;
         enableClipboardPaste = true;
+      };
+
+      # HM owns dms.service, so mirror package unit semantics here and keep
+      # local crash-loop hardening in same declarative unit. Reload targets
+      # $MAINPID because wrapped Nix binaries run as `.dms-wrapped`, so
+      # `pkill -x dms` misses them.
+      systemd.user.services.dms = {
+        Unit = {
+          Description = mkForce "Dank Material Shell (DMS)";
+          Requisite = [ config.programs.dank-material-shell.systemd.target ];
+          StartLimitIntervalSec = 60;
+          StartLimitBurst = 5;
+          OnFailure = [ "dms-rescue.service" ];
+        };
+
+        Service = {
+          Type = "dbus";
+          BusName = "org.freedesktop.Notifications";
+          ExecReload = "${pkgs.coreutils}/bin/kill -USR1 $MAINPID";
+          RestartSec = "3s";
+          TimeoutStopSec = 10;
+        };
       };
 
       # GTK apps need a real theme package; DMS only manages the live color overlay.
@@ -206,27 +228,8 @@ in
         Hidden=true
       '';
 
-      # Harden DMS restart — upstream unit (from the DMS package) has
-      # StartLimitInterval=10s which is too tight: a single crash + coredump
-      # processing delay exhausts the budget. When rate-limited, the unit enters
-      # `failed` and never auto-restarts, leaving niri in a locked-with-no-locker
-      # state (ext-session-lock-v1 spec forbids auto-unlock on locker death).
-      # The rescue service fires on rate-limit exhaustion, waits for display state
-      # to stabilize, then resets and restarts DMS.
-      #
-      # Drop-in (not systemd.user.services.dms) because the unit ships from the
-      # DMS package via XDG_DATA_DIRS; an HM unit would shadow it entirely.
-      xdg.configFile."systemd/user/dms.service.d/50-crash-recovery.conf".text = ''
-        [Unit]
-        StartLimitIntervalSec=60
-        StartLimitBurst=5
-        OnFailure=dms-rescue.service
-
-        [Service]
-        RestartSec=3
-      '';
-
-      # Rescue oneshot — new unit, so systemd.user.services is fine here.
+      # Rescue oneshot — if DMS crash-loops into start-rate limiting, wait for
+      # outputs to settle, clear failed state, then restart shell.
       systemd.user.services.dms-rescue = {
         Unit.Description = "DMS crash rescue — delayed restart after rate-limit exhaustion";
         Service = {
@@ -241,12 +244,15 @@ in
     # ── Niri compositor integration ──
     (mkIf niriEnabled {
       programs.dank-material-shell.niri = {
-        enableSpawn = true;
+        enableSpawn = false;
         includes = {
           enable = true;
           filesToInclude = niriFilesToInclude;
         };
       };
+
+      # Match `systemctl --user add-wants niri.service dms` semantics.
+      systemd.user.services.dms.Install.WantedBy = mkForce [ "niri.service" ];
 
       programs.niri.settings.environment = {
         QT_QPA_PLATFORMTHEME = "qt6ct";
