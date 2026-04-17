@@ -9,6 +9,7 @@
   inherit
     (lib)
     mkEnableOption
+    mkForce
     mkIf
     mkOption
     types
@@ -24,6 +25,16 @@
     else if config.${namespace}.cli.terminals.foot.enable
     then "foot"
     else "kitty";
+
+  # Tune compositor blur globally; blur itself remains opt-in via DMS/app requests.
+  niriBlurAppendix = ''
+    blur {
+    	passes 2
+    	offset 2.5
+    	noise 0.02
+    	saturation 1.15
+    }
+  '';
 in {
   options.${namespace}.desktops.niri = {
     enable = mkEnableOption "Niri Wayland compositor";
@@ -103,6 +114,13 @@ in {
         ];
       };
     };
+
+    xdg.configFile.niri-config.source = mkForce (
+      inputs.niri.lib.internal.validated-config-for pkgs config.programs.niri.package ''
+        ${config.programs.niri.finalConfig}
+        ${niriBlurAppendix}
+      ''
+    );
 
     # Prefer portal for xdg-open (NixOS programs.niri handles portal packages)
     xdg.portal.xdgOpenUsePortal = true;

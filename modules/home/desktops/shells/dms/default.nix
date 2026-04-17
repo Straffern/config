@@ -5,9 +5,9 @@
   inputs,
   namespace,
   ...
-}: let
-  inherit
-    (lib)
+}:
+let
+  inherit (lib)
     concatStringsSep
     escapeShellArg
     mkEnableOption
@@ -21,9 +21,7 @@
   hyprlandEnabled = config.${namespace}.desktops.hyprland.enable or false;
 
   terminalCommand =
-    if niriEnabled
-    then config.${namespace}.desktops.niri.terminalCommand
-    else "kitty";
+    if niriEnabled then config.${namespace}.desktops.niri.terminalCommand else "kitty";
 
   # --- DMS settings bootstrap (compositor-agnostic) ---
 
@@ -34,38 +32,40 @@
     }
   );
 
-  bootstrapDmsSettings = let
-    settingsPath = "${config.xdg.configHome}/DankMaterialShell/settings.json";
-  in ''
-    settings_path=${escapeShellArg settingsPath}
-    settings_dir=$(${pkgs.coreutils}/bin/dirname "$settings_path")
-    $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$settings_dir"
+  bootstrapDmsSettings =
+    let
+      settingsPath = "${config.xdg.configHome}/DankMaterialShell/settings.json";
+    in
+    ''
+      settings_path=${escapeShellArg settingsPath}
+      settings_dir=$(${pkgs.coreutils}/bin/dirname "$settings_path")
+      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$settings_dir"
 
-    if [ ! -e "$settings_path" ]; then
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 \
-        ${escapeShellArg "${dmsSettingsBootstrap}"} \
-        "$settings_path"
-    elif [ ! -w "$settings_path" ]; then
-      echo "Skipping DMS settings bootstrap for read-only $settings_path" >&2
-    elif ${pkgs.jq}/bin/jq -e . "$settings_path" >/dev/null; then
-      tmp="$(${pkgs.coreutils}/bin/mktemp)"
-      ${pkgs.jq}/bin/jq '
-        if type == "object" then
-          (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
-          | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
-        else .
-        end
-      ' "$settings_path" > "$tmp"
+      if [ ! -e "$settings_path" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 \
+          ${escapeShellArg "${dmsSettingsBootstrap}"} \
+          "$settings_path"
+      elif [ ! -w "$settings_path" ]; then
+        echo "Skipping DMS settings bootstrap for read-only $settings_path" >&2
+      elif ${pkgs.jq}/bin/jq -e . "$settings_path" >/dev/null; then
+        tmp="$(${pkgs.coreutils}/bin/mktemp)"
+        ${pkgs.jq}/bin/jq '
+          if type == "object" then
+            (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
+            | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
+          else .
+          end
+        ' "$settings_path" > "$tmp"
 
-      if ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$settings_path"; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$tmp" "$settings_path"
+        if ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$settings_path"; then
+          $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$tmp" "$settings_path"
+        else
+          $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$tmp"
+        fi
       else
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$tmp"
+        echo "Skipping DMS settings bootstrap due to invalid JSON in $settings_path" >&2
       fi
-    else
-      echo "Skipping DMS settings bootstrap due to invalid JSON in $settings_path" >&2
-    fi
-  '';
+    '';
 
   # --- Terminal theme stubs (compositor-agnostic) ---
 
@@ -86,6 +86,37 @@
 
   # --- Niri-specific: KDL config fragments from DMS source ---
 
+  # DMS master requests blur via ext-background-effect. Keep blur opt-in in DMS,
+  # but force non-xray rendering for DMS surfaces on compositors that support it.
+  dmsNiriLayerRules = ''
+    layer-rule {
+    	match namespace=r#"^dms:.*"#
+    	exclude namespace=r#"^dms:blurwallpaper$"#
+    	exclude namespace=r#"^dms:.*:background$"#
+    	exclude namespace=r#"^dms:niri.*$"#
+    	exclude namespace=r#"^dms:fade-to-(dpms|lock)$"#
+    	exclude namespace=r#"^dms:desktop-widget-(preview|grid|helper)$"#
+
+    	background-effect {
+    		xray false
+    	}
+    }
+
+    window-rule {
+    	match app-id=r#"com.danklinux.dms$"#
+
+    	background-effect {
+    		xray false
+    	}
+
+    	popups {
+    		background-effect {
+    			xray false
+    		}
+    	}
+    }
+  '';
+
   dmsNiriFiles = {
     colors = pkgs.writeText "dms-niri-colors.kdl" (
       builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-colors.kdl"
@@ -97,13 +128,14 @@
       builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-alttab.kdl"
     );
     binds = pkgs.writeText "dms-niri-binds.kdl" (
-      builtins.replaceStrings ["{{TERMINAL_COMMAND}}"] [terminalCommand] (
+      builtins.replaceStrings [ "{{TERMINAL_COMMAND}}" ] [ terminalCommand ] (
         builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-binds.kdl"
       )
     );
     outputs = pkgs.writeText "dms-niri-outputs.kdl" "";
     cursor = pkgs.writeText "dms-niri-cursor.kdl" "";
     windowrules = pkgs.writeText "dms-niri-windowrules.kdl" "";
+    blur = pkgs.writeText "dms-niri-blur.kdl" dmsNiriLayerRules;
 
     wpblur = pkgs.writeText "dms-niri-wpblur.kdl" (
       builtins.readFile "${inputs.dms}/quickshell/Services/niri-wpblur.kdl"
@@ -118,13 +150,15 @@
     "outputs"
     "cursor"
     "windowrules"
-
+    "blur"
     "wpblur"
   ];
 
-  installMissingNiriFile = name: installMissingFile dmsNiriFiles.${name} "${config.xdg.configHome}/niri/dms/${name}.kdl";
-  bootstrappedNiriFiles = niriFilesToInclude;
-in {
+  installMissingNiriFile =
+    name: installMissingFile dmsNiriFiles.${name} "${config.xdg.configHome}/niri/dms/${name}.kdl";
+  bootstrappedNiriFiles = builtins.filter (name: name != "blur") niriFilesToInclude;
+in
+{
   options.${namespace}.desktops.shells.dms = {
     enable = mkEnableOption "DankMaterialShell desktop shell";
   };
@@ -141,7 +175,7 @@ in {
       };
 
       # GTK apps need a real theme package; DMS only manages the live color overlay.
-      home.packages = [pkgs.adw-gtk3];
+      home.packages = [ pkgs.adw-gtk3 ];
 
       # DMS owns all runtime theming; stylix has no role with this shell.
       ${namespace} = {
@@ -151,8 +185,8 @@ in {
 
       # Bootstrap DMS settings + terminal theme stubs (compositor-agnostic).
       home.activation.dmsBootstrap = {
-        after = ["writeBoundary"];
-        before = [];
+        after = [ "writeBoundary" ];
+        before = [ ];
         data = ''
           ${bootstrapDmsSettings}
 
@@ -219,10 +253,12 @@ in {
         QT_QPA_PLATFORMTHEME_QT6 = "qt6ct";
       };
 
+      xdg.configFile."niri/dms/blur.kdl".source = dmsNiriFiles.blur;
+
       # Bootstrap niri-specific DMS config fragments.
       home.activation.dmsNiriBootstrap = {
-        after = ["writeBoundary"];
-        before = [];
+        after = [ "writeBoundary" ];
+        before = [ ];
         data = ''
           dms_dir=${escapeShellArg "${config.xdg.configHome}/niri/dms"}
           $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$dms_dir"
@@ -239,7 +275,7 @@ in {
           "QT_QPA_PLATFORMTHEME,qt6ct"
           "QT_QPA_PLATFORMTHEME_QT6,qt6ct"
         ];
-        exec-once = ["dms run"];
+        exec-once = [ "dms run" ];
       };
     })
   ]);
