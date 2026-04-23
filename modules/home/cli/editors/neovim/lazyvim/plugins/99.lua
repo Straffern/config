@@ -43,18 +43,18 @@ return {
 			end
 
 			function PiAgentProvider._get_provider_name()
-				return "PiAgentProvider"
+				return "pi"
 			end
 
 			function PiAgentProvider._get_default_model()
-				return "anthropic/claude-sonnet-4-6"
+				return "openai-codex/gpt-5.4-mini"
 			end
 
-			_99.Providers.PiAgentProvider = PiAgentProvider
+			_99.Providers.pi = PiAgentProvider
 
 			_99.setup({
-				provider = _99.Providers.PiAgentProvider,
-				model = "openai/claude-sonnet-4-6",
+				provider = _99.Providers.pi,
+				model = "openai-codex/gpt-5.4-mini",
 				display_errors = true,
 				auto_add_skills = true,
 				tmp_dir = "./.tmp",
