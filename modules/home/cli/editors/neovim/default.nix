@@ -4,11 +4,13 @@
   config,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.editors.neovim;
   stylixEnabled = config.${namespace}.styles.stylix.enable;
-in {
+in
+{
   options.${namespace}.cli.editors.neovim = {
     enable = mkEnableOption "Neovim";
   };
@@ -30,6 +32,9 @@ in {
       ];
 
       extraLuaConfig = ''
+        vim.g.supermaven_jj_git_shim_path = "${pkgs.asgaard.supermaven-jj-git-shim}/bin"
+        vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
+
         -- bootstrap lazy.nvim, LazyVim and your plugins
         require("config.lazy")
       '';
@@ -39,7 +44,7 @@ in {
       vimAlias = true;
       vimdiffAlias = true;
     };
-    stylix.targets.neovim = mkIf stylixEnabled {enable = false;};
+    stylix.targets.neovim = mkIf stylixEnabled { enable = false; };
 
     xdg.configFile."nvim/lua" = {
       enable = true;
@@ -47,6 +52,9 @@ in {
       source = config.lib.asgaard.managedSource ./lazyvim;
     };
 
-    ${namespace}.system.persistence.directories = [".local/share/nvim" ".local/state/nvim"];
+    ${namespace}.system.persistence.directories = [
+      ".local/share/nvim"
+      ".local/state/nvim"
+    ];
   };
 }
