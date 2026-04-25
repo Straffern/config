@@ -45,7 +45,12 @@ local function jj_git_env()
 	end
 
 	local jj_root = vim.trim(result.stdout)
-	if jj_root == "" or vim.uv.fs_stat(jj_root .. "/.git") then
+	if jj_root == "" then
+		return nil
+	end
+
+	local git_stat = vim.uv.fs_stat(jj_root .. "/.git")
+	if git_stat and git_stat.type == "directory" then
 		return nil
 	end
 
@@ -68,6 +73,7 @@ local function jj_git_env()
 
 	return {
 		GIT_DIR = git_dir,
+		JJ_REPO_PATH = repo_path,
 		GIT_WORK_TREE = jj_root,
 	}
 end
@@ -80,7 +86,52 @@ local function env_list(env)
 	return out
 end
 
-local function supermaven_spawn(binary_path, shim_path)
+local function add_dir(args, seen, path)
+	if path == "" or path == "/" or seen[path] then
+		return
+	end
+	local parent = dirname(path)
+	if parent ~= path then
+		add_dir(args, seen, parent)
+	end
+	table.insert(args, "--dir")
+	table.insert(args, path)
+	seen[path] = true
+end
+
+local function add_bind(args, seen, mode, source, dest)
+	add_dir(args, seen, dirname(dest))
+	table.insert(args, mode)
+	table.insert(args, source)
+	table.insert(args, dest)
+end
+
+local function bind_if_exists(args, seen, mode, path)
+	if vim.uv.fs_stat(path) then
+		add_bind(args, seen, mode, path, path)
+	end
+end
+
+local function workspace_binds(args, seen, root)
+	add_dir(args, seen, root)
+	local scanner = vim.uv.fs_scandir(root)
+	if not scanner then
+		return
+	end
+
+	while true do
+		local name = vim.uv.fs_scandir_next(scanner)
+		if not name then
+			break
+		end
+		if name ~= ".git" then
+			local path = root .. "/" .. name
+			add_bind(args, seen, "--bind", path, path)
+		end
+	end
+end
+
+local function supermaven_env(shim_path)
 	local env = vim.fn.environ()
 	env.PATH = shim_path .. ":" .. env.PATH
 
@@ -91,27 +142,51 @@ local function supermaven_spawn(binary_path, shim_path)
 		env.SUPERMAVEN_JJ_SHIM = "1"
 	end
 
+	return env, git_env
+end
+
+local function supermaven_spawn(binary_path, shim_path)
+	local env, git_env = supermaven_env(shim_path)
 	if not git_env then
 		return binary_path, { "stdio" }, env_list(env)
 	end
 
-	local bwrap = vim.g.supermaven_jj_bwrap_path or "bwrap"
-	local git_file = vim.fn.stdpath("cache")
+	local gitfile = vim.fn.stdpath("cache")
 		.. "/supermaven-jj-git/"
 		.. vim.fn.sha256(git_env.GIT_WORK_TREE)
 		.. ".git"
-	write_file(git_file, "gitdir: " .. git_env.GIT_DIR .. "\n")
+	write_file(gitfile, "gitdir: " .. git_env.GIT_DIR .. "\n")
 
-	return bwrap, {
-		"--dev-bind",
-		"/",
-		"/",
-		"--bind",
-		git_file,
-		git_env.GIT_WORK_TREE .. "/.git",
-		binary_path,
-		"stdio",
-	}, env_list(env)
+	local args = {}
+	local seen = {}
+	local bwrap = vim.g.supermaven_jj_bwrap_path or "bwrap"
+
+	table.insert(args, "--ro-bind")
+	table.insert(args, "/nix")
+	table.insert(args, "/nix")
+	table.insert(args, "--ro-bind")
+	table.insert(args, "/etc")
+	table.insert(args, "/etc")
+	table.insert(args, "--dev")
+	table.insert(args, "/dev")
+	table.insert(args, "--proc")
+	table.insert(args, "/proc")
+	table.insert(args, "--tmpfs")
+	table.insert(args, "/tmp")
+
+	bind_if_exists(args, seen, "--bind", vim.env.HOME .. "/.supermaven")
+	bind_if_exists(args, seen, "--bind", vim.env.HOME .. "/.local/share/supermaven")
+	add_bind(args, seen, "--bind", git_env.JJ_REPO_PATH, git_env.JJ_REPO_PATH)
+	add_bind(args, seen, "--bind", git_env.GIT_DIR, git_env.GIT_DIR)
+	workspace_binds(args, seen, git_env.GIT_WORK_TREE)
+	add_bind(args, seen, "--ro-bind", gitfile, git_env.GIT_WORK_TREE .. "/.git")
+
+	table.insert(args, "--chdir")
+	table.insert(args, probe_dir())
+	table.insert(args, binary_path)
+	table.insert(args, "stdio")
+
+	return bwrap, args, env_list(env)
 end
 
 local function close_handle(handle)
