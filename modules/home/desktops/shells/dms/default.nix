@@ -27,6 +27,7 @@ let
 
   dmsSettingsBootstrap = pkgs.writeText "dms-settings-bootstrap.json" (
     builtins.toJSON {
+      blurEnabled = true;
       gtkThemingEnabled = true;
       matugenTemplateNeovim = true;
     }
@@ -51,7 +52,8 @@ let
         tmp="$(${pkgs.coreutils}/bin/mktemp)"
         ${pkgs.jq}/bin/jq '
           if type == "object" then
-            (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
+            (if has("blurEnabled") then . else . + { blurEnabled: true } end)
+            | (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
             | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
           else .
           end
@@ -86,14 +88,13 @@ let
 
   # --- Niri-specific: KDL config fragments from DMS source ---
 
-  # DMS master requests blur via ext-background-effect. Keep blur opt-in in DMS,
-  # but force non-xray rendering for DMS surfaces on compositors that support it.
+  # DMS requests blur via ext-background-effect. Keep blur opt-in in DMS, but
+  # use regular blur for foreground shell layers; background/bottom layers keep
+  # niri's efficient default xray blur.
   dmsNiriLayerRules = ''
     layer-rule {
-    	match namespace=r#"^dms:.*"#
-    	exclude namespace=r#"^dms:blurwallpaper$"#
-    	exclude namespace=r#"^dms:.*:background$"#
-    	exclude namespace=r#"^dms:niri.*$"#
+    	match namespace=r#"^dms:.*"# layer="top"
+    	match namespace=r#"^dms:.*"# layer="overlay"
     	exclude namespace=r#"^dms:fade-to-(dpms|lock)$"#
     	exclude namespace=r#"^dms:desktop-widget-(preview|grid|helper)$"#
 

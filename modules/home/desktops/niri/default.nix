@@ -5,9 +5,9 @@
   inputs,
   namespace,
   ...
-}: let
-  inherit
-    (lib)
+}:
+let
+  inherit (lib)
     mkEnableOption
     mkForce
     mkIf
@@ -18,24 +18,27 @@
 
   # Prefer kitty whenever available; fall back only if it is disabled everywhere.
   terminalCommand =
-    if config.${namespace}.cli.terminals.kitty.enable
-    then "kitty"
-    else if config.${namespace}.cli.terminals.alacritty.enable
-    then "alacritty"
-    else if config.${namespace}.cli.terminals.foot.enable
-    then "foot"
-    else "kitty";
+    if config.${namespace}.cli.terminals.kitty.enable then
+      "kitty"
+    else if config.${namespace}.cli.terminals.alacritty.enable then
+      "alacritty"
+    else if config.${namespace}.cli.terminals.foot.enable then
+      "foot"
+    else
+      "kitty";
 
-  # Tune compositor blur globally; blur itself remains opt-in via DMS/app requests.
+  # niri-flake has no typed blur section yet; append raw KDL and validate it.
+  # Blur itself remains opt-in via DMS/app requests.
   niriBlurAppendix = ''
     blur {
-    	passes 2
-    	offset 2.5
+    	passes 3
+    	offset 3.0
     	noise 0.02
-    	saturation 1.15
+    	saturation 1.5
     }
   '';
-in {
+in
+{
   options.${namespace}.desktops.niri = {
     enable = mkEnableOption "Niri Wayland compositor";
     terminalCommand = mkOption {
@@ -60,7 +63,6 @@ in {
     # Output profile switching (dock/undock) — compositor-agnostic, kanshi speaks wlr-output-management.
     ${namespace}.desktops.addons.kanshi.enable = true;
 
-    # Blur landed upstream before nixpkgs package here caught up.
     # Use same updated niri input for runtime package and config validation.
     programs.niri = {
       package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
@@ -95,7 +97,7 @@ in {
         # Red indicator on windows actively targeted by screencast.
         window-rules = [
           {
-            matches = [{is-window-cast-target = true;}];
+            matches = [ { is-window-cast-target = true; } ];
             focus-ring = {
               active.color = "#f38ba8";
               inactive.color = "#7d0d2d";
