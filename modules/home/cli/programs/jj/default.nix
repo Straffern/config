@@ -32,7 +32,7 @@ in {
         difftastic
         jjui
         ww
-        asgaard.jj-starship
+        inputs.unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.jj-starship
         lumen
         asgaard.jj-ryu
       ];

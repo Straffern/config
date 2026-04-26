@@ -198,7 +198,7 @@
       overlays = with inputs; [
         nixgl.overlay
         nur.overlays.default
-        devenv.overlays.default
+        # devenv.overlays.default
         # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
         (
           final: prev: let
@@ -218,6 +218,7 @@
               hyprpicker
               uwsm
               dgop
+              devenv
               ;
           }
         )
