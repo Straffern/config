@@ -88,10 +88,16 @@ let
 
   # --- Niri-specific: KDL config fragments from DMS source ---
 
-  # DMS requests blur via ext-background-effect. Keep blur opt-in in DMS, but
-  # use regular blur for foreground shell layers; background/bottom layers keep
-  # niri's efficient default xray blur.
+  # Put DMS wallpaper layers into niri's overview backdrop. DMS requests blur via
+  # ext-background-effect; keep blur opt-in in DMS, but use regular blur for
+  # foreground shell layers. Background/bottom layers keep niri's efficient
+  # default xray blur.
   dmsNiriLayerRules = ''
+    layer-rule {
+    	match namespace="^quickshell$"
+    	place-within-backdrop true
+    }
+
     layer-rule {
     	match namespace=r#"^dms:.*"# layer="top"
     	match namespace=r#"^dms:.*"# layer="overlay"
