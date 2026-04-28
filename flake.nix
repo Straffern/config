@@ -150,8 +150,8 @@
 
     # DankLinux
     dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:AvengeMedia/DankMaterialShell/master";
+      inputs.nixpkgs.follows = "unstable";
       # inputs.quickshell.follows = "quickshell";
     };
 
@@ -173,21 +173,23 @@
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 
-  outputs = inputs: let
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
+  outputs =
+    inputs:
+    let
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
 
-      snowfall = {
-        metadata = "asgaard";
-        namespace = "asgaard";
-        meta = {
-          name = "dotfiles";
-          title = "dotfiles";
+        snowfall = {
+          metadata = "asgaard";
+          namespace = "asgaard";
+          meta = {
+            name = "dotfiles";
+            title = "dotfiles";
+          };
         };
       };
-    };
-  in
+    in
     lib.mkFlake {
       # inherit inputs;
       # src = ./.;
@@ -201,15 +203,16 @@
         # devenv.overlays.default
         # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
         (
-          final: prev: let
+          final: prev:
+          let
             unstablePkgs = import unstable {
               localSystem = final.stdenv.hostPlatform;
               inherit (prev) config;
             };
-          in {
+          in
+          {
             hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
-            inherit
-              (unstablePkgs)
+            inherit (unstablePkgs)
               bun
               jujutsu
               jjui
@@ -251,12 +254,10 @@
         noctalia.homeModules.default
       ];
 
-      deploy = lib.mkDeploy {inherit (inputs) self;};
+      deploy = lib.mkDeploy { inherit (inputs) self; };
 
-      checks =
-        builtins.mapAttrs (
-          _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
-        )
-        inputs.deploy-rs.lib;
+      checks = builtins.mapAttrs (
+        _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+      ) inputs.deploy-rs.lib;
     };
 }
