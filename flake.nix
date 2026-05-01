@@ -170,6 +170,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    voxtype = {
+      url = "github:peteonrails/voxtype";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
   };
 

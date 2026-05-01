@@ -5,7 +5,8 @@
   namespace,
   ...
 }:
-with lib; let
+with lib;
+let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.desktop;
   elgato-fix = pkgs.writeScriptBin "elgato-fix" ''
@@ -40,7 +41,8 @@ with lib; let
         echo "Switched to Arctis Nova Pro Wireless"
     fi
   '';
-in {
+in
+{
   options.${namespace}.suites.desktop = {
     enable = mkEnableOption "Enable desktop suite";
   };
@@ -55,7 +57,6 @@ in {
         kdeconnect = enabled;
         spotify = enabled;
       };
-      programs.voxtype = enabled;
       desktops.addons.xdg = enabled;
     };
 
@@ -66,7 +67,7 @@ in {
     systemd.user.targets.tray = {
       Unit = {
         Description = "Home Manager System Tray";
-        Requires = ["graphical-session-pre.target"];
+        Requires = [ "graphical-session-pre.target" ];
       };
     };
 

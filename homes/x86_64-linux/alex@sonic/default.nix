@@ -3,10 +3,14 @@
   pkgs,
   config,
   namespace,
+  inputs,
   ...
-}: let
+}:
+let
   inherit (pkgs.${namespace}) clipy;
-in {
+  voxtypePkg = inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.onnx-rocm;
+in
+{
   programs.zsh.sessionVariables = {
     PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
   };
@@ -24,7 +28,9 @@ in {
         omp.enable = true;
         ai = {
           enable = true;
-          opencode = {enable = true;};
+          opencode = {
+            enable = true;
+          };
           shellFunction = {
             enable = true;
             model = "openai-codex/gpt-5.1-codex-mini";
@@ -42,9 +48,33 @@ in {
       social.enable = true;
     };
   };
-  sops.secrets.ssh_config = {sopsFile = ../../../secrets.yaml;};
+  sops.secrets.ssh_config = {
+    sopsFile = ../../../secrets.yaml;
+  };
 
-  programs.ssh.includes = [config.sops.secrets.ssh_config.path];
+  programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
+
+  systemd.user.services.voxtype = {
+    Unit = {
+      Description = "VoxType push-to-talk voice-to-text daemon";
+      Documentation = "https://voxtype.io";
+      PartOf = [ "graphical-session.target" ];
+      After = [
+        "graphical-session.target"
+        "pipewire.service"
+        "pipewire-pulse.service"
+      ];
+    };
+
+    Service = {
+      Type = "simple";
+      ExecStart = "${voxtypePkg}/bin/voxtype daemon";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 
   home.packages = with pkgs; [
     nwg-displays
@@ -52,6 +82,7 @@ in {
     uv
     v4l-utils
     guvcview
+    voxtypePkg
   ];
   home.stateVersion = "23.11";
 }

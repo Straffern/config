@@ -3,14 +3,15 @@
   lib,
   pkgs,
   namespace,
+  inputs,
   ...
 }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.waybar;
 
-  voxtypeEnabled = config.${namespace}.programs.voxtype.enable or false;
-  voxtypePkg = pkgs.${namespace}.voxtype;
+  voxtypeEnabled = config.systemd.user.services ? voxtype;
+  voxtypePkg = inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.onnx-rocm;
 in
 {
   options.${namespace}.desktops.addons.waybar = {
