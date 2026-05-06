@@ -197,12 +197,12 @@ in
         bind -N "Config: reload tmux config" q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
         bind -N "Resurrect: restore saved tmux state" C-r run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh
         bind -N "Resurrect: save current tmux state" C-s run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh
-        bind -N "Table: pane actions" p switch-client -T pane
-        bind -N "Table: window actions" w switch-client -T window
-        bind -N "Table: resize panes" r switch-client -T resize
-        bind -N "Table: move, swap, and mark panes/windows" m switch-client -T move
-        bind -N "Table: yank, copy mode, and buffers" y switch-client -T yank
-        bind -N "Table: session actions" s switch-client -T session
+        bind -N "Table: pane actions" p display-message "PANE h/j/k/l focus | v split right | s split down | x kill | z zoom | f/F floax | ? help | q close" \; switch-client -T pane
+        bind -N "Table: window actions" w display-message "WINDOW c new | r rename | x kill | h/l prev/next | H/L move | 1-9 select | . move index | R renumber | ? help | q close" \; switch-client -T window
+        bind -N "Table: resize panes" r display-message "RESIZE h/j/k/l small | H/J/K/L large | = even | t tiled | ? help | q close" \; switch-client -T resize
+        bind -N "Table: move, swap, and mark panes/windows" m display-message "MOVE m mark | M clear | s swap marked | h/j/k/l swap pane | H/L move window | ? help | q close" \; switch-client -T move
+        bind -N "Table: yank, copy mode, and buffers" y display-message "YANK y line | Y cwd | [ copy-mode | p paste | b choose | l list | e capture nvim | ? help | q close" \; switch-client -T yank
+        bind -N "Table: session actions" s display-message "SESSION s choose | S sesh | n new | r rename | x kill | p/N prev/next | d detach | L last | ? help | q close" \; switch-client -T session
 
         # Pane table.
         bind-key -T pane -N "Pane: focus left" h select-pane -L
@@ -216,6 +216,7 @@ in
         bind-key -T pane -N "Pane: focus next pane" o select-pane -t :.+
         bind-key -T pane -N "Pane: open FloaX scratch popup" f run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/floax.sh
         bind-key -T pane -N "Pane: open FloaX menu" F run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/menu.sh
+        bind-key -T pane -N "Pane: show table help" ? list-keys -N -T pane
         bind-key -T pane -N "Pane: close table" q display-message "pane table closed"
         bind-key -T pane -N "Pane: close table" Escape display-message "pane table closed"
 
@@ -238,6 +239,7 @@ in
         bind-key -T window -N "Window: select 9" 9 select-window -t 9
         bind-key -T window -N "Window: move to prompted index" . command-prompt -T target { move-window -t "%%" }
         bind-key -T window -N "Window: renumber windows" R move-window -r
+        bind-key -T window -N "Window: show table help" ? list-keys -N -T window
         bind-key -T window -N "Window: close table" q display-message "window table closed"
         bind-key -T window -N "Window: close table" Escape display-message "window table closed"
 
@@ -252,6 +254,7 @@ in
         bind-key -T resize -N "Resize: right large, stay in table" L resize-pane -R 10 \; switch-client -T resize
         bind-key -T resize -N "Resize: even horizontal layout, stay in table" = select-layout even-horizontal \; switch-client -T resize
         bind-key -T resize -N "Resize: tiled layout, stay in table" t select-layout tiled \; switch-client -T resize
+        bind-key -T resize -N "Resize: show table help, stay in table" ? list-keys -N -T resize \; switch-client -T resize
         bind-key -T resize -N "Resize: close table" q display-message "resize table closed"
         bind-key -T resize -N "Resize: close table" Escape display-message "resize table closed"
 
@@ -265,6 +268,7 @@ in
         bind-key -T move -N "Move: swap pane with right neighbor, stay in table" l swap-pane -s "{right-of}" \; switch-client -T move
         bind-key -T move -N "Move: move window left, stay in table" H swap-window -t -1 \; select-window -t -1 \; switch-client -T move
         bind-key -T move -N "Move: move window right, stay in table" L swap-window -t +1 \; select-window -t +1 \; switch-client -T move
+        bind-key -T move -N "Move: show table help, stay in table" ? list-keys -N -T move \; switch-client -T move
         bind-key -T move -N "Move: close table" q display-message "move table closed"
         bind-key -T move -N "Move: close table" Escape display-message "move table closed"
 
@@ -276,6 +280,7 @@ in
         bind-key -T yank -N "Yank: choose tmux buffer" b choose-buffer -Z
         bind-key -T yank -N "Yank: list tmux buffers" l list-buffers
         bind-key -T yank -N "Yank: capture pane history into nvim" e send-keys "tmux capture-pane -p -S - | nvim -c 'set buftype=nofile' +" Enter
+        bind-key -T yank -N "Yank: show table help" ? list-keys -N -T yank
         bind-key -T yank -N "Yank: close table" q display-message "yank table closed"
         bind-key -T yank -N "Yank: close table" Escape display-message "yank table closed"
 
@@ -289,6 +294,7 @@ in
         bind-key -T session -N "Session: next session/client" N switch-client -n
         bind-key -T session -N "Session: detach client" d detach-client
         bind-key -T session -N "Session: last session/client" L switch-client -l
+        bind-key -T session -N "Session: show table help" ? list-keys -N -T session
         bind-key -T session -N "Session: close table" q display-message "session table closed"
         bind-key -T session -N "Session: close table" Escape display-message "session table closed"
 
