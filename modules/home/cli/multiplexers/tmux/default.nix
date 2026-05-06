@@ -90,7 +90,20 @@ in
         better-mouse-mode
         yank
         tmux-thumbs
-        tmux-floax
+        {
+          plugin = tmux-floax;
+          extraConfig = ''
+            set -g @floax-bind F
+            set -g @floax-bind-menu M
+            set -g @floax-width 80%
+            set -g @floax-height 80%
+            set -g @floax-border-color blue
+            set -g @floax-text-color blue
+            set -g @floax-change-path true
+            set -g @floax-session-name scratch
+            set -g @floax-title 'FloaX'
+          '';
+        }
         {
           plugin = mkTmuxPlugin {
             pluginName = "tmux-super-fingers";
