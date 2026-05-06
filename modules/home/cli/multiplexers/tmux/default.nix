@@ -165,6 +165,11 @@ in
         set-option -g extended-keys on
         set-option -g extended-keys-format csi-u
 
+        # jj change IDs use reverse-hex digits k-z, rendered as short prefixes in prompts/logs.
+        # tmux-thumbs already matches git SHAs; this makes jj IDs like "rzrzslqw" selectable too.
+        set -g @thumbs-regexp-1 '\b[k-z]{8,}\b'
+        set -g @thumbs-position right
+
         # Keybinding model:
         # - Root table keeps only fast pane/window navigation.
         # - Prefix keys enter focused tmux tables for pane/window/resize/move/yank/session actions.
