@@ -23,12 +23,12 @@ let
 
   tmux-super-fingers = pkgs.tmuxPlugins.mkTmuxPlugin {
     pluginName = "tmux-super-fingers";
-    version = "unstable-2023-10-03";
+    version = "unstable-2026-04-23";
     src = pkgs.fetchFromGitHub {
       owner = "artemave";
       repo = "tmux_super_fingers";
-      rev = "518044ef78efa1cf3c64f2e693fef569ae570ddd";
-      sha256 = "1710pqvjwis0ki2c3mdrp2zia3y3i8g4rl6v42pg9nk4igsz39w8";
+      rev = "523dc9b7a79f1ceb8d9be72e22c263c4a7cd3bdf";
+      sha256 = "sha256-GiOkSADuWz19ndsVlKiKatPnplUpmukoZTPakIXWqF0=";
     };
   };
 
