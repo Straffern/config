@@ -21,6 +21,17 @@ let
     };
   };
 
+  tmux-super-fingers = pkgs.tmuxPlugins.mkTmuxPlugin {
+    pluginName = "tmux-super-fingers";
+    version = "unstable-2023-10-03";
+    src = pkgs.fetchFromGitHub {
+      owner = "artemave";
+      repo = "tmux_super_fingers";
+      rev = "518044ef78efa1cf3c64f2e693fef569ae570ddd";
+      sha256 = "1710pqvjwis0ki2c3mdrp2zia3y3i8g4rl6v42pg9nk4igsz39w8";
+    };
+  };
+
   televisionSeshChannel = ''
     # Television channel for sesh session management
     # Upstream: https://github.com/alexpasmantier/television/blob/main/cable/unix/sesh.toml
@@ -104,16 +115,7 @@ in
           '';
         }
         {
-          plugin = mkTmuxPlugin {
-            pluginName = "tmux-super-fingers";
-            version = "unstable-2023-10-03";
-            src = pkgs.fetchFromGitHub {
-              owner = "artemave";
-              repo = "tmux_super_fingers";
-              rev = "518044ef78efa1cf3c64f2e693fef569ae570ddd";
-              sha256 = "1710pqvjwis0ki2c3mdrp2zia3y3i8g4rl6v42pg9nk4igsz39w8";
-            };
-          };
+          plugin = tmux-super-fingers;
           extraConfig = ''
             set -g @super-fingers-key f
           '';
@@ -163,55 +165,131 @@ in
         set-option -g extended-keys on
         set-option -g extended-keys-format csi-u
 
-        # Change splits to match nvim and easier to remember
-        # Open new split at cwd of current split
-        unbind %
-        unbind '"'
-        bind | split-window -h -c "#{pane_current_path}"
-        bind - split-window -v -c "#{pane_current_path}"
-        bind h split-window -v -c "#{pane_current_path}"
-        bind v split-window -h -c "#{pane_current_path}"
-        bind x kill-pane
+        # Keybinding model:
+        # - Root table keeps only fast pane/window navigation.
+        # - Prefix keys enter focused tmux tables for pane/window/resize/move/yank/session actions.
+        # - Neovim keeps Alt-h/l, Ctrl-h/j/k/l, Ctrl-u/d, Ctrl-Space, and Ctrl-arrow.
+        unbind-key -a -T prefix
 
-        # Use vim keybindings in copy mode
-        set-window-option -g mode-keys vi
+        # Root fast paths.
+        bind-key -n C-M-h select-pane -L
+        bind-key -n C-M-j select-pane -D
+        bind-key -n C-M-k select-pane -U
+        bind-key -n C-M-l select-pane -R
+        bind-key -n M-1 select-window -t 1
+        bind-key -n M-2 select-window -t 2
+        bind-key -n M-3 select-window -t 3
+        bind-key -n M-4 select-window -t 4
+        bind-key -n M-5 select-window -t 5
+        bind-key -n M-6 select-window -t 6
+        bind-key -n M-7 select-window -t 7
+        bind-key -n M-8 select-window -t 8
+        bind-key -n M-9 select-window -t 9
 
-        # v in copy mode starts making selection
-        bind-key -T copy-mode-vi v send-keys -X begin-selection
-        bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
-        bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
-
-        # Escape turns on copy mode
-        bind Escape copy-mode
-
-        # Omarchy-style tmux controls
+        # Prefix entry points and global tmux utilities.
+        bind : command-prompt
+        bind ? list-keys
+        bind C-Space send-prefix
+        bind Space run-shell -b ${pkgs.tmuxPlugins.tmux-thumbs}/share/tmux-plugins/tmux-thumbs/tmux-thumbs.sh
+        bind d detach-client
+        bind f new-window -e FINGERS_EXTEND= -n super-fingers ${tmux-super-fingers}/share/tmux-plugins/tmux-super-fingers/run.sh
         bind q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
-        bind r command-prompt -I "#W" "rename-window -- '%%'"
-        bind c new-window -c "#{pane_current_path}"
-        bind k kill-window
-        bind R command-prompt -I "#S" "rename-session -- '%%'"
-        bind C new-session -c "#{pane_current_path}"
-        bind K kill-session
-        bind P switch-client -p
-        bind N switch-client -n
+        bind C-r run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh
+        bind C-s run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh
+        bind p switch-client -T pane
+        bind w switch-client -T window
+        bind r switch-client -T resize
+        bind m switch-client -T move
+        bind y switch-client -T yank
+        bind s switch-client -T session
 
-        bind -n M-1 select-window -t 1
-        bind -n M-2 select-window -t 2
-        bind -n M-3 select-window -t 3
-        bind -n M-4 select-window -t 4
-        bind -n M-5 select-window -t 5
-        bind -n M-6 select-window -t 6
-        bind -n M-7 select-window -t 7
-        bind -n M-8 select-window -t 8
-        bind -n M-9 select-window -t 9
-        bind -n M-Left select-window -t -1
-        bind -n M-Right select-window -t +1
-        bind -n M-S-Left swap-window -t -1 \; select-window -t -1
-        bind -n M-S-Right swap-window -t +1 \; select-window -t +1
-        bind -n M-Up switch-client -p
-        bind -n M-Down switch-client -n
+        # Pane table.
+        bind-key -T pane h select-pane -L
+        bind-key -T pane j select-pane -D
+        bind-key -T pane k select-pane -U
+        bind-key -T pane l select-pane -R
+        bind-key -T pane v split-window -h -c "#{pane_current_path}"
+        bind-key -T pane s split-window -v -c "#{pane_current_path}"
+        bind-key -T pane x kill-pane
+        bind-key -T pane z resize-pane -Z
+        bind-key -T pane o select-pane -t :.+
+        bind-key -T pane f run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/floax.sh
+        bind-key -T pane F run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/menu.sh
+        bind-key -T pane q display-message "pane table closed"
+        bind-key -T pane Escape display-message "pane table closed"
 
-        bind S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
+        # Window table.
+        bind-key -T window c new-window -c "#{pane_current_path}"
+        bind-key -T window r command-prompt -I "#W" "rename-window -- '%%'"
+        bind-key -T window x kill-window
+        bind-key -T window h previous-window
+        bind-key -T window l next-window
+        bind-key -T window H swap-window -t -1 \; select-window -t -1
+        bind-key -T window L swap-window -t +1 \; select-window -t +1
+        bind-key -T window 1 select-window -t 1
+        bind-key -T window 2 select-window -t 2
+        bind-key -T window 3 select-window -t 3
+        bind-key -T window 4 select-window -t 4
+        bind-key -T window 5 select-window -t 5
+        bind-key -T window 6 select-window -t 6
+        bind-key -T window 7 select-window -t 7
+        bind-key -T window 8 select-window -t 8
+        bind-key -T window 9 select-window -t 9
+        bind-key -T window . command-prompt -T target { move-window -t "%%" }
+        bind-key -T window R move-window -r
+        bind-key -T window q display-message "window table closed"
+        bind-key -T window Escape display-message "window table closed"
+
+        # Resize table stays active until closed.
+        bind-key -T resize h resize-pane -L 3 \; switch-client -T resize
+        bind-key -T resize j resize-pane -D 3 \; switch-client -T resize
+        bind-key -T resize k resize-pane -U 3 \; switch-client -T resize
+        bind-key -T resize l resize-pane -R 3 \; switch-client -T resize
+        bind-key -T resize H resize-pane -L 10 \; switch-client -T resize
+        bind-key -T resize J resize-pane -D 10 \; switch-client -T resize
+        bind-key -T resize K resize-pane -U 10 \; switch-client -T resize
+        bind-key -T resize L resize-pane -R 10 \; switch-client -T resize
+        bind-key -T resize = select-layout even-horizontal \; switch-client -T resize
+        bind-key -T resize t select-layout tiled \; switch-client -T resize
+        bind-key -T resize q display-message "resize table closed"
+        bind-key -T resize Escape display-message "resize table closed"
+
+        # Move/mark table stays active until closed.
+        bind-key -T move m select-pane -m \; switch-client -T move
+        bind-key -T move M select-pane -M \; switch-client -T move
+        bind-key -T move s swap-pane \; switch-client -T move
+        bind-key -T move h swap-pane -s "{left-of}" \; switch-client -T move
+        bind-key -T move j swap-pane -s "{down-of}" \; switch-client -T move
+        bind-key -T move k swap-pane -s "{up-of}" \; switch-client -T move
+        bind-key -T move l swap-pane -s "{right-of}" \; switch-client -T move
+        bind-key -T move H swap-window -t -1 \; select-window -t -1 \; switch-client -T move
+        bind-key -T move L swap-window -t +1 \; select-window -t +1 \; switch-client -T move
+        bind-key -T move q display-message "move table closed"
+        bind-key -T move Escape display-message "move table closed"
+
+        # Yank/buffer table.
+        bind-key -T yank y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_line.sh
+        bind-key -T yank Y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_pane_pwd.sh
+        bind-key -T yank [ copy-mode
+        bind-key -T yank p paste-buffer
+        bind-key -T yank b choose-buffer -Z
+        bind-key -T yank l list-buffers
+        bind-key -T yank e send-keys "tmux capture-pane -p -S - | nvim -c 'set buftype=nofile' +" Enter
+        bind-key -T yank q display-message "yank table closed"
+        bind-key -T yank Escape display-message "yank table closed"
+
+        # Session table.
+        bind-key -T session s choose-tree -Zs
+        bind-key -T session S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
+        bind-key -T session n new-session -c "#{pane_current_path}"
+        bind-key -T session r command-prompt -I "#S" "rename-session -- '%%'"
+        bind-key -T session x kill-session
+        bind-key -T session p switch-client -p
+        bind-key -T session N switch-client -n
+        bind-key -T session d detach-client
+        bind-key -T session L switch-client -l
+        bind-key -T session q display-message "session table closed"
+        bind-key -T session Escape display-message "session table closed"
 
         # Status bar
         set-option -g status-position top
@@ -235,44 +313,17 @@ in
         set-option -g mode-style "bg=blue,fg=black"
         set-window-option -g clock-mode-colour blue
 
-        # make Prefix p paste the buffer.
-        unbind p
-        bind p paste-buffer
-
         set -g allow-passthrough on
         set -ga update-environment TERM
         set -ga update-environment TERM_PROGRAM
 
-        bind-key e send-keys "tmux capture-pane -p -S - | nvim -c 'set buftype=nofile' +" Enter
-
-        # '@pane-is-vim' is a pane-local option that is set by the plugin on load,
-        # and unset when Neovim exits or suspends; note that this means you'll probably
-        # not want to lazy-load smart-splits.nvim, as the variable won't be set until
-        # the plugin is loaded
-
-        # Smart pane switching with awareness of Neovim splits.
-        bind-key -n C-h if -F "#{@pane-is-vim}" 'send-keys C-h'  'select-pane -L'
-        bind-key -n C-j if -F "#{@pane-is-vim}" 'send-keys C-j'  'select-pane -D'
-        bind-key -n C-k if -F "#{@pane-is-vim}" 'send-keys C-k'  'select-pane -U'
-        bind-key -n C-l if -F "#{@pane-is-vim}" 'send-keys C-l'  'select-pane -R'
-
-        # Smart pane resizing with awareness of Neovim splits.
-        bind-key -n M-h if -F "#{@pane-is-vim}" 'send-keys M-h' 'resize-pane -L 3'
-        bind-key -n M-j if -F "#{@pane-is-vim}" 'send-keys M-j' 'resize-pane -D 3'
-        bind-key -n M-k if -F "#{@pane-is-vim}" 'send-keys M-k' 'resize-pane -U 3'
-        bind-key -n M-l if -F "#{@pane-is-vim}" 'send-keys M-l' 'resize-pane -R 3'
-
-        tmux_version='$(tmux -V | sed -En "s/^tmux ([0-9]+(.[0-9]+)?).*/\1/p")'
-        if-shell -b '[ "$(echo "$tmux_version < 3.0" | bc)" = 1 ]' \
-            "bind-key -n 'C-\\' if -F \"#{@pane-is-vim}\" 'send-keys C-\\'  'select-pane -l'"
-        if-shell -b '[ "$(echo "$tmux_version >= 3.0" | bc)" = 1 ]' \
-            "bind-key -n 'C-\\' if -F \"#{@pane-is-vim}\" 'send-keys C-\\\\'  'select-pane -l'"
-
+        # Copy-mode navigation mirrors pane movement without touching Neovim root keys.
         bind-key -T copy-mode-vi 'C-h' select-pane -L
         bind-key -T copy-mode-vi 'C-j' select-pane -D
         bind-key -T copy-mode-vi 'C-k' select-pane -U
         bind-key -T copy-mode-vi 'C-l' select-pane -R
-        bind-key -T copy-mode-vi 'C-\' select-pane -l        # Bind Keys
+        bind-key -T copy-mode-vi 'C-\' select-pane -l
+
         bind-key -T prefix C-g split-window \
         	"$SHELL --login -i -c 'navi --print | head -c -1 | tmux load-buffer -b tmp - ; tmux paste-buffer -p -t {last} -b tmp -d'"
       '';
