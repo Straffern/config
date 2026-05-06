@@ -187,109 +187,110 @@ in
         bind-key -n M-9 select-window -t 9
 
         # Prefix entry points and global tmux utilities.
-        bind : command-prompt
-        bind ? list-keys
-        bind C-Space send-prefix
-        bind Space run-shell -b ${pkgs.tmuxPlugins.tmux-thumbs}/share/tmux-plugins/tmux-thumbs/tmux-thumbs.sh
-        bind d detach-client
-        bind f new-window -e FINGERS_EXTEND= -n super-fingers ${tmux-super-fingers}/share/tmux-plugins/tmux-super-fingers/run.sh
-        bind q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
-        bind C-r run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh
-        bind C-s run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh
-        bind p switch-client -T pane
-        bind w switch-client -T window
-        bind r switch-client -T resize
-        bind m switch-client -T move
-        bind y switch-client -T yank
-        bind s switch-client -T session
+        bind -N "Tmux: command prompt" : command-prompt
+        bind -N "Help: show labeled keymap" ? list-keys -N
+        bind -N "Help: show raw keymap" / list-keys
+        bind -N "Prefix: send prefix to nested tmux/app" C-Space send-prefix
+        bind -N "Hint: tmux-thumbs quick visible text picker" Space run-shell -b ${pkgs.tmuxPlugins.tmux-thumbs}/share/tmux-plugins/tmux-thumbs/tmux-thumbs.sh
+        bind -N "Client: detach from tmux session" d detach-client
+        bind -N "Hint: tmux-super-fingers fuzzy file/link picker" f new-window -e FINGERS_EXTEND= -n super-fingers ${tmux-super-fingers}/share/tmux-plugins/tmux-super-fingers/run.sh
+        bind -N "Config: reload tmux config" q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
+        bind -N "Resurrect: restore saved tmux state" C-r run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh
+        bind -N "Resurrect: save current tmux state" C-s run-shell ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh
+        bind -N "Table: pane actions" p switch-client -T pane
+        bind -N "Table: window actions" w switch-client -T window
+        bind -N "Table: resize panes" r switch-client -T resize
+        bind -N "Table: move, swap, and mark panes/windows" m switch-client -T move
+        bind -N "Table: yank, copy mode, and buffers" y switch-client -T yank
+        bind -N "Table: session actions" s switch-client -T session
 
         # Pane table.
-        bind-key -T pane h select-pane -L
-        bind-key -T pane j select-pane -D
-        bind-key -T pane k select-pane -U
-        bind-key -T pane l select-pane -R
-        bind-key -T pane v split-window -h -c "#{pane_current_path}"
-        bind-key -T pane s split-window -v -c "#{pane_current_path}"
-        bind-key -T pane x kill-pane
-        bind-key -T pane z resize-pane -Z
-        bind-key -T pane o select-pane -t :.+
-        bind-key -T pane f run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/floax.sh
-        bind-key -T pane F run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/menu.sh
-        bind-key -T pane q display-message "pane table closed"
-        bind-key -T pane Escape display-message "pane table closed"
+        bind-key -T pane -N "Pane: focus left" h select-pane -L
+        bind-key -T pane -N "Pane: focus down" j select-pane -D
+        bind-key -T pane -N "Pane: focus up" k select-pane -U
+        bind-key -T pane -N "Pane: focus right" l select-pane -R
+        bind-key -T pane -N "Pane: split right at current path" v split-window -h -c "#{pane_current_path}"
+        bind-key -T pane -N "Pane: split down at current path" s split-window -v -c "#{pane_current_path}"
+        bind-key -T pane -N "Pane: kill current pane" x kill-pane
+        bind-key -T pane -N "Pane: toggle zoom" z resize-pane -Z
+        bind-key -T pane -N "Pane: focus next pane" o select-pane -t :.+
+        bind-key -T pane -N "Pane: open FloaX scratch popup" f run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/floax.sh
+        bind-key -T pane -N "Pane: open FloaX menu" F run-shell ${tmux-floax}/share/tmux-plugins/tmux-floax/scripts/menu.sh
+        bind-key -T pane -N "Pane: close table" q display-message "pane table closed"
+        bind-key -T pane -N "Pane: close table" Escape display-message "pane table closed"
 
         # Window table.
-        bind-key -T window c new-window -c "#{pane_current_path}"
-        bind-key -T window r command-prompt -I "#W" "rename-window -- '%%'"
-        bind-key -T window x kill-window
-        bind-key -T window h previous-window
-        bind-key -T window l next-window
-        bind-key -T window H swap-window -t -1 \; select-window -t -1
-        bind-key -T window L swap-window -t +1 \; select-window -t +1
-        bind-key -T window 1 select-window -t 1
-        bind-key -T window 2 select-window -t 2
-        bind-key -T window 3 select-window -t 3
-        bind-key -T window 4 select-window -t 4
-        bind-key -T window 5 select-window -t 5
-        bind-key -T window 6 select-window -t 6
-        bind-key -T window 7 select-window -t 7
-        bind-key -T window 8 select-window -t 8
-        bind-key -T window 9 select-window -t 9
-        bind-key -T window . command-prompt -T target { move-window -t "%%" }
-        bind-key -T window R move-window -r
-        bind-key -T window q display-message "window table closed"
-        bind-key -T window Escape display-message "window table closed"
+        bind-key -T window -N "Window: create at current path" c new-window -c "#{pane_current_path}"
+        bind-key -T window -N "Window: rename current window" r command-prompt -I "#W" "rename-window -- '%%'"
+        bind-key -T window -N "Window: kill current window" x kill-window
+        bind-key -T window -N "Window: previous window" h previous-window
+        bind-key -T window -N "Window: next window" l next-window
+        bind-key -T window -N "Window: move left" H swap-window -t -1 \; select-window -t -1
+        bind-key -T window -N "Window: move right" L swap-window -t +1 \; select-window -t +1
+        bind-key -T window -N "Window: select 1" 1 select-window -t 1
+        bind-key -T window -N "Window: select 2" 2 select-window -t 2
+        bind-key -T window -N "Window: select 3" 3 select-window -t 3
+        bind-key -T window -N "Window: select 4" 4 select-window -t 4
+        bind-key -T window -N "Window: select 5" 5 select-window -t 5
+        bind-key -T window -N "Window: select 6" 6 select-window -t 6
+        bind-key -T window -N "Window: select 7" 7 select-window -t 7
+        bind-key -T window -N "Window: select 8" 8 select-window -t 8
+        bind-key -T window -N "Window: select 9" 9 select-window -t 9
+        bind-key -T window -N "Window: move to prompted index" . command-prompt -T target { move-window -t "%%" }
+        bind-key -T window -N "Window: renumber windows" R move-window -r
+        bind-key -T window -N "Window: close table" q display-message "window table closed"
+        bind-key -T window -N "Window: close table" Escape display-message "window table closed"
 
         # Resize table stays active until closed.
-        bind-key -T resize h resize-pane -L 3 \; switch-client -T resize
-        bind-key -T resize j resize-pane -D 3 \; switch-client -T resize
-        bind-key -T resize k resize-pane -U 3 \; switch-client -T resize
-        bind-key -T resize l resize-pane -R 3 \; switch-client -T resize
-        bind-key -T resize H resize-pane -L 10 \; switch-client -T resize
-        bind-key -T resize J resize-pane -D 10 \; switch-client -T resize
-        bind-key -T resize K resize-pane -U 10 \; switch-client -T resize
-        bind-key -T resize L resize-pane -R 10 \; switch-client -T resize
-        bind-key -T resize = select-layout even-horizontal \; switch-client -T resize
-        bind-key -T resize t select-layout tiled \; switch-client -T resize
-        bind-key -T resize q display-message "resize table closed"
-        bind-key -T resize Escape display-message "resize table closed"
+        bind-key -T resize -N "Resize: left small, stay in table" h resize-pane -L 3 \; switch-client -T resize
+        bind-key -T resize -N "Resize: down small, stay in table" j resize-pane -D 3 \; switch-client -T resize
+        bind-key -T resize -N "Resize: up small, stay in table" k resize-pane -U 3 \; switch-client -T resize
+        bind-key -T resize -N "Resize: right small, stay in table" l resize-pane -R 3 \; switch-client -T resize
+        bind-key -T resize -N "Resize: left large, stay in table" H resize-pane -L 10 \; switch-client -T resize
+        bind-key -T resize -N "Resize: down large, stay in table" J resize-pane -D 10 \; switch-client -T resize
+        bind-key -T resize -N "Resize: up large, stay in table" K resize-pane -U 10 \; switch-client -T resize
+        bind-key -T resize -N "Resize: right large, stay in table" L resize-pane -R 10 \; switch-client -T resize
+        bind-key -T resize -N "Resize: even horizontal layout, stay in table" = select-layout even-horizontal \; switch-client -T resize
+        bind-key -T resize -N "Resize: tiled layout, stay in table" t select-layout tiled \; switch-client -T resize
+        bind-key -T resize -N "Resize: close table" q display-message "resize table closed"
+        bind-key -T resize -N "Resize: close table" Escape display-message "resize table closed"
 
         # Move/mark table stays active until closed.
-        bind-key -T move m select-pane -m \; switch-client -T move
-        bind-key -T move M select-pane -M \; switch-client -T move
-        bind-key -T move s swap-pane \; switch-client -T move
-        bind-key -T move h swap-pane -s "{left-of}" \; switch-client -T move
-        bind-key -T move j swap-pane -s "{down-of}" \; switch-client -T move
-        bind-key -T move k swap-pane -s "{up-of}" \; switch-client -T move
-        bind-key -T move l swap-pane -s "{right-of}" \; switch-client -T move
-        bind-key -T move H swap-window -t -1 \; select-window -t -1 \; switch-client -T move
-        bind-key -T move L swap-window -t +1 \; select-window -t +1 \; switch-client -T move
-        bind-key -T move q display-message "move table closed"
-        bind-key -T move Escape display-message "move table closed"
+        bind-key -T move -N "Move: mark current pane, stay in table" m select-pane -m \; switch-client -T move
+        bind-key -T move -N "Move: clear marked pane, stay in table" M select-pane -M \; switch-client -T move
+        bind-key -T move -N "Move: swap current pane with marked pane, stay in table" s swap-pane \; switch-client -T move
+        bind-key -T move -N "Move: swap pane with left neighbor, stay in table" h swap-pane -s "{left-of}" \; switch-client -T move
+        bind-key -T move -N "Move: swap pane with lower neighbor, stay in table" j swap-pane -s "{down-of}" \; switch-client -T move
+        bind-key -T move -N "Move: swap pane with upper neighbor, stay in table" k swap-pane -s "{up-of}" \; switch-client -T move
+        bind-key -T move -N "Move: swap pane with right neighbor, stay in table" l swap-pane -s "{right-of}" \; switch-client -T move
+        bind-key -T move -N "Move: move window left, stay in table" H swap-window -t -1 \; select-window -t -1 \; switch-client -T move
+        bind-key -T move -N "Move: move window right, stay in table" L swap-window -t +1 \; select-window -t +1 \; switch-client -T move
+        bind-key -T move -N "Move: close table" q display-message "move table closed"
+        bind-key -T move -N "Move: close table" Escape display-message "move table closed"
 
         # Yank/buffer table.
-        bind-key -T yank y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_line.sh
-        bind-key -T yank Y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_pane_pwd.sh
-        bind-key -T yank [ copy-mode
-        bind-key -T yank p paste-buffer
-        bind-key -T yank b choose-buffer -Z
-        bind-key -T yank l list-buffers
-        bind-key -T yank e send-keys "tmux capture-pane -p -S - | nvim -c 'set buftype=nofile' +" Enter
-        bind-key -T yank q display-message "yank table closed"
-        bind-key -T yank Escape display-message "yank table closed"
+        bind-key -T yank -N "Yank: copy current line" y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_line.sh
+        bind-key -T yank -N "Yank: copy pane current directory" Y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_pane_pwd.sh
+        bind-key -T yank -N "Yank: enter tmux copy mode" [ copy-mode
+        bind-key -T yank -N "Yank: paste tmux buffer" p paste-buffer
+        bind-key -T yank -N "Yank: choose tmux buffer" b choose-buffer -Z
+        bind-key -T yank -N "Yank: list tmux buffers" l list-buffers
+        bind-key -T yank -N "Yank: capture pane history into nvim" e send-keys "tmux capture-pane -p -S - | nvim -c 'set buftype=nofile' +" Enter
+        bind-key -T yank -N "Yank: close table" q display-message "yank table closed"
+        bind-key -T yank -N "Yank: close table" Escape display-message "yank table closed"
 
         # Session table.
-        bind-key -T session s choose-tree -Zs
-        bind-key -T session S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
-        bind-key -T session n new-session -c "#{pane_current_path}"
-        bind-key -T session r command-prompt -I "#S" "rename-session -- '%%'"
-        bind-key -T session x kill-session
-        bind-key -T session p switch-client -p
-        bind-key -T session N switch-client -n
-        bind-key -T session d detach-client
-        bind-key -T session L switch-client -l
-        bind-key -T session q display-message "session table closed"
-        bind-key -T session Escape display-message "session table closed"
+        bind-key -T session -N "Session: choose session tree" s choose-tree -Zs
+        bind-key -T session -N "Session: open sesh popup" S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
+        bind-key -T session -N "Session: create at current path" n new-session -c "#{pane_current_path}"
+        bind-key -T session -N "Session: rename current session" r command-prompt -I "#S" "rename-session -- '%%'"
+        bind-key -T session -N "Session: kill current session" x kill-session
+        bind-key -T session -N "Session: previous session/client" p switch-client -p
+        bind-key -T session -N "Session: next session/client" N switch-client -n
+        bind-key -T session -N "Session: detach client" d detach-client
+        bind-key -T session -N "Session: last session/client" L switch-client -l
+        bind-key -T session -N "Session: close table" q display-message "session table closed"
+        bind-key -T session -N "Session: close table" Escape display-message "session table closed"
 
         # Status bar
         set-option -g status-position top
