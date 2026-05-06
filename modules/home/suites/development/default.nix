@@ -4,21 +4,26 @@
   namespace,
   pkgs,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.development;
-in {
+in
+{
   options.${namespace}.suites.development = {
     enable = mkEnableOption "Development configuration";
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [btop python3];
+    home.packages = with pkgs; [
+      btop
+      python3
+    ];
     ${namespace} = {
       cli = {
         editors.neovim = enabled;
-        multiplexers.zellij = enabled;
+        multiplexers.tmux = enabled;
 
         programs = {
           # attic = enabled;

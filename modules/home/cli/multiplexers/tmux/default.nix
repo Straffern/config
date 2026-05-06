@@ -4,32 +4,77 @@
   lib,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
   tmux-floax = pkgs.tmuxPlugins.mkTmuxPlugin {
     pluginName = "tmux-floax";
-    version = "08-05-2024";
+    rtpFilePath = "floax.tmux";
+    version = "2026-02-24";
     src = pkgs.fetchFromGitHub {
       owner = "omerxx";
       repo = "tmux-floax";
-      rev = "ecc0507a792a9f55529952c806e849c11093a168";
-      sha256 = "sha256-lX5P1l4yHV8jiuHsa7GkbgGT+wk0BdyvSSUu/L6G4eQ=";
+      rev = "133f526793d90d2caa323c47687dd5544a2c704b";
+      sha256 = "sha256-9Hb9dn2qHF6KcIhtogvycX3Z0MoQrLPLCzZXtjGlPHw=";
     };
   };
-in {
+
+  televisionSeshChannel = ''
+    # Television channel for sesh session management
+    # Upstream: https://github.com/alexpasmantier/television/blob/main/cable/unix/sesh.toml
+    [metadata]
+    name = "sesh"
+    description = "Session manager integrating tmux sessions, zoxide directories, and config paths"
+    requirements = ["sesh", "fd"]
+
+    [source]
+    command = [
+      "sesh list --icons",
+      "sesh list -t --icons",
+      "sesh list -c --icons",
+      "sesh list -z --icons",
+      "fd -H -d 2 -t d -E .Trash . ~"
+    ]
+    ansi = true
+    output = "{strip_ansi|split: :1..|join: }"
+
+    [preview]
+    command = "sesh preview '{strip_ansi|split: :1..|join: }'"
+
+    [keybindings]
+    enter = "actions:connect"
+    ctrl-d = ["actions:kill_session", "reload_source"]
+
+    [actions.connect]
+    description = "Connect to selected session"
+    command = "sesh connect '{strip_ansi|split: :1..|join: }'"
+    mode = "execute"
+
+    [actions.kill_session]
+    description = "Kill selected tmux session"
+    command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
+    mode = "fork"
+  '';
+
+in
+{
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
   };
 
   config = mkIf cfg.enable {
-    home.packages = with pkgs; [
-      sesh
-      lsof
+    home.packages = [
+      pkgs.sesh
+      pkgs.lsof
+      pkgs.television
+      pkgs.fd
       # for tmux super fingers
-      python311
+      pkgs.python3
     ];
+
+    xdg.configFile."television/cable/sesh.toml".text = televisionSeshChannel;
 
     programs.tmux = {
       enable = true;
@@ -101,19 +146,18 @@ in {
         }
         {
           plugin = resurrect;
-          extraConfig =
-            ''
-              set -g @resurrect-strategy-vim 'session'
-              set -g @resurrect-strategy-nvim 'session'
-              set -g @resurrect-capture-pane-contents 'on'
-            ''
-            + ''
-              # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-              resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-              set -g @resurrect-dir $resurrect_dir
+          extraConfig = ''
+            set -g @resurrect-strategy-vim 'session'
+            set -g @resurrect-strategy-nvim 'session'
+            set -g @resurrect-capture-pane-contents 'on'
+          ''
+          + ''
+            # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
+            resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
+            set -g @resurrect-dir $resurrect_dir
 
-              set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
-            '';
+            set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+          '';
         }
         {
           plugin = continuum;
@@ -132,6 +176,14 @@ in {
         set -sg escape-time 0
         set-option -g set-titles on
         set-option -g set-titles-string "#S / #W"
+
+        # Safe defaults aligned with common tmux/Omarchy ergonomics
+        set-option -g base-index 1
+        set-option -g pane-base-index 1
+        set-option -g renumber-windows on
+        set-option -g detach-on-destroy off
+        set-option -g focus-events on
+        set-option -g set-clipboard on
 
         # Change splits to match nvim and easier to remember
         # Open new split at cwd of current split
@@ -153,6 +205,7 @@ in {
 
         # Easier reload of config
         bind r source-file ~/.config/tmux/tmux.conf
+        bind S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
 
         set-option -g status-position top
 
