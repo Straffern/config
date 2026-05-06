@@ -82,7 +82,7 @@ in
       terminal = "tmux-256color";
       historyLimit = 100000;
       keyMode = "vi";
-      prefix = "C-a";
+      prefix = "C-Space";
       sensibleOnTop = true;
       mouse = true;
 
@@ -118,32 +118,6 @@ in
             };
           };
         }
-        # must be before continuum edits right status bar
-        {
-          plugin = catppuccin;
-          extraConfig = ''
-            set -g @catppuccin_flavour 'mocha'
-            set -g @catppuccin_window_left_separator "█"
-            set -g @catppuccin_window_right_separator "█ "
-            set -g @catppuccin_window_middle_separator " █"
-            set -g @catppuccin_window_number_position "right"
-
-            set -g @catppuccin_window_default_fill "number"
-            set -g @catppuccin_window_default_text "#W"
-
-            set -g @catppuccin_window_current_fill "number"
-            set -g @catppuccin_window_current_text "#W"
-
-            set -g @catppuccin_status_modules "application session date_time"
-            set -g @catppuccin_status_left_separator  ""
-            set -g @catppuccin_status_right_separator ""
-            set -g @catppuccin_status_right_separator_inverse "no"
-            set -g @catppuccin_status_fill "icon"
-            #set -g @catppuccin_status_connect_separator "no"
-
-            set -g @catppuccin_directory_text "#{pane_current_path}"
-          '';
-        }
         {
           plugin = resurrect;
           extraConfig = ''
@@ -170,10 +144,11 @@ in
         }
       ];
       extraConfig = ''
-        set -ag terminal-overrides ",xterm-256color:RGB"
+        set -ag terminal-overrides ",*:RGB"
         set-environment -g TMUX_PLUGIN_MANAGER_PATH '~/.local/share/tmux/plugins'
-        # Quicker escape in neovim
-        set -sg escape-time 0
+        set -g prefix2 C-b
+        bind C-Space send-prefix
+        set -sg escape-time 10
         set-option -g set-titles on
         set-option -g set-titles-string "#S / #W"
 
@@ -184,6 +159,9 @@ in
         set-option -g detach-on-destroy off
         set-option -g focus-events on
         set-option -g set-clipboard on
+        set-window-option -g aggressive-resize on
+        set-option -g extended-keys on
+        set-option -g extended-keys-format csi-u
 
         # Change splits to match nvim and easier to remember
         # Open new split at cwd of current split
@@ -191,6 +169,9 @@ in
         unbind '"'
         bind | split-window -h -c "#{pane_current_path}"
         bind - split-window -v -c "#{pane_current_path}"
+        bind h split-window -v -c "#{pane_current_path}"
+        bind v split-window -h -c "#{pane_current_path}"
+        bind x kill-pane
 
         # Use vim keybindings in copy mode
         set-window-option -g mode-keys vi
@@ -203,11 +184,56 @@ in
         # Escape turns on copy mode
         bind Escape copy-mode
 
-        # Easier reload of config
-        bind r source-file ~/.config/tmux/tmux.conf
+        # Omarchy-style tmux controls
+        bind q source-file ~/.config/tmux/tmux.conf \; display "Configuration reloaded"
+        bind r command-prompt -I "#W" "rename-window -- '%%'"
+        bind c new-window -c "#{pane_current_path}"
+        bind k kill-window
+        bind R command-prompt -I "#S" "rename-session -- '%%'"
+        bind C new-session -c "#{pane_current_path}"
+        bind K kill-session
+        bind P switch-client -p
+        bind N switch-client -n
+
+        bind -n M-1 select-window -t 1
+        bind -n M-2 select-window -t 2
+        bind -n M-3 select-window -t 3
+        bind -n M-4 select-window -t 4
+        bind -n M-5 select-window -t 5
+        bind -n M-6 select-window -t 6
+        bind -n M-7 select-window -t 7
+        bind -n M-8 select-window -t 8
+        bind -n M-9 select-window -t 9
+        bind -n M-Left select-window -t -1
+        bind -n M-Right select-window -t +1
+        bind -n M-S-Left swap-window -t -1 \; select-window -t -1
+        bind -n M-S-Right swap-window -t +1 \; select-window -t +1
+        bind -n M-Up switch-client -p
+        bind -n M-Down switch-client -n
+
         bind S display-popup -E -w 80% -h 70% -d "#{pane_current_path}" -T "Sesh" "tv sesh"
 
+        # Status bar
         set-option -g status-position top
+        set-option -g status-interval 5
+        set-option -g status-left-length 30
+        set-option -g status-right-length 50
+        set-option -g window-status-separator ""
+        set-window-option -g automatic-rename on
+        set-window-option -g automatic-rename-format '#{b:pane_current_path}'
+
+        # Terminal-palette-driven theme
+        set-option -g status-style "bg=default,fg=default"
+        set-option -g status-left "#[fg=black,bg=blue,bold] #S #[bg=default] "
+        set-option -g status-right "#[fg=blue]#{?pane_in_mode,COPY ,}#{?client_prefix,PREFIX ,}#{?window_zoomed_flag,ZOOM ,}#[fg=brightblack]#h "
+        set-window-option -g window-status-format "#[fg=brightblack] #I:#W "
+        set-window-option -g window-status-current-format "#[fg=blue,bold] #I:#W "
+        set-option -g pane-border-style "fg=brightblack"
+        set-option -g pane-active-border-style "fg=blue"
+        set-option -g message-style "bg=default,fg=blue"
+        set-option -g message-command-style "bg=default,fg=blue"
+        set-option -g mode-style "bg=blue,fg=black"
+        set-window-option -g clock-mode-colour blue
 
         # make Prefix p paste the buffer.
         unbind p
