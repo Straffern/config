@@ -4,7 +4,8 @@
   lib,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
@@ -56,7 +57,8 @@
     command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
     mode = "fork"
   '';
-in {
+in
+{
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
   };
@@ -117,32 +119,19 @@ in {
           '';
         }
         {
-          plugin = mkTmuxPlugin {
-            pluginName = "tmux.nvim";
-            version = "unstable-2024-02-12";
-            src = pkgs.fetchFromGitHub {
-              owner = "aserowy";
-              repo = "tmux.nvim";
-              rev = "9c02adf16ff2f18c8e236deba91e9cf4356a02d2";
-              sha256 = "0lg3zcyd76qfbz90i01jwhxfglsnmggynh6v48lnbz0kj1prik4y";
-            };
-          };
-        }
-        {
           plugin = resurrect;
-          extraConfig =
-            ''
-              set -g @resurrect-strategy-vim 'session'
-              set -g @resurrect-strategy-nvim 'session'
-              set -g @resurrect-capture-pane-contents 'on'
-            ''
-            + ''
-              # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-              resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-              set -g @resurrect-dir $resurrect_dir
+          extraConfig = ''
+            set -g @resurrect-strategy-vim 'session'
+            set -g @resurrect-strategy-nvim 'session'
+            set -g @resurrect-capture-pane-contents 'on'
+          ''
+          + ''
+            # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
+            resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
+            set -g @resurrect-dir $resurrect_dir
 
-              set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
-            '';
+            set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+          '';
         }
         {
           plugin = continuum;
