@@ -15,6 +15,7 @@
 !/homes/
 !/lib/
 !/modules/
+!/modules/**
 !/notes/
 !/overlays/
 !/packages/

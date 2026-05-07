@@ -47,6 +47,7 @@ in
           podman = enabled;
           ssh = enabled;
           starship = enabled;
+          television = enabled;
           yazi = enabled;
           zoxide = enabled;
         };

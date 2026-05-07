@@ -68,6 +68,7 @@ let
     command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
     mode = "fork"
   '';
+
 in
 {
   options.${namespace}.cli.multiplexers.tmux = {
@@ -78,13 +79,16 @@ in
     home.packages = [
       pkgs.sesh
       pkgs.lsof
-      pkgs.television
       pkgs.fd
       # for tmux super fingers
       pkgs.python3
     ];
 
-    xdg.configFile."television/cable/sesh.toml".text = televisionSeshChannel;
+    xdg.configFile."television/cable/sesh.toml" =
+      mkIf config.${namespace}.cli.programs.television.enable
+        {
+          text = televisionSeshChannel;
+        };
 
     programs.tmux = {
       enable = true;
