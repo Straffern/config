@@ -178,10 +178,10 @@ in
         unbind-key -a -T prefix
 
         # Root fast paths.
-        bind-key -n C-M-h select-pane -L
-        bind-key -n C-M-j select-pane -D
-        bind-key -n C-M-k select-pane -U
-        bind-key -n C-M-l select-pane -R
+        bind-key -n C-M-h select-pane -Z -L
+        bind-key -n C-M-j select-pane -Z -D
+        bind-key -n C-M-k select-pane -Z -U
+        bind-key -n C-M-l select-pane -Z -R
         bind-key -n M-1 select-window -t 1
         bind-key -n M-2 select-window -t 2
         bind-key -n M-3 select-window -t 3
@@ -212,10 +212,10 @@ in
         bind -N "Help: toggle contextual status help line" H if -F "#{==:#{status},on}" "set -g status 2" "set -g status on"
 
         # Pane table.
-        bind-key -T pane -N "Pane: focus left" h select-pane -L
-        bind-key -T pane -N "Pane: focus down" j select-pane -D
-        bind-key -T pane -N "Pane: focus up" k select-pane -U
-        bind-key -T pane -N "Pane: focus right" l select-pane -R
+        bind-key -T pane -N "Pane: focus left, preserving zoom" h select-pane -Z -L
+        bind-key -T pane -N "Pane: focus down, preserving zoom" j select-pane -Z -D
+        bind-key -T pane -N "Pane: focus up, preserving zoom" k select-pane -Z -U
+        bind-key -T pane -N "Pane: focus right, preserving zoom" l select-pane -Z -R
         bind-key -T pane -N "Pane: split right at current path" v split-window -h -c "#{pane_current_path}"
         bind-key -T pane -N "Pane: split down at current path" s split-window -v -c "#{pane_current_path}"
         bind-key -T pane -N "Pane: kill current pane" x kill-pane
@@ -334,10 +334,10 @@ in
         set -ga update-environment TERM_PROGRAM
 
         # Copy-mode navigation mirrors pane movement without touching Neovim root keys.
-        bind-key -T copy-mode-vi 'C-h' select-pane -L
-        bind-key -T copy-mode-vi 'C-j' select-pane -D
-        bind-key -T copy-mode-vi 'C-k' select-pane -U
-        bind-key -T copy-mode-vi 'C-l' select-pane -R
+        bind-key -T copy-mode-vi 'C-h' select-pane -Z -L
+        bind-key -T copy-mode-vi 'C-j' select-pane -Z -D
+        bind-key -T copy-mode-vi 'C-k' select-pane -Z -U
+        bind-key -T copy-mode-vi 'C-l' select-pane -Z -R
         bind-key -T copy-mode-vi 'C-\' select-pane -l
 
         bind-key -T prefix C-g split-window \
