@@ -162,8 +162,8 @@ in
         set-option -g focus-events on
         set-option -g set-clipboard on
         set-window-option -g aggressive-resize on
-        set-option -g extended-keys on
-        set-option -g extended-keys-format csi-u
+        set-option -s extended-keys always
+        set-option -s extended-keys-format csi-u
 
         # jj change IDs use reverse-hex digits k-z, rendered as short prefixes in prompts/logs.
         # tmux-thumbs already matches git SHAs; this makes jj IDs like "rzrzslqw" selectable too.
@@ -191,6 +191,7 @@ in
         bind-key -n M-7 select-window -t 7
         bind-key -n M-8 select-window -t 8
         bind-key -n M-9 select-window -t 9
+
 
         # Prefix entry points and global tmux utilities.
         bind -N "Tmux: command prompt" : command-prompt
