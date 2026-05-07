@@ -167,7 +167,7 @@ in
         set-option -g focus-events on
         set-option -g set-clipboard on
         set-window-option -g aggressive-resize on
-        set-option -s extended-keys always
+        set-option -s extended-keys on
         set-option -s extended-keys-format csi-u
 
         # jj change IDs use reverse-hex digits k-z, rendered as short prefixes in prompts/logs.
