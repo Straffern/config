@@ -35,6 +35,7 @@ in
       name = "alex";
       initialHashedPassword = "$6$Xzsm8xWpuEtAOgfe$TMvP8XkkM2UHUSCANLq0CSzmsTVWRDaZNsDn1VlOUQ9WmJUROQYbFkQqHDXmqJ5NYTZn2KY3e/LhmgPQA204z1";
       extraGroups = [ "wheel" ];
+      shell = pkgs.zsh;
       extraOptions = {
         uid = 1000;
       };
