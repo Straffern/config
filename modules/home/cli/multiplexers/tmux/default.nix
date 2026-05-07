@@ -169,6 +169,7 @@ in
         # tmux-thumbs already matches git SHAs; this makes jj IDs like "rzrzslqw" selectable too.
         set -g @thumbs-regexp-1 '\b[k-z]{8,}\b'
         set -g @thumbs-position right
+        set -g @thumbs-contrast 1
 
         # Keybinding model:
         # - Root table keeps only fast pane/window navigation.
