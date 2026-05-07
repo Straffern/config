@@ -151,6 +151,7 @@ in
       ];
       extraConfig = ''
         set -ag terminal-overrides ",*:RGB"
+        set-option -as terminal-features ',*:sync'
         set-environment -g TMUX_PLUGIN_MANAGER_PATH '~/.local/share/tmux/plugins'
         set -g prefix2 C-b
         bind C-Space send-prefix
