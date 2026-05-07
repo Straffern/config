@@ -5,7 +5,7 @@
   namespace,
   ...
 }: let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf optionalString;
   cfg = config.${namespace}.cli.programs.devenv;
 in {
   options.${namespace}.cli.programs.devenv = {
@@ -15,6 +15,15 @@ in {
   config = mkIf cfg.enable {
     home.packages = [pkgs.devenv];
 
-    ${namespace}.system.persistence.directories = [".config/devenv" ".local/share/devenv"];
+    ${namespace} = {
+      cli.shells.zsh.initContent = optionalString config.${namespace}.cli.shells.zsh.enable ''
+        eval "$(devenv hook zsh)"
+      '';
+
+      system.persistence.directories = [
+        ".config/devenv"
+        ".local/share/devenv"
+      ];
+    };
   };
 }
