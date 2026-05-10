@@ -26,9 +26,7 @@ in {
         omp.enable = true;
         ai = {
           enable = true;
-          opencode = {
-            enable = true;
-          };
+          opencode.enable = true;
           shellFunction = {
             enable = true;
             model = "openai-codex/gpt-5.3-codex-spark";

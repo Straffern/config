@@ -4,12 +4,10 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.system.nix;
-in
-{
+in {
   options.${namespace}.system.nix = {
     enable = mkEnableOption "Management of nix configuration";
   };
@@ -41,6 +39,7 @@ in
           "https://hyprland.cachix.org"
           "https://niri.cachix.org"
           "https://attic.xuyh0120.win/lantian?priority=45"
+          "https://cache.numtide.com?priority=46"
         ];
 
         trusted-public-keys = [
@@ -51,6 +50,7 @@ in
           "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
           "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
           "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+          "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         ];
 
         experimental-features = [
@@ -64,8 +64,8 @@ in
 
     news = {
       display = "silent";
-      json = lib.mkForce { };
-      entries = lib.mkForce [ ];
+      json = lib.mkForce {};
+      entries = lib.mkForce [];
     };
   };
 }

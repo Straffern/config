@@ -55,6 +55,7 @@ in {
           "https://niri.cachix.org?priority=44"
           "https://attic.xuyh0120.win/lantian?priority=45"
 
+          "https://cache.numtide.com?priority=46"
           # cachyos nixos-kernel
           "https://cache.garnix.io?priority=50"
           # "https://hyprland-community.cachix.org"
@@ -68,6 +69,7 @@ in {
 
           "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
           "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+          "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
           # "hyprland-community.cachix.org-1:5dTHY+TjAJjnQs23X+vwMQG4va7j+zmvkTKoYuSXnmE="
         ];
       };
