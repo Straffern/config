@@ -4,16 +4,17 @@
   lib,
   namespace,
   ...
-}: let
-  inherit
-    (lib)
+}:
+let
+  inherit (lib)
     mkIf
     mkEnableOption
     mkOption
     types
     ;
   cfg = config.${namespace}.cli.programs.ai;
-in {
+in
+{
   options = {
     programs.opencode.tui.theme = mkOption {
       type = types.nullOr types.str;
@@ -53,7 +54,7 @@ in {
   config = mkIf cfg.enable {
     programs.opencode = lib.mkIf cfg.opencode.enable {
       enable = true;
-      package = pkgs.opencode;
+      package = pkgs.llm-agents.opencode;
     };
 
     home.file = lib.mkMerge [
@@ -68,10 +69,11 @@ in {
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
         let
-          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
+          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
             inherit (cfg.shellFunction) model systemPrompt;
           };
-        in ''
+        in
+        ''
           # Load ai command generator function
           source ${ai-shell-function}
         ''
