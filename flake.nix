@@ -130,6 +130,7 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
 
     lumen.url = "github:jnsahaj/lumen/v2.22.0";
+    hunk.url = "github:modem-dev/hunk";
     ww.url = "github:omihirofumi/ww";
 
     hyprland.url = "github:hyprwm/hyprland";
@@ -253,6 +254,7 @@
         hyprland.homeManagerModules.default
         persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
+        hunk.homeManagerModules.default
         catppuccin.homeModules.catppuccin
         niri.homeModules.niri
         dms.homeModules.dank-material-shell

@@ -287,349 +287,349 @@ in {
 
       "flow" =
         mkBashAlias "flow" # bash
-
+        
         ''
-          flow_help() {
-            cat <<'EOF'
-jj flow — manage a branch-of-branches megamerge
+                    flow_help() {
+                      cat <<'EOF'
+          jj flow — manage a branch-of-branches megamerge
 
-Use flow when one workstream spans multiple related branches and you want a
-single synthetic bookmark to keep them moving together. Use plain stacked
-commits/bookmarks when each change can stand on its own or you do not need the
-control node.
+          Use flow when one workstream spans multiple related branches and you want a
+          single synthetic bookmark to keep them moving together. Use plain stacked
+          commits/bookmarks when each change can stand on its own or you do not need the
+          control node.
 
-The `flow` bookmark is synthetic control state: it marks the flow, but the real
-work items are the parent branches beneath it.
+          The `flow` bookmark is synthetic control state: it marks the flow, but the real
+          work items are the parent branches beneath it.
 
-Subcommands
-  jj flow tip
-    Advance the flow tip by creating a new commit at the current flow bookmark.
-    Use when you want to continue the flow from its current head.
+          Subcommands
+            jj flow tip
+              Advance the flow tip by creating a new commit at the current flow bookmark.
+              Use when you want to continue the flow from its current head.
 
-  jj flow changes add <revset>
-    Add an existing revision to the flow.
-    Use when a change already exists and should become part of the flow.
-    If the flow bookmark exists, this rebases the flow parents to include the
-    new revision; otherwise it seeds a new flow commit and bookmark.
+            jj flow changes add <revset>
+              Add an existing revision to the flow.
+              Use when a change already exists and should become part of the flow.
+              If the flow bookmark exists, this rebases the flow parents to include the
+              new revision; otherwise it seeds a new flow commit and bookmark.
 
-  jj flow changes remove <revset>
-    Remove a revision from the flow.
-    Use when a change should stop being tracked by the flow.
-    If removing the last parent would empty the flow, the synthetic bookmark is
-    deleted.
+            jj flow changes remove <revset>
+              Remove a revision from the flow.
+              Use when a change should stop being tracked by the flow.
+              If removing the last parent would empty the flow, the synthetic bookmark is
+              deleted.
 
-  jj flow changes move <old> <new>
-    Move a tracked change from one revision to another.
-    Use when the work belongs on a different revision but should stay in the
-    same flow.
+            jj flow changes move <old> <new>
+              Move a tracked change from one revision to another.
+              Use when the work belongs on a different revision but should stay in the
+              same flow.
 
-  jj flow rebase <destination>
-    Rebase every flow-managed change onto a new base.
-    Use when trunk/base moved and the whole flow should follow.
-    This rebases all revisions rooted under the flow bookmark onto the
-    destination.
+            jj flow rebase <destination>
+              Rebase every flow-managed change onto a new base.
+              Use when trunk/base moved and the whole flow should follow.
+              This rebases all revisions rooted under the flow bookmark onto the
+              destination.
 
-  jj flow push
-    Push the flow-managed branches.
-    Use when you want to publish the branches currently tracked by the flow.
-    Push only affects the bookmarked parent branches, not unrelated commits.
+            jj flow push
+              Push the flow-managed branches.
+              Use when you want to publish the branches currently tracked by the flow.
+              Push only affects the bookmarked parent branches, not unrelated commits.
 
-Practical notes
-  - The flow bookmark is synthetic control state. Do not treat it like a normal
-    change to edit by hand.
-  - `jj flow push` only publishes the branches referenced by the flow
-    bookmark's parents.
-  - Run `jj help flow <subcommand>` for focused help on one operation.
-EOF
-          }
+          Practical notes
+            - The flow bookmark is synthetic control state. Do not treat it like a normal
+              change to edit by hand.
+            - `jj flow push` only publishes the branches referenced by the flow
+              bookmark's parents.
+            - Run `jj help flow <subcommand>` for focused help on one operation.
+          EOF
+                    }
 
-          flow_tip_help() {
-            cat <<'EOF'
-jj flow tip — open work at flow head
+                    flow_tip_help() {
+                      cat <<'EOF'
+          jj flow tip — open work at flow head
 
-Usage
-  jj flow tip
+          Usage
+            jj flow tip
 
-What it does
-  Creates a new working-copy commit on top of the synthetic `flow` bookmark.
-  This gives you one place to test or integrate all flow-managed branches
-  together.
+          What it does
+            Creates a new working-copy commit on top of the synthetic `flow` bookmark.
+            This gives you one place to test or integrate all flow-managed branches
+            together.
 
-When to use
-  - You already built a flow with `jj flow changes add ...`
-  - You want merged local context for testing or integration work
-  - You want to continue from current flow head without changing tracked
-    parents yet
+          When to use
+            - You already built a flow with `jj flow changes add ...`
+            - You want merged local context for testing or integration work
+            - You want to continue from current flow head without changing tracked
+              parents yet
 
-Notes
-  - This does not add new branches to the flow.
-  - If fixes belong in underlying branches, move or squash them back there.
-EOF
-          }
+          Notes
+            - This does not add new branches to the flow.
+            - If fixes belong in underlying branches, move or squash them back there.
+          EOF
+                    }
 
-          flow_changes_help() {
-            cat <<'EOF'
-jj flow changes — manage tracked branches inside flow
+                    flow_changes_help() {
+                      cat <<'EOF'
+          jj flow changes — manage tracked branches inside flow
 
-Usage
-  jj flow changes add <revset>
-  jj flow changes remove <revset>
-  jj flow changes move <old> <new>
+          Usage
+            jj flow changes add <revset>
+            jj flow changes remove <revset>
+            jj flow changes move <old> <new>
 
-What it manages
-  The `flow` bookmark is a synthetic merge commit. Its parents are the real
-  branches tracked by the flow. `changes` updates that parent set.
+          What it manages
+            The `flow` bookmark is a synthetic merge commit. Its parents are the real
+            branches tracked by the flow. `changes` updates that parent set.
 
-Subcommands
-  add <revset>
-    Start tracking an existing revision in the flow.
+          Subcommands
+            add <revset>
+              Start tracking an existing revision in the flow.
 
-  remove <revset>
-    Stop tracking one or more revisions.
+            remove <revset>
+              Stop tracking one or more revisions.
 
-  move <old> <new>
-    Replace one tracked revision with another.
+            move <old> <new>
+              Replace one tracked revision with another.
 
-When to use
-  - add: branch now belongs in shared integration flow
-  - remove: branch landed, abandoned, or no longer belongs
-  - move: branch was rewritten/replaced and flow should follow new head
-EOF
-          }
+          When to use
+            - add: branch now belongs in shared integration flow
+            - remove: branch landed, abandoned, or no longer belongs
+            - move: branch was rewritten/replaced and flow should follow new head
+          EOF
+                    }
 
-          flow_changes_add_help() {
-            cat <<'EOF'
-jj flow changes add — start tracking revision in flow
+                    flow_changes_add_help() {
+                      cat <<'EOF'
+          jj flow changes add — start tracking revision in flow
 
-Usage
-  jj flow changes add <revset>
+          Usage
+            jj flow changes add <revset>
 
-What it does
-  Adds matching revision to parent set of synthetic `flow` bookmark.
-  If `flow` already exists, rebases flow commit so new revision becomes one of
-  its parents. If `flow` does not exist yet, seeds new empty control commit and
-  bookmarks it as `flow`.
+          What it does
+            Adds matching revision to parent set of synthetic `flow` bookmark.
+            If `flow` already exists, rebases flow commit so new revision becomes one of
+            its parents. If `flow` does not exist yet, seeds new empty control commit and
+            bookmarks it as `flow`.
 
-When to use
-  - Existing branch should participate in shared integration flow
-  - You want `jj flow tip` to see this revision together with other tracked
-    branches
+          When to use
+            - Existing branch should participate in shared integration flow
+            - You want `jj flow tip` to see this revision together with other tracked
+              branches
 
-Tips
-  - Prefer adding stable branch heads or bookmarked revisions.
-  - After adding, use `jj flow tip` for integration work above combined graph.
-EOF
-          }
+          Tips
+            - Prefer adding stable branch heads or bookmarked revisions.
+            - After adding, use `jj flow tip` for integration work above combined graph.
+          EOF
+                    }
 
-          flow_changes_remove_help() {
-            cat <<'EOF'
-jj flow changes remove — stop tracking revision in flow
+                    flow_changes_remove_help() {
+                      cat <<'EOF'
+          jj flow changes remove — stop tracking revision in flow
 
-Usage
-  jj flow changes remove <revset>
+          Usage
+            jj flow changes remove <revset>
 
-What it does
-  Removes matching revision from parent set of synthetic `flow` bookmark.
-  If that would leave no tracked parents, the command deletes the `flow`
-  bookmark and abandons empty control commit when possible.
+          What it does
+            Removes matching revision from parent set of synthetic `flow` bookmark.
+            If that would leave no tracked parents, the command deletes the `flow`
+            bookmark and abandons empty control commit when possible.
 
-When to use
-  - Branch landed and should leave integration flow
-  - Branch was dropped or split elsewhere
-  - Flow should shrink to remaining active branches only
+          When to use
+            - Branch landed and should leave integration flow
+            - Branch was dropped or split elsewhere
+            - Flow should shrink to remaining active branches only
 
-Tips
-  - Run after merges to keep flow honest.
-  - Re-run `jj flow rebase trunk()` if base also moved.
-EOF
-          }
+          Tips
+            - Run after merges to keep flow honest.
+            - Re-run `jj flow rebase trunk()` if base also moved.
+          EOF
+                    }
 
-          flow_changes_move_help() {
-            cat <<'EOF'
-jj flow changes move — replace tracked revision
+                    flow_changes_move_help() {
+                      cat <<'EOF'
+          jj flow changes move — replace tracked revision
 
-Usage
-  jj flow changes move <old> <new>
+          Usage
+            jj flow changes move <old> <new>
 
-What it does
-  Removes `<old>` from flow parent set and adds `<new>` in same operation.
-  Use this when work was rewritten, duplicated, or moved to another revision
-  but should stay part of same integration flow.
+          What it does
+            Removes `<old>` from flow parent set and adds `<new>` in same operation.
+            Use this when work was rewritten, duplicated, or moved to another revision
+            but should stay part of same integration flow.
 
-When to use
-  - You replaced a tracked head with another revision
-  - A branch was rewritten and flow should follow rewritten node
+          When to use
+            - You replaced a tracked head with another revision
+            - A branch was rewritten and flow should follow rewritten node
 
-Tips
-  - Prefer this over separate remove/add when intent is one-for-one swap.
-EOF
-          }
+          Tips
+            - Prefer this over separate remove/add when intent is one-for-one swap.
+          EOF
+                    }
 
-          flow_rebase_help() {
-            cat <<'EOF'
-jj flow rebase — move whole flow to new base
+                    flow_rebase_help() {
+                      cat <<'EOF'
+          jj flow rebase — move whole flow to new base
 
-Usage
-  jj flow rebase <destination>
+          Usage
+            jj flow rebase <destination>
 
-What it does
-  Rebases all revisions rooted under the synthetic `flow` bookmark onto new
-  destination. Use this to carry entire integration bundle forward when trunk
-  or another shared base moved.
+          What it does
+            Rebases all revisions rooted under the synthetic `flow` bookmark onto new
+            destination. Use this to carry entire integration bundle forward when trunk
+            or another shared base moved.
 
-When to use
-  - trunk advanced and flow should follow
-  - shared base branch changed under all tracked work
+          When to use
+            - trunk advanced and flow should follow
+            - shared base branch changed under all tracked work
 
-Tips
-  - `jj git fetch` first if remote base changed.
-  - Resolve conflicts once at flow level, then continue integration/testing.
-EOF
-          }
+          Tips
+            - `jj git fetch` first if remote base changed.
+            - Resolve conflicts once at flow level, then continue integration/testing.
+          EOF
+                    }
 
-          flow_push_help() {
-            cat <<'EOF'
-jj flow push — publish tracked branch heads
+                    flow_push_help() {
+                      cat <<'EOF'
+          jj flow push — publish tracked branch heads
 
-Usage
-  jj flow push
+          Usage
+            jj flow push
 
-What it does
-  Runs `jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'`.
-  In practice this publishes bookmarked parent branches tracked by flow, not
-  synthetic `flow` bookmark itself.
+          What it does
+            Runs `jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'`.
+            In practice this publishes bookmarked parent branches tracked by flow, not
+            synthetic `flow` bookmark itself.
 
-When to use
-  - You want to publish current tracked branch heads together
-  - You updated several related branches and want one push entrypoint
+          When to use
+            - You want to publish current tracked branch heads together
+            - You updated several related branches and want one push entrypoint
 
-Tips
-  - Unbookmarked commits are not published by this command.
-  - Keep real branch bookmarks on tracked parents if you expect push to work.
-EOF
-          }
+          Tips
+            - Unbookmarked commits are not published by this command.
+            - Keep real branch bookmarks on tracked parents if you expect push to work.
+          EOF
+                    }
 
-          case "$#:$*" in
-            0:|1:--help|1:-h)
-              flow_help
-              exit 0
-              ;;
-            2:tip\ --help|2:tip\ -h)
-              flow_tip_help
-              exit 0
-              ;;
-            2:changes\ --help|2:changes\ -h)
-              flow_changes_help
-              exit 0
-              ;;
-            3:changes\ add\ --help|3:changes\ add\ -h)
-              flow_changes_add_help
-              exit 0
-              ;;
-            3:changes\ remove\ --help|3:changes\ remove\ -h)
-              flow_changes_remove_help
-              exit 0
-              ;;
-            3:changes\ move\ --help|3:changes\ move\ -h)
-              flow_changes_move_help
-              exit 0
-              ;;
-            2:rebase\ --help|2:rebase\ -h)
-              flow_rebase_help
-              exit 0
-              ;;
-            2:push\ --help|2:push\ -h)
-              flow_push_help
-              exit 0
-              ;;
-          esac
+                    case "$#:$*" in
+                      0:|1:--help|1:-h)
+                        flow_help
+                        exit 0
+                        ;;
+                      2:tip\ --help|2:tip\ -h)
+                        flow_tip_help
+                        exit 0
+                        ;;
+                      2:changes\ --help|2:changes\ -h)
+                        flow_changes_help
+                        exit 0
+                        ;;
+                      3:changes\ add\ --help|3:changes\ add\ -h)
+                        flow_changes_add_help
+                        exit 0
+                        ;;
+                      3:changes\ remove\ --help|3:changes\ remove\ -h)
+                        flow_changes_remove_help
+                        exit 0
+                        ;;
+                      3:changes\ move\ --help|3:changes\ move\ -h)
+                        flow_changes_move_help
+                        exit 0
+                        ;;
+                      2:rebase\ --help|2:rebase\ -h)
+                        flow_rebase_help
+                        exit 0
+                        ;;
+                      2:push\ --help|2:push\ -h)
+                        flow_push_help
+                        exit 0
+                        ;;
+                    esac
 
-          source ${jj-helpers-lib}
+                    source ${jj-helpers-lib}
 
-          # @describe Manage a branch-of-branches for a megamerge workflow
-          # @meta require-tools jj
+                    # @describe Manage a branch-of-branches for a megamerge workflow
+                    # @meta require-tools jj
 
-          # @cmd Move to the tip of the flow
-          tip() {
-            log_and_run jj new 'bookmarks(exact:"flow")'
-          }
+                    # @cmd Move to the tip of the flow
+                    tip() {
+                      log_and_run jj new 'bookmarks(exact:"flow")'
+                    }
 
-          # @cmd Manage the set of changes managed by the flow
-          # @alias change,c
-          changes() { :; }
+                    # @cmd Manage the set of changes managed by the flow
+                    # @alias change,c
+                    changes() { :; }
 
-          # @cmd Add a revision to the changes managed by the flow
-          # @arg revset! The revision to add
-          changes::add() {
-            register_rollback_instructions
+                    # @cmd Add a revision to the changes managed by the flow
+                    # @arg revset! The revision to add
+                    changes::add() {
+                      register_rollback_instructions
 
-            local flow
-            flow="$(change_ids 'present(bookmarks(exact:"flow"))')"
+                      local flow
+                      flow="$(change_ids 'present(bookmarks(exact:"flow"))')"
 
-            if [ -n "$flow" ]; then
-              log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) | ('"$argc_revset"')'
-            else
-              local old_children new_children flow_commit
-              old_children="$(revset 'children('"$argc_revset"')')"
-              log_and_run jj new --no-edit '"$argc_revset"' --message 'xxx:flow'
-              new_children="$(revset 'children('"$argc_revset"')')"
-              flow_commit="$(change_id '('"$new_children"') ~ ('"$old_children"')')"
-              log_and_run jj bookmark create flow --revision "$flow_commit"
-            fi
-          }
+                      if [ -n "$flow" ]; then
+                        log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) | ('"$argc_revset"')'
+                      else
+                        local old_children new_children flow_commit
+                        old_children="$(revset 'children('"$argc_revset"')')"
+                        log_and_run jj new --no-edit '"$argc_revset"' --message 'xxx:flow'
+                        new_children="$(revset 'children('"$argc_revset"')')"
+                        flow_commit="$(change_id '('"$new_children"') ~ ('"$old_children"')')"
+                        log_and_run jj bookmark create flow --revision "$flow_commit"
+                      fi
+                    }
 
-          # @cmd Remove a revision from the changes managed by the flow
-          # @alias rm
-          # @arg revset! The revision to remove
-          changes::remove() {
-            register_rollback_instructions
+                    # @cmd Remove a revision from the changes managed by the flow
+                    # @alias rm
+                    # @arg revset! The revision to remove
+                    changes::remove() {
+                      register_rollback_instructions
 
-            local num_parents flow_empty
+                      local num_parents flow_empty
 
-            # If there are no parents now, we're done
-            num_parents="$(change_ids 'parents(present(bookmarks(exact:"flow")))' | wc -l)"
-            if [ "$num_parents" -eq 0 ]; then
-              printf '%s\n' 'nothing to do'
-              return
-            fi
+                      # If there are no parents now, we're done
+                      num_parents="$(change_ids 'parents(present(bookmarks(exact:"flow")))' | wc -l)"
+                      if [ "$num_parents" -eq 0 ]; then
+                        printf '%s\n' 'nothing to do'
+                        return
+                      fi
 
-            # If removing the argument would remove all parents, delete the bookmark
-            num_parents="$(change_ids 'parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')' | wc -l)"
-            if [ "$num_parents" -eq 0 ]; then
-              flow_empty="$(change_ids 'bookmarks(exact:"flow") & none() & description(exact:"")')"
-              if [ -n "$flow_empty" ]; then
-                log_and_run jj abandon 'bookmarks(exact:"flow")'
-              fi
-              log_and_run jj bookmark delete flow
-              return
-            fi
+                      # If removing the argument would remove all parents, delete the bookmark
+                      num_parents="$(change_ids 'parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')' | wc -l)"
+                      if [ "$num_parents" -eq 0 ]; then
+                        flow_empty="$(change_ids 'bookmarks(exact:"flow") & none() & description(exact:"")')"
+                        if [ -n "$flow_empty" ]; then
+                          log_and_run jj abandon 'bookmarks(exact:"flow")'
+                        fi
+                        log_and_run jj bookmark delete flow
+                        return
+                      fi
 
-            # Otherwise, just remove the given parents
-            log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')'
-          }
+                      # Otherwise, just remove the given parents
+                      log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_revset"')'
+                    }
 
-          # @cmd Move a change managed by the flow to a different revision
-          # @alias mv
-          # @arg old! The revision to remove
-          # @arg new! The revision to add
-          changes::move() {
-            register_rollback_instructions
-            log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_old"') | ('"$argc_new"')'
-          }
+                    # @cmd Move a change managed by the flow to a different revision
+                    # @alias mv
+                    # @arg old! The revision to remove
+                    # @arg new! The revision to add
+                    changes::move() {
+                      register_rollback_instructions
+                      log_and_run jj rebase --source 'bookmarks(exact:"flow")' --destination 'parents(bookmarks(exact:"flow")) ~ ('"$argc_old"') | ('"$argc_new"')'
+                    }
 
-          # @cmd Rebase all changes managed by the flow onto a destination
-          # @arg destination! Revision of the new base for changes
-          rebase() {
-            register_rollback_instructions
-            log_and_run jj rebase --source 'roots(('"$argc_destination"')..bookmarks(exact:"flow"))' --destination "$argc_destination"
-          }
+                    # @cmd Rebase all changes managed by the flow onto a destination
+                    # @arg destination! Revision of the new base for changes
+                    rebase() {
+                      register_rollback_instructions
+                      log_and_run jj rebase --source 'roots(('"$argc_destination"')..bookmarks(exact:"flow"))' --destination "$argc_destination"
+                    }
 
-          # @cmd Push all flow-managed branches
-          push() {
-            log_and_run jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'
-          }
+                    # @cmd Push all flow-managed branches
+                    push() {
+                      log_and_run jj git push --revisions 'trunk()..parents(bookmarks(exact:"flow"))'
+                    }
 
-          eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
+                    eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
         '';
 
       # NOTE: `jj wa` alias removed - replaced by `ww` tool (github:Straffern/ww)
