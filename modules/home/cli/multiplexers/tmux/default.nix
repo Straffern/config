@@ -4,8 +4,7 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
@@ -68,9 +67,7 @@ let
     command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
     mode = "fork"
   '';
-
-in
-{
+in {
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
   };
@@ -80,15 +77,16 @@ in
       pkgs.sesh
       pkgs.lsof
       pkgs.fd
+      pkgs.file
       # for tmux super fingers
       pkgs.python3
     ];
 
     xdg.configFile."television/cable/sesh.toml" =
       mkIf config.${namespace}.cli.programs.television.enable
-        {
-          text = televisionSeshChannel;
-        };
+      {
+        text = televisionSeshChannel;
+      };
 
     programs.tmux = {
       enable = true;
@@ -126,18 +124,19 @@ in
         }
         {
           plugin = resurrect;
-          extraConfig = ''
-            set -g @resurrect-strategy-vim 'session'
-            set -g @resurrect-strategy-nvim 'session'
-            set -g @resurrect-capture-pane-contents 'on'
-          ''
-          + ''
-            # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-            resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-            set -g @resurrect-dir $resurrect_dir
+          extraConfig =
+            ''
+              set -g @resurrect-strategy-vim 'session'
+              set -g @resurrect-strategy-nvim 'session'
+              set -g @resurrect-capture-pane-contents 'on'
+            ''
+            + ''
+              # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
+              resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
+              set -g @resurrect-dir $resurrect_dir
 
-            set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
-          '';
+              set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+            '';
         }
         {
           plugin = continuum;
@@ -175,6 +174,9 @@ in
         set -g @thumbs-regexp-1 '\b[k-z]{8,}\b'
         set -g @thumbs-position right
         set -g @thumbs-contrast 1
+        set -g @thumbs-osc52 0
+        set -g @thumbs-command 'tmux set-buffer -- "{}" && printf %s "{}" | ${pkgs.wl-clipboard}/bin/wl-copy && tmux display-message "Copied {}"'
+        set -g @thumbs-upcase-command 'tmux set-buffer -- "{}" && printf %s "{}" | ${pkgs.wl-clipboard}/bin/wl-copy && tmux paste-buffer && tmux display-message "Copied {}"'
 
         # Keybinding model:
         # - Root table keeps only fast pane/window navigation.
