@@ -71,12 +71,12 @@ in {
       }
     ];
 
-    # Catppuccin integration
-    catppuccin = {
-      enable = cfg.useCatppuccinNative;
-      flavor = "mocha";
-      zsh-syntax-highlighting.enable = cfg.useCatppuccinNative;
-    };
+    # Catppuccin integration disabled with catppuccin/nix module.
+    # catppuccin = {
+    #   enable = cfg.useCatppuccinNative;
+    #   flavor = "mocha";
+    #   zsh-syntax-highlighting.enable = cfg.useCatppuccinNative;
+    # };
 
     stylix = {
       enable = true;

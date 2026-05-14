@@ -255,7 +255,9 @@
         persist-retro.nixosModules.home-manager.persist-retro
         stylix.homeModules.stylix
         hunk.homeManagerModules.default
-        catppuccin.homeModules.catppuccin
+        # Disabled until catppuccin/nix stops defining unsupported
+        # programs.antigravity options for this Home Manager release.
+        # catppuccin.homeModules.catppuccin
         niri.homeModules.niri
         dms.homeModules.dank-material-shell
         dms.homeModules.niri

@@ -32,3 +32,4 @@ result-*
 *.swp
 *~
 .DS_Store
+.workspaces/
