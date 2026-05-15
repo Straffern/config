@@ -27,6 +27,10 @@ in {
         ai = {
           enable = true;
           opencode.enable = true;
+          opencode.server.enable = true;
+          opencode.wrapper.enable = true;
+          opencode.kittylitter.enable = true;
+          opencode.tailscaleServe.enable = true;
           shellFunction = {
             enable = true;
             model = "openai-codex/gpt-5.3-codex-spark";

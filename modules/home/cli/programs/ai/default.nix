@@ -4,17 +4,55 @@
   lib,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkIf
     mkEnableOption
     mkOption
+    mkMerge
     types
     ;
   cfg = config.${namespace}.cli.programs.ai;
-in
-{
+  nodePackage = pkgs.nodejs_24;
+  opencodePackage = pkgs.llm-agents.opencode;
+  opencodeServerUrl = "http://${cfg.opencode.server.hostname}:${toString cfg.opencode.server.port}";
+  opencodeWrapper = pkgs.writeShellApplication {
+    name = "opencode";
+    text = ''
+      real_opencode=${opencodePackage}/bin/opencode
+      server_url=${opencodeServerUrl}
+
+      case "''${1:-}" in
+        -h|--help|-v|--version|serve|attach|web|debug|providers|auth|mcp|agent|plugin|db|completion|upgrade|uninstall|models|stats|export|import|github|pr|session|acp)
+          exec "$real_opencode" "$@"
+          ;;
+        run)
+          shift
+          exec "$real_opencode" run --attach "$server_url" --dir "$PWD" "$@"
+          ;;
+      esac
+
+      if [[ $# -gt 0 && -d "$1" ]]; then
+        dir=$1
+        shift
+        exec "$real_opencode" attach "$server_url" --dir "$dir" "$@"
+      fi
+
+      exec "$real_opencode" attach "$server_url" --dir "$PWD" "$@"
+    '';
+  };
+  kittylitterLauncher = pkgs.writeShellApplication {
+    name = "kittylitter-service";
+    runtimeInputs = with pkgs; [
+      nodePackage
+    ];
+    text = ''
+      export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/cache/.bun/bin:$HOME/.cargo/bin:/run/wrappers/bin:$HOME/.nix-profile/bin:/nix/profile/bin:$HOME/.local/state/nix/profile/bin:/etc/profiles/per-user/$USER/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:$PATH"
+      exec ${nodePackage}/bin/npx --yes kittylitter serve
+    '';
+  };
+in {
   options = {
     programs.opencode.tui.theme = mkOption {
       type = types.nullOr types.str;
@@ -27,6 +65,34 @@ in
 
       opencode = {
         enable = mkEnableOption "OpenCode configuration";
+
+        server = {
+          enable = mkEnableOption "shared OpenCode server";
+
+          hostname = mkOption {
+            type = types.str;
+            default = "127.0.0.1";
+            description = "Hostname for the shared OpenCode server to listen on.";
+          };
+
+          port = mkOption {
+            type = types.port;
+            default = 37575;
+            description = "Port for the shared OpenCode server.";
+          };
+        };
+
+        wrapper = {
+          enable = mkEnableOption "OpenCode wrapper that attaches to the shared server";
+        };
+
+        kittylitter = {
+          enable = mkEnableOption "Kittylitter service using the shared OpenCode server";
+        };
+
+        tailscaleServe = {
+          enable = mkEnableOption "Tailscale Serve exposure for the shared OpenCode server";
+        };
       };
 
       shellFunction = {
@@ -54,13 +120,85 @@ in
   config = mkIf cfg.enable {
     programs.opencode = lib.mkIf cfg.opencode.enable {
       enable = true;
-      package = pkgs.llm-agents.opencode;
+      package =
+        if cfg.opencode.wrapper.enable
+        then opencodeWrapper
+        else opencodePackage;
     };
 
-    home.file = lib.mkMerge [
+    home.file = mkMerge [
       (lib.mkIf cfg.opencode.enable {
         ".config/opencode/AGENTS.md" = {
           source = config.lib.asgaard.managedSource ./AGENTS.md;
+        };
+      })
+    ];
+
+    home.packages = mkMerge [
+      (mkIf cfg.opencode.kittylitter.enable [
+        nodePackage
+      ])
+      (mkIf cfg.opencode.server.enable [
+        pkgs.tree
+      ])
+    ];
+
+    systemd.user.services = mkMerge [
+      (mkIf cfg.opencode.server.enable {
+        opencode-server = {
+          Unit = {
+            Description = "Shared OpenCode server";
+            After = ["network.target"];
+          };
+
+          Service = {
+            Type = "simple";
+            ExecStart = "${opencodePackage}/bin/opencode serve --hostname ${cfg.opencode.server.hostname} --port ${toString cfg.opencode.server.port}";
+            Restart = "on-failure";
+            RestartSec = 5;
+          };
+
+          Install.WantedBy = ["default.target"];
+        };
+      })
+
+      (mkIf cfg.opencode.kittylitter.enable {
+        kittylitter = {
+          Unit = {
+            Description = "Alleycat bridge daemon";
+            After = ["network-online.target" "opencode-server.service"];
+            Wants = ["opencode-server.service"];
+          };
+
+          Service = {
+            Type = "simple";
+            ExecStart = "${kittylitterLauncher}/bin/kittylitter-service";
+            Environment = [
+              "OPENCODE_BRIDGE_BACKEND_URL=${opencodeServerUrl}"
+            ];
+            Restart = "on-failure";
+            RestartSec = 5;
+          };
+
+          Install.WantedBy = ["default.target"];
+        };
+      })
+
+      (mkIf cfg.opencode.tailscaleServe.enable {
+        opencode-tailscale-serve = {
+          Unit = {
+            Description = "Expose OpenCode through Tailscale Serve";
+            After = ["opencode-server.service"];
+            Wants = ["opencode-server.service"];
+          };
+
+          Service = {
+            Type = "oneshot";
+            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=80 ${opencodeServerUrl}";
+            RemainAfterExit = true;
+          };
+
+          Install.WantedBy = ["default.target"];
         };
       })
     ];
@@ -69,11 +207,10 @@ in
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
         let
-          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
+          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
             inherit (cfg.shellFunction) model systemPrompt;
           };
-        in
-        ''
+        in ''
           # Load ai command generator function
           source ${ai-shell-function}
         ''
