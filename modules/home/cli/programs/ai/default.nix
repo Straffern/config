@@ -15,7 +15,7 @@
     ;
   cfg = config.${namespace}.cli.programs.ai;
   nodePackage = pkgs.nodejs_24;
-  opencodePackage = pkgs.llm-agents.opencode;
+  opencodePackage = pkgs.opencode-patched;
   opencodeServerUrl = "http://${cfg.opencode.server.hostname}:${toString cfg.opencode.server.port}";
   opencodeWrapper = pkgs.writeShellApplication {
     name = "opencode";

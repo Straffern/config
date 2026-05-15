@@ -3513,6 +3513,26 @@
         "type": "github"
       }
     },
+    "opencode-patched": {
+      "inputs": {
+        "nixpkgs": [
+          "unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779016020,
+        "narHash": "sha256-ari8phHcTt8njo0s02mGWB68fGhP0C79qvSl6DZigPk=",
+        "owner": "sst",
+        "repo": "opencode",
+        "rev": "e4cc4e1682766853bccfb7acbd937a90728eeac2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sst",
+        "repo": "opencode",
+        "type": "github"
+      }
+    },
     "persist-retro": {
       "locked": {
         "lastModified": 1764675833,
@@ -3820,6 +3840,7 @@
         "nixpkgs": "nixpkgs_15",
         "noctalia": "noctalia",
         "nur": "nur",
+        "opencode-patched": "opencode-patched",
         "persist-retro": "persist-retro",
         "pyprland": "pyprland",
         "quickshell": "quickshell",

@@ -1,0 +1,24 @@
+diff --git a/packages/opencode/parsers-config.ts b/packages/opencode/parsers-config.ts
+index 3cf9f05..c057f3e 100644
+--- a/packages/opencode/parsers-config.ts
++++ b/packages/opencode/parsers-config.ts
+@@ -246,6 +246,19 @@ export default {
+         ],
+       },
+     },
++    {
++      filetype: "elixir",
++      aliases: ["ex", "exs"],
++      wasm: "https://github.com/elixir-lang/tree-sitter-elixir/releases/download/v0.3.5/tree-sitter-elixir.wasm",
++      queries: {
++        highlights: [
++          "https://raw.githubusercontent.com/elixir-lang/tree-sitter-elixir/main/queries/highlights.scm",
++        ],
++        locals: [
++          "https://raw.githubusercontent.com/elixir-lang/tree-sitter-elixir/main/queries/locals.scm",
++        ],
++      },
++    },
+     {
+       filetype: "diff",
+       aliases: ["udiff", "patch"],

@@ -107,6 +107,11 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    opencode-patched = {
+      url = "github:sst/opencode";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     # Styling
 
     stylix = {
@@ -212,6 +217,13 @@
         nixgl.overlay
         nur.overlays.default
         llm-agents.overlays.default
+        (
+          final: prev: {
+            opencode-patched = inputs.opencode-patched.packages.${final.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
+              patches = (old.patches or []) ++ [./patches/opencode-elixir-treesitter.patch];
+            });
+          }
+        )
         devenv.overlays.default
         # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
         (
