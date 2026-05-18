@@ -67,6 +67,74 @@
     command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
     mode = "fork"
   '';
+
+  copyCurrentLineScript = ''
+    #!${pkgs.bash}/bin/bash
+    set -euo pipefail
+
+    tmux=${pkgs.tmux}/bin/tmux
+    remote_shell_wait_time=0.4
+
+    get_tmux_option() {
+      local option="$1"
+      local default_value="$2"
+      local value
+      value="$($tmux show-option -gqv "$option")"
+      if [[ -z "$value" ]]; then
+        printf '%s\n' "$default_value"
+      else
+        printf '%s\n' "$value"
+      fi
+    }
+
+    shell_mode() {
+      get_tmux_option "@shell_mode" "emacs"
+    }
+
+    go_to_beginning_of_current_line() {
+      if [[ "$(shell_mode)" == "emacs" ]]; then
+        $tmux send-keys 'C-a'
+      else
+        $tmux send-keys 'Escape' '0'
+      fi
+    }
+
+    add_sleep_for_remote_shells() {
+      local pane_command
+      pane_command="$($tmux display-message -p '#{pane_current_command}')"
+      if [[ "$pane_command" =~ (ssh|mosh) ]]; then
+        sleep "$remote_shell_wait_time"
+      fi
+    }
+
+    start_tmux_selection() {
+      $tmux send-keys -X begin-selection
+    }
+
+    end_of_line_in_copy_mode() {
+      $tmux send-keys -X -N 150 cursor-down
+      $tmux send-keys -X end-of-line
+      $tmux send-keys -X previous-word
+      $tmux send-keys -X next-word-end
+    }
+
+    go_to_end_of_current_line() {
+      if [[ "$(shell_mode)" == "emacs" ]]; then
+        $tmux send-keys 'C-e'
+      else
+        $tmux send-keys '$' 'a'
+      fi
+    }
+
+    go_to_beginning_of_current_line
+    add_sleep_for_remote_shells
+    $tmux copy-mode
+    start_tmux_selection
+    end_of_line_in_copy_mode
+    $tmux send-keys -X copy-selection-and-cancel
+    go_to_end_of_current_line
+    $tmux display-message 'Line copied to clipboard!'
+  '';
 in {
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
@@ -88,6 +156,11 @@ in {
         text = televisionSeshChannel;
       };
 
+    xdg.configFile."tmux/scripts/copy-current-line.sh" = {
+      text = copyCurrentLineScript;
+      executable = true;
+    };
+
     programs.tmux = {
       enable = true;
       shell = "${pkgs.zsh}/bin/zsh";
@@ -100,7 +173,6 @@ in {
 
       plugins = with pkgs.tmuxPlugins; [
         better-mouse-mode
-        yank
         tmux-thumbs
         {
           plugin = tmux-floax;
@@ -150,8 +222,9 @@ in {
       ];
       extraConfig = ''
         set -ag terminal-overrides ",*:RGB"
-        set-option -as terminal-features ',*:sync'
-        set-option -as terminal-features ',xterm-kitty*:extkeys'
+        # Minimal baseline: tmux already gives xterm* terminals OSC52 clipboard support.
+        # Re-enable if Kitty modified keys like Shift+Enter regress inside tmux.
+        # set-option -as terminal-features ',xterm-kitty*:extkeys'
         set-environment -g TMUX_PLUGIN_MANAGER_PATH '~/.local/share/tmux/plugins'
         set -g prefix2 C-b
         bind C-Space send-prefix
@@ -167,17 +240,19 @@ in {
         set-option -g focus-events on
         set-option -g set-clipboard on
         set-window-option -g aggressive-resize on
-        set-option -s extended-keys on
-        set-option -s extended-keys-format csi-u
+
+        set -g default-terminal "tmux-256color"
+        set -g extended-keys on
+        set -g extended-keys-format csi-u
 
         # jj change IDs use reverse-hex digits k-z, rendered as short prefixes in prompts/logs.
         # tmux-thumbs already matches git SHAs; this makes jj IDs like "rzrzslqw" selectable too.
         set -g @thumbs-regexp-1 '\b[k-z]{8,}\b'
         set -g @thumbs-position right
         set -g @thumbs-contrast 1
-        set -g @thumbs-osc52 0
-        set -g @thumbs-command 'tmux set-buffer -- "{}" && printf %s "{}" | ${pkgs.wl-clipboard}/bin/wl-copy && tmux display-message "Copied {}"'
-        set -g @thumbs-upcase-command 'tmux set-buffer -- "{}" && printf %s "{}" | ${pkgs.wl-clipboard}/bin/wl-copy && tmux paste-buffer && tmux display-message "Copied {}"'
+        set -g @thumbs-osc52 1
+        set -g @thumbs-command 'tmux set-buffer -w -- "{}" && tmux display-message "Copied {}"'
+        set -g @thumbs-upcase-command 'tmux set-buffer -w -- "{}" && tmux paste-buffer && tmux display-message "Copied {}"'
 
         # Keybinding model:
         # - Root table keeps only fast pane/window navigation.
@@ -289,8 +364,8 @@ in {
         bind-key -T move -N "Move: close table" Escape switch-client -T root
 
         # Yank/buffer table.
-        bind-key -T yank -N "Yank: copy current line" y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_line.sh
-        bind-key -T yank -N "Yank: copy pane current directory" Y run-shell -b ${pkgs.tmuxPlugins.yank}/share/tmux-plugins/yank/scripts/copy_pane_pwd.sh
+        bind-key -T yank -N "Yank: copy current line" y run-shell -b ${config.xdg.configHome}/tmux/scripts/copy-current-line.sh
+        bind-key -T yank -N "Yank: copy pane current directory" Y set-buffer -w -- "#{pane_current_path}" \; display-message "Copied #{pane_current_path}"
         bind-key -T yank -N "Yank: enter tmux copy mode" [ copy-mode
         bind-key -T yank -N "Yank: paste tmux buffer" p paste-buffer
         bind-key -T yank -N "Yank: choose tmux buffer" b choose-buffer -Z
@@ -343,6 +418,12 @@ in {
         set -ga update-environment TERM_PROGRAM
 
         # Copy-mode navigation mirrors pane movement without touching Neovim root keys.
+        bind-key -T copy-mode-vi v send-keys -X begin-selection
+        bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+        bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+        bind-key -T copy-mode-vi Enter send-keys -X copy-selection-and-cancel
+        bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-selection-and-cancel
+        bind-key -T copy-mode-vi ! send-keys -X copy-pipe-and-cancel -C 'tr -d "\n" | tmux load-buffer -w -'
         bind-key -T copy-mode-vi 'C-h' select-pane -Z -L
         bind-key -T copy-mode-vi 'C-j' select-pane -Z -D
         bind-key -T copy-mode-vi 'C-k' select-pane -Z -U
