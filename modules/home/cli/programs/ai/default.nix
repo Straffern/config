@@ -15,7 +15,7 @@
     ;
   cfg = config.${namespace}.cli.programs.ai;
   nodePackage = pkgs.nodejs_24;
-  opencodePackage = pkgs.opencode-patched;
+  opencodePackage = pkgs.llm-agents.opencode;
   opencodeServerUrl = "http://${cfg.opencode.server.hostname}:${toString cfg.opencode.server.port}";
   piDashboardUrl = "http://${cfg.pi.dashboard.hostname}:${toString cfg.pi.dashboard.port}";
   opencodeEphemeralWrapper = pkgs.writeShellApplication {
