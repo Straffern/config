@@ -212,6 +212,7 @@ in {
           shutdownIdleSeconds = 300;
           spawnStrategy = "headless";
           tunnel.enabled = false;
+          modelProxy.enabled = false;
         };
       })
     ];
