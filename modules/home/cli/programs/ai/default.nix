@@ -160,6 +160,12 @@ in {
 
           tailscaleServe = {
             enable = mkEnableOption "Tailscale Serve exposure for Pi Agent Dashboard";
+
+            port = mkOption {
+              type = types.port;
+              default = 38081;
+              description = "Tailscale Serve frontend port for Pi Agent Dashboard.";
+            };
           };
         };
       };
@@ -279,9 +285,9 @@ in {
 
           Service = {
             Type = "oneshot";
-            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.port} off";
-            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.pi.dashboard.port} ${piDashboardUrl}";
-            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.port} off";
+            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} off";
+            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} ${piDashboardUrl}";
+            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} off";
             RemainAfterExit = true;
           };
 
