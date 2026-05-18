@@ -7,6 +7,9 @@
   ...
 }: let
   inherit (pkgs.${namespace}) clipy;
+  ompPiAlias = pkgs.writeShellScriptBin "pi" ''
+    exec ${pkgs.llm-agents.omp}/bin/omp "$@"
+  '';
   voxtypePkg = inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.onnx-rocm;
 in {
   programs.zsh.sessionVariables = {
@@ -23,7 +26,6 @@ in {
       terminals.alacritty.enable = true;
       programs = {
         lobster.enable = true;
-        omp.enable = true;
         ai = {
           enable = true;
           opencode.enable = true;
@@ -79,6 +81,8 @@ in {
   home.packages = with pkgs; [
     nwg-displays
     clipy
+    pkgs.llm-agents.omp
+    ompPiAlias
     uv
     v4l-utils
     guvcview
