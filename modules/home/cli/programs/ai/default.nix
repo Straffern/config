@@ -17,6 +17,7 @@
   nodePackage = pkgs.nodejs_24;
   opencodePackage = pkgs.opencode-patched;
   opencodeServerUrl = "http://${cfg.opencode.server.hostname}:${toString cfg.opencode.server.port}";
+  piDashboardUrl = "http://${cfg.pi.dashboard.hostname}:${toString cfg.pi.dashboard.port}";
   opencodeEphemeralWrapper = pkgs.writeShellApplication {
     name = "ocn";
     text = ''
@@ -134,6 +135,34 @@ in {
           description = "System prompt for command generation";
         };
       };
+
+      pi = {
+        dashboard = {
+          enable = mkEnableOption "Pi Agent Dashboard support";
+
+          hostname = mkOption {
+            type = types.str;
+            default = "127.0.0.1";
+            description = "Hostname for Pi Agent Dashboard to listen on.";
+          };
+
+          port = mkOption {
+            type = types.port;
+            default = 38080;
+            description = "Port for Pi Agent Dashboard.";
+          };
+
+          piPort = mkOption {
+            type = types.port;
+            default = 38099;
+            description = "WebSocket port used by Pi dashboard bridge extensions.";
+          };
+
+          tailscaleServe = {
+            enable = mkEnableOption "Tailscale Serve exposure for Pi Agent Dashboard";
+          };
+        };
+      };
     };
   };
 
@@ -146,14 +175,6 @@ in {
         else opencodePackage;
     };
 
-    home.file = mkMerge [
-      (lib.mkIf cfg.opencode.enable {
-        ".config/opencode/AGENTS.md" = {
-          source = config.lib.asgaard.managedSource ./AGENTS.md;
-        };
-      })
-    ];
-
     home.packages = mkMerge [
       (mkIf cfg.opencode.kittylitter.enable [
         nodePackage
@@ -162,6 +183,31 @@ in {
         opencodeEphemeralWrapper
         pkgs.tree
       ])
+      (mkIf cfg.pi.dashboard.enable [
+        nodePackage
+        pkgs.gcc
+        pkgs.gnumake
+        pkgs.python3
+      ])
+    ];
+
+    home.file = mkMerge [
+      (lib.mkIf cfg.opencode.enable {
+        ".config/opencode/AGENTS.md" = {
+          source = config.lib.asgaard.managedSource ./AGENTS.md;
+        };
+      })
+
+      (mkIf cfg.pi.dashboard.enable {
+        ".pi/dashboard/config.json".text = builtins.toJSON {
+          inherit (cfg.pi.dashboard) port piPort;
+          autoStart = true;
+          autoShutdown = false;
+          shutdownIdleSeconds = 300;
+          spawnStrategy = "headless";
+          tunnel.enabled = false;
+        };
+      })
     ];
 
     systemd.user.services = mkMerge [
@@ -224,6 +270,24 @@ in {
           Install.WantedBy = ["default.target"];
         };
       })
+
+      (mkIf cfg.pi.dashboard.tailscaleServe.enable {
+        pi-dashboard-tailscale-serve = {
+          Unit = {
+            Description = "Expose Pi Agent Dashboard through Tailscale Serve";
+          };
+
+          Service = {
+            Type = "oneshot";
+            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.port} off";
+            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.pi.dashboard.port} ${piDashboardUrl}";
+            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.port} off";
+            RemainAfterExit = true;
+          };
+
+          Install.WantedBy = ["default.target"];
+        };
+      })
     ];
 
     # AI shell command generator function
@@ -242,6 +306,7 @@ in {
       system.persistence = {
         directories = [
           ".config/opencode"
+          ".pi"
         ];
       };
     };

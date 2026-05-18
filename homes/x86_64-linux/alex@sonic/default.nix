@@ -7,9 +7,6 @@
   ...
 }: let
   inherit (pkgs.${namespace}) clipy;
-  ompPiAlias = pkgs.writeShellScriptBin "pi" ''
-    exec ${pkgs.llm-agents.omp}/bin/omp "$@"
-  '';
   voxtypePkg = inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.onnx-rocm;
 in {
   programs.zsh.sessionVariables = {
@@ -33,6 +30,10 @@ in {
           opencode.wrapper.enable = true;
           opencode.kittylitter.enable = true;
           opencode.tailscaleServe.enable = true;
+          pi.dashboard = {
+            enable = true;
+            tailscaleServe.enable = true;
+          };
           shellFunction = {
             enable = true;
             model = "openai-codex/gpt-5.3-codex-spark";
@@ -82,7 +83,7 @@ in {
     nwg-displays
     clipy
     pkgs.llm-agents.omp
-    ompPiAlias
+    pkgs.llm-agents.pi
     uv
     v4l-utils
     guvcview
