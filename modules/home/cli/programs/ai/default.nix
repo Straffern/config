@@ -17,6 +17,26 @@
   nodePackage = pkgs.nodejs_24;
   opencodePackage = pkgs.opencode-patched;
   opencodeServerUrl = "http://${cfg.opencode.server.hostname}:${toString cfg.opencode.server.port}";
+  opencodeEphemeralWrapper = pkgs.writeShellApplication {
+    name = "ocn";
+    text = ''
+      real_opencode=${opencodePackage}/bin/opencode
+      tailscale=${pkgs.tailscale}/bin/tailscale
+      port=${toString (cfg.opencode.server.port + 1)}
+
+      while (: >/dev/tcp/127.0.0.1/"$port") >/dev/null 2>&1; do
+        port=$((port + 1))
+      done
+
+      cleanup() {
+        "$tailscale" serve --yes --http="$port" off >/dev/null 2>&1 || true
+      }
+      trap cleanup EXIT INT TERM
+
+      "$tailscale" serve --bg --yes --http="$port" "http://127.0.0.1:$port"
+      "$real_opencode" --port "$port" "$@"
+    '';
+  };
   opencodeWrapper = pkgs.writeShellApplication {
     name = "opencode";
     text = ''
@@ -139,6 +159,7 @@ in {
         nodePackage
       ])
       (mkIf cfg.opencode.server.enable [
+        opencodeEphemeralWrapper
         pkgs.tree
       ])
     ];
@@ -194,7 +215,9 @@ in {
 
           Service = {
             Type = "oneshot";
-            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=80 ${opencodeServerUrl}";
+            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=80 off";
+            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.opencode.server.port} ${opencodeServerUrl}";
+            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.opencode.server.port} off";
             RemainAfterExit = true;
           };
 
