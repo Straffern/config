@@ -148,7 +148,7 @@ in {
 
           port = mkOption {
             type = types.port;
-            default = 38080;
+            default = 38081;
             description = "Port for Pi Agent Dashboard.";
           };
 
@@ -163,7 +163,7 @@ in {
 
             port = mkOption {
               type = types.port;
-              default = 38081;
+              default = 38080;
               description = "Tailscale Serve frontend port for Pi Agent Dashboard.";
             };
           };
