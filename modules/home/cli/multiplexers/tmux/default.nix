@@ -250,7 +250,7 @@ in {
         set -g @thumbs-regexp-1 '\b[k-z]{8,}\b'
         set -g @thumbs-position right
         set -g @thumbs-contrast 1
-        set -g @thumbs-osc52 1
+        set -g @thumbs-osc52 0
         set -g @thumbs-command 'tmux set-buffer -w -- "{}" && tmux display-message "Copied {}"'
         set -g @thumbs-upcase-command 'tmux set-buffer -w -- "{}" && tmux paste-buffer && tmux display-message "Copied {}"'
 
