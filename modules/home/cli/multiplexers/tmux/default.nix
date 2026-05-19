@@ -226,7 +226,6 @@ in {
         # Re-enable if Kitty modified keys like Shift+Enter regress inside tmux.
         # set-option -as terminal-features ',xterm-kitty*:extkeys'
         set-environment -g TMUX_PLUGIN_MANAGER_PATH '~/.local/share/tmux/plugins'
-        set -g prefix2 C-b
         bind C-Space send-prefix
         set -sg escape-time 10
         set-option -g set-titles on
