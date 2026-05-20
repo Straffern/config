@@ -29,8 +29,10 @@ return {
 							return
 						end
 
+						-- pi --list-models prints the table to stderr (stdout is empty under vim.system)
+						local output = (obj.stdout and obj.stdout ~= "") and obj.stdout or (obj.stderr or "")
 						local models = {}
-						for _, line in ipairs(vim.split(obj.stdout, "\n", { trimempty = true })) do
+						for _, line in ipairs(vim.split(output, "\n", { trimempty = true })) do
 							local parts = vim.split(line, "%s+", { trimempty = true })
 							if #parts >= 2 and parts[1] ~= "provider" then
 								table.insert(models, parts[1] .. "/" .. parts[2])
