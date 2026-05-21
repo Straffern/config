@@ -69,8 +69,8 @@
       nodePackage
     ];
     text = ''
-      export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/cache/.bun/bin:$HOME/.cargo/bin:/run/wrappers/bin:$HOME/.nix-profile/bin:/nix/profile/bin:$HOME/.local/state/nix/profile/bin:/etc/profiles/per-user/$USER/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:$PATH"
-      exec ${nodePackage}/bin/npx --yes kittylitter serve
+      # export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/cache/.bun/bin:$HOME/.cargo/bin:/run/wrappers/bin:$HOME/.nix-profile/bin:/nix/profile/bin:$HOME/.local/state/nix/profile/bin:/etc/profiles/per-user/$USER/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin:$PATH"
+      exec ${nodePackage}/bin/npx --yes kittylitter@latest serve
     '';
   };
 in {
@@ -262,13 +262,17 @@ in {
         opencode-tailscale-serve = {
           Unit = {
             Description = "Expose OpenCode through Tailscale Serve";
-            After = ["opencode-server.service"];
+            After =
+              ["opencode-server.service"]
+              ++ lib.optionals cfg.pi.dashboard.tailscaleServe.enable [
+                "pi-dashboard-tailscale-serve.service"
+              ];
             Wants = ["opencode-server.service"];
           };
 
           Service = {
             Type = "oneshot";
-            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=80 off";
+            ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.opencode.server.port} off";
             ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.opencode.server.port} ${opencodeServerUrl}";
             ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.opencode.server.port} off";
             RemainAfterExit = true;
