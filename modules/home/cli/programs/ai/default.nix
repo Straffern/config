@@ -75,12 +75,6 @@
   };
 in {
   options = {
-    programs.opencode.tui.theme = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      description = "Compatibility option for Stylix until Home Manager exposes OpenCode tui.json settings.";
-    };
-
     ${namespace}.cli.programs.ai = {
       enable = mkEnableOption "AI tools";
 

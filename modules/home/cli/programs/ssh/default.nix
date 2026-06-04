@@ -68,25 +68,29 @@ in {
     programs.ssh = {
       enable = true;
       enableDefaultConfig = false;
-      matchBlocks =
+      settings =
+        lib.mapAttrs (_name: host:
+          lib.filterAttrs (_: v: v != null && v != [] && v != {}) {
+            HostName = host.hostname;
+            User = host.user;
+            IdentityFile = host.identityFile;
+            SendEnv = host.sendEnv;
+            SetEnv = host.setEnv;
+          })
         cfg.extraHosts
         // {
           "*" = {
-            addKeysToAgent = "yes";
-            compression = true;
-            controlMaster = "auto";
-            controlPath = "~/.ssh/cm-%r@%h:%p";
-            controlPersist = "10m";
+            AddKeysToAgent = "yes";
+            Compression = true;
+            ControlMaster = "auto";
+            ControlPath = "~/.ssh/cm-%r@%h:%p";
+            ControlPersist = "10m";
+            TCPKeepAlive = "no";
+            IPQoS = "lowdelay throughput";
+            SetEnv = {TERM = "xterm";};
+            IdentityFile = "~/.ssh/id_ed25519";
           };
         };
-      extraOptionOverrides = {
-        TCPKeepAlive = "no";
-        IPQoS = "lowdelay throughput";
-      };
-      extraConfig = ''
-        SetEnv TERM=xterm
-        IdentityFile ~/.ssh/id_ed25519
-      '';
     };
 
     ${namespace} = {

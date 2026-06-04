@@ -19,6 +19,8 @@ in
     programs.neovim = {
       enable = true;
       defaultEditor = true;
+      withRuby = false;
+      withPython3 = false;
       # extraLuaPackages = ps: [ ps.luarocks ps.magick ];
       extraPackages = [
         pkgs.deno # required by peek.nvim
@@ -31,7 +33,7 @@ in
         pkgs.tree-sitter
       ];
 
-      extraLuaConfig = ''
+      initLua = ''
         vim.g.supermaven_jj_git_shim_path = "${pkgs.asgaard.supermaven-jj-git-shim}/bin"
         vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
 

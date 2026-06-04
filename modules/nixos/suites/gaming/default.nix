@@ -179,7 +179,7 @@ in {
 
     environment.systemPackages = with pkgs; [
       winetricks
-      wineWowPackages.waylandFull
+      wineWow64Packages.waylandFull
       adwsteamgtk
       mesa-demos
       vulkan-tools

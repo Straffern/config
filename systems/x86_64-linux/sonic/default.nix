@@ -91,13 +91,11 @@ in
   boot = {
     kernelParams = [ "resume_offset=533760" ];
     supportedFilesystems = lib.mkForce [ "btrfs" ];
-    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-lts-lto-zen4;
+    kernelPackages = pkgs.linuxPackages_zen;
     resumeDevice = "/dev/disk/by-label/nixos";
   };
 
   nix.settings.eval-cores = 16;
 
-  # ======================== DO NOT CHANGE THIS ========================
-  system.stateVersion = "23.11";
-  # ======================== DO NOT CHANGE THIS ========================
+  system.stateVersion = "26.05";
 }

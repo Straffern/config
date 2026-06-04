@@ -96,6 +96,6 @@ in {
   programs.zsh.enable = true;
 
   # ======================== DO NOT CHANGE THIS ========================
-  system.stateVersion = "23.11";
+  system.stateVersion = "26.05";
   # ======================== DO NOT CHANGE THIS ========================
 }
