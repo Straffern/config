@@ -91,7 +91,6 @@ in
       pamixer
       playerctl
 
-      grimblast
       slurp
       sway-contrib.grimshot
       pkgs.satty

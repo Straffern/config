@@ -9,7 +9,11 @@
   cfg = config.${namespace}.desktops.hyprland;
 in {
   config = mkIf cfg.enable {
-    home.packages = [pkgs.hyprpicker pkgs.asgaard.hyprlock-recover];
+    home.packages = [
+      pkgs.grimblast
+      pkgs.hyprpicker
+      pkgs.asgaard.hyprlock-recover
+    ];
 
     wayland.windowManager.hyprland =
       {
