@@ -185,7 +185,6 @@
       url = "github:peteonrails/voxtype";
       inputs.nixpkgs.follows = "unstable";
     };
-
   };
 
   outputs = inputs: let
@@ -234,6 +233,7 @@
             inherit
               (unstablePkgs)
               bun
+              television
               jujutsu
               jjui
               hyprlock

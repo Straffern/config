@@ -34,20 +34,25 @@
   televisionSeshChannel = ''
     # Television channel for sesh session management
     # Upstream: https://github.com/alexpasmantier/television/blob/main/cable/unix/sesh.toml
+    # https://github.com/joshmedeski/sesh
     [metadata]
     name = "sesh"
     description = "Session manager integrating tmux sessions, zoxide directories, and config paths"
     requirements = ["sesh", "fd"]
 
     [source]
+    # Multiple source commands for cycling through different modes
+    # Press Ctrl+S to cycle between sources
     command = [
-      "sesh list --icons",
-      "sesh list -t --icons",
-      "sesh list -c --icons",
-      "sesh list -z --icons",
-      "fd -H -d 2 -t d -E .Trash . ~"
+      { name = "All",         run = "sesh list --icons" },
+      { name = "Tmux",        run = "sesh list -t --icons" },
+      { name = "Configs",     run = "sesh list -c --icons" },
+      { name = "Zoxide",      run = "sesh list -z --icons" },
+      { name = "Directories", run = "fd -H -d 2 -t d -E .Trash . ~" },
     ]
     ansi = true
+    frecency = false # handled by sesh
+    no_sort = true # handled by sesh
     output = "{strip_ansi|split: :1..|join: }"
 
     [preview]
@@ -63,7 +68,7 @@
     mode = "execute"
 
     [actions.kill_session]
-    description = "Kill selected tmux session"
+    description = "Kill selected tmux session (press Ctrl+r to reload)"
     command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
     mode = "fork"
   '';
