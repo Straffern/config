@@ -43,6 +43,7 @@ in {
           modern-unix = enabled;
           network-tools = enabled;
           nix-index = enabled;
+          nix-search-tv = enabled;
           podman = enabled;
           ssh = enabled;
           starship = enabled;
