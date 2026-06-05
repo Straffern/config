@@ -260,7 +260,6 @@
         lanzaboote.nixosModules.lanzaboote
         hermes-agent.nixosModules.default
         dms.nixosModules.default
-        dms.nixosModules.greeter
       ];
       homes.modules = with inputs; [
         hyprland.homeManagerModules.default

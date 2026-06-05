@@ -2,6 +2,7 @@
   config,
   lib,
   namespace,
+  pkgs,
   ...
 }: let
   cfg = config.${namespace}.services.dankgreeter;
@@ -20,11 +21,12 @@ in {
 
   config = mkIf cfg.enable {
 
-    # DMS greeter module handles greetd enable + command + tmpfiles + fonts.
-    # We only set the asgaard-level options.
-    programs.dank-material-shell.greeter = {
+    # nixpkgs' DMS greeter module handles greetd enable + command, tmpfiles,
+    # dedicated dms-greeter user/group, fonts, PAM stub, libinput, and graphics.
+    services.displayManager.dms-greeter = {
       enable = true;
       compositor.name = cfg.compositor;
+      package = pkgs.dms-shell;
     } // lib.optionalAttrs (cfg.configHome != null) {
       inherit (cfg) configHome;
     };
