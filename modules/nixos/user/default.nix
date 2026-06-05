@@ -76,6 +76,22 @@ in {
       useGlobalPkgs = true;
       useUserPackages = true;
       backupFileExtension = "hm-backup";
+
+      sharedModules = [
+        {
+          # Stylix Home Manager overlays set `nixpkgs.overlays`, which conflicts
+          # with `home-manager.useGlobalPkgs = true`. Keep manual HM Stylix import
+          # for standalone Home Manager portability, but disable overlays only for
+          # NixOS-integrated Home Manager.
+          #
+          # Alternative: use Stylix's NixOS HM integration instead:
+          # - set `stylix.homeManagerIntegration.autoImport = true`
+          # - remove `stylix.homeModules.stylix` from `homes.modules` in flake.nix
+          # This lets NixOS Stylix inject HM modules and auto-disable overlays, but
+          # standalone HM would no longer get Stylix from shared `homes.modules`.
+          stylix.overlays.enable = false;
+        }
+      ];
     };
 
     # Assertions
