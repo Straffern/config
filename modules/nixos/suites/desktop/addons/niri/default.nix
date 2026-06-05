@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  inputs,
   namespace,
   ...
 }: let
@@ -20,7 +19,7 @@ in {
 
     programs.niri = {
       enable = true;
-      package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
+      package = pkgs.niri;
     };
   };
 }

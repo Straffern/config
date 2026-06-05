@@ -65,7 +65,7 @@ in
 
     # Use same updated niri input for runtime package and config validation.
     programs.niri = {
-      package = inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.niri-unstable;
+      package = pkgs.niri;
       settings = {
         # input.focus-follows-mouse.enable = true;
         input.keyboard.xkb = {

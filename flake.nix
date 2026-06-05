@@ -154,10 +154,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    quickshell = {
-      url = "git+https://git.outfoxxed.me/quickshell/quickshell";
-      inputs.nixpkgs.follows = "unstable";
-    };
+    # quickshell = {
+    #   url = "git+https://git.outfoxxed.me/quickshell/quickshell";
+    #   inputs.nixpkgs.follows = "unstable";
+    # };
 
     # DankLinux
     dms = {
@@ -231,7 +231,6 @@
             };
           in {
             hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
-            quickshell = quickshell.packages.${final.stdenv.hostPlatform.system}.default;
             inherit
               (unstablePkgs)
               bun
@@ -240,6 +239,8 @@
               hyprlock
               hypridle
               hyprpicker
+              niri
+              quickshell
               uwsm
               dgop
               ;
