@@ -3,12 +3,10 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.programs.nix-search-tv;
-in
-{
+in {
   options.${namespace}.cli.programs.nix-search-tv = {
     enable = mkEnableOption "nix-search-tv";
   };

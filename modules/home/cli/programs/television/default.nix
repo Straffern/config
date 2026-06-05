@@ -4,73 +4,63 @@
   namespace,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.programs.television;
   ghCfg = config.${namespace}.cli.programs.gh;
   jjCfg = config.${namespace}.cli.programs.jj;
   podmanCfg = config.${namespace}.cli.programs.podman;
 
-  channelFileNames = builtins.attrNames (builtins.readDir ./channels);
-  televisionCommunityChannels = lib.genAttrs channelFileNames (
-    name: builtins.readFile (./channels + "/${name}")
-  );
+  communityChannel = name:
+    builtins.fromTOML (
+      builtins.readFile "${pkgs.television.src}/cable/unix/${name}.toml"
+    );
 
-  generalChannels = builtins.removeAttrs televisionCommunityChannels [
-    "gh-prs.toml"
-    "gh-issues.toml"
-    "jj-bookmark.toml"
-    "jj-diff.toml"
-    "jj-files.toml"
-    "jj-log.toml"
-    "jj-op-log.toml"
-    "jj-remotes.toml"
-    "podman-containers.toml"
-    "podman-images.toml"
-    "podman-networks.toml"
-    "podman-volumes.toml"
+  generalChannels = [
+    "journal"
+    "ports"
+    "ssh-hosts"
+    "tailscale-exit-node"
   ];
 
-  ghChannels = lib.genAttrs [
-    "gh-prs.toml"
-    "gh-issues.toml"
-  ] (name: televisionCommunityChannels.${name});
+  ghChannels = [
+    "gh-prs"
+    "gh-issues"
+  ];
 
-  jjChannels = lib.genAttrs [
-    "jj-bookmark.toml"
-    "jj-diff.toml"
-    "jj-files.toml"
-    "jj-log.toml"
-    "jj-op-log.toml"
-    "jj-remotes.toml"
-  ] (name: televisionCommunityChannels.${name});
+  jjChannels = [
+    "jj-bookmark"
+    "jj-diff"
+    "jj-files"
+    "jj-log"
+    "jj-op-log"
+    "jj-remotes"
+  ];
 
-  podmanChannels = lib.genAttrs [
-    "podman-containers.toml"
-    "podman-images.toml"
-    "podman-networks.toml"
-    "podman-volumes.toml"
-  ] (name: televisionCommunityChannels.${name});
+  podmanChannels = [
+    "podman-containers"
+    "podman-images"
+    "podman-networks"
+    "podman-volumes"
+  ];
 
-  enabledChannels =
+  enabledChannelNames =
     generalChannels
-    // lib.optionalAttrs ghCfg.enable ghChannels
-    // lib.optionalAttrs jjCfg.enable jjChannels
-    // lib.optionalAttrs podmanCfg.enable podmanChannels;
+    ++ lib.optionals ghCfg.enable ghChannels
+    ++ lib.optionals jjCfg.enable jjChannels
+    ++ lib.optionals podmanCfg.enable podmanChannels;
 
-  channelFiles = lib.mapAttrs' (name: text: {
-    name = "television/cable/${name}";
-    value.text = text;
-  }) enabledChannels;
-in
-{
+  channels = lib.genAttrs enabledChannelNames communityChannel;
+in {
   options.${namespace}.cli.programs.television = {
     enable = mkEnableOption "Television fuzzy finder";
   };
 
   config = mkIf cfg.enable {
-    home.packages = [ pkgs.television ];
-    xdg.configFile = channelFiles;
+    programs.television = {
+      enable = true;
+      package = pkgs.television;
+      inherit channels;
+    };
   };
 }
