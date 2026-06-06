@@ -1,12 +1,19 @@
 {
   config,
+  inputs,
   lib,
   namespace,
   pkgs,
   ...
 }: let
   cfg = config.${namespace}.services.dankgreeter;
-  inherit (lib) mkIf mkEnableOption mkOption types;
+  inherit
+    (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    types
+    ;
   inherit (lib.${namespace}) mkOpt;
 in {
   options.${namespace}.services.dankgreeter = {
@@ -20,16 +27,37 @@ in {
   };
 
   config = mkIf cfg.enable {
-
     # nixpkgs' DMS greeter module handles greetd enable + command, tmpfiles,
     # dedicated dms-greeter user/group, fonts, PAM stub, libinput, and graphics.
-    services.displayManager.dms-greeter = {
-      enable = true;
-      compositor.name = cfg.compositor;
-      package = pkgs.dms-shell;
-    } // lib.optionalAttrs (cfg.configHome != null) {
-      inherit (cfg) configHome;
+    services.displayManager.dms-greeter =
+      {
+        enable = true;
+        compositor.name = cfg.compositor;
+        package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      }
+      // lib.optionalAttrs (cfg.configHome != null) {
+        inherit (cfg) configHome;
+      };
+
+    services.fprintd.enable = true;
+    security.pam.services = {
+      greetd = {
+        fprintAuth = true;
+        rules.auth.fprintd.settings = {
+          "max-tries" = "1";
+          timeout = "5";
+        };
+      };
+      dms-greeter = {
+        fprintAuth = true;
+        rules.auth.fprintd.settings = {
+          "max-tries" = "1";
+          timeout = "5";
+        };
+      };
     };
+
+    environment.systemPackages = [pkgs.fprintd];
 
     # greetd service hardening — DMS greeter does not set these.
     # Without them boot logs spam the login tty.
