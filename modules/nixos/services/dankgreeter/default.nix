@@ -40,6 +40,8 @@ in {
       };
 
     services.fprintd.enable = true;
+    # Lock screen password uses login PAM; DMS runs fingerprint separately.
+    security.pam.services.login.fprintAuth = false;
     security.pam.services = {
       greetd = {
         fprintAuth = true;

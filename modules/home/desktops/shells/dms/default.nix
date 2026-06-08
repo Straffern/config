@@ -30,6 +30,7 @@ let
       blurEnabled = true;
       gtkThemingEnabled = true;
       matugenTemplateNeovim = true;
+      enableFprint = true;
       greeterEnableFprint = true;
       greeterRememberLastUser = true;
     }
@@ -57,6 +58,7 @@ let
             (if has("blurEnabled") then . else . + { blurEnabled: true } end)
             | (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
             | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
+            | (if has("enableFprint") then . else . + { enableFprint: true } end)
             | (if has("greeterEnableFprint") then . else . + { greeterEnableFprint: true } end)
             | (if has("greeterRememberLastUser") then . else . + { greeterRememberLastUser: true } end)
           else .
