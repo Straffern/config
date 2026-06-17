@@ -29,6 +29,7 @@ in {
 
           # Temporary until tmux kitty keyboard protocol support lands: https://github.com/tmux/tmux/pull/4912
           map shift+enter send_text all \e[13;2u
+          map ctrl+enter send_text application \x1b[27;5;13~
           mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
         ''
         + lib.optionalString dmsEnabled ''
