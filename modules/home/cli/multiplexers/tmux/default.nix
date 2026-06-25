@@ -4,8 +4,9 @@
   lib,
   namespace,
   ...
-}: let
-  inherit (lib) mkIf mkEnableOption;
+}:
+let
+  inherit (lib) mkIf mkEnableOption makeBinPath;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
   tmux-floax = pkgs.tmuxPlugins.mkTmuxPlugin {
@@ -140,7 +141,8 @@
     go_to_end_of_current_line
     $tmux display-message 'Line copied to clipboard!'
   '';
-in {
+in
+{
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
   };
@@ -157,9 +159,9 @@ in {
 
     xdg.configFile."television/cable/sesh.toml" =
       mkIf config.${namespace}.cli.programs.television.enable
-      {
-        text = televisionSeshChannel;
-      };
+        {
+          text = televisionSeshChannel;
+        };
 
     xdg.configFile."tmux/scripts/copy-current-line.sh" = {
       text = copyCurrentLineScript;
@@ -201,19 +203,18 @@ in {
         }
         {
           plugin = resurrect;
-          extraConfig =
-            ''
-              set -g @resurrect-strategy-vim 'session'
-              set -g @resurrect-strategy-nvim 'session'
-              set -g @resurrect-capture-pane-contents 'on'
-            ''
-            + ''
-              # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-              resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-              set -g @resurrect-dir $resurrect_dir
+          extraConfig = ''
+            set -g @resurrect-strategy-vim 'session'
+            set -g @resurrect-strategy-nvim 'session'
+            set -g @resurrect-capture-pane-contents 'on'
+          ''
+          + ''
+            # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
+            resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
+            set -g @resurrect-dir $resurrect_dir
 
-              set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
-            '';
+            set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+          '';
         }
         {
           plugin = continuum;
@@ -221,7 +222,7 @@ in {
             set -g @continuum-restore 'on'
             set -g @continuum-boot 'on'
             set -g @continuum-save-interval '10'
-            set -g @continuum-systemd-start-cmd 'start-server'
+            # set -g @continuum-systemd-start-cmd 'start-server'
           '';
         }
       ];
@@ -438,5 +439,56 @@ in {
         	"$SHELL --login -i -c 'navi --print | head -c -1 | tmux load-buffer -b tmp - ; tmux paste-buffer -p -t {last} -b tmp -d'"
       '';
     };
+    # Declarative tmux service replaces tmux-continuum's auto-generated unit.
+    # Continuum's systemd_enable.sh writes ~/.config/systemd/user/tmux.service
+    # with hardcoded nix-store generation paths that break after GC.
+    # With @continuum-boot 'on', continuum skips writing if the unit file already
+    # exists (write_unit_file_unless_exists checks [ -e path ]), so HM's symlink
+    # takes precedence. PATH includes all tools resurrect's save.sh needs.
+    systemd.user.services.tmux = {
+      Unit = {
+        Description = "tmux default session (detached)";
+        Documentation = "man:tmux(1)";
+      };
+      Service = {
+        Type = "forking";
+        Environment = [
+          "DISPLAY=:0"
+          "PATH=${
+            makeBinPath [
+              pkgs.bash
+              pkgs.tmux
+              pkgs.coreutils
+              pkgs.gnused
+              pkgs.gnugrep
+              pkgs.gawk
+              pkgs.findutils
+              pkgs.moreutils
+              pkgs.procps
+              pkgs.gnutar
+              pkgs.gzip
+              pkgs.diffutils
+              pkgs.inetutils
+            ]
+          }"
+        ];
+        ExecStart = "${pkgs.tmux}/bin/tmux start-server";
+        ExecStop = [
+          "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
+          "${pkgs.tmux}/bin/tmux kill-server"
+        ];
+        KillMode = "none";
+        RestartSec = 2;
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
+    # Remove tmux-continuum's stale generated unit if it's a plain file (not
+    # HM's symlink). Without this, HM refuses to link the declarative unit.
+    home.activation.removeStaleTmuxService = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+      tmuxUnit="$HOME/.config/systemd/user/tmux.service"
+      if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
+        $DRY_RUN_CMD rm -f "$tmuxUnit"
+      fi
+    '';
   };
 }
