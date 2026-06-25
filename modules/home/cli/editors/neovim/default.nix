@@ -29,11 +29,15 @@ in {
         pkgs.cargo
         pkgs.nodejs_24
         pkgs.tree-sitter
+        # Nixpkgs marksman replaces Mason-installed binary that crashes under nix-ld.
+        # lspconfig.cmd explicitly set to this binary in lazyvim/plugins/lspconfig.lua.
+        pkgs.marksman
       ];
 
       initLua = ''
         vim.g.supermaven_jj_git_shim_path = "${pkgs.asgaard.supermaven-jj-git-shim}/bin"
         vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
+        vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
 
         -- bootstrap lazy.nvim, LazyVim and your plugins
         require("config.lazy")
