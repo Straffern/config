@@ -18,7 +18,7 @@ in {
       bluetooth = {
         enable = true;
         powerOnBoot = false;
-        settings = {General = {Experimental = true;};};
+        settings = {General = {Experimental = true; KernelExperimental = true;};};
       };
     };
 
