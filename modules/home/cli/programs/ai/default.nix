@@ -4,9 +4,9 @@
   lib,
   namespace,
   ...
-}: let
-  inherit
-    (lib)
+}:
+let
+  inherit (lib)
     mkIf
     mkEnableOption
     mkOption
@@ -73,7 +73,22 @@
       exec ${nodePackage}/bin/npx --yes kittylitter@latest serve
     '';
   };
-in {
+  # Guard for tailscale-serve services: waits for tailscale backend to be
+  # Running (authenticated). ExecCondition exits non-zero → systemd skips
+  # ExecStart without marking unit as failed. Waits up to 60s for tailscale
+  # to come up after boot, so services auto-recover after `tailscale up`.
+  tailscaleReadyCheck = pkgs.writeShellScript "tailscale-ready-check" ''
+    for i in $(seq 1 30); do
+      if ${pkgs.tailscale}/bin/tailscale status --json 2>/dev/null \
+        | ${pkgs.jq}/bin/jq -e '.BackendState == "Running"' >/dev/null 2>&1; then
+        exit 0
+      fi
+      sleep 2
+    done
+    exit 1
+  '';
+in
+{
   options = {
     ${namespace}.cli.programs.ai = {
       enable = mkEnableOption "AI tools";
@@ -169,10 +184,7 @@ in {
   config = mkIf cfg.enable {
     programs.opencode = lib.mkIf cfg.opencode.enable {
       enable = true;
-      package =
-        if cfg.opencode.wrapper.enable
-        then opencodeWrapper
-        else opencodePackage;
+      package = if cfg.opencode.wrapper.enable then opencodeWrapper else opencodePackage;
     };
 
     home.packages = mkMerge [
@@ -216,7 +228,7 @@ in {
         opencode-server = {
           Unit = {
             Description = "Shared OpenCode server";
-            After = ["network.target"];
+            After = [ "network.target" ];
           };
 
           Service = {
@@ -226,7 +238,7 @@ in {
             RestartSec = 5;
           };
 
-          Install.WantedBy = ["default.target"];
+          Install.WantedBy = [ "default.target" ];
         };
       })
 
@@ -234,8 +246,11 @@ in {
         kittylitter = {
           Unit = {
             Description = "Alleycat bridge daemon";
-            After = ["network-online.target" "opencode-server.service"];
-            Wants = ["opencode-server.service"];
+            After = [
+              "network-online.target"
+              "opencode-server.service"
+            ];
+            Wants = [ "opencode-server.service" ];
           };
 
           Service = {
@@ -248,7 +263,7 @@ in {
             RestartSec = 5;
           };
 
-          Install.WantedBy = ["default.target"];
+          Install.WantedBy = [ "default.target" ];
         };
       })
 
@@ -256,23 +271,25 @@ in {
         opencode-tailscale-serve = {
           Unit = {
             Description = "Expose OpenCode through Tailscale Serve";
-            After =
-              ["opencode-server.service"]
-              ++ lib.optionals cfg.pi.dashboard.tailscaleServe.enable [
-                "pi-dashboard-tailscale-serve.service"
-              ];
-            Wants = ["opencode-server.service"];
+            After = [
+              "opencode-server.service"
+            ]
+            ++ lib.optionals cfg.pi.dashboard.tailscaleServe.enable [
+              "pi-dashboard-tailscale-serve.service"
+            ];
+            Wants = [ "opencode-server.service" ];
           };
 
           Service = {
             Type = "oneshot";
+            ExecCondition = "${tailscaleReadyCheck}";
             ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.opencode.server.port} off";
             ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.opencode.server.port} ${opencodeServerUrl}";
             ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.opencode.server.port} off";
             RemainAfterExit = true;
           };
 
-          Install.WantedBy = ["default.target"];
+          Install.WantedBy = [ "default.target" ];
         };
       })
 
@@ -284,13 +301,14 @@ in {
 
           Service = {
             Type = "oneshot";
+            ExecCondition = "${tailscaleReadyCheck}";
             ExecStartPre = "-${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} off";
             ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} ${piDashboardUrl}";
             ExecStop = "${pkgs.tailscale}/bin/tailscale serve --yes --http=${toString cfg.pi.dashboard.tailscaleServe.port} off";
             RemainAfterExit = true;
           };
 
-          Install.WantedBy = ["default.target"];
+          Install.WantedBy = [ "default.target" ];
         };
       })
     ];
@@ -299,10 +317,11 @@ in {
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
         let
-          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
+          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
             inherit (cfg.shellFunction) model systemPrompt;
           };
-        in ''
+        in
+        ''
           # Load ai command generator function
           source ${ai-shell-function}
         ''
