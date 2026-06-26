@@ -1,11 +1,16 @@
 {
   config,
   lib,
-  pkgs,
   namespace,
   ...
 }: let
-  inherit (lib) mkEnableOption mkForce mkIf mkMerge;
+  inherit
+    (lib)
+    mkEnableOption
+    mkForce
+    mkIf
+    mkMerge
+    ;
   cfg = config.${namespace}.desktops.shells.noctalia;
 
   niriEnabled = config.${namespace}.desktops.niri.enable or false;

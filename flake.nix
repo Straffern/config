@@ -29,6 +29,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     persist-retro.url = "github:straffern/persist-retro";
 
     impermanence = {
@@ -201,8 +206,20 @@
         };
       };
     };
-  in
-    lib.mkFlake {
+
+    forAllSystems = f: builtins.mapAttrs (system: _: f system) inputs.deploy-rs.lib;
+
+    pkgsFor = system:
+      import inputs.nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+
+    treefmtEval = forAllSystems (
+      system: inputs.treefmt-nix.lib.evalModule (pkgsFor system) ./treefmt.nix
+    );
+
+    baseFlake = lib.mkFlake {
       # inherit inputs;
       # src = ./.;
       channels-config = {
@@ -213,13 +230,13 @@
         nixgl.overlay
         nur.overlays.default
         llm-agents.overlays.default
-        (
-          final: prev: {
-            opencode-patched = inputs.opencode-patched.packages.${final.stdenv.hostPlatform.system}.opencode.overrideAttrs (old: {
+        (final: _prev: {
+          opencode-patched =
+            inputs.opencode-patched.packages.${final.stdenv.hostPlatform.system}.opencode.overrideAttrs
+            (old: {
               patches = (old.patches or []) ++ [./patches/opencode-elixir-treesitter.patch];
             });
-          }
-        )
+        })
         devenv.overlays.default
         # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
         (
@@ -277,11 +294,26 @@
       ];
 
       deploy = lib.mkDeploy {inherit (inputs) self;};
+    };
+
+    deployChecks =
+      builtins.mapAttrs (
+        _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+      )
+      inputs.deploy-rs.lib;
+  in
+    baseFlake
+    // {
+      formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
       checks =
         builtins.mapAttrs (
-          _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
+          system: checks:
+            checks
+            // {
+              treefmt = treefmtEval.${system}.config.build.check inputs.self;
+            }
         )
-        inputs.deploy-rs.lib;
+        deployChecks;
     };
 }

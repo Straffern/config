@@ -3,7 +3,8 @@
 # which crashes on VPS/older CPUs lacking AVX2 etc.
 {inputs, ...}: final: _prev: {
   ww = inputs.ww.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-    buildPhase = builtins.replaceStrings
+    buildPhase =
+      builtins.replaceStrings
       ["--release=safe"]
       ["--release=safe -Dcpu=baseline"]
       old.buildPhase;

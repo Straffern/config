@@ -4,13 +4,11 @@
   config,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkEnableOption mkIf;
   cfg = config.${namespace}.cli.editors.neovim;
   stylixEnabled = config.${namespace}.styles.stylix.enable;
-in
-{
+in {
   options.${namespace}.cli.editors.neovim = {
     enable = mkEnableOption "Neovim";
   };
@@ -46,7 +44,7 @@ in
       vimAlias = true;
       vimdiffAlias = true;
     };
-    stylix.targets.neovim = mkIf stylixEnabled { enable = false; };
+    stylix.targets.neovim = mkIf stylixEnabled {enable = false;};
 
     xdg.configFile."nvim/lua" = {
       enable = true;

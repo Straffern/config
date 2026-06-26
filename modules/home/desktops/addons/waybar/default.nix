@@ -5,15 +5,13 @@
   namespace,
   inputs,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktops.addons.waybar;
 
   voxtypeEnabled = config.systemd.user.services ? voxtype;
   voxtypePkg = inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.onnx-rocm;
-in
-{
+in {
   options.${namespace}.desktops.addons.waybar = {
     enable = mkEnableOption "Waybar";
   };
@@ -34,11 +32,13 @@ in
           # NOTE: If you see "Unable to replace properties on 0: Error getting properties for ID"
           # in waybar logs, it is a benign protocol mismatch from tray applets (like blueman).
           # It does not affect functionality.
-          modules-center = (lib.optional voxtypeEnabled "custom/voxtype") ++ [
-            "custom/notification"
-            "clock"
-            "idle_inhibitor"
-          ];
+          modules-center =
+            (lib.optional voxtypeEnabled "custom/voxtype")
+            ++ [
+              "custom/notification"
+              "clock"
+              "idle_inhibitor"
+            ];
           modules-right = [
             "power-profiles-daemon"
             "backlight"

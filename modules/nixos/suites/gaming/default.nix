@@ -105,9 +105,9 @@ with lib.${namespace}; let
       Exec=${steam-gamescope}
       Type=Application
     '').overrideAttrs
-      (_: {
-        passthru.providedSessions = ["steam"];
-      });
+    (_: {
+      passthru.providedSessions = ["steam"];
+    });
 in {
   options.${namespace}.suites.gaming = with types; {
     enable = mkBoolOpt false "Enable the gaming suite";

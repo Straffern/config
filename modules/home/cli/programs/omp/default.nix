@@ -10,9 +10,9 @@
   pkgs,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkIf
     mkEnableOption
     mkOption
@@ -24,15 +24,13 @@ let
 
   # Wraps a bun-installed binary with LD_LIBRARY_PATH set from NIX_LD_LIBRARY_PATH.
   # This scopes the library injection to the process tree only.
-  mkWrapper =
-    name:
+  mkWrapper = name:
     pkgs.writeShellScriptBin name ''
       export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
       export AI_AGENT=1
       exec ${bunBin}/${cfg.bunBinaryName} "$@"
     '';
-in
-{
+in {
   options.${namespace}.cli.programs.omp = {
     enable = mkEnableOption "Oh My Pi LD_LIBRARY_PATH wrappers";
 

@@ -1,6 +1,4 @@
-{ pkgs, lib, config, ... }:
-
-{
+{pkgs, ...}: {
   packages = [
     pkgs.openssl
     pkgs.pkg-config

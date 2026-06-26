@@ -7,7 +7,7 @@
 !/.sops.yaml
 !/flake.nix
 !/flake.lock
-!/treefmt.toml
+!/treefmt.nix
 !/LICENSE
 !/README.md
 !/AGENTS.md

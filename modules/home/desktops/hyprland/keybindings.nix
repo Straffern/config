@@ -196,8 +196,8 @@ in {
         "SUPER, Y, exec, ${webapp ''"https://youtube.com/"''}"
         "SUPER, O, exec, ${webapp ''"https://panel.orionoid.com/"''}"
 
-	# Speech-to-text (voxtype)
-	"SUPERALT, D, exec, voxtype record toggle"
+        # Speech-to-text (voxtype)
+        "SUPERALT, D, exec, voxtype record toggle"
 
         "SUPER, slash, layoutmsg, togglesplit"
         "SUPER, Q, killactive,"

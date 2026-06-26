@@ -5,9 +5,9 @@
   inputs,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkEnableOption
     mkForce
     mkIf
@@ -18,14 +18,13 @@ let
 
   # Prefer kitty whenever available; fall back only if it is disabled everywhere.
   terminalCommand =
-    if config.${namespace}.cli.terminals.kitty.enable then
-      "kitty"
-    else if config.${namespace}.cli.terminals.alacritty.enable then
-      "alacritty"
-    else if config.${namespace}.cli.terminals.foot.enable then
-      "foot"
-    else
-      "kitty";
+    if config.${namespace}.cli.terminals.kitty.enable
+    then "kitty"
+    else if config.${namespace}.cli.terminals.alacritty.enable
+    then "alacritty"
+    else if config.${namespace}.cli.terminals.foot.enable
+    then "foot"
+    else "kitty";
 
   # niri-flake has no typed blur section yet; append raw KDL and validate it.
   # Blur itself remains opt-in via DMS/app requests.
@@ -37,8 +36,7 @@ let
     	saturation 1.5
     }
   '';
-in
-{
+in {
   options.${namespace}.desktops.niri = {
     enable = mkEnableOption "Niri Wayland compositor";
     terminalCommand = mkOption {
@@ -97,7 +95,7 @@ in
         # Red indicator on windows actively targeted by screencast.
         window-rules = [
           {
-            matches = [ { is-window-cast-target = true; } ];
+            matches = [{is-window-cast-target = true;}];
             focus-ring = {
               active.color = "#f38ba8";
               inactive.color = "#7d0d2d";

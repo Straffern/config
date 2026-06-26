@@ -26,16 +26,16 @@ in {
 
   config = mkIf cfg.enable {
     home.packages = with pkgs; [
-        # lazyjj
-        jujutsu
-        watchman
-        difftastic
-        jjui
-        ww
-        inputs.unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.jj-starship
-        lumen
-        asgaard.jj-ryu
-      ];
+      # lazyjj
+      jujutsu
+      watchman
+      difftastic
+      jjui
+      ww
+      inputs.unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.jj-starship
+      lumen
+      asgaard.jj-ryu
+    ];
 
     # ww shell integration (must run at shell init for cd wrapper)
     programs.zsh.initContent = lib.mkAfter ''
@@ -56,10 +56,9 @@ in {
     '';
 
     # ww completion - pre-generated at build time (fast)
-    xdg.configFile."zsh/completions/_ww".source =
-      pkgs.runCommand "ww-zsh-completion" {} ''
-        ${pkgs.ww}/bin/ww completion zsh > $out
-      '';
+    xdg.configFile."zsh/completions/_ww".source = pkgs.runCommand "ww-zsh-completion" {} ''
+      ${pkgs.ww}/bin/ww completion zsh > $out
+    '';
 
     programs.jujutsu = {
       enable = true;

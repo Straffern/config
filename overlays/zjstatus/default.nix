@@ -1,4 +1,4 @@
-_: final: prev: let
+_: final: _prev: let
   version = "0.20.2";
   zjstatusWasm = final.fetchurl {
     url = "https://github.com/dj95/zjstatus/releases/download/v${version}/zjstatus.wasm";

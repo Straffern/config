@@ -5,17 +5,15 @@
   pkgs,
   inputs,
   ...
-}:
-let
+}: let
   inherit (lib.${namespace}) enabled;
-in
-{
+in {
   imports = [
     ./hardware-configuration.nix
     ./disks.nix
     inputs.nixos-hardware.nixosModules.framework-13-7040-amd
     inputs.nixos-facter-modules.nixosModules.facter
-    { config.facter.reportPath = ./facter.json; }
+    {config.facter.reportPath = ./facter.json;}
   ];
 
   ${namespace} = {
@@ -34,7 +32,7 @@ in
     user."1" = {
       name = "alex";
       initialHashedPassword = "$6$Xzsm8xWpuEtAOgfe$TMvP8XkkM2UHUSCANLq0CSzmsTVWRDaZNsDn1VlOUQ9WmJUROQYbFkQqHDXmqJ5NYTZn2KY3e/LhmgPQA204z1";
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
       shell = pkgs.zsh;
       extraOptions = {
         uid = 1000;
@@ -88,10 +86,10 @@ in
     };
   };
   # AMD debug tools for s2idle/sleep diagnostics
-  environment.systemPackages = [ pkgs.asgaard.amd-debug-tools ];
+  environment.systemPackages = [pkgs.asgaard.amd-debug-tools];
   boot = {
-    kernelParams = [ "resume_offset=533760" ];
-    supportedFilesystems = lib.mkForce [ "btrfs" ];
+    kernelParams = ["resume_offset=533760"];
+    supportedFilesystems = lib.mkForce ["btrfs"];
     kernelPackages = pkgs.linuxPackages_zen;
     resumeDevice = "/dev/disk/by-label/nixos";
   };

@@ -8,7 +8,7 @@ in {
     src = lumenSrc;
 
     # Rebased upstream PR #110 fix for workspace-root path resolution.
-    patches = [ ./jj-subdir.patch ];
+    patches = [./jj-subdir.patch];
 
     # Use cargoHash instead of cargoLock for deterministic builds
     # (avoids allowBuiltinFetchGit which causes cache misses)
