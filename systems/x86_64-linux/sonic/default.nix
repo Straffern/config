@@ -53,6 +53,7 @@ in
     };
 
     services = {
+      hindsight = enabled;
       virtualisation.kvm = enabled;
       virtualisation.podman = enabled;
     };
