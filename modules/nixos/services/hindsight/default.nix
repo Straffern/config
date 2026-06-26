@@ -28,6 +28,10 @@ let
         litellm_params = {
           model = "deepseek/deepseek-v4-flash";
           api_key = config.sops.placeholder."deepseek_api_key";
+          reasoning_effort = "none";
+          thinking = {
+            type = "disabled";
+          };
         };
       }
     ];
