@@ -3,10 +3,48 @@
   lib,
   namespace,
   ...
-}: let
+}:
+let
   cfg = config.${namespace}.services.hindsight;
   inherit (lib) mkEnableOption mkIf;
-in {
+  routerConfig = builtins.toJSON {
+    model_list = [
+      {
+        model_name = "default";
+        litellm_params = {
+          model = "groq/openai/gpt-oss-20b";
+          api_key = config.sops.placeholder."groq_api_key";
+        };
+      }
+      {
+        model_name = "groq-openai-gpt-oss-120b";
+        litellm_params = {
+          model = "groq/openai/gpt-oss-120b";
+          api_key = config.sops.placeholder."groq_api_key";
+        };
+      }
+      {
+        model_name = "deepseek-v4-flash";
+        litellm_params = {
+          model = "deepseek/deepseek-v4-flash";
+          api_key = config.sops.placeholder."deepseek_api_key";
+        };
+      }
+    ];
+    fallbacks = [
+      {
+        default = [
+          "groq-openai-gpt-oss-120b"
+          "deepseek-v4-flash"
+        ];
+      }
+    ];
+    num_retries = 0;
+    max_fallbacks = 2;
+    cooldown_time = 60;
+  };
+in
+{
   options.${namespace}.services.hindsight = {
     enable = mkEnableOption "Hindsight memory service";
   };
@@ -15,12 +53,14 @@ in {
     sops.secrets.groq_api_key = {
       sopsFile = ../../../../secrets.yaml;
     };
+    sops.secrets.deepseek_api_key = {
+      sopsFile = ../../../../secrets.yaml;
+    };
 
     sops.templates."hindsight-env" = {
       content = ''
-        HINDSIGHT_API_LLM_PROVIDER=groq
-        HINDSIGHT_API_LLM_API_KEY=${config.sops.placeholder."groq_api_key"}
-        HINDSIGHT_API_LLM_MODEL=openai/gpt-oss-120b
+        HINDSIGHT_API_LLM_PROVIDER=litellmrouter
+        HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG=${routerConfig}
         HINDSIGHT_API_WORKER_ID=hindsight-sonic
       '';
       owner = "root";
@@ -36,9 +76,9 @@ in {
           "127.0.0.1:8888:8888"
           "127.0.0.1:9999:9999"
         ];
-        environmentFiles = [config.sops.templates."hindsight-env".path];
-        volumes = ["/var/lib/hindsight/pg0:/home/hindsight/.pg0"];
-        extraOptions = ["--pull=always"];
+        environmentFiles = [ config.sops.templates."hindsight-env".path ];
+        volumes = [ "/var/lib/hindsight/pg0:/home/hindsight/.pg0" ];
+        extraOptions = [ "--pull=always" ];
       };
     };
 
@@ -48,11 +88,11 @@ in {
     ];
 
     systemd.services.podman-hindsight = {
-      after = ["sops-nix.service"];
-      wants = ["sops-nix.service"];
-      restartTriggers = [config.sops.templates."hindsight-env".content];
+      after = [ "sops-nix.service" ];
+      wants = [ "sops-nix.service" ];
+      restartTriggers = [ config.sops.templates."hindsight-env".content ];
     };
 
-    ${namespace}.system.impermanence.directories = ["/var/lib/hindsight"];
+    ${namespace}.system.impermanence.directories = [ "/var/lib/hindsight" ];
   };
 }
