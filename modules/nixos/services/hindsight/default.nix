@@ -23,28 +23,16 @@ let
           api_key = config.sops.placeholder."groq_api_key";
         };
       }
-      {
-        model_name = "deepseek-v4-flash";
-        litellm_params = {
-          model = "deepseek/deepseek-v4-flash";
-          api_key = config.sops.placeholder."deepseek_api_key";
-          reasoning_effort = "none";
-          thinking = {
-            type = "disabled";
-          };
-        };
-      }
     ];
     fallbacks = [
       {
         default = [
           "groq-openai-gpt-oss-120b"
-          "deepseek-v4-flash"
         ];
       }
     ];
     num_retries = 0;
-    max_fallbacks = 2;
+    max_fallbacks = 1;
     cooldown_time = 60;
   };
 in
@@ -55,9 +43,6 @@ in
 
   config = mkIf cfg.enable {
     sops.secrets.groq_api_key = {
-      sopsFile = ../../../../secrets.yaml;
-    };
-    sops.secrets.deepseek_api_key = {
       sopsFile = ../../../../secrets.yaml;
     };
 
