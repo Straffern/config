@@ -28,19 +28,14 @@ let
         litellm_params = {
           model = "openrouter/deepseek/deepseek-v4-flash";
           api_key = config.sops.placeholder."openrouter_api_key";
-          extra_body = {
-            provider = {
-              require_parameters = true;
-            };
-          };
         };
       }
     ];
     fallbacks = [
       {
         default = [
-          "groq-openai-gpt-oss-120b"
           "openrouter-deepseek-v4-flash"
+          "groq-openai-gpt-oss-120b"
         ];
       }
     ];
@@ -48,18 +43,13 @@ let
     max_fallbacks = 2;
     cooldown_time = 5;
   };
-  retainRouterConfig = builtins.toJSON {
+  deepseekRouterConfig = builtins.toJSON {
     model_list = [
       {
         model_name = "default";
         litellm_params = {
           model = "openrouter/deepseek/deepseek-v4-flash";
           api_key = config.sops.placeholder."openrouter_api_key";
-          extra_body = {
-            provider = {
-              require_parameters = true;
-            };
-          };
         };
       }
     ];
@@ -83,7 +73,9 @@ in
         HINDSIGHT_API_LLM_PROVIDER=litellmrouter
         HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG=${routerConfig}
         HINDSIGHT_API_RETAIN_LLM_PROVIDER=litellmrouter
-        HINDSIGHT_API_RETAIN_LLM_LITELLMROUTER_CONFIG=${retainRouterConfig}
+        HINDSIGHT_API_RETAIN_LLM_LITELLMROUTER_CONFIG=${deepseekRouterConfig}
+        HINDSIGHT_API_CONSOLIDATION_LLM_PROVIDER=litellmrouter
+        HINDSIGHT_API_CONSOLIDATION_LLM_LITELLMROUTER_CONFIG=${deepseekRouterConfig}
         HINDSIGHT_API_WORKER_ID=hindsight-sonic
       '';
       owner = "root";
