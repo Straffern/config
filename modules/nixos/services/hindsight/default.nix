@@ -46,7 +46,7 @@ let
     ];
     num_retries = 0;
     max_fallbacks = 2;
-    cooldown_time = 60;
+    cooldown_time = 5;
   };
 in
 {
