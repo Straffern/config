@@ -23,16 +23,29 @@ let
           api_key = config.sops.placeholder."groq_api_key";
         };
       }
+      {
+        model_name = "openrouter-deepseek-v4-flash";
+        litellm_params = {
+          model = "openrouter/deepseek/deepseek-v4-flash";
+          api_key = config.sops.placeholder."openrouter_api_key";
+          extra_body = {
+            provider = {
+              require_parameters = true;
+            };
+          };
+        };
+      }
     ];
     fallbacks = [
       {
         default = [
           "groq-openai-gpt-oss-120b"
+          "openrouter-deepseek-v4-flash"
         ];
       }
     ];
     num_retries = 0;
-    max_fallbacks = 1;
+    max_fallbacks = 2;
     cooldown_time = 60;
   };
 in
@@ -43,6 +56,9 @@ in
 
   config = mkIf cfg.enable {
     sops.secrets.groq_api_key = {
+      sopsFile = ../../../../secrets.yaml;
+    };
+    sops.secrets.openrouter_api_key = {
       sopsFile = ../../../../secrets.yaml;
     };
 
