@@ -48,6 +48,22 @@ let
     max_fallbacks = 2;
     cooldown_time = 5;
   };
+  retainRouterConfig = builtins.toJSON {
+    model_list = [
+      {
+        model_name = "default";
+        litellm_params = {
+          model = "openrouter/deepseek/deepseek-v4-flash";
+          api_key = config.sops.placeholder."openrouter_api_key";
+          extra_body = {
+            provider = {
+              require_parameters = true;
+            };
+          };
+        };
+      }
+    ];
+  };
 in
 {
   options.${namespace}.services.hindsight = {
@@ -66,6 +82,8 @@ in
       content = ''
         HINDSIGHT_API_LLM_PROVIDER=litellmrouter
         HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG=${routerConfig}
+        HINDSIGHT_API_RETAIN_LLM_PROVIDER=litellmrouter
+        HINDSIGHT_API_RETAIN_LLM_LITELLMROUTER_CONFIG=${retainRouterConfig}
         HINDSIGHT_API_WORKER_ID=hindsight-sonic
       '';
       owner = "root";
