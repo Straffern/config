@@ -25,13 +25,13 @@ in {
         ai = {
           enable = true;
           opencode.enable = true;
-          opencode.server.enable = true;
-          opencode.wrapper.enable = true;
-          opencode.kittylitter.enable = true;
-          opencode.tailscaleServe.enable = true;
+          opencode.server.enable = false;
+          opencode.wrapper.enable = false;
+          opencode.kittylitter.enable = false;
+          opencode.tailscaleServe.enable = false;
           pi.dashboard = {
-            enable = true;
-            tailscaleServe.enable = true;
+            enable = false;
+            tailscaleServe.enable = false;
           };
           shellFunction = {
             enable = true;
