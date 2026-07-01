@@ -6,7 +6,12 @@
 }:
 let
   cfg = config.${namespace}.services.hindsight;
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    mkOption
+    types
+    ;
   routerConfig = builtins.toJSON {
     model_list = [
       {
@@ -58,6 +63,10 @@ in
 {
   options.${namespace}.services.hindsight = {
     enable = mkEnableOption "Hindsight memory service";
+    workerId = mkOption {
+      type = types.str;
+      default = "hindsight-${config.networking.hostName}";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -76,7 +85,7 @@ in
         HINDSIGHT_API_RETAIN_LLM_LITELLMROUTER_CONFIG=${deepseekRouterConfig}
         HINDSIGHT_API_CONSOLIDATION_LLM_PROVIDER=litellmrouter
         HINDSIGHT_API_CONSOLIDATION_LLM_LITELLMROUTER_CONFIG=${deepseekRouterConfig}
-        HINDSIGHT_API_WORKER_ID=hindsight-sonic
+        HINDSIGHT_API_WORKER_ID=${cfg.workerId}
       '';
       owner = "root";
       mode = "0400";
