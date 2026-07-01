@@ -8,7 +8,7 @@ Deliverables for implementation phase:
 
 - update/pin Hermes input intentionally
 - factor palantir Hermes config into reusable NixOS module
-- keep existing Telegram bot token by default
+- keep existing Telegram bot value, but rename the SOPS key/reference to `hermes_telegram_bot_token` during implementation
 - wire local Hindsight on palantir
 - configure Exa web search/extract first
 - add X/xAI search support without touching SOPS contents
@@ -22,7 +22,7 @@ Deliverables for implementation phase:
 - Do not read, decrypt, edit, re-encrypt, grep, or validate SOPS files.
 - Do not deploy.
 - Do not run `nh os switch`, `nixos-rebuild switch`, `deploy`, or `deploy-rs` activation.
-- Keep existing Telegram bot token by default: current palantir config already references `openclaw_telegram_bot_alex`.
+- Telegram: preserve the existing bot token value, but plan to rename the key/reference from `openclaw_telegram_bot_alex` to `hermes_telegram_bot_token`. The agent must not perform the SOPS edit; user does it before deploy.
 - Use `jj`, never `git`.
 - Each commit must compile/evaluate before committing.
 - Prefer Exa first because user already has Exa. Add Firecrawl only behind a later decision gate.
@@ -33,7 +33,7 @@ Deliverables for implementation phase:
 - `flake.nix` already has `hermes-agent` input and imports `hermes-agent.nixosModules.default`.
 - Existing palantir Hermes env template uses:
   - `openclaw_ai_api_key` for `OPENAI_API_KEY`
-  - `openclaw_telegram_bot_alex` for `TELEGRAM_BOT_TOKEN`
+  - `openclaw_telegram_bot_alex` for `TELEGRAM_BOT_TOKEN` today; target key name is `hermes_telegram_bot_token` after user renames/adds it in SOPS
   - `TELEGRAM_ALLOWED_USERS=6045704025`
 - Existing Hindsight module lives at `modules/nixos/services/hindsight/default.nix`.
 - Hindsight service binds local ports `127.0.0.1:8888` and `127.0.0.1:9999`.
@@ -186,7 +186,7 @@ ${namespace}.services.hermes = {
 
   # preserve existing credentials by default
   aiApiKeySecret = "openclaw_ai_api_key";
-  telegramBotTokenSecret = "openclaw_telegram_bot_alex";
+  telegramBotTokenSecret = "hermes_telegram_bot_token";
   telegramAllowedUsers = [ "6045704025" ];
 
   model = {
@@ -217,6 +217,7 @@ ${namespace}.services.hermes = {
 Notes:
 
 - `aiApiKeySecret` default preserves current behavior for pure extraction commit.
+- `telegramBotTokenSecret` target default is `hermes_telegram_bot_token`; pure extraction may temporarily keep `openclaw_telegram_bot_alex` until user completes SOPS rename.
 - Later model switch should prefer an OpenRouter key secret name, but this agent must not inspect SOPS. If no existing non-secret declaration names an OpenRouter key for palantir, leave option documented for user to fill.
 - Optional secrets are `null` until user adds SOPS entries and tells us names.
 - Module can emit env vars conditionally only when secret option is non-null.
@@ -330,7 +331,7 @@ Changes:
 
 - Move existing palantir Hermes config into reusable module.
 - Preserve exact current behavior:
-  - existing token secret names
+  - existing token secret names for pure extraction; later commit switches Telegram reference to `hermes_telegram_bot_token` after user SOPS rename
   - current model/base URL
   - current `toolsets`
   - current memory flags
@@ -395,6 +396,7 @@ Changes:
 - Add module options for provider key secret, model, base URL.
 - Set target model to `deepseek/deepseek-v4-flash` if an OpenRouter key secret name is provided by config.
 - Keep existing OpenClaw/OpenCode config as fallback if no OpenRouter secret name is available without reading SOPS.
+- Source verification found upstream `services.hermes-agent.extraDependencyGroups` exists directly; prefer it over manual package override.
 - Do not inspect SOPS to discover key names.
 
 Verify:
@@ -630,20 +632,21 @@ User must add/edit SOPS entries manually. Suggested names:
 hermes_openrouter_api_key: <OpenRouter key>
 hermes_exa_api_key: <Exa key>
 hermes_xai_api_key: <xAI key, optional>
+hermes_telegram_bot_token: <same token value currently stored under openclaw_telegram_bot_alex>
 ```
 
-Keep existing Telegram token unless changing bot identity:
+Telegram rename instruction:
 
-```yaml
-openclaw_telegram_bot_alex: <existing token, already used>
-```
+- copy/rename existing `openclaw_telegram_bot_alex` value to `hermes_telegram_bot_token` in SOPS
+- keep bot token value unchanged
+- after deploy succeeds, remove old `openclaw_telegram_bot_alex` only if no other service references it
 
 After user adds secrets, configure module options with those secret names, for example:
 
 ```nix
 ${namespace}.services.hermes = {
   aiApiKeySecret = "hermes_openrouter_api_key";
-  telegramBotTokenSecret = "openclaw_telegram_bot_alex";
+  telegramBotTokenSecret = "hermes_telegram_bot_token";
   web.exaApiKeySecret = "hermes_exa_api_key";
   xSearch = {
     enable = true;
@@ -708,4 +711,5 @@ extraDependencyGroups = [
 
 - Exact OpenRouter secret name user will add: `hermes_openrouter_api_key` ok?
 - Exact Exa secret name user will add: `hermes_exa_api_key` ok?
+- Telegram key rename target `hermes_telegram_bot_token` ok?
 - Enable X Search in first implementation, or only module support until key exists?
