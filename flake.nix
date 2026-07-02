@@ -242,31 +242,6 @@
             });
         })
         devenv.overlays.default
-        # Packages from nixos-unstable for cache hits (not yet in 25.11 stable)
-        (
-          final: prev: let
-            unstablePkgs = import unstable {
-              localSystem = final.stdenv.hostPlatform;
-              inherit (prev) config;
-            };
-          in {
-            hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
-            jjui = inputs.jjui.packages.${final.stdenv.hostPlatform.system}.jjui;
-            inherit
-              (unstablePkgs)
-              bun
-              television
-              jujutsu
-              hyprlock
-              hypridle
-              hyprpicker
-              niri
-              quickshell
-              uwsm
-              dgop
-              ;
-          }
-        )
       ];
 
       systems.modules.nixos = with inputs; [
