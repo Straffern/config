@@ -4,11 +4,13 @@
   namespace,
   pkgs,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.development;
-in {
+in
+{
   options.${namespace}.suites.development = {
     enable = mkEnableOption "Development configuration";
   };
@@ -37,7 +39,6 @@ in {
           git = enabled;
           jj = enabled;
           hunk = enabled;
-          gpg = enabled;
           htop = enabled;
           k8s = enabled;
           modern-unix = enabled;

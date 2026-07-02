@@ -2,9 +2,11 @@
   pkgs,
   namespace,
   ...
-}: let
+}:
+let
   inherit (pkgs.${namespace}) clipy;
-in {
+in
+{
   programs.zsh.sessionVariables = {
     PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
   };
@@ -17,6 +19,7 @@ in {
         enable = true;
       };
     };
+    cli.programs.git.signingKey = null;
     suites.development.enable = true;
     styles.stylix = {
       enable = true;
@@ -24,6 +27,6 @@ in {
     };
   };
 
-  home.packages = [clipy];
+  home.packages = [ clipy ];
   home.stateVersion = "26.05";
 }

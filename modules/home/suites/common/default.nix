@@ -4,10 +4,12 @@
   config,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.common;
-in {
+in
+{
   options.${namespace}.suites.common = {
     enable = lib.mkEnableOption "Enable common configuration";
   };
@@ -26,7 +28,9 @@ in {
       styles.stylix = enabled;
       styles.fonts = enabled;
 
-      programs = {guis = enabled;};
+      programs = {
+        guis = enabled;
+      };
 
       # Persistence for "orphan" directories - apps without dedicated modules
       system.persistence.directories = [
@@ -54,7 +58,6 @@ in {
       moreutils
       nvtopPackages.amd
       unzip
-      gnupg
 
       showmethekey
     ];
