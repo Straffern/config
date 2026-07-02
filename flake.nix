@@ -142,6 +142,10 @@
     lumen.url = "github:jnsahaj/lumen/v2.22.0";
     hunk.url = "github:modem-dev/hunk";
     ww.url = "github:omihirofumi/ww";
+    jjui = {
+      url = "github:idursun/jjui/v0.10.7";
+      inputs.nixpkgs.follows = "unstable";
+    };
 
     hyprland.url = "github:hyprwm/hyprland";
     pyprland = {
@@ -247,12 +251,12 @@
             };
           in {
             hyprpaper = hyprpaper.packages.${final.stdenv.hostPlatform.system}.hyprpaper;
+            jjui = inputs.jjui.packages.${final.stdenv.hostPlatform.system}.jjui;
             inherit
               (unstablePkgs)
               bun
               television
               jujutsu
-              jjui
               hyprlock
               hypridle
               hyprpicker
