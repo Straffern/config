@@ -18,15 +18,24 @@
 keys:
   - &users:
     - &alex age1ff98yfdlxax5ymnlu9rdzermuyvg8jwq98z6h86tpj8ajlxw7upsq4k8a0
-  - &host: 
+  - &host:
     - &frostmourne age1kjqhsyucjhuw6gazjrjqcuavay6pfgpr8fasltft99vzfdkjdsdsvfx4xv
     - &palantir age1ajyn9l0v2fv5kyhdzvkr4dxw6rm602w06sk3qnxz5d7aj67ygy0qv4drf9
     - &sonic age1tksd8m2p4cup3mlknft7e7yrcyv0av5duyf2h0r4d2qza07ajgzqxe0h57
 creation_rules:
-  - path_regex: secrets\.ya?ml$
+  - path_regex: ^secrets/suites/kubernetes\.ya?ml$
     key_groups:
       - age:
           - *frostmourne
+          - *alex
+  - path_regex: ^secrets/hosts/palantir\.ya?ml$
+    key_groups:
+      - age:
           - *palantir
+          - *alex
+
+  - path_regex: ^secrets/hosts/sonic\.ya?ml$
+    key_groups:
+      - age:
           - *sonic
           - *alex

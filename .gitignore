@@ -21,6 +21,7 @@
 !/packages/
 !/shells/
 !/systems/
+!/secrets/
 
 # Global ignores (regardless of location)
 result

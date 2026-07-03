@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  lib,
   namespace,
   inputs,
   ...
@@ -53,8 +54,9 @@ in
     };
   };
   sops.secrets.ssh_config = {
-    sopsFile = ../../../secrets.yaml;
+    sopsFile = ../../../secrets/hosts/sonic.yaml;
   };
+  sops.secrets.wallhaven_key.sopsFile = lib.mkForce ../../../secrets/hosts/sonic.yaml;
 
   programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 

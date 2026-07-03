@@ -1,14 +1,18 @@
 {
   config,
   lib,
+  inputs,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
+  flakeDir = lib.${namespace}.flakeDir inputs;
 
   cfg = config.${namespace}.services.k3s;
-in {
+in
+{
   options.${namespace}.services.k3s = {
     enable = mkEnableOption "k3s";
     role = mkOpt (types.nullOr types.str) "server" "server or agent";
@@ -22,14 +26,13 @@ in {
       }
     ];
     sops.secrets.k3s_token = {
-      sopsFile = ../../suites/kubernetes/secrets.yaml;
+      sopsFile = flakeDir "secrets/suites/kubernetes.yaml";
     };
 
     services = {
       k3s = {
         enable = true;
-        tokenFile =
-          mkIf (cfg.role == "agent") config.sops.secrets.k3s_token.path;
+        tokenFile = mkIf (cfg.role == "agent") config.sops.secrets.k3s_token.path;
         extraFlags = ''--kubelet-arg "node-ip=0.0.0.0"'';
         role = mkIf (cfg.role == "agent") "agent";
         # TODO: Make this smarter

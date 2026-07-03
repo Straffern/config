@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   namespace,
   pkgs,
@@ -7,6 +8,7 @@
 }:
 let
   inherit (lib.${namespace}) enabled;
+  flakeDir = lib.${namespace}.flakeDir inputs;
 in
 {
   imports = [
@@ -26,15 +28,7 @@ in
     cli.programs.nix-ld = enabled;
 
     services = {
-      hermes = {
-        enable = true;
-        telegramBotTokenSecret = "hermes_telegram_bot_token";
-        web.exaApiKeySecret = "hermes_exa_api_key";
-        xSearch = {
-          enable = true;
-          xaiApiKeySecret = "hermes_xai_api_key";
-        };
-      };
+      hermes = enabled;
       hindsight = enabled;
       virtualisation.podman = enabled;
     };
@@ -49,20 +43,20 @@ in
     };
   };
 
-  sops.secrets."palantir_ssh_private_key" = {
+  sops.secrets."ssh_private_key" = {
     owner = config.${namespace}.user."1".name;
     group = "users";
     mode = "600";
     path = "/home/" + config.${namespace}.user."1".name + "/.ssh/id_ed25519";
-    sopsFile = ../../../secrets.yaml;
+    sopsFile = flakeDir "secrets/hosts/palantir.yaml";
   };
 
-  sops.secrets."palantir_ssh_public_key" = {
+  sops.secrets."ssh_public_key" = {
     owner = config.${namespace}.user."1".name;
     group = "users";
     mode = "644";
     path = "/home/" + config.${namespace}.user."1".name + "/.ssh/id_ed25519.pub";
-    sopsFile = ../../../secrets.yaml;
+    sopsFile = flakeDir "secrets/hosts/palantir.yaml";
   };
 
   environment.systemPackages = [ pkgs.home-manager ];

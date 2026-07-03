@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   namespace,
   ...
@@ -12,15 +13,20 @@ let
     mkOption
     types
     ;
+  flakeDir = lib.${namespace}.flakeDir inputs;
 
-  secret = name: {
-    ${name} = {
-      sopsFile = ../../../../secrets.yaml;
-    };
+  hostSecretsFile = flakeDir "secrets/hosts/${config.networking.hostName}.yaml";
+
+  apiKeySecret = name: {
+    ${name}.sopsFile = flakeDir "secrets/api-keys.yaml";
+  };
+
+  secretFrom = sopsFile: name: {
+    ${name}.sopsFile = sopsFile;
   };
 
   envLines = [
-    "OPENAI_API_KEY=${config.sops.placeholder.${cfg.aiApiKeySecret}}"
+    "${cfg.model.apiKeyEnvVar}=${config.sops.placeholder.${cfg.model.apiKeySecret}}"
     "TELEGRAM_BOT_TOKEN=${config.sops.placeholder.${cfg.telegramBotTokenSecret}}"
     "TELEGRAM_ALLOWED_USERS=${lib.concatStringsSep "," cfg.telegramAllowedUsers}"
   ]
@@ -30,7 +36,7 @@ let
     lib.optional (cfg.web.exaApiKeySecret != null)
       "EXA_API_KEY=${config.sops.placeholder.${cfg.web.exaApiKeySecret}}"
   ++
-    lib.optional (cfg.xSearch.xaiApiKeySecret != null)
+    lib.optional (cfg.xSearch.enable && cfg.xSearch.xaiApiKeySecret != null)
       "XAI_API_KEY=${config.sops.placeholder.${cfg.xSearch.xaiApiKeySecret}}";
 
   baseSettings = {
@@ -69,14 +75,13 @@ in
   options.${namespace}.services.hermes = {
     enable = mkEnableOption "Hermes Agent gateway";
 
-    aiApiKeySecret = mkOption {
-      type = types.str;
-      default = "openclaw_ai_api_key";
-    };
-
     telegramBotTokenSecret = mkOption {
       type = types.str;
-      default = "hermes_telegram_bot_token";
+      default = "telegram_bot_token";
+    };
+    telegramBotTokenSopsFile = mkOption {
+      type = types.str;
+      default = hostSecretsFile;
     };
 
     telegramAllowedUsers = mkOption {
@@ -96,6 +101,18 @@ in
       baseUrl = mkOption {
         type = types.str;
         default = "https://openrouter.ai/api/v1";
+      };
+      apiKeySecret = mkOption {
+        type = types.str;
+        default = "openrouter_api_key";
+      };
+      apiKeyEnvVar = mkOption {
+        type = types.str;
+        default = "OPENROUTER_API_KEY";
+      };
+      apiKeySopsFile = mkOption {
+        type = types.str;
+        default = hostSecretsFile;
       };
     };
 
@@ -119,7 +136,11 @@ in
       };
       exaApiKeySecret = mkOption {
         type = types.nullOr types.str;
-        default = null;
+        default = "exa_api_key";
+      };
+      exaApiKeySopsFile = mkOption {
+        type = types.str;
+        default = hostSecretsFile;
       };
     };
 
@@ -151,10 +172,14 @@ in
 
   config = mkIf cfg.enable {
     sops.secrets =
-      secret cfg.aiApiKeySecret
-      // secret cfg.telegramBotTokenSecret
-      // lib.optionalAttrs (cfg.web.exaApiKeySecret != null) (secret cfg.web.exaApiKeySecret)
-      // lib.optionalAttrs (cfg.xSearch.xaiApiKeySecret != null) (secret cfg.xSearch.xaiApiKeySecret);
+      secretFrom cfg.model.apiKeySopsFile cfg.model.apiKeySecret
+      // secretFrom cfg.telegramBotTokenSopsFile cfg.telegramBotTokenSecret
+      // lib.optionalAttrs (cfg.web.exaApiKeySecret != null) (
+        secretFrom cfg.web.exaApiKeySopsFile cfg.web.exaApiKeySecret
+      )
+      // lib.optionalAttrs (cfg.xSearch.enable && cfg.xSearch.xaiApiKeySecret != null) (
+        apiKeySecret cfg.xSearch.xaiApiKeySecret
+      );
 
     sops.templates."hermes-env" = {
       content = lib.concatStringsSep "\n" envLines + "\n";

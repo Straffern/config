@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   namespace,
   ...
@@ -12,6 +13,8 @@ let
     mkOption
     types
     ;
+  flakeDir = lib.${namespace}.flakeDir inputs;
+  hostSecretsFile = flakeDir "secrets/hosts/${config.networking.hostName}.yaml";
   routerConfig = builtins.toJSON {
     model_list = [
       {
@@ -71,10 +74,10 @@ in
 
   config = mkIf cfg.enable {
     sops.secrets.groq_api_key = {
-      sopsFile = ../../../../secrets.yaml;
+      sopsFile = hostSecretsFile;
     };
     sops.secrets.openrouter_api_key = {
-      sopsFile = ../../../../secrets.yaml;
+      sopsFile = hostSecretsFile;
     };
 
     sops.templates."hindsight-env" = {
