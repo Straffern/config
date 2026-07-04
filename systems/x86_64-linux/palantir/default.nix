@@ -5,12 +5,10 @@
   namespace,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (lib.${namespace}) enabled;
   flakeDir = lib.${namespace}.flakeDir inputs;
-in
-{
+in {
   imports = [
     ./disko.nix
     ./hardware-configuration.nix
@@ -38,7 +36,7 @@ in
       authorizedKeys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJhTYisdHd7YcoN8MbBduHSnJthNpEvFum2rmLuS4LwV alex@flensborg.dev"
       ];
-      extraGroups = [ "wheel" ];
+      extraGroups = ["wheel"];
       shell = pkgs.zsh;
     };
   };
@@ -59,7 +57,7 @@ in
     sopsFile = flakeDir "secrets/hosts/palantir.yaml";
   };
 
-  environment.systemPackages = [ pkgs.home-manager ];
+  environment.systemPackages = [pkgs.home-manager];
 
   programs.zsh.enable = true;
 

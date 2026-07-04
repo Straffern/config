@@ -4,15 +4,13 @@
   inputs,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
   flakeDir = lib.${namespace}.flakeDir inputs;
 
   cfg = config.${namespace}.services.k3s;
-in
-{
+in {
   options.${namespace}.services.k3s = {
     enable = mkEnableOption "k3s";
     role = mkOpt (types.nullOr types.str) "server" "server or agent";

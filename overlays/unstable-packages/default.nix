@@ -1,17 +1,15 @@
-{ inputs, ... }:
-_final: prev:
-let
+{inputs, ...}: _final: prev: let
   system = prev.stdenv.hostPlatform.system;
   unstablePkgs = import inputs.unstable {
-    localSystem = { inherit system; };
+    localSystem = {inherit system;};
     inherit (prev) config;
   };
-in
-{
+in {
   hyprpaper = inputs.hyprpaper.packages.${system}.hyprpaper;
   jjui = inputs.jjui.packages.${system}.jjui;
 
-  inherit (unstablePkgs)
+  inherit
+    (unstablePkgs)
     bun
     television
     jujutsu

@@ -17,7 +17,9 @@
   tomlConfig = let
     # [general]
     general =
-      {wallpaper_dir = cfg.walldir;}
+      {
+        wallpaper_dir = cfg.walldir;
+      }
       // lib.optionalAttrs (cfg.wallpaperCommand != null) {
         wallpaper_command = cfg.wallpaperCommand;
       }
@@ -37,22 +39,21 @@
 
     # [defaults] — only emit non-null overrides
     defaults =
-      lib.optionalAttrs (cfg.sorting != null) {sorting = cfg.sorting;}
-      // lib.optionalAttrs (cfg.purity != null) {purity = cfg.purity;}
-      // lib.optionalAttrs (cfg.categories != null) {categories = cfg.categories;}
-      // lib.optionalAttrs (cfg.atleast != null) {atleast = cfg.atleast;}
+      lib.optionalAttrs (cfg.sorting != null) {inherit (cfg) sorting;}
+      // lib.optionalAttrs (cfg.purity != null) {inherit (cfg) purity;}
+      // lib.optionalAttrs (cfg.categories != null) {inherit (cfg) categories;}
+      // lib.optionalAttrs (cfg.atleast != null) {inherit (cfg) atleast;}
       // lib.optionalAttrs (cfg.toplistRange != null) {toplist_range = cfg.toplistRange;};
   in {
     inherit general api;
-    defaults = defaults;
+    inherit defaults;
   };
 in {
   options.${namespace}.programs.waldl = {
     enable = mkEnableOption "Enable waldl Wallhaven wallpaper browser TUI";
 
     walldir =
-      mkOpt types.str
-      "${config.home.homeDirectory}/Pictures/wallpapers/wallhaven"
+      mkOpt types.str "${config.home.homeDirectory}/Pictures/wallpapers/wallhaven"
       "Directory to save wallpapers";
 
     wallpaperCommand =
@@ -88,10 +89,10 @@ in {
   config = mkIf cfg.enable {
     home.packages = [waldl-pkg];
 
-    sops.secrets.wallhaven_key =
-      mkIf sopsEnabled {sopsFile = ../../../../secrets.yaml;};
+    sops.secrets.wallhaven_key = mkIf sopsEnabled {sopsFile = ../../../../secrets.yaml;};
 
     xdg.configFile."waldl/config.toml".source =
-      (pkgs.formats.toml {}).generate "waldl-config.toml" tomlConfig;
+      (pkgs.formats.toml {}).generate "waldl-config.toml"
+      tomlConfig;
   };
 }

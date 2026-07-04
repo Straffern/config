@@ -4,10 +4,10 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   cfg = config.${namespace}.services.hermes;
-  inherit (lib)
+  inherit
+    (lib)
     mkEnableOption
     mkIf
     mkOption
@@ -25,19 +25,18 @@ let
     ${name}.sopsFile = sopsFile;
   };
 
-  envLines = [
-    "${cfg.model.apiKeyEnvVar}=${config.sops.placeholder.${cfg.model.apiKeySecret}}"
-    "TELEGRAM_BOT_TOKEN=${config.sops.placeholder.${cfg.telegramBotTokenSecret}}"
-    "TELEGRAM_ALLOWED_USERS=${lib.concatStringsSep "," cfg.telegramAllowedUsers}"
-  ]
-  ++ lib.optional (cfg.hindsight.enable) "HINDSIGHT_MODE=local_external"
-  ++ lib.optional (cfg.hindsight.enable) "HINDSIGHT_API_URL=${cfg.hindsight.apiUrl}"
-  ++
-    lib.optional (cfg.web.exaApiKeySecret != null)
-      "EXA_API_KEY=${config.sops.placeholder.${cfg.web.exaApiKeySecret}}"
-  ++
-    lib.optional (cfg.xSearch.enable && cfg.xSearch.xaiApiKeySecret != null)
-      "XAI_API_KEY=${config.sops.placeholder.${cfg.xSearch.xaiApiKeySecret}}";
+  envLines =
+    [
+      "${cfg.model.apiKeyEnvVar}=${config.sops.placeholder.${cfg.model.apiKeySecret}}"
+      "TELEGRAM_BOT_TOKEN=${config.sops.placeholder.${cfg.telegramBotTokenSecret}}"
+      "TELEGRAM_ALLOWED_USERS=${lib.concatStringsSep "," cfg.telegramAllowedUsers}"
+    ]
+    ++ lib.optional cfg.hindsight.enable "HINDSIGHT_MODE=local_external"
+    ++ lib.optional cfg.hindsight.enable "HINDSIGHT_API_URL=${cfg.hindsight.apiUrl}"
+    ++ lib.optional (cfg.web.exaApiKeySecret != null)
+    "EXA_API_KEY=${config.sops.placeholder.${cfg.web.exaApiKeySecret}}"
+    ++ lib.optional (cfg.xSearch.enable && cfg.xSearch.xaiApiKeySecret != null)
+    "XAI_API_KEY=${config.sops.placeholder.${cfg.xSearch.xaiApiKeySecret}}";
 
   baseSettings = {
     model = {
@@ -45,14 +44,15 @@ let
       provider = cfg.model.provider;
       base_url = cfg.model.baseUrl;
     };
-    toolsets = [ "all" ];
-    memory = {
-      memory_enabled = true;
-      user_profile_enabled = true;
-    }
-    // lib.optionalAttrs cfg.hindsight.enable {
-      provider = "hindsight";
-    };
+    toolsets = ["all"];
+    memory =
+      {
+        memory_enabled = true;
+        user_profile_enabled = true;
+      }
+      // lib.optionalAttrs cfg.hindsight.enable {
+        provider = "hindsight";
+      };
   };
 
   webSettings = lib.optionalAttrs cfg.web.enable {
@@ -70,8 +70,7 @@ let
       retries = cfg.xSearch.retries;
     };
   };
-in
-{
+in {
   options.${namespace}.services.hermes = {
     enable = mkEnableOption "Hermes Agent gateway";
 
@@ -86,7 +85,7 @@ in
 
     telegramAllowedUsers = mkOption {
       type = types.listOf types.str;
-      default = [ "6045704025" ];
+      default = ["6045704025"];
     };
 
     model = {
@@ -117,9 +116,11 @@ in
     };
 
     hindsight = {
-      enable = mkEnableOption "Hindsight memory provider" // {
-        default = true;
-      };
+      enable =
+        mkEnableOption "Hindsight memory provider"
+        // {
+          default = true;
+        };
       apiUrl = mkOption {
         type = types.str;
         default = "http://127.0.0.1:8888";
@@ -127,9 +128,11 @@ in
     };
 
     web = {
-      enable = mkEnableOption "Hermes web backend" // {
-        default = true;
-      };
+      enable =
+        mkEnableOption "Hermes web backend"
+        // {
+          default = true;
+        };
       backend = mkOption {
         type = types.str;
         default = "exa";
@@ -166,7 +169,7 @@ in
 
     settings = mkOption {
       type = types.attrs;
-      default = { };
+      default = {};
     };
   };
 
@@ -190,7 +193,7 @@ in
     services.hermes-agent = {
       enable = true;
       addToSystemPackages = true;
-      environmentFiles = [ config.sops.templates."hermes-env".path ];
+      environmentFiles = [config.sops.templates."hermes-env".path];
       extraDependencyGroups = [
         "messaging"
         "hindsight"
@@ -202,15 +205,17 @@ in
     };
 
     systemd.services.hermes-agent = {
-      after = [
-        "sops-nix.service"
-      ]
-      ++ lib.optional cfg.hindsight.enable "podman-hindsight.service";
-      wants = [
-        "sops-nix.service"
-      ]
-      ++ lib.optional cfg.hindsight.enable "podman-hindsight.service";
-      restartTriggers = [ config.sops.templates."hermes-env".content ];
+      after =
+        [
+          "sops-nix.service"
+        ]
+        ++ lib.optional cfg.hindsight.enable "podman-hindsight.service";
+      wants =
+        [
+          "sops-nix.service"
+        ]
+        ++ lib.optional cfg.hindsight.enable "podman-hindsight.service";
+      restartTriggers = [config.sops.templates."hermes-env".content];
     };
   };
 }

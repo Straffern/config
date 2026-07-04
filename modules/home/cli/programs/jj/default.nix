@@ -5,13 +5,11 @@
   namespace,
   inputs,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption types;
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.jj;
-in
-{
+in {
   imports = [
     ./aliases.nix
     ./revsets.nix
@@ -56,7 +54,7 @@ in
     '';
 
     # ww completion - pre-generated at build time (fast)
-    xdg.configFile."zsh/completions/_ww".source = pkgs.runCommand "ww-zsh-completion" { } ''
+    xdg.configFile."zsh/completions/_ww".source = pkgs.runCommand "ww-zsh-completion" {} ''
       ${pkgs.ww}/bin/ww completion zsh > $out
     '';
 
@@ -149,14 +147,16 @@ in
           }; # e.g., #00ff00 for green
         };
 
-        signing =
-          let
-            gitCfg = config.programs.git.settings;
-            signCommits = gitCfg.commit.gpgsign or false;
-          in
+        signing = let
+          gitCfg = config.programs.git.settings;
+          signCommits = gitCfg.commit.gpgsign or false;
+        in
           {
             backend = "ssh";
-            behaviour = if signCommits then "own" else "never";
+            behaviour =
+              if signCommits
+              then "own"
+              else "never";
           }
           // lib.optionalAttrs signCommits {
             key = gitCfg.user.signingkey;

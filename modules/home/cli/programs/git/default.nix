@@ -4,9 +4,9 @@
   lib,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkIf
     mkEnableOption
     types
@@ -15,42 +15,43 @@ let
   inherit (lib.${namespace}) mkOpt;
   cfg = config.${namespace}.cli.programs.git;
 
-  rewriteURL = lib.mapAttrs' (key: value: {
-    name = "url.${key}";
-    value = {
-      insteadOf = value;
-    };
-  }) cfg.urlRewrites;
-in
-{
+  rewriteURL =
+    lib.mapAttrs' (key: value: {
+      name = "url.${key}";
+      value = {
+        insteadOf = value;
+      };
+    })
+    cfg.urlRewrites;
+in {
   options.${namespace}.cli.programs.git = with types; {
     enable = mkEnableOption "Git";
     name = mkOpt (nullOr str) "Alexander Flensborg" "The name appearing on the commits";
     email = mkOpt (nullOr str) "alex@flensborg.dev" "The email to use with git.";
     signingKey =
       mkOpt (nullOr str) "~/.ssh/id_ed25519.pub"
-        "SSH public key path used to sign commits; null disables commit signing.";
+      "SSH public key path used to sign commits; null disables commit signing.";
     urlRewrites =
       mkOpt
-        (attrsOf (oneOf [
-          str
-          (listOf str)
-        ]))
-        {
-          "git@github.com:" = [
-            "https://github.com/"
-            "http://github.com/"
-          ];
-          "git@gitlab.com:" = [
-            "https://gitlab.com/"
-            "http://gitlab.com/"
-          ];
-        }
-        "HTTP(S) Git remotes to rewrite to SSH";
+      (attrsOf (oneOf [
+        str
+        (listOf str)
+      ]))
+      {
+        "git@github.com:" = [
+          "https://github.com/"
+          "http://github.com/"
+        ];
+        "git@gitlab.com:" = [
+          "https://gitlab.com/"
+          "http://gitlab.com/"
+        ];
+      }
+      "HTTP(S) Git remotes to rewrite to SSH";
 
     safeDirs = mkOption {
       type = types.listOf types.str;
-      default = [ "/home/${config.home.username}/.dotfiles" ];
+      default = ["/home/${config.home.username}/.dotfiles"];
       description = "Add any path here, that might belong to root, but is part of Git.";
     };
   };
@@ -80,68 +81,70 @@ in
         ".direnv/"
       ];
 
-      settings = {
-        user = {
-          inherit (cfg) name email;
+      settings =
+        {
+          user =
+            {
+              inherit (cfg) name email;
+            }
+            // lib.optionalAttrs (cfg.signingKey != null) {
+              signingkey = cfg.signingKey;
+            };
+
+          alias = {
+            lg1 = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all";
+            lg2 = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'";
+            lg = "lg1";
+          };
+
+          gpg = {
+            format = "ssh";
+          };
+
+          commit.gpgsign = cfg.signingKey != null;
+
+          core = {
+            editor = "nvim";
+            pager = "delta";
+          };
+
+          color = {
+            ui = true;
+          };
+
+          interactive = {
+            diffFitler = "delta --color-only";
+          };
+
+          delta = {
+            enable = true;
+            navigate = true;
+            light = false;
+            side-by-side = false;
+            options.syntax-theme = "catppuccin";
+          };
+
+          rerere.enabled = true;
+
+          rebase.autoStash = true;
+
+          pull = {
+            ff = "only";
+            rebase = true;
+          };
+
+          push = {
+            default = "current";
+            autoSetupRemote = true;
+          };
+
+          init = {
+            defaultBranch = "master";
+          };
+
+          safe.directory = cfg.safeDirs ++ ["/home/${config.home.username}/.cache/nix/tarball-cache"];
         }
-        // lib.optionalAttrs (cfg.signingKey != null) {
-          signingkey = cfg.signingKey;
-        };
-
-        alias = {
-          lg1 = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)' --all";
-          lg2 = "log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'";
-          lg = "lg1";
-        };
-
-        gpg = {
-          format = "ssh";
-        };
-
-        commit.gpgsign = cfg.signingKey != null;
-
-        core = {
-          editor = "nvim";
-          pager = "delta";
-        };
-
-        color = {
-          ui = true;
-        };
-
-        interactive = {
-          diffFitler = "delta --color-only";
-        };
-
-        delta = {
-          enable = true;
-          navigate = true;
-          light = false;
-          side-by-side = false;
-          options.syntax-theme = "catppuccin";
-        };
-
-        rerere.enabled = true;
-
-        rebase.autoStash = true;
-
-        pull = {
-          ff = "only";
-          rebase = true;
-        };
-
-        push = {
-          default = "current";
-          autoSetupRemote = true;
-        };
-
-        init = {
-          defaultBranch = "master";
-        };
-
-        safe.directory = cfg.safeDirs ++ [ "/home/${config.home.username}/.cache/nix/tarball-cache" ];
-      }
-      // rewriteURL;
+        // rewriteURL;
     };
 
     ${namespace}.system.persistence.directories = [
