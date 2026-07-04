@@ -265,7 +265,11 @@
         noctalia.homeModules.default
       ];
 
-      deploy = lib.mkDeploy {inherit (inputs) self;};
+      deploy = lib.mkDeploy {
+        inherit (inputs) self;
+        overrides.palantir.activationTimeout = 600;
+        overrides.palantir.confirmTimeout = 60;
+      };
     };
 
     deployChecks =
