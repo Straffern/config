@@ -3,23 +3,23 @@ final: prev:
 let
   inherit (final) lib stdenv;
 
-  version = "16.3.2";
+  version = "16.3.10";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-7hSKoYj1wJLPQG5Fd++xfolzo2IkK5jYxSB7khSbLq8=";
+      hash = "sha256-++/rJn/G+vwQ1i4NpQp1Fo+aNKjP2fPKuXQBG83r07M=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-hft6kXDGTDetKK260guMPSsKIzxgSNyhG1Fe7T9D75E=";
+      hash = "sha256-EJ5jr70C+ooMjLyCpO1OHAO3M/xauZSS8yRlbt96la4=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-HmAuc7vh4eEKnPSS6P7w0ZyTziZ0vWqcvCFPE9mam+s=";
+      hash = "sha256-c3ovg8X/dSvHkh07ZrpJqwnYTflw6U3hMLpMW659lQE=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-xIQ73IwAmMrEkaQ6bTEj3/r2DmNxDRu6ePC7qHa0Nyc=";
+      hash = "sha256-YSqe5A3WkWIdGX++VoCgCiEit5N0nEM6GrjsKYAd9Fc=";
     };
   };
   platform =
