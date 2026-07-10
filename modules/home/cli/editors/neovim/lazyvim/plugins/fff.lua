@@ -6,46 +6,54 @@ local function picker(method, root)
 	end
 end
 
+local function native_handoff(source, forced)
+	return function(picker)
+		local query = picker:filter().search
+		local opts = {
+			cwd = picker:cwd(),
+			ignored = forced == "ignored" or picker.opts.ignored,
+			hidden = forced == "hidden" or picker.opts.hidden,
+			exclude = { ".jj" },
+			on_show = function()
+				picker:close()
+			end,
+		}
+
+		if source == "files" then
+			opts.pattern = query
+		else
+			local mode = picker.opts.grep_mode and picker.opts.grep_mode[1]
+			opts.search = query
+			opts.regex = mode == "regex"
+			if mode == "fuzzy" then
+				vim.notify("FFF fuzzy grep falls back to fixed-string Snacks grep", vim.log.levels.WARN)
+			end
+		end
+
+		for _, active in ipairs(Snacks.picker.get({ source = source })) do
+			active:close()
+		end
+
+		Snacks.picker.pick(source, opts)
+	end
+end
+
 local function ignored_handoff(source)
 	return {
 		actions = {
-			fff_ignored = function(picker)
-				local query = picker:filter().search
-				local opts = {
-					cwd = picker:cwd(),
-					ignored = true,
-					hidden = picker.opts.hidden,
-					on_show = function()
-						picker:close()
-					end,
-				}
-
-				if source == "files" then
-					opts.pattern = query
-				else
-					local mode = picker.opts.grep_mode and picker.opts.grep_mode[1]
-					opts.search = query
-					opts.regex = mode == "regex"
-					if mode == "fuzzy" then
-						vim.notify("FFF fuzzy grep falls back to fixed-string Snacks grep", vim.log.levels.WARN)
-					end
-				end
-
-				for _, active in ipairs(Snacks.picker.get({ source = source })) do
-					active:close()
-				end
-
-				Snacks.picker.pick(source, opts)
-			end,
+			fff_ignored = native_handoff(source, "ignored"),
+			fff_hidden = native_handoff(source, "hidden"),
 		},
 		win = {
 			input = {
 				keys = {
+					["<a-h>"] = { "fff_hidden", mode = { "i", "n" } },
 					["<a-i>"] = { "fff_ignored", mode = { "i", "n" } },
 				},
 			},
 			list = {
 				keys = {
+					["<a-h>"] = "fff_hidden",
 					["<a-i>"] = "fff_ignored",
 				},
 			},
