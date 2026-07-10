@@ -6,6 +6,53 @@ local function picker(method, root)
 	end
 end
 
+local function ignored_handoff(source)
+	return {
+		actions = {
+			fff_ignored = function(picker)
+				local query = picker:filter().search
+				local opts = {
+					cwd = picker:cwd(),
+					ignored = true,
+					hidden = picker.opts.hidden,
+					on_show = function()
+						picker:close()
+					end,
+				}
+
+				if source == "files" then
+					opts.pattern = query
+				else
+					local mode = picker.opts.grep_mode and picker.opts.grep_mode[1]
+					opts.search = query
+					opts.regex = mode == "regex"
+					if mode == "fuzzy" then
+						vim.notify("FFF fuzzy grep falls back to fixed-string Snacks grep", vim.log.levels.WARN)
+					end
+				end
+
+				for _, active in ipairs(Snacks.picker.get({ source = source })) do
+					active:close()
+				end
+
+				Snacks.picker.pick(source, opts)
+			end,
+		},
+		win = {
+			input = {
+				keys = {
+					["<a-i>"] = { "fff_ignored", mode = { "i", "n" } },
+				},
+			},
+			list = {
+				keys = {
+					["<a-i>"] = "fff_ignored",
+				},
+			},
+		},
+	}
+end
+
 return {
 	{
 		"dmtrKovalenko/fff.nvim",
@@ -19,6 +66,11 @@ return {
 			"folke/snacks.nvim",
 		},
 		lazy = false,
+		opts = {
+			find_files = ignored_handoff("files"),
+			live_grep = ignored_handoff("grep"),
+			grep_word = ignored_handoff("grep"),
+		},
 		keys = {
 			{ "<leader><space>", picker("find_files", true), desc = "Find Files (Root Dir)" },
 			{ "<leader>ff", picker("find_files", true), desc = "Find Files (Root Dir)" },
