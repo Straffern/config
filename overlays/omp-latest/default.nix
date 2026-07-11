@@ -3,23 +3,23 @@ final: prev:
 let
   inherit (final) lib stdenv;
 
-  version = "16.4.0";
+  version = "16.4.6";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-+Y0j4T6O9QQxOScACr4N1kVP6aME90T0DIEw7cqqds0=";
+      hash = "sha256-g+rEFTyLwOkwV4s5R9aG6ulA9bx4Ta5KUTlSiqPPTpI=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-a7jXb6JevqCLLOh6eTh8HdC8v/VWTvW8efJZWocKOmg=";
+      hash = "sha256-rrlR+GCQT9fTw3Rpi4c8JzN5Y1lor/MtCw4AYBqikBw=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-Y8JTn9ACQ0g/E/4Mfbxi9sOCqBOfTel+oQW8HKE9iUs=";
+      hash = "sha256-JHWt50flnOHVkSX7u6fE2+b4F/1tniozqgqbVrgQ3vQ=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-x6L6MoyWUTHA0O9ioHpP5jMG7Rt6kPu7kkx1YFxo04o=";
+      hash = "sha256-lDfPU9nZWRhs93KVwmUGyxAcaDW1BuKAT5UfQcZ0SmE=";
     };
   };
   platform =
@@ -32,6 +32,7 @@ let
   linuxLibs = [
     final.stdenv.cc.cc.lib
     final.zlib
+    final.pcre2
   ];
 in
 {
