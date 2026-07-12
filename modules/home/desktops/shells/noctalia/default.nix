@@ -3,9 +3,9 @@
   lib,
   namespace,
   ...
-}: let
-  inherit
-    (lib)
+}:
+let
+  inherit (lib)
     mkEnableOption
     mkForce
     mkIf
@@ -15,7 +15,8 @@
 
   niriEnabled = config.${namespace}.desktops.niri.enable or false;
   hyprlandEnabled = config.${namespace}.desktops.hyprland.enable or false;
-in {
+in
+{
   options.${namespace}.desktops.shells.noctalia = {
     enable = mkEnableOption "Noctalia desktop shell";
   };
@@ -24,7 +25,7 @@ in {
     # ── Core: compositor-agnostic Noctalia config ──
     {
       # Noctalia manages its own runtime theming — Nix module just enables it.
-      programs.noctalia-shell = {
+      programs.noctalia = {
         enable = true;
         settings = {
           general = {

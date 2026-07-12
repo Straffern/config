@@ -196,100 +196,98 @@
     };
   };
 
-  outputs = inputs: let
-    lib = inputs.snowfall-lib.mkLib {
-      inherit inputs;
-      src = ./.;
+  outputs =
+    inputs:
+    let
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
 
-      snowfall = {
-        metadata = "asgaard";
-        namespace = "asgaard";
-        meta = {
-          name = "dotfiles";
-          title = "dotfiles";
+        snowfall = {
+          metadata = "asgaard";
+          namespace = "asgaard";
+          meta = {
+            name = "dotfiles";
+            title = "dotfiles";
+          };
         };
       };
-    };
 
-    forAllSystems = f: builtins.mapAttrs (system: _: f system) inputs.deploy-rs.lib;
+      forAllSystems = f: builtins.mapAttrs (system: _: f system) inputs.deploy-rs.lib;
 
-    pkgsFor = system:
-      import inputs.nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
+      pkgsFor =
+        system:
+        import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
+      treefmtEval = forAllSystems (
+        system: inputs.treefmt-nix.lib.evalModule (pkgsFor system) ./treefmt.nix
+      );
+
+      baseFlake = lib.mkFlake {
+        # inherit inputs;
+        # src = ./.;
+        channels-config = {
+          allowUnfree = true;
+        };
+
+        overlays = with inputs; [
+          nixgl.overlay
+          nur.overlays.default
+          devenv.overlays.default
+        ];
+
+        systems.modules.nixos = with inputs; [
+          hyprland.nixosModules.default
+          determinate.nixosModules.default
+          home-manager.nixosModules.home-manager
+          stylix.nixosModules.stylix
+          disko.nixosModules.disko
+          sops-nix.nixosModules.sops
+          impermanence.nixosModules.impermanence
+          persist-retro.nixosModules.persist-retro
+          lanzaboote.nixosModules.lanzaboote
+          hermes-agent.nixosModules.default
+          dms.nixosModules.default
+        ];
+        homes.modules = with inputs; [
+          hyprland.homeManagerModules.default
+          persist-retro.nixosModules.home-manager.persist-retro
+          stylix.homeModules.stylix
+          hunk.homeManagerModules.default
+          # Disabled until catppuccin/nix stops defining unsupported
+          # programs.antigravity options for this Home Manager release.
+          # catppuccin.homeModules.catppuccin
+          niri.homeModules.niri
+          dms.homeModules.dank-material-shell
+          dms.homeModules.niri
+          danksearch.homeModules.dsearch
+          noctalia.homeModules.default
+        ];
+
+        deploy = lib.mkDeploy {
+          inherit (inputs) self;
+          overrides.palantir.activationTimeout = 600;
+          overrides.palantir.confirmTimeout = 60;
+        };
       };
 
-    treefmtEval = forAllSystems (
-      system: inputs.treefmt-nix.lib.evalModule (pkgsFor system) ./treefmt.nix
-    );
-
-    baseFlake = lib.mkFlake {
-      # inherit inputs;
-      # src = ./.;
-      channels-config = {
-        allowUnfree = true;
-      };
-
-      overlays = with inputs; [
-        nixgl.overlay
-        nur.overlays.default
-        llm-agents.overlays.default
-        devenv.overlays.default
-      ];
-
-      systems.modules.nixos = with inputs; [
-        hyprland.nixosModules.default
-        determinate.nixosModules.default
-        home-manager.nixosModules.home-manager
-        stylix.nixosModules.stylix
-        disko.nixosModules.disko
-        sops-nix.nixosModules.sops
-        impermanence.nixosModules.impermanence
-        persist-retro.nixosModules.persist-retro
-        lanzaboote.nixosModules.lanzaboote
-        hermes-agent.nixosModules.default
-        dms.nixosModules.default
-      ];
-      homes.modules = with inputs; [
-        hyprland.homeManagerModules.default
-        persist-retro.nixosModules.home-manager.persist-retro
-        stylix.homeModules.stylix
-        hunk.homeManagerModules.default
-        # Disabled until catppuccin/nix stops defining unsupported
-        # programs.antigravity options for this Home Manager release.
-        # catppuccin.homeModules.catppuccin
-        niri.homeModules.niri
-        dms.homeModules.dank-material-shell
-        dms.homeModules.niri
-        danksearch.homeModules.dsearch
-        noctalia.homeModules.default
-      ];
-
-      deploy = lib.mkDeploy {
-        inherit (inputs) self;
-        overrides.palantir.activationTimeout = 600;
-        overrides.palantir.confirmTimeout = 60;
-      };
-    };
-
-    deployChecks =
-      builtins.mapAttrs (
+      deployChecks = builtins.mapAttrs (
         _system: deploy-lib: deploy-lib.deployChecks inputs.self.deploy
-      )
-      inputs.deploy-rs.lib;
-  in
+      ) inputs.deploy-rs.lib;
+    in
     baseFlake
     // {
       formatter = forAllSystems (system: treefmtEval.${system}.config.build.wrapper);
 
-      checks =
-        builtins.mapAttrs (
-          system: checks:
-            checks
-            // {
-              treefmt = treefmtEval.${system}.config.build.check inputs.self;
-            }
-        )
-        deployChecks;
+      checks = builtins.mapAttrs (
+        system: checks:
+        checks
+        // {
+          treefmt = treefmtEval.${system}.config.build.check inputs.self;
+        }
+      ) deployChecks;
     };
 }

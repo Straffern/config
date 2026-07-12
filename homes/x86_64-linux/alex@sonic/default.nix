@@ -5,10 +5,12 @@
   namespace,
   inputs,
   ...
-}: let
+}:
+let
   inherit (pkgs.${namespace}) clipy;
   voxtypePkg = pkgs.voxtype-soniox;
-in {
+in
+{
   programs.zsh.sessionVariables = {
     PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
   };
@@ -56,13 +58,13 @@ in {
   };
   sops.secrets.wallhaven_key.sopsFile = lib.mkForce ../../../secrets/hosts/sonic.yaml;
 
-  programs.ssh.includes = [config.sops.secrets.ssh_config.path];
+  programs.ssh.includes = [ config.sops.secrets.ssh_config.path ];
 
   systemd.user.services.voxtype = {
     Unit = {
       Description = "VoxType push-to-talk voice-to-text daemon";
       Documentation = "https://voxtype.io";
-      PartOf = ["graphical-session.target"];
+      PartOf = [ "graphical-session.target" ];
       After = [
         "graphical-session.target"
         "pipewire.service"
@@ -77,7 +79,7 @@ in {
       RestartSec = 5;
     };
 
-    Install.WantedBy = ["graphical-session.target"];
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 
   home.packages = with pkgs; [
@@ -85,8 +87,6 @@ in {
     clipy
     pkgs.llm-agents.omp
     pkgs.llm-agents.pi
-    uv
-    v4l-utils
     guvcview
     voxtypePkg
   ];
