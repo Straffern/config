@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkEnableOption makeBinPath;
+  inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
   tmux-floax = pkgs.tmuxPlugins.mkTmuxPlugin {
@@ -444,7 +444,7 @@ in
     # with hardcoded nix-store generation paths that break after GC.
     # With @continuum-boot 'on', continuum skips writing if the unit file already
     # exists (write_unit_file_unless_exists checks [ -e path ]), so HM's symlink
-    # takes precedence. PATH includes all tools resurrect's save.sh needs.
+    # takes precedence. Resurrect scripts use absolute Nix store paths.
     systemd.user.services.tmux = {
       # Preserve live sessions across Home Manager applies. ExecStop still
       # saves then kills the server for explicit stops and shutdown.
@@ -455,26 +455,7 @@ in
       };
       Service = {
         Type = "forking";
-        Environment = [
-          "DISPLAY=:0"
-          "PATH=${
-            makeBinPath [
-              pkgs.bash
-              pkgs.tmux
-              pkgs.coreutils
-              pkgs.gnused
-              pkgs.gnugrep
-              pkgs.gawk
-              pkgs.findutils
-              pkgs.moreutils
-              pkgs.procps
-              pkgs.gnutar
-              pkgs.gzip
-              pkgs.diffutils
-              pkgs.inetutils
-            ]
-          }"
-        ];
+        Environment = [ "DISPLAY=:0" ];
         ExecStart = "${pkgs.tmux}/bin/tmux start-server";
         ExecStop = [
           "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
