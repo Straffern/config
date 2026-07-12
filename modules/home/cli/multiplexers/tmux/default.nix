@@ -480,7 +480,7 @@ in
           "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
           "${pkgs.tmux}/bin/tmux kill-server"
         ];
-        KillMode = "none";
+        KillMode = "mixed";
         RestartSec = 2;
       };
       Install.WantedBy = [ "default.target" ];

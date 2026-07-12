@@ -5,17 +5,18 @@
   namespace,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.${namespace}.services.dankgreeter;
-  inherit
-    (lib)
+  inherit (lib)
     mkIf
     mkEnableOption
     mkOption
     types
     ;
   inherit (lib.${namespace}) mkOpt;
-in {
+in
+{
   options.${namespace}.services.dankgreeter = {
     enable = mkEnableOption "DankGreeter login manager";
     compositor = mkOpt types.str "niri" "Compositor used to render the greeter UI";
@@ -27,17 +28,23 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # DMS upstream creates this tree, but nixpkgs module currently omits it.
+    # Keep until dms-greeter tmpfiles setup includes WirePlumber state.
+    systemd.tmpfiles.rules = [
+      "d /var/lib/dms-greeter/.local 0750 dms-greeter dms-greeter -"
+      "d /var/lib/dms-greeter/.local/state 0750 dms-greeter dms-greeter -"
+      "d /var/lib/dms-greeter/.local/state/wireplumber 0750 dms-greeter dms-greeter -"
+    ];
     # nixpkgs' DMS greeter module handles greetd enable + command, tmpfiles,
     # dedicated dms-greeter user/group, fonts, PAM stub, libinput, and graphics.
-    services.displayManager.dms-greeter =
-      {
-        enable = true;
-        compositor.name = cfg.compositor;
-        package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      }
-      // lib.optionalAttrs (cfg.configHome != null) {
-        inherit (cfg) configHome;
-      };
+    services.displayManager.dms-greeter = {
+      enable = true;
+      compositor.name = cfg.compositor;
+      package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    }
+    // lib.optionalAttrs (cfg.configHome != null) {
+      inherit (cfg) configHome;
+    };
 
     services.fprintd.enable = true;
     # Lock screen password uses login PAM; DMS runs fingerprint separately.
@@ -59,7 +66,7 @@ in {
       };
     };
 
-    environment.systemPackages = [pkgs.fprintd];
+    environment.systemPackages = [ pkgs.fprintd ];
 
     # greetd service hardening — DMS greeter does not set these.
     # Without them boot logs spam the login tty.
