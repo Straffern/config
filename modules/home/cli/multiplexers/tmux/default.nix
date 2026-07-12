@@ -446,9 +446,12 @@ in
     # exists (write_unit_file_unless_exists checks [ -e path ]), so HM's symlink
     # takes precedence. PATH includes all tools resurrect's save.sh needs.
     systemd.user.services.tmux = {
+      # Preserve live sessions across Home Manager applies. ExecStop still
+      # saves then kills the server for explicit stops and shutdown.
       Unit = {
         Description = "tmux default session (detached)";
         Documentation = "man:tmux(1)";
+        X-SwitchMethod = "keep-old";
       };
       Service = {
         Type = "forking";
