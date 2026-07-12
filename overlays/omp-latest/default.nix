@@ -1,6 +1,4 @@
-{ ... }:
-final: prev:
-let
+{...}: final: prev: let
   inherit (final) lib stdenv;
 
   version = "16.4.6";
@@ -34,41 +32,45 @@ let
     final.zlib
     final.pcre2
   ];
-in
-{
-  llm-agents = prev.llm-agents // {
-    omp = final.stdenvNoCC.mkDerivation {
-      pname = "omp";
-      inherit version src;
+in {
+  llm-agents =
+    prev.llm-agents
+    // {
+      omp = final.stdenvNoCC.mkDerivation {
+        pname = "omp";
+        inherit version src;
 
-      dontUnpack = true;
-      dontStrip = true;
+        dontUnpack = true;
+        dontStrip = true;
 
-      nativeBuildInputs = [
-        final.makeWrapper
-      ]
-      ++ lib.optionals stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
+        nativeBuildInputs =
+          [
+            final.makeWrapper
+          ]
+          ++ lib.optionals stdenv.hostPlatform.isLinux [final.autoPatchelfHook];
 
-      buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
+        buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
 
-      installPhase = ''
-        runHook preInstall
+        installPhase = ''
+          runHook preInstall
 
-        install -Dm755 "$src" "$out/lib/omp/omp"
-        makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
-          --set PI_SKIP_VERSION_CHECK 1 \
-          ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
+          install -Dm755 "$src" "$out/lib/omp/omp"
+          makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
+            --set PI_SKIP_VERSION_CHECK 1 \
+            ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
 
-        runHook postInstall
-      '';
+          runHook postInstall
+        '';
 
-      passthru.category = "AI Coding Agents";
+        passthru.category = "AI Coding Agents";
 
-      meta = prev.llm-agents.omp.meta // {
-        changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
-        sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-        platforms = builtins.attrNames platforms;
+        meta =
+          prev.llm-agents.omp.meta
+          // {
+            changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
+            sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
+            platforms = builtins.attrNames platforms;
+          };
       };
     };
-  };
 }

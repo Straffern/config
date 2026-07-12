@@ -4,9 +4,9 @@
   lib,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkIf
     mkEnableOption
     mkOption
@@ -87,8 +87,7 @@ let
     done
     exit 1
   '';
-in
-{
+in {
   options = {
     ${namespace}.cli.programs.ai = {
       enable = mkEnableOption "AI tools";
@@ -184,7 +183,10 @@ in
   config = mkIf cfg.enable {
     programs.opencode = lib.mkIf cfg.opencode.enable {
       enable = true;
-      package = if cfg.opencode.wrapper.enable then opencodeWrapper else opencodePackage;
+      package =
+        if cfg.opencode.wrapper.enable
+        then opencodeWrapper
+        else opencodePackage;
     };
 
     home.packages = mkMerge [
@@ -228,7 +230,7 @@ in
         opencode-server = {
           Unit = {
             Description = "Shared OpenCode server";
-            After = [ "network.target" ];
+            After = ["network.target"];
           };
 
           Service = {
@@ -238,7 +240,7 @@ in
             RestartSec = 5;
           };
 
-          Install.WantedBy = [ "default.target" ];
+          Install.WantedBy = ["default.target"];
         };
       })
 
@@ -250,7 +252,7 @@ in
               "network-online.target"
               "opencode-server.service"
             ];
-            Wants = [ "opencode-server.service" ];
+            Wants = ["opencode-server.service"];
           };
 
           Service = {
@@ -263,7 +265,7 @@ in
             RestartSec = 5;
           };
 
-          Install.WantedBy = [ "default.target" ];
+          Install.WantedBy = ["default.target"];
         };
       })
 
@@ -271,13 +273,14 @@ in
         opencode-tailscale-serve = {
           Unit = {
             Description = "Expose OpenCode through Tailscale Serve";
-            After = [
-              "opencode-server.service"
-            ]
-            ++ lib.optionals cfg.pi.dashboard.tailscaleServe.enable [
-              "pi-dashboard-tailscale-serve.service"
-            ];
-            Wants = [ "opencode-server.service" ];
+            After =
+              [
+                "opencode-server.service"
+              ]
+              ++ lib.optionals cfg.pi.dashboard.tailscaleServe.enable [
+                "pi-dashboard-tailscale-serve.service"
+              ];
+            Wants = ["opencode-server.service"];
           };
 
           Service = {
@@ -289,7 +292,7 @@ in
             RemainAfterExit = true;
           };
 
-          Install.WantedBy = [ "default.target" ];
+          Install.WantedBy = ["default.target"];
         };
       })
 
@@ -308,7 +311,7 @@ in
             RemainAfterExit = true;
           };
 
-          Install.WantedBy = [ "default.target" ];
+          Install.WantedBy = ["default.target"];
         };
       })
     ];
@@ -317,11 +320,10 @@ in
     ${namespace} = {
       cli.shells.zsh.initContent = lib.mkIf cfg.shellFunction.enable (
         let
-          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell { }) {
+          ai-shell-function = (pkgs.callPackage ../../../../../packages/ai-shell {}) {
             inherit (cfg.shellFunction) model systemPrompt;
           };
-        in
-        ''
+        in ''
           # Load ai command generator function
           source ${ai-shell-function}
         ''

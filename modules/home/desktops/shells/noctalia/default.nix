@@ -3,9 +3,9 @@
   lib,
   namespace,
   ...
-}:
-let
-  inherit (lib)
+}: let
+  inherit
+    (lib)
     mkEnableOption
     mkForce
     mkIf
@@ -15,8 +15,7 @@ let
 
   niriEnabled = config.${namespace}.desktops.niri.enable or false;
   hyprlandEnabled = config.${namespace}.desktops.hyprland.enable or false;
-in
-{
+in {
   options.${namespace}.desktops.shells.noctalia = {
     enable = mkEnableOption "Noctalia desktop shell";
   };

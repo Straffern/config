@@ -5,16 +5,14 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.modern-unix;
   unstable = import inputs.unstable {
     localSystem = pkgs.stdenv.hostPlatform.system;
     inherit (pkgs) config;
   };
-in
-{
+in {
   options.${namespace}.cli.programs.modern-unix = {
     enable = mkEnableOption "Modern unix tools";
   };

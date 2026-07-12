@@ -4,8 +4,7 @@
   lib,
   namespace,
   ...
-}:
-let
+}: let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.multiplexers.tmux;
 
@@ -141,8 +140,7 @@ let
     go_to_end_of_current_line
     $tmux display-message 'Line copied to clipboard!'
   '';
-in
-{
+in {
   options.${namespace}.cli.multiplexers.tmux = {
     enable = mkEnableOption "Tmux multiplexer";
   };
@@ -159,9 +157,9 @@ in
 
     xdg.configFile."television/cable/sesh.toml" =
       mkIf config.${namespace}.cli.programs.television.enable
-        {
-          text = televisionSeshChannel;
-        };
+      {
+        text = televisionSeshChannel;
+      };
 
     xdg.configFile."tmux/scripts/copy-current-line.sh" = {
       text = copyCurrentLineScript;
@@ -203,18 +201,19 @@ in
         }
         {
           plugin = resurrect;
-          extraConfig = ''
-            set -g @resurrect-strategy-vim 'session'
-            set -g @resurrect-strategy-nvim 'session'
-            set -g @resurrect-capture-pane-contents 'on'
-          ''
-          + ''
-            # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-            resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-            set -g @resurrect-dir $resurrect_dir
+          extraConfig =
+            ''
+              set -g @resurrect-strategy-vim 'session'
+              set -g @resurrect-strategy-nvim 'session'
+              set -g @resurrect-capture-pane-contents 'on'
+            ''
+            + ''
+              # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
+              resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
+              set -g @resurrect-dir $resurrect_dir
 
-            set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
-          '';
+              set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+            '';
         }
         {
           plugin = continuum;
@@ -455,7 +454,7 @@ in
       };
       Service = {
         Type = "forking";
-        Environment = [ "DISPLAY=:0" ];
+        Environment = ["DISPLAY=:0"];
         ExecStart = "${pkgs.tmux}/bin/tmux start-server";
         ExecStop = [
           "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
@@ -464,13 +463,13 @@ in
         KillMode = "mixed";
         RestartSec = 2;
       };
-      Install.WantedBy = [ "default.target" ];
+      Install.WantedBy = ["default.target"];
     };
     # Remove tmux-continuum's stale generated unit if it's a plain file (not
     # HM's symlink). Without this, HM refuses to link the declarative unit.
     home.activation.removeStaleTmuxService = {
-      after = [ ];
-      before = [ "checkLinkTargets" ];
+      after = [];
+      before = ["checkLinkTargets"];
       data = ''
         tmuxUnit="$HOME/.config/systemd/user/tmux.service"
         if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
