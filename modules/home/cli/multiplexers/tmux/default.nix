@@ -484,11 +484,15 @@ in
     };
     # Remove tmux-continuum's stale generated unit if it's a plain file (not
     # HM's symlink). Without this, HM refuses to link the declarative unit.
-    home.activation.removeStaleTmuxService = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
-      tmuxUnit="$HOME/.config/systemd/user/tmux.service"
-      if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
-        $DRY_RUN_CMD rm -f "$tmuxUnit"
-      fi
-    '';
+    home.activation.removeStaleTmuxService = {
+      after = [ ];
+      before = [ "checkLinkTargets" ];
+      data = ''
+        tmuxUnit="$HOME/.config/systemd/user/tmux.service"
+        if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
+          $DRY_RUN_CMD rm -f "$tmuxUnit"
+        fi
+      '';
+    };
   };
 }
