@@ -4,18 +4,20 @@
   config,
   namespace,
   ...
-}: let
+}:
+let
   inherit (lib.${namespace}) enabled;
   cfg = config.${namespace}.suites.common;
-in {
+in
+{
   options.${namespace}.suites.common = {
     enable = lib.mkEnableOption "Enable common configuration";
   };
 
   config = lib.mkIf cfg.enable {
     ${namespace} = {
-      # browsers.firefox = enabled;
       browsers.brave = enabled;
+      browsers.helium = enabled;
       system.nix = enabled;
 
       cli = {
