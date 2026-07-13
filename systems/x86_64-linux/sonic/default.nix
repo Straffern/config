@@ -52,6 +52,7 @@ in {
 
     services = {
       hindsight = enabled;
+      tailscale = enabled;
       virtualisation.kvm = enabled;
       virtualisation.podman = enabled;
     };

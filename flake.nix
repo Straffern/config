@@ -184,6 +184,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    dankcalendar = {
+      url = "github:AvengeMedia/dankcalendar";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -265,6 +270,7 @@
         dms.homeModules.dank-material-shell
         dms.homeModules.niri
         danksearch.homeModules.dsearch
+        dankcalendar.homeModules.default
         noctalia.homeModules.default
       ];
 

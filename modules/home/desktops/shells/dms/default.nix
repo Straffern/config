@@ -185,6 +185,11 @@ in {
         enableClipboardPaste = true;
       };
 
+      programs.dank-calendar = {
+        enable = true;
+        systemd.enable = true;
+      };
+
       # HM owns dms.service, so mirror package unit semantics here and keep
       # local crash-loop hardening in same declarative unit. Reload targets
       # $MAINPID because wrapped Nix binaries run as `.dms-wrapped`, so
