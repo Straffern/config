@@ -40,7 +40,9 @@
       config.sops.placeholder.${cfg.link.apiServerKeySecret}
     }"
     ++ lib.optional (cfg.web.exaApiKeySecret != null)
-    "EXA_API_KEY=${config.sops.placeholder.${cfg.web.exaApiKeySecret}}";
+    "EXA_API_KEY=${config.sops.placeholder.${cfg.web.exaApiKeySecret}}"
+    ++ lib.optional (cfg.browser.enable && cfg.browser.apiKeySecret != null)
+    "BROWSER_USE_API_KEY=${config.sops.placeholder.${cfg.browser.apiKeySecret}}";
 
   baseSettings = {
     model = {
@@ -68,6 +70,9 @@
       search_backend = cfg.web.backend;
       extract_backend = cfg.web.backend;
     };
+  };
+  browserSettings = lib.optionalAttrs cfg.browser.enable {
+    browser.cloud_provider = "browser-use";
   };
 in {
   options.${namespace}.services.hermes = {
@@ -162,6 +167,19 @@ in {
       };
     };
 
+    browser = {
+      enable =
+        mkEnableOption "Hermes Browser Use backend";
+      apiKeySecret = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+      };
+      apiKeySopsFile = mkOption {
+        type = types.str;
+        default = hostSecretsFile;
+      };
+    };
+
     xurl = {
       enable =
         mkEnableOption "official X API CLI"
@@ -197,7 +215,10 @@ in {
       // lib.optionalAttrs (cfg.web.exaApiKeySecret != null) (
         secretFrom cfg.web.exaApiKeySopsFile cfg.web.exaApiKeySecret
       )
-      // lib.optionalAttrs cfg.xurl.enable (secretFrom cfg.xurl.tokenSopsFile cfg.xurl.tokenSecret);
+      // lib.optionalAttrs cfg.xurl.enable (secretFrom cfg.xurl.tokenSopsFile cfg.xurl.tokenSecret)
+      // lib.optionalAttrs (cfg.browser.enable && cfg.browser.apiKeySecret != null) (
+        secretFrom cfg.browser.apiKeySopsFile cfg.browser.apiKeySecret
+      );
 
     sops.templates."hermes-env" = {
       content = lib.concatStringsSep "\n" envLines + "\n";
@@ -231,7 +252,11 @@ in {
         "hindsight"
         "exa"
       ];
-      settings = lib.recursiveUpdate baseSettings (lib.recursiveUpdate webSettings cfg.settings);
+      settings = lib.recursiveUpdate baseSettings (
+        lib.recursiveUpdate webSettings (
+          lib.recursiveUpdate browserSettings cfg.settings
+        )
+      );
     };
 
     systemd.services.hermes-agent = {

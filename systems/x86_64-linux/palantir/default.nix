@@ -102,7 +102,16 @@ in {
     cli.programs.nix-ld = enabled;
 
     services = {
-      hermes = enabled;
+      hermes = {
+        enable = true;
+        browser = {
+          enable = true;
+          apiKeySecret = "browser_use_api_key";
+        };
+        settings = {
+          browser.cloud_provider = "browser-use";
+        };
+      };
       hindsight = enabled;
       virtualisation.podman = enabled;
     };
