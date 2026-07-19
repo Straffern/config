@@ -9,9 +9,15 @@
   inherit (lib.${namespace}) enabled;
   flakeDir = lib.${namespace}.flakeDir inputs;
   dashboardScript = pkgs.writeText "palantir-status-dashboard.py" ''
+    import secrets
     import subprocess
     from http.server import BaseHTTPRequestHandler, HTTPServer
+    from pathlib import Path
+    from urllib.parse import parse_qs
     from urllib.request import urlopen
+
+    RESTART_TOKEN = secrets.token_urlsafe(32)
+    RESTART_TRIGGER = Path("/run/palantir-status-dashboard/restart-hermes-link")
 
     def probe(url):
         try:
@@ -34,11 +40,10 @@
                 result = subprocess.run(
                     ["systemctl", "is-active", "hermes-link"],
                     capture_output=True,
-                    text=True,
                     timeout=1,
                     check=False,
                 )
-                link_status = "healthy" if result.returncode == 0 else "unhealthy"
+                link_status = "running (relay unchecked)" if result.returncode == 0 else "unhealthy"
             except Exception:
                 link_status = "unhealthy"
             rows = [
@@ -58,13 +63,54 @@
     <title>Palantir services</title>
     <style>body {{ font: 1rem system-ui, sans-serif; margin: 2rem auto; max-width: 55rem; padding: 0 1rem; }}
     table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #ddd; padding: .6rem; text-align: left; }}
-    code {{ white-space: nowrap; }}</style></head><body><h1>Palantir services</h1>
+    code {{ white-space: nowrap; }} button {{ font: inherit; margin-top: 1rem; padding: .6rem 1rem; }}</style></head>
+    <body><h1>Palantir services</h1>
     <table><thead><tr><th>Service</th><th>Status</th><th>Backend port</th><th>Tailnet link</th></tr></thead>
-    <tbody>{body}</tbody></table></body></html>"""
+    <tbody>{body}</tbody></table>
+    <form method="post" action="/restart-hermes-link" onsubmit="return confirm('Restart Hermes Link?')">
+    <input type="hidden" name="csrf" value="{RESTART_TOKEN}">
+    <button type="submit">Restart Hermes Link</button>
+    </form></body></html>"""
             payload = page.encode()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
             self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+        def do_POST(self):
+            if self.path != "/restart-hermes-link":
+                self.send_error(404)
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+            except ValueError:
+                self.send_error(400)
+                return
+            if not 0 < length <= 1024:
+                self.send_error(400)
+                return
+            try:
+                form = parse_qs(self.rfile.read(length).decode("ascii"), strict_parsing=True)
+            except (UnicodeDecodeError, ValueError):
+                self.send_error(400)
+                return
+            token = form.get("csrf", [""])[0]
+            if not secrets.compare_digest(token, RESTART_TOKEN):
+                self.send_error(403)
+                return
+            try:
+                RESTART_TRIGGER.touch()
+            except OSError:
+                self.send_error(503)
+                return
+            payload = b"<!doctype html><title>Restart requested</title><p>Hermes Link restart requested.</p>"
+            self.send_response(202)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Refresh", "2; url=/")
             self.end_headers()
             self.wfile.write(payload)
 
@@ -134,11 +180,32 @@ in {
     serviceConfig = {
       ExecStart = "${pkgs.python3}/bin/python ${dashboardScript}";
       DynamicUser = true;
+      RuntimeDirectory = "palantir-status-dashboard";
+      RuntimeDirectoryMode = "0750";
       Restart = "always";
       RestartSec = 2;
       PrivateTmp = true;
       ProtectSystem = "strict";
       ProtectHome = true;
+    };
+  };
+
+  systemd.services.palantir-restart-hermes-link = {
+    description = "Restart HermesPilot Link from dashboard";
+    serviceConfig.Type = "oneshot";
+    script = ''
+      ${pkgs.coreutils}/bin/rm -f /run/palantir-status-dashboard/restart-hermes-link
+      ${pkgs.systemd}/bin/systemctl restart hermes-link.service
+    '';
+  };
+
+  systemd.paths.palantir-restart-hermes-link = {
+    description = "Watch for HermesPilot Link dashboard restart requests";
+    wantedBy = ["multi-user.target"];
+    after = ["palantir-status-dashboard.service"];
+    pathConfig = {
+      PathExists = "/run/palantir-status-dashboard/restart-hermes-link";
+      Unit = "palantir-restart-hermes-link.service";
     };
   };
 
@@ -151,7 +218,12 @@ in {
       "palantir-status-dashboard.service"
       "podman-hindsight.service"
     ];
-    wants = ["tailscaled.service" "network-online.target" "palantir-status-dashboard.service" "podman-hindsight.service"];
+    wants = [
+      "tailscaled.service"
+      "network-online.target"
+      "palantir-status-dashboard.service"
+      "podman-hindsight.service"
+    ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

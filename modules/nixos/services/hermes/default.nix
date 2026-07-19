@@ -168,8 +168,7 @@ in {
     };
 
     browser = {
-      enable =
-        mkEnableOption "Hermes Browser Use backend";
+      enable = mkEnableOption "Hermes Browser Use backend";
       apiKeySecret = mkOption {
         type = types.nullOr types.str;
         default = null;
@@ -253,9 +252,7 @@ in {
         "exa"
       ];
       settings = lib.recursiveUpdate baseSettings (
-        lib.recursiveUpdate webSettings (
-          lib.recursiveUpdate browserSettings cfg.settings
-        )
+        lib.recursiveUpdate webSettings (lib.recursiveUpdate browserSettings cfg.settings)
       );
     };
 
@@ -303,6 +300,7 @@ in {
         ExecStart = "${pkgs.asgaard.hermes-link}/bin/hermeslink daemon";
         Restart = "always";
         RestartSec = "5s";
+        RuntimeMaxSec = "12h";
       };
     };
   };
