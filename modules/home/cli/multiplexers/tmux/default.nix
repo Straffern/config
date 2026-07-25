@@ -454,7 +454,7 @@ in {
       };
       Service = {
         Type = "forking";
-        Environment = ["DISPLAY=:0"];
+        Environment = ["DISPLAY=:0" "TMUX_TMPDIR=%t"];
         ExecStart = "${pkgs.tmux}/bin/tmux start-server";
         ExecStop = [
           "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
