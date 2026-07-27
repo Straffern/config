@@ -1,0 +1,207 @@
+--- a/Services/AudioService.qml
++++ b/Services/AudioService.qml
+@@ -57,6 +57,7 @@
+             return 100;
+         return SessionData.deviceMaxVolumes[name] ?? 100;
+     }
++    readonly property int sourceMaxVolume: 150
+ 
+     readonly property int wheelVolumeStep: SettingsData.audioWheelScrollAmount
+ 
+@@ -904,8 +905,8 @@
+             return "No audio source available";
+         }
+ 
+-        const clampedVolume = Math.max(0, Math.min(100, percentage));
+-        root.source.audio.volume = clampedVolume / 100;
++        const clampedVolume = Math.max(0, Math.min(root.sourceMaxVolume, percentage));
++        Quickshell.execDetached(["wpctl", "set-volume", "-l", String(root.sourceMaxVolume / 100), "@DEFAULT_AUDIO_SOURCE@", String(clampedVolume / 100)]);
+         micVolumeChanged();
+         return `Microphone volume set to ${clampedVolume}%`;
+     }
+@@ -915,23 +916,19 @@
+             return "No audio source available";
+         }
+ 
+-        root.source.audio.muted = !root.source.audio.muted;
+-        return root.source.audio.muted ? "Microphone muted" : "Microphone unmuted";
++        Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SOURCE@", "toggle"]);
++        return "Microphone mute toggled";
+     }
+ 
+     function incrementMicVolume(step) {
+         if (!root.source?.audio)
+             return "No audio source available";
+ 
+-        if (root.source.audio.muted)
+-            root.source.audio.muted = false;
+-
+         const currentVolume = Math.round(root.source.audio.volume * 100);
+         const stepValue = parseInt(step || "5");
+-        const newVolume = Math.max(0, Math.min(100, currentVolume + stepValue));
+-
+-        root.source.audio.volume = newVolume / 100;
+-        micVolumeChanged();
++        const newVolume = Math.max(0, Math.min(root.sourceMaxVolume, currentVolume + stepValue));
++
++        setMicVolume(newVolume);
+         return `Microphone volume increased to ${newVolume}%`;
+     }
+ 
+@@ -939,15 +936,11 @@
+         if (!root.source?.audio)
+             return "No audio source available";
+ 
+-        if (root.source.audio.muted)
+-            root.source.audio.muted = false;
+-
+         const currentVolume = Math.round(root.source.audio.volume * 100);
+         const stepValue = parseInt(step || "5");
+         const newVolume = Math.max(0, Math.min(100, currentVolume - stepValue));
+ 
+-        root.source.audio.volume = newVolume / 100;
+-        micVolumeChanged();
++        setMicVolume(newVolume);
+         return `Microphone volume decreased to ${newVolume}%`;
+     }
+ 
+--- a/Modules/ControlCenter/Widgets/InputAudioSliderRow.qml
++++ b/Modules/ControlCenter/Widgets/InputAudioSliderRow.qml
+@@ -38,7 +38,7 @@
+             onClicked: {
+                 if (defaultSource?.audio) {
+                     SessionData.suppressOSDTemporarily();
+-                    defaultSource.audio.muted = !defaultSource.audio.muted;
++                    AudioService.toggleMicMute();
+                 }
+             }
+         }
+@@ -68,8 +68,8 @@
+         width: parent.width - (Theme.iconSize + Theme.spacingS * 2)
+         enabled: defaultSource?.audio != null
+         minimum: 0
+-        maximum: 100
+-        value: defaultSource?.audio ? Math.min(100, Math.round(defaultSource.audio.volume * 100)) : 0
++        maximum: AudioService.sourceMaxVolume
++        value: defaultSource?.audio ? Math.min(maximum, Math.round(defaultSource.audio.volume * 100)) : 0
+         showValue: true
+         unit: "%"
+         valueOverride: actualVolumePercent
+@@ -79,10 +79,7 @@
+         onSliderValueChanged: function (newValue) {
+             if (defaultSource?.audio) {
+                 SessionData.suppressOSDTemporarily();
+-                defaultSource.audio.volume = newValue / 100.0;
+-                if (newValue > 0 && defaultSource.audio.muted) {
+-                    defaultSource.audio.muted = false;
+-                }
++                AudioService.setMicVolume(newValue);
+             }
+         }
+     }
+--- a/Modules/ControlCenter/Details/AudioInputDetail.qml
++++ b/Modules/ControlCenter/Details/AudioInputDetail.qml
+@@ -92,7 +92,7 @@
+                 onPressed: mouse => iconRipple.trigger(mouse.x, mouse.y)
+                 onClicked: {
+                     if (AudioService.source && AudioService.source.audio) {
+-                        AudioService.source.audio.muted = !AudioService.source.audio.muted;
++                        AudioService.toggleMicMute();
+                     }
+                 }
+             }
+@@ -117,8 +117,8 @@
+             width: parent.width - (Theme.iconSize + Theme.spacingS * 2)
+             enabled: AudioService.source && AudioService.source.audio
+             minimum: 0
+-            maximum: 100
+-            value: AudioService.source && AudioService.source.audio ? Math.min(100, Math.round(AudioService.source.audio.volume * 100)) : 0
++            maximum: AudioService.sourceMaxVolume
++            value: AudioService.source && AudioService.source.audio ? Math.min(maximum, Math.round(AudioService.source.audio.volume * 100)) : 0
+             showValue: true
+             unit: "%"
+             valueOverride: actualVolumePercent
+@@ -128,10 +128,7 @@
+ 
+             onSliderValueChanged: function (newValue) {
+                 if (AudioService.source && AudioService.source.audio) {
+-                    AudioService.source.audio.volume = newValue / 100;
+-                    if (newValue > 0 && AudioService.source.audio.muted) {
+-                        AudioService.source.audio.muted = false;
+-                    }
++                    AudioService.setMicVolume(newValue);
+                 }
+             }
+         }
+--- a/Modules/ControlCenter/Components/DragDropGrid.qml
++++ b/Modules/ControlCenter/Components/DragDropGrid.qml
+@@ -206,7 +206,7 @@
+         case "audioInput":
+             {
+                 if (AudioService.source && AudioService.source.audio) {
+-                    AudioService.source.audio.muted = !AudioService.source.audio.muted;
++                    AudioService.toggleMicMute();
+                 }
+                 break;
+             }
+@@ -235,11 +235,10 @@
+             let currentVolume = AudioService.source.audio.volume * 100;
+             let newVolume;
+             if (delta > 0)
+-                newVolume = Math.min(100, currentVolume + 5);
++                newVolume = Math.min(AudioService.sourceMaxVolume, currentVolume + 5);
+             else
+                 newVolume = Math.max(0, currentVolume - 5);
+-            AudioService.source.audio.muted = false;
+-            AudioService.source.audio.volume = newVolume / 100;
++            AudioService.setMicVolume(newVolume);
+             wheelEvent.accepted = true;
+         }
+     }
+--- a/Modules/DankBar/Widgets/ControlCenterButton.qml
++++ b/Modules/DankBar/Widgets/ControlCenterButton.qml
+@@ -252,10 +252,8 @@
+         }
+ 
+         const currentVolume = AudioService.source.audio.volume * 100;
+-        const newVolume = delta > 0 ? Math.min(100, currentVolume + step) : Math.max(0, currentVolume - step);
+-        AudioService.source.audio.muted = false;
+-        AudioService.source.audio.volume = newVolume / 100;
+-        AudioService.micVolumeChanged();
++        const newVolume = delta > 0 ? Math.min(AudioService.sourceMaxVolume, currentVolume + step) : Math.max(0, currentVolume - step);
++        AudioService.setMicVolume(newVolume);
+     }
+ 
+     function handleBrightnessWheel(delta) {
+--- a/Modules/OSD/MicVolumeOSD.qml
++++ b/Modules/OSD/MicVolumeOSD.qml
+@@ -99,7 +99,7 @@
+                 x: parent.gap * 2 + Theme.iconSize
+                 anchors.verticalCenter: parent.verticalCenter
+                 minimum: 0
+-                maximum: 100
++                maximum: AudioService.sourceMaxVolume
+                 enabled: AudioService.source?.audio ?? false
+                 showValue: true
+                 unit: "%"
+@@ -116,7 +116,7 @@
+                     if (!AudioService.source?.audio)
+                         return;
+                     SessionData.suppressOSDTemporarily();
+-                    AudioService.source.audio.volume = newValue / 100;
++                    AudioService.setMicVolume(newValue);
+                     resetHideTimer();
+                 }
+ 
+@@ -236,9 +236,9 @@
+                         if (!AudioService.source?.audio)
+                             return;
+                         const ratio = 1.0 - (mouse.y / height);
+-                        const volume = Math.max(0, Math.min(100, Math.round(ratio * 100)));
++                        const volume = Math.max(0, Math.min(AudioService.sourceMaxVolume, Math.round(ratio * AudioService.sourceMaxVolume)));
+                         SessionData.suppressOSDTemporarily();
+-                        AudioService.source.audio.volume = volume / 100;
++                        AudioService.setMicVolume(volume);
+                         resetHideTimer();
+                     }
+                 }
