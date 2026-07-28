@@ -1,23 +1,24 @@
-_: final: prev: let
+_: final: prev:
+let
   inherit (final) lib stdenv;
 
-  version = "17.1.5";
+  version = "17.1.8";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-jFSMlNH0TsMKdMnqfWBLlFscVBnuNXTbRRiOxm0x10k=";
+      hash = "sha256-rB28gk78oCAreURSEDUTvvDAb+gDTJJI2r1dI/SCDXM=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-A4ayiw8bkhOYX6n2kJcu2FxWP0soGH+y/bQvzHDXDZ4=";
+      hash = "sha256-wteeLk1mW1S73PehdKiSsDRs4bY6StX4v+lcXsgou2Y=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-uF2oHE8Ol4z9Cjx40oliiuWkrNBUCL+ZMv12nwfoQUA=";
+      hash = "sha256-54QfvPM/3LVD3unR05I+vHY267rgo4x9Cm85xDtLQ8w=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-NQGb+k0ayuAEDvHz2RwpxudAGs/NvP66b/UGprEDyYc=";
+      hash = "sha256-fuN/oqzcRh/ihvdn51OTp7rCUA/2ODuGNxQSH3PWEOQ=";
     };
   };
   platform =
@@ -32,45 +33,41 @@ _: final: prev: let
     final.zlib
     final.pcre2
   ];
-in {
-  llm-agents =
-    prev.llm-agents
-    // {
-      omp = final.stdenvNoCC.mkDerivation {
-        pname = "omp";
-        inherit version src;
+in
+{
+  llm-agents = prev.llm-agents // {
+    omp = final.stdenvNoCC.mkDerivation {
+      pname = "omp";
+      inherit version src;
 
-        dontUnpack = true;
-        dontStrip = true;
+      dontUnpack = true;
+      dontStrip = true;
 
-        nativeBuildInputs =
-          [
-            final.makeWrapper
-          ]
-          ++ lib.optionals stdenv.hostPlatform.isLinux [final.autoPatchelfHook];
+      nativeBuildInputs = [
+        final.makeWrapper
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [ final.autoPatchelfHook ];
 
-        buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
+      buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
 
-        installPhase = ''
-          runHook preInstall
+      installPhase = ''
+        runHook preInstall
 
-          install -Dm755 "$src" "$out/lib/omp/omp"
-          makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
-            --set PI_SKIP_VERSION_CHECK 1 \
-            ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
+        install -Dm755 "$src" "$out/lib/omp/omp"
+        makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
+          --set PI_SKIP_VERSION_CHECK 1 \
+          ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
 
-          runHook postInstall
-        '';
+        runHook postInstall
+      '';
 
-        passthru.category = "AI Coding Agents";
+      passthru.category = "AI Coding Agents";
 
-        meta =
-          prev.llm-agents.omp.meta
-          // {
-            changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
-            sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
-            platforms = builtins.attrNames platforms;
-          };
+      meta = prev.llm-agents.omp.meta // {
+        changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
+        sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+        platforms = builtins.attrNames platforms;
       };
     };
+  };
 }
