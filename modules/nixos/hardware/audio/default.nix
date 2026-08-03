@@ -130,6 +130,7 @@ in {
 
     environment.systemPackages = with pkgs; [
       pavucontrol
+      pulseaudio # provides pactl for PipeWire's PulseAudio compatibility layer
 
       # headsetcontrol
       # headset-charge-indicator
