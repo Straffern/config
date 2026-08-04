@@ -68,6 +68,7 @@ in {
   };
 
   services.fwupd.enable = true;
+  services.gnome.at-spi2-core.enable = true;
   networking = {
     useNetworkd = false;
     hostName = "sonic";

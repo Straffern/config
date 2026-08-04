@@ -3,7 +3,6 @@
   config,
   lib,
   namespace,
-  inputs,
   ...
 }: let
   inherit (pkgs.${namespace}) clipy;
@@ -88,5 +87,6 @@ in {
     guvcview
     voxtypePkg
   ];
+  home.file.".omp/natives/${pkgs.llm-agents.omp.version}".source = "${pkgs.llm-agents.omp}/lib/omp/natives/${pkgs.llm-agents.omp.version}";
   home.stateVersion = "26.05";
 }
