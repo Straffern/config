@@ -4,10 +4,12 @@
   namespace,
   pkgs,
   ...
-}: let
+}:
+let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.cli.programs.gh;
-in {
+in
+{
   options.${namespace}.cli.programs.gh = {
     enable = mkEnableOption "GitHub CLI";
   };
@@ -20,9 +22,14 @@ in {
         prompt = "enabled";
       };
       gitCredentialHelper.enable = true;
-      extensions = with pkgs; [gh-dash gh-eco asgaard.gh-fork-cleanup];
+      extensions = with pkgs; [
+        gh-dash
+        gh-eco
+        gh-stack
+        asgaard.gh-fork-cleanup
+      ];
     };
 
-    ${namespace}.system.persistence.directories = [".config/gh"];
+    ${namespace}.system.persistence.directories = [ ".config/gh" ];
   };
 }
