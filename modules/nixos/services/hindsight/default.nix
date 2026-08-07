@@ -4,10 +4,10 @@
   lib,
   namespace,
   ...
-}: let
+}:
+let
   cfg = config.${namespace}.services.hindsight;
-  inherit
-    (lib)
+  inherit (lib)
     mkEnableOption
     mkIf
     mkOption
@@ -32,9 +32,9 @@
         };
       }
       {
-        model_name = "openrouter-deepseek-v4-flash";
+        model_name = "openrouter-deepseek-v4-flash-0731";
         litellm_params = {
-          model = "openrouter/deepseek/deepseek-v4-flash";
+          model = "openrouter/deepseek/deepseek-v4-flash-0731";
           api_key = config.sops.placeholder."openrouter_api_key";
         };
       }
@@ -42,7 +42,7 @@
     fallbacks = [
       {
         default = [
-          "openrouter-deepseek-v4-flash"
+          "openrouter-deepseek-v4-flash-0731"
           "groq-openai-gpt-oss-120b"
         ];
       }
@@ -56,13 +56,14 @@
       {
         model_name = "default";
         litellm_params = {
-          model = "openrouter/deepseek/deepseek-v4-flash";
+          model = "openrouter/deepseek/deepseek-v4-flash-0731";
           api_key = config.sops.placeholder."openrouter_api_key";
         };
       }
     ];
   };
-in {
+in
+{
   options.${namespace}.services.hindsight = {
     enable = mkEnableOption "Hindsight memory service";
     workerId = mkOption {
@@ -108,9 +109,9 @@ in {
           "127.0.0.1:8888:8888"
           "127.0.0.1:9999:9999"
         ];
-        environmentFiles = [config.sops.templates."hindsight-env".path];
-        volumes = ["/var/lib/hindsight/pg0:/home/hindsight/.pg0"];
-        extraOptions = ["--pull=always"];
+        environmentFiles = [ config.sops.templates."hindsight-env".path ];
+        volumes = [ "/var/lib/hindsight/pg0:/home/hindsight/.pg0" ];
+        extraOptions = [ "--pull=always" ];
       };
     };
 
@@ -120,11 +121,11 @@ in {
     ];
 
     systemd.services.podman-hindsight = {
-      after = ["sops-nix.service"];
-      wants = ["sops-nix.service"];
-      restartTriggers = [config.sops.templates."hindsight-env".content];
+      after = [ "sops-nix.service" ];
+      wants = [ "sops-nix.service" ];
+      restartTriggers = [ config.sops.templates."hindsight-env".content ];
     };
 
-    ${namespace}.system.impermanence.directories = ["/var/lib/hindsight"];
+    ${namespace}.system.impermanence.directories = [ "/var/lib/hindsight" ];
   };
 }
