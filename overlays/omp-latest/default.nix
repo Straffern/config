@@ -2,23 +2,23 @@ _: final: prev:
 let
   inherit (final) lib stdenv;
 
-  version = "17.2.10";
+  version = "17.2.12";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-43+j1NPusVtx1bRk/eUfkT45CXikjcM7TFJ7ju1yN8Y=";
+      hash = "sha256-q0/yTIujrm/Z1LVJaclPRAjMMWZ19VNHKa5QLYyX33Q=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-yTXV0l62d6Ylk0+B9LIbD/BbZEAP656Q8C8O/jlnY4Y=";
+      hash = "sha256-8Xbt+BdNslKr4apuhN8oThuDuN1+80rH+veISl4XKkw=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-IGR/4Zqy5HRRZVXbXIE/XZrv/FVuRWzfnuiQB8ipi+8=";
+      hash = "sha256-7eUWJYc7t+WSAHEevkS3dZGaGLRv6SeZWkH5MVqclqo=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-T+VksjSCzWJ2caJBeEJJjJey9ytfijpO+4CU5iPfejM=";
+      hash = "sha256-bHUzG/CdWp6UM71ZKz7pk9dRoV1bdFDBozTMBoSZbzA=";
     };
   };
   platform =
@@ -32,7 +32,7 @@ let
     owner = "can1357";
     repo = "oh-my-pi";
     rev = "v${version}";
-    hash = "sha256-FZu/g76DYHhUeK4ZCI7p/bQdYZAGFKdXxUVxYnXXHxY=";
+    hash = "sha256-FKB6oAIm+C5eMFWC64gGEdWadIdvqRAcovHjmzKBqUY=";
   };
   linuxNativeFilename =
     if stdenv.hostPlatform.isx86_64 then
@@ -43,7 +43,7 @@ let
     pname = "omp-native-wayland";
     inherit version;
     src = linuxSource;
-    cargoHash = "sha256-eFpG+LPcW3DqP35M+wt0CK6tJ8/eE9GNrnEV+fCMu2A=";
+    cargoHash = "sha256-jKLaVNfQx31iCP7+srfwgKKhFNq2yTaUtV5LqcxhGow=";
     buildType = "ci";
     cargoBuildFlags = [
       "-p"
@@ -60,12 +60,6 @@ let
       final.pipewire
     ];
     RUSTC_BOOTSTRAP = 1;
-    postPatch = ''
-      substituteInPlace crates/pi-natives/src/desktop/linux/wayland/capture.rs \
-        --replace-fail "main_loop::MainLoop::new(None)" "main_loop::MainLoopRc::new(None)" \
-        --replace-fail "context::Context::new(&mainloop)" "context::ContextRc::new(&mainloop, None)" \
-        --replace-fail ".connect_fd(fd, None)" ".connect_fd_rc(fd, None)"
-    '';
     doCheck = false;
     installPhase = ''
       install -Dm755 target/*/ci/libpi_natives.so "$out/${linuxNativeFilename}"
