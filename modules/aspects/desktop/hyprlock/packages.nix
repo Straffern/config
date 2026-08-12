@@ -1,5 +1,5 @@
 {den, ...}: let
-  hyprlockRecoverPackage = pkgs: pkgs.callPackage ./_hyprlock-recover {};
+  hyprlockRecoverPackage = pkgs: pkgs.callPackage ./_package {};
 in {
   den.aspects.desktop.hyprlock.packages = {pkgs, ...}: {
     hyprlock-recover = hyprlockRecoverPackage pkgs;

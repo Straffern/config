@@ -1,5 +1,5 @@
 {den, ...}: let
-  hyprlockRecoverPackage = pkgs: pkgs.callPackage ../hyprlock/_hyprlock-recover {};
+  hyprlockRecoverPackage = pkgs: pkgs.callPackage ../hyprlock/_package {};
 in {
   den.aspects.desktop.hyprland = {
     includes = [
@@ -24,7 +24,7 @@ in {
     }: let
       hyprlockRecover = hyprlockRecoverPackage pkgs;
     in {
-      imports = [./_keybindings.nix ./_windowrules.nix];
+      imports = [./_config/keybindings.nix ./_config/windowrules.nix];
       home.packages = [
         pkgs.grimblast
         pkgs.hyprpicker

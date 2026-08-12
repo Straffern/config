@@ -1,7 +1,4 @@
-{den, ...}: let
-  warmcam = pkgs: pkgs.callPackage ./_warmcam.nix {};
-  amd-debug-tools = pkgs: pkgs.callPackage ./_amd-debug-tools.nix {};
-in {
+{den, ...}: {
   den.aspects.hardware.bluetooth.nixos = {
     host,
     lib,
@@ -47,30 +44,5 @@ in {
     users.groups.hidraw = {};
     users.users.alex.extraGroups = ["hidraw"];
     services.udev.extraRules = ''KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="hidraw"'';
-  };
-
-  den.aspects.hardware.v4l2loopback = {
-    packages = {pkgs, ...}: {warmcam = warmcam pkgs;};
-    nixos = {
-      config,
-      pkgs,
-      ...
-    }: {
-      boot.extraModulePackages = [config.boot.kernelPackages.v4l2loopback];
-      boot.kernelModules = ["v4l2loopback"];
-      boot.extraModprobeConfig = ''options v4l2loopback video_nr=10 card_label="VirtualCam" exclusive_caps=1'';
-      environment.systemPackages = [
-        (warmcam pkgs)
-        pkgs.libva-utils
-        pkgs.v4l-utils
-      ];
-    };
-  };
-
-  den.aspects.hardware.amd-debug-tools = {
-    packages = {pkgs, ...}: {amd-debug-tools = amd-debug-tools pkgs;};
-    nixos = {pkgs, ...}: {
-      environment.systemPackages = [(amd-debug-tools pkgs)];
-    };
   };
 }

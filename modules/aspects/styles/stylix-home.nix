@@ -3,8 +3,8 @@
   inputs,
   ...
 }: let
-  monolisaPackage = pkgs: pkgs.callPackage ./_monolisa {};
-  wallpapersPackage = pkgs: pkgs.callPackage ./_wallpapers {};
+  monolisaPackage = pkgs: pkgs.callPackage ./packages/_package/monolisa {};
+  wallpapersPackage = pkgs: pkgs.callPackage ./packages/_package/wallpapers {};
 in {
   den.aspects.styles.stylix = {
     includes = [den.aspects.styles.packages];
