@@ -1,34 +1,51 @@
-# 🧩 Modules Knowledge Base
+# Modules knowledge base
 
-## OVERVIEW
-Core configuration logic for NixOS (system) and Home Manager (user) via Snowfall Lib.
+`modules/` is the Den aspect/entity tree. Aspects own one concern and compose
+through explicit `includes`; entities select the aspects that apply to a host
+or integrated user. Native NixOS and Home Manager options are the public
+configuration interface.
 
-## STRUCTURE
-- `nixos/`: System-wide settings (boot, hardware, services, security).
-- `home/`: User-specific environment (apps, shell, desktop, themes).
-- **Sub-Categories**:
-  - `cli/`: Shells, editors, multiplexers, terminal emulators.
-  - `suites/`: High-level entry points (bundles related modules).
-  - `styles/`: Theming via Stylix (Catppuccin Macchiato).
-  - `system/`: Core OS/User logic (persistence, nix settings, mutable files).
+## Structure
 
-## WHERE TO LOOK
+- `aspects/cli/` — shells, editors, multiplexers, terminals, and tools.
+- `aspects/desktop/` — graphical environment and desktop services.
+- `aspects/platform/`, `security/`, `hardware/`, and `network/` — system
+  foundations.
+- `aspects/profiles/` — thin composition aspects such as `common`, `desktop`,
+  `server`, `development`, `gaming`, `kubernetes`, `social`, `video`, and
+  `gamedev`.
+- `aspects/services/` — service aspects, including Hermes.
+- `entities/hosts/` — `frostmourne`, `palantir`, and `sonic` host entities.
+- `_` directories — subordinate expressions/assets owned by their parent
+  aspect; they have no independent export semantics.
+
+## Where to look
+
 | Task | Location |
-|------|----------|
-| New System Feature | `modules/nixos/{category}/` |
-| New App Config | `modules/home/cli/programs/` or `modules/home/programs/` |
-| Grouping Modules | `modules/{nixos,home}/suites/` |
-| Hardware Tweak | `modules/nixos/hardware/` |
-| Secrets Config | `modules/{nixos,home}/security/sops/` |
+| --- | --- |
+| Add a capability | `modules/aspects/<concern>/` |
+| Add a host | `modules/entities/hosts/` |
+| Add integrated Alex configuration | the Palantir or Sonic host entity |
+| Add a profile | `modules/aspects/profiles/` |
+| Add a colocated package | the owning aspect's `_package/` |
+| Add secret wiring | the owning service/security aspect |
 
-## CONVENTIONS
-- **Namespace**: `asgaard` (e.g., `asgaard.suites.common.enable`).
-- **Logic**: Use `lib.${namespace}.enabled` helper for clean toggles.
-- **Modularity**: Small, single-purpose modules.
-- **Suites**: Hosts/Users should primarily enable suites, not individual modules.
-- **Persistence**: Managed via `asgaard.system.persistence` in both NixOS and Home levels.
+## Conventions
 
-## ANTI-PATTERNS
-- Hardcoding user paths (use `config.home.homeDirectory`).
-- Adding packages to `suites` (create a module or add to `user/default.nix` if specific).
-- Mixing Home Manager logic in NixOS modules (keep them strictly separated).
+Keep aspects narrow and use native option paths. Compute alternate-input or
+custom packages as lexical values and pass them explicitly to the consuming
+option; do not mutate the shared package set to create aliases. Use ordinary
+`pkgs.callPackage` for local `_package` expressions. Keep Home Manager options
+inside integrated host/user composition and NixOS options in system aspects.
+
+The entity system is only `x86_64-linux`. Home Manager is integrated for Alex
+on Palantir and Sonic; it is not emitted as a separate output.
+
+## Anti-patterns
+
+- Do not add an implicit output contract based on a directory name.
+- Do not publish alternate output families.
+- Do not hardcode user paths; use `config.home.homeDirectory` where applicable.
+- Do not inline secrets or print decrypted values.
+- Do not modify the generated root `flake.nix` by hand; update declaration
+  aspects and run `nix run .#write-flake`.

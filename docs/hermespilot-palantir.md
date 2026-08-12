@@ -85,10 +85,10 @@ direct/LAN mode are deliberately used (`hermeslink config set lan-host ...`).
 
 ## Current `~/.dotfiles` findings
 
-- Palantir enables `${namespace}.services.hermes`, Hindsight, and the
-  repository Tailscale service in its host configuration. A live audit found
-  `tailscaled` logged out (`NeedsLogin`) with no tailnet IP, so direct Tailscale
-  access is not currently available.
+- Palantir enables the native `services.hermes` and Hindsight options, plus
+  the repository Tailscale service. A live audit found `tailscaled` logged out
+  (`NeedsLogin`) with no tailnet IP, so direct Tailscale access is not currently
+  available.
 - The Hermes module now enables the API server and declarative Hermes Link;
   before this change, the live Hermes 0.18.2 gateway had no HTTP listener
   because API server was disabled.
@@ -103,10 +103,10 @@ direct/LAN mode are deliberately used (`hermeslink config set lan-host ...`).
 
 ## Applied declarative Nix configuration
 
-The repository now provides `pkgs.asgaard.hermes-link` from the pinned
-`@hermespilot/link@1.0.1` npm package under `packages/hermes-link`, with a
+The repository now provides the public `hermes-link` package from the pinned
+`@hermespilot/link@1.0.1` npm package under the owning service aspect, with a
 pinned `npmDepsHash` and no runtime `npx`/network fetch. The Hermes service
-module enables Link by default, declares the expected SOPS key
+aspect enables Link by default, declares the expected SOPS key
 `hermes_api_server_key` from the host SOPS file, and adds these placeholders to
 the existing `hermes-env` template:
 

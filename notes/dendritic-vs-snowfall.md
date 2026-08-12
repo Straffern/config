@@ -1,3 +1,11 @@
+> [!WARNING]
+> **Superseded historical comparison.** This note records pre-migration
+> research and evidence only. It is not the live architecture or an instruction
+> source. The current contract is Den entities/aspects/policies with flake-parts,
+> generated flake-file root, three explicit hosts, integrated Home Manager, one
+> `x86_64-linux` entity system, and explicit public packages. Preserve the
+> historical claims below as evidence; do not copy their recommendations into
+> live documentation.
 # Dendritic design with flake-parts vs Snowfall Lib
 
 _As of 2026-08-11._

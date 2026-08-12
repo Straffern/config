@@ -1,0 +1,43 @@
+{den, ...}: {
+  den.aspects.desktop.addons.hypridle = {
+    homeManager = {
+      config,
+      lib,
+      ...
+    }: {
+      # Add only missing lifecycle hardening; keep upstream HM unit defaults.
+      systemd.user.services.hypridle.Unit = {
+        BindsTo = [config.services.hypridle.systemdTarget];
+        StartLimitIntervalSec = 60;
+        StartLimitBurst = 5;
+      };
+
+      services.hypridle = {
+        enable = true;
+        settings = {
+          general = {
+            before_sleep_cmd = "loginctl lock-session";
+            after_sleep_cmd = "hyprctl dispatch dpms on";
+            lock_cmd = "pidof hyprlock || hyprlock ";
+          };
+
+          listener = [
+            {
+              timeout = 300;
+              on-timeout = "loginctl lock-session ";
+            }
+            {
+              timeout = 330;
+              on-timeout = "hyprctl dispatch dpms off";
+              on-resume = "hyprctl dispatch dpms on";
+            }
+            {
+              timeout = 1800;
+              on-timeout = "systemctl suspend";
+            }
+          ];
+        };
+      };
+    };
+  };
+}
