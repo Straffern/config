@@ -7,11 +7,23 @@
     includes = [
       den.batteries.define-user
       den.batteries.hostname
+      den.batteries.inputs'
+      den.batteries.self'
+      (den.batteries.unfree [
+        "brave"
+        "davinci-resolve-studio"
+        "discord"
+        "goofcord"
+        "slack"
+        "spotify"
+        "steam"
+        "steam-original"
+        "steam-run"
+        "steam-unwrapped"
+      ])
     ];
     nixos.system.stateVersion = "26.05";
-    nixos.nixpkgs.config.allowUnfree = true;
     homeManager.home.stateVersion = "26.05";
-    homeManager.nixpkgs.config.allowUnfree = true;
   };
 
   den.schema.user.classes = lib.mkDefault ["user" "homeManager"];

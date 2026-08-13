@@ -121,23 +121,4 @@ in {
     home.packages = [ompPackage];
     home.file.".omp/natives/${ompPackage.version}".source = "${ompPackage}/lib/omp/natives/${ompPackage.version}";
   };
-
-  den.aspects.cli.omp-wrappers.homeManager = {
-    config,
-    pkgs,
-    ...
-  }: let
-    bunBin = "${config.home.homeDirectory}/.local/cache/.bun/bin";
-    mkWrapper = name:
-      pkgs.writeShellScriptBin name ''
-        export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-        export AI_AGENT=1
-        exec ${bunBin}/omp "$@"
-      '';
-  in {
-    home.packages = [
-      (mkWrapper "omp")
-      (mkWrapper "pi")
-    ];
-  };
 }

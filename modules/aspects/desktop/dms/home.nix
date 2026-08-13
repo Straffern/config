@@ -33,7 +33,6 @@
       ;
 
     niriEnabled = config.programs.niri.enable or false;
-    hyprlandEnabled = config.wayland.windowManager.hyprland.enable or false;
 
     terminalCommand =
       if niriEnabled
@@ -309,17 +308,6 @@
 
             ${concatStringsSep "\n" (map installMissingNiriFile bootstrappedNiriFiles)}
           '';
-        };
-      })
-
-      # ── Hyprland compositor integration ──
-      (mkIf hyprlandEnabled {
-        wayland.windowManager.hyprland.settings = {
-          env = [
-            "QT_QPA_PLATFORMTHEME,qt6ct"
-            "QT_QPA_PLATFORMTHEME_QT6,qt6ct"
-          ];
-          exec-once = ["dms run"];
         };
       })
     ];

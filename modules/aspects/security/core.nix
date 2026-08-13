@@ -14,21 +14,6 @@
       sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
     };
 
-    doas.nixos = {
-      security.sudo.enable = false;
-      security.doas = {
-        enable = true;
-        extraRules = [
-          {
-            users = ["alex"];
-            noPass = true;
-            keepEnv = true;
-          }
-        ];
-      };
-      environment.shellAliases.sudo = "doas";
-    };
-
     fail2ban.nixos = {
       host,
       lib,
@@ -117,7 +102,6 @@
       };
       security.pam.services = {
         swaylock.u2fAuth = true;
-        hyprlock.u2fAuth = true;
         login.u2fAuth = true;
         sudo.u2fAuth = true;
       };

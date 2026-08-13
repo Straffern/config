@@ -3,11 +3,11 @@
   inputs,
   ...
 }: {
-  den.aspects.cli.hunk.homeManager = {pkgs, ...}: {
+  den.aspects.cli.hunk.homeManager = {inputs', pkgs, ...}: {
     imports = [inputs.hunk.homeManagerModules.default];
     programs.hunk = {
       enable = true;
-      package = inputs.hunk.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      package = inputs'.hunk.packages.default;
       enableGitIntegration = false;
       settings = {
         theme = "midnight";

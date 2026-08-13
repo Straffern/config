@@ -45,8 +45,7 @@
             "https://cache.nixos.org"
             "https://devenv.cachix.org?priority=41"
             "https://nix-community.cachix.org?priority=42"
-            "https://hyprland.cachix.org?priority=43"
-            "https://niri.cachix.org?priority=44"
+            "https://niri.cachix.org?priority=43"
             "https://attic.xuyh0120.win/lantian?priority=45"
             "https://cache.numtide.com?priority=46"
           ];
@@ -54,7 +53,6 @@
             "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
             "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
-            "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
             "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
             "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
             "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
@@ -98,33 +96,15 @@
       };
     };
 
-    fonts.nixos = {pkgs, ...}: {
-      environment.variables.LOG_ICONS = "true";
-      environment.systemPackages = [pkgs.font-manager];
-      fonts.packages = with pkgs; [
-        noto-fonts
-        noto-fonts-cjk-sans
-        noto-fonts-cjk-serif
-        noto-fonts-color-emoji
-        nerd-fonts.jetbrains-mono
-      ];
-    };
-
-    xkb.nixos = {
-      console.useXkbConfig = true;
-      services.xserver.xkb = {
-        layout = "us";
-        options = "caps:escape";
-      };
-    };
     nix.homeManager = {
       config,
+      inputs',
       lib,
       pkgs,
       ...
     }: {
       home.packages = with pkgs; [
-        inputs.nixgl.packages.${pkgs.stdenv.hostPlatform.system}.nixGLIntel
+        inputs'.nixgl.packages.nixGLIntel
         nix-output-monitor
         nvd
       ];

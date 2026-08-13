@@ -3,8 +3,8 @@
   inputs,
   ...
 }: let
-  jjui = pkgs: inputs.jjui.packages.${pkgs.system}.jjui;
-  ww = pkgs: inputs.ww.packages.${pkgs.system}.default;
+  jjui = inputs': inputs'.jjui.packages.jjui;
+  ww = inputs': inputs'.ww.packages.default;
   lumen = pkgs: pkgs.callPackage ./_package/lumen.nix {src = inputs.lumen;};
   jj-starship = pkgs: pkgs.callPackage ./_package/jj-starship.nix {};
   jj-ryu = pkgs: pkgs.callPackage ./_package/jj-ryu.nix {};
@@ -25,8 +25,8 @@ in {
     };
 
     ww = {
-      homeManager = {pkgs, ...}: {
-        home.packages = [(ww pkgs)];
+      homeManager = {inputs', ...}: {
+        home.packages = [(ww inputs')];
       };
     };
 
@@ -37,6 +37,7 @@ in {
       ];
       homeManager = {
         config,
+        inputs',
         lib,
         pkgs,
         ...
@@ -45,7 +46,7 @@ in {
           pkgs.jujutsu
           pkgs.watchman
           pkgs.difftastic
-          (jjui pkgs)
+          (jjui inputs')
           (jj-starship pkgs)
           (jj-ryu pkgs)
         ];
@@ -68,7 +69,7 @@ in {
         '';
 
         xdg.configFile."zsh/completions/_ww".source = pkgs.runCommand "ww-zsh-completion" {} ''
-          ${lib.getExe (ww pkgs)} completion zsh > $out
+          ${lib.getExe (ww inputs')} completion zsh > $out
         '';
 
         programs.starship.settings = {

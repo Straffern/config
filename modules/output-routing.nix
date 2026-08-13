@@ -1,16 +1,7 @@
 {
-  config,
   den,
-  lib,
   ...
 }: {
-  perSystem = {pkgs, ...}: {
-    apps.write-flake = {
-      type = "app";
-      program = lib.getExe (config.flake-file.apps.write-flake pkgs);
-    };
-    checks.check-flake-file = config.flake-file.check-flake-file pkgs;
-  };
   den.schema.flake-system.includes = [
     den.policies.system-to-flake-parts
   ];
@@ -28,7 +19,6 @@
     den.aspects.cli.kitty
     den.aspects.cli.lazyjournal
     den.aspects.cli.neovim
-    den.aspects.desktop.hyprlock
     den.aspects.hardware.amd-debug-tools
     den.aspects.hardware.v4l2loopback
     den.aspects.styles.packages

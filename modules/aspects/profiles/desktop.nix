@@ -8,6 +8,7 @@
       den.aspects.desktop.media-controls
       den.aspects.desktop.nautilus
       den.aspects.hardware.audio
+      den.aspects.hardware.bluetooth
       den.aspects.hardware.amd-monitoring
       den.aspects.network.avahi
       den.aspects.network.vpn

@@ -3,8 +3,8 @@
   inputs,
   ...
 }: {
-  den.aspects.cli.lobster.homeManager = {pkgs, ...}: {
-    home.packages = [inputs.lobster.packages.${pkgs.stdenv.hostPlatform.system}.default pkgs.ueberzugpp];
+  den.aspects.cli.lobster.homeManager = {inputs', pkgs, ...}: {
+    home.packages = [inputs'.lobster.packages.default pkgs.ueberzugpp];
     xdg.configFile."lobster/lobster_config.sh" = {
       executable = true;
       text = ''

@@ -31,15 +31,6 @@
       ["/var/lib/bluetooth"];
   };
 
-  den.aspects.hardware.nvidia.nixos = {config, ...}: {
-    services.xserver.videoDrivers = ["nvidia"];
-    hardware.nvidia.modesetting.enable = true;
-    hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
-    environment.variables.CUDA_CACHE_PATH = "$XDG_CACHE_HOME/nv";
-    environment.shellAliases.nvidia-settings = "nvidia-settings --config='$XDG_CONFIG_HOME'/nvidia/settings";
-    environment.sessionVariables.WLR_NO_HARDWARE_CURSORS = "1";
-  };
-
   den.aspects.hardware.hidraw = {
     nixos = {
       users.groups.hidraw = {};

@@ -1,10 +1,7 @@
-{
-  den,
-  inputs,
-  ...
-}: {
+{den, ...}: {
   den.aspects.services.dankgreeter.nixos = {
     config,
+    inputs',
     lib,
     pkgs,
     ...
@@ -17,8 +14,8 @@
     services.displayManager.dms-greeter = {
       enable = true;
       compositor.name = "niri";
-      package = inputs.dms.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      configHome = "/home/alex";
+      package = inputs'.dms.packages.default;
+      configHome = config.users.users.alex.home;
     };
     services.fprintd.enable = true;
     security.pam.services.login.fprintAuth = false;

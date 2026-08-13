@@ -1,18 +1,6 @@
 {den, ...}: {
   den.aspects.desktop.addons.kanshi = {
-    homeManager = {
-      config,
-      lib,
-      pkgs,
-      ...
-    }: let
-      inherit (lib) optionals;
-      waybarEnabled = config.programs.waybar.enable or false;
-
-      # Restart waybar on profile switch so it re-renders for the new output layout.
-      # Only relevant when waybar is the active bar (not DMS/noctalia).
-      profileExec = optionals waybarEnabled ["sleep 0.5 && systemctl --user restart waybar"];
-    in {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs; [kanshi];
 
       services.kanshi = {
@@ -23,7 +11,6 @@
           {
             profile = {
               name = "undocked";
-              exec = profileExec;
               outputs = [
                 {
                   criteria = "eDP-1";
@@ -36,12 +23,10 @@
           {
             profile = {
               name = "home_office_laptop_docked";
-              exec = profileExec;
               outputs = [
                 {
                   criteria = "Samsung Electric Company U32R59x H4ZN200523";
                   position = "0,0";
-                  # mode = "2560x1440@59.95100Hz";
                   mode = "3840x2160@60.00Hz";
                 }
                 {
@@ -51,42 +36,9 @@
               ];
             };
           }
-          # {
-          #   profile.name = "home_office";
-          #   profile.outputs = [
-          #     {
-          #       criteria =
-          #         "GIGA-BYTE TECHNOLOGY CO. LTD. Gigabyte M32U  (DP-5 via HDMI)";
-          #       position = "3840,0";
-          #       mode = "3840x2160@144Hz";
-          #     }
-          #     {
-          #       criteria = "Dell Inc. DELL G3223Q 82X70P3 (DP-4)";
-          #       position = "0,0";
-          #       mode = "3840x2160@60Hz";
-          #     }
-          #   ];
-          # }
-          # {
-          #   profile.name = "desktop";
-          #   profile.outputs = [
-          #     {
-          #       criteria =
-          #         "GIGA-BYTE TECHNOLOGY CO., LTD. Gigabyte M32U 21351B000087";
-          #       position = "3840,0";
-          #       mode = "3840x2160@144Hz";
-          #     }
-          #     {
-          #       criteria = "Dell Inc. DELL G3223Q 82X70P3";
-          #       position = "0,0";
-          #       mode = "3840x2160@60Hz";
-          #     }
-          #   ];
-          # }
         ];
       };
 
-      # Survive compositor crash restarts: wait for new Wayland socket before retrying
       systemd.user.services.kanshi = {
         Unit = {
           StartLimitIntervalSec = 60;
