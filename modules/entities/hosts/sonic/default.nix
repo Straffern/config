@@ -42,6 +42,7 @@
       den.aspects.hardware.amd-debug-tools
     ];
     provides.alex.includes = [
+      den.aspects.hardware.amd-monitoring
       den.aspects.profiles.video
       den.aspects.profiles.gamedev
       den.aspects.cli.alacritty

@@ -1,6 +1,6 @@
 {den, ...}: {
-  den.aspects.desktop.nautilus = {
-    nixos = {
+  den.aspects.desktop = {
+    nautilus-system.nixos = {
       config,
       lib,
       pkgs,
@@ -30,7 +30,7 @@
         ];
       };
     };
-    homeManager.dconf.settings = {
+    nautilus-home.homeManager.dconf.settings = {
       "com/github/stunkymonkey/nautilus-open-any-terminal".terminal = "kitty";
     };
   };

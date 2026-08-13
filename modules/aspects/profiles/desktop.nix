@@ -4,8 +4,8 @@
       den.aspects.profiles.common
       den.aspects.styles.fonts-system
       den.aspects.styles.stylix-system
-      den.aspects.desktop.base
-      den.aspects.desktop.nautilus
+      den.aspects.desktop.base-system
+      den.aspects.desktop.nautilus-system
       den.aspects.hardware.audio
       den.aspects.hardware.bluetooth
       den.aspects.network.avahi

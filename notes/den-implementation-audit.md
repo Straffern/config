@@ -64,9 +64,12 @@ This matches Den's distinction between entity facts and aspect behavior.
   include graphs rather than independent host definitions. `profiles.common`
   is a GUI-free host foundation; desktop system fonts and theming are selected
   by `profiles.desktop`, while user fonts, theming, nixGL, and Home Manager-only
-  desktop behavior remain in `profiles.desktop-home`. The underlying style
-  aspects are split by Nix class so a user-only selection cannot import system
-  styling, and shared Nix tooling does not imply a graphics wrapper.
+  desktop behavior remain in `profiles.desktop-home`. Desktop base and Nautilus
+  use separate system/home leaves so each profile selects only its own class;
+  Sonic selects both to preserve the paired system service and user integration.
+  Hardware-specific AMD monitoring remains a Sonic user provision rather than a
+  generic desktop-home dependency. Coherent cross-class concerns such as Niri
+  and DMS remain unified. Shared Nix tooling does not imply a graphics wrapper.
 - Host entities select system/profile aspects. Palantir and Sonic use
   `provides.alex` for user-specific additions.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager

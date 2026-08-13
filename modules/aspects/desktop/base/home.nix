@@ -1,5 +1,5 @@
 {den, ...}: {
-  den.aspects.desktop.base.homeManager = {pkgs, ...}: {
+  den.aspects.desktop.base-home.homeManager = {pkgs, ...}: {
     systemd.user.targets.tray = {
       Unit = {
         Description = "Home Manager System Tray";

@@ -8,7 +8,8 @@
       den.aspects.desktop.input-tools
       den.aspects.desktop.wayland-session
       den.aspects.desktop.media-controls
-      den.aspects.hardware.amd-monitoring
+      den.aspects.desktop.base-home
+      den.aspects.desktop.nautilus-home
       den.aspects.cli.kitty
       den.aspects.development.state
       den.aspects.apps.brave
