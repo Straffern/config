@@ -63,38 +63,31 @@ in {
       home.packages = [(kitty-same-cwd pkgs)];
       programs.kitty = {
         enable = true;
-        extraConfig =
-          ''
-            symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
+        extraConfig = ''
+          symbol_map U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0 Symbols Nerd Font Mono
 
-            # kitty-scrollback.nvim
-            action_alias kitty_scrollback_nvim kitten ~/.local/share/nvim/lazy/kitty-scrollback.nvim/python/kitty_scrollback_nvim.py
-            map shift+escape kitty_scrollback_nvim
-            map ctrl+shift+escape kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
+          # kitty-scrollback.nvim
+          action_alias kitty_scrollback_nvim kitten ~/.local/share/nvim/lazy/kitty-scrollback.nvim/python/kitty_scrollback_nvim.py
+          map shift+escape kitty_scrollback_nvim
+          map ctrl+shift+escape kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
 
-            # Temporary until tmux kitty keyboard protocol support lands: https://github.com/tmux/tmux/pull/4912
-            map shift+enter send_text all \e[13;2u
-            map ctrl+enter send_text application \x1b[27;5;13~
-            mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
-          ''
-          + lib.optionalString config.programs.dank-material-shell.enable ''
-            include dank-tabs.conf
-            include dank-theme.conf
-          '';
+          # Temporary until tmux kitty keyboard protocol support lands: https://github.com/tmux/tmux/pull/4912
+          map shift+enter send_text all \e[13;2u
+          map ctrl+enter send_text application \x1b[27;5;13~
+          mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
+        '';
         keybindings = {
           "super+j" = "no_op";
           "super+l" = "no_op";
         };
         settings = {
           shell = "zsh";
-          background_opacity = lib.mkIf (!config.programs.dank-material-shell.enable) (lib.mkForce 1.0);
           allow_remote_control = "socket-only";
           listen_on = "unix:/tmp/kitty";
           shell_integration = "enabled";
           bold_font = "auto";
           italic_font = "auto";
           bold_italic_font = "auto";
-          font_size = lib.mkIf (!config.programs.dank-material-shell.enable) 14;
           bell_path = "${config.xdg.dataHome}/sounds/bell.oga";
           window_padding_width = 10;
           scrollback_lines = 5000;

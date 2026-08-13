@@ -6,6 +6,7 @@
       den.aspects.cli.tmux
       den.aspects.cli.bat
       den.aspects.cli.bottom
+      den.aspects.cli.process-monitor
       den.aspects.cli.database
       den.aspects.cli.direnv
       den.aspects.cli.devenv
@@ -79,11 +80,5 @@
       den.aspects.cli.wl-clipboard
       den.aspects.cli.libinput
     ];
-    homeManager = {pkgs, ...}: {
-      home.packages = [
-        pkgs.btop
-        pkgs.python3
-      ];
-    };
   };
 }

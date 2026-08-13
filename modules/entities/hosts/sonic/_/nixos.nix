@@ -7,7 +7,6 @@
   users.mutableUsers = false;
   users.users.alex = {
     initialHashedPassword = "$6$Xzsm8xWpuEtAOgfe$TMvP8XkkM2UHUSCANLq0CSzmsTVWRDaZNsDn1VlOUQ9WmJUROQYbFkQqHDXmqJ5NYTZn2KY3e/LhmgPQA204z1";
-    extraGroups = ["wheel"];
     uid = 1000;
   };
 

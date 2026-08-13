@@ -1,10 +1,13 @@
 {den, ...}: {
   den.aspects.desktop.addons.swaylock = {
     homeManager = {
-      config,
+      lib,
+      osConfig,
       pkgs,
       ...
-    }: {
+    }: let
+      hyprlandPackage = lib.attrByPath ["programs" "hyprland" "package"] null osConfig;
+    in {
       programs.swaylock = {
         enable = true;
         package = pkgs.swaylock-effects;
@@ -38,17 +41,18 @@
             command = "${pkgs.swaylock-effects}/bin/swaylock -fF";
           }
         ];
-        timeouts = [
-          {
+        timeouts =
+          lib.optional (hyprlandPackage != null) {
             timeout = 600;
-            command = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
-            resumeCommand = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
+            command = "${hyprlandPackage}/bin/hyprctl dispatch dpms off";
+            resumeCommand = "${hyprlandPackage}/bin/hyprctl dispatch dpms on";
           }
-          {
-            timeout = 610;
-            command = "${pkgs.systemd}/bin/loginctl lock-session";
-          }
-        ];
+          ++ [
+            {
+              timeout = 610;
+              command = "${pkgs.systemd}/bin/loginctl lock-session";
+            }
+          ];
       };
     };
   };

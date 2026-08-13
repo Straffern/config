@@ -4,7 +4,6 @@
   lib,
   ...
 }: {
-  systems = config.den.systems;
   perSystem = {pkgs, ...}: {
     apps.write-flake = {
       type = "app";

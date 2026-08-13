@@ -8,7 +8,7 @@ in {
       ...
     }: let
       toml = (pkgs.formats.toml {}).generate "waldl-config.toml" {
-        general.wallpaper_dir = "${config.home.homeDirectory}/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers";
+        general.wallpaper_dir = "${config.home.homeDirectory}/Pictures/wallpapers/wallhaven";
         api.key_file = config.sops.secrets.wallhaven_key.path;
       };
     in {

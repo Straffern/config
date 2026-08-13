@@ -208,6 +208,10 @@
           enableDynamicTheming = true;
           enableClipboardPaste = true;
         };
+        programs.kitty.extraConfig = lib.mkAfter ''
+          include dank-tabs.conf
+          include dank-theme.conf
+        '';
 
         programs.dank-calendar = {
           enable = true;
