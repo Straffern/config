@@ -70,7 +70,7 @@
         description = "Timeout for Hindsight reflect LLM requests, in seconds.";
       };
     };
-    config =
+    config = lib.mkMerge [
       {
         sops.secrets.groq_api_key.sopsFile = hostSecretsFile;
         sops.secrets.openrouter_api_key.sopsFile = hostSecretsFile;
@@ -136,8 +136,9 @@
           };
         };
       }
-      // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+      (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         environment.persistence."/persist".directories = ["/var/lib/hindsight"];
-      };
+      })
+    ];
   };
 }

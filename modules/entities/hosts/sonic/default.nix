@@ -26,6 +26,8 @@
       den.aspects.profiles.desktop
       den.aspects.profiles.desktop-home
       den.aspects.profiles.gaming
+      den.aspects.profiles.social
+      den.aspects.cli.opencode
       den.aspects.desktop.niri
       den.aspects.desktop.dms
       den.aspects.services.hindsight
@@ -40,12 +42,10 @@
       den.aspects.hardware.amd-debug-tools
     ];
     provides.alex.includes = [
-      den.aspects.profiles.social
       den.aspects.profiles.video
       den.aspects.profiles.gamedev
       den.aspects.cli.alacritty
       den.aspects.cli.lobster
-      den.aspects.cli.opencode
       den.aspects.cli.pi
       den.aspects.cli.omp
       den.aspects.cli.ai-shell

@@ -1,16 +1,18 @@
 {den, ...}: {
   den.aspects.cli.zoxide.homeManager = {
-    host,
     lib,
+    host,
     ...
   }:
-    {
-      programs.zoxide = {
-        enable = true;
-        enableZshIntegration = true;
-      };
-    }
-    // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
-      home.persistence."/persist".directories = [".local/share/zoxide"];
-    };
+    lib.mkMerge [
+      {
+        programs.zoxide = {
+          enable = true;
+          enableZshIntegration = true;
+        };
+      }
+      (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+        home.persistence."/persist".directories = [".local/share/zoxide"];
+      })
+    ];
 }

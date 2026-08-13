@@ -5,11 +5,11 @@
 }: {
   den.aspects.services.k3s.nixos = {
     config,
-    host,
     lib,
+    host,
     ...
   }: {
-    config =
+    config = lib.mkMerge [
       {
         assertions = [
           {
@@ -36,12 +36,13 @@
           139
         ];
       }
-      // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+      (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         environment.persistence."/persist".directories = [
           "/var/lib/rancher"
           "/var/lib/kubelet"
           "/var/lib/cni"
         ];
-      };
+      })
+    ];
   };
 }

@@ -12,19 +12,21 @@ in {
   };
   den.aspects.cli.opencode.homeManager = {
     config,
-    host,
     inputs',
     lib,
+    host,
     ...
   }:
-    {
-      programs.opencode = {
-        enable = true;
-        package = opencode inputs';
-      };
-      home.file.".config/opencode/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
-    }
-    // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
-      home.persistence."/persist".directories = [".config/opencode"];
-    };
+    lib.mkMerge [
+      {
+        programs.opencode = {
+          enable = true;
+          package = opencode inputs';
+        };
+        home.file.".config/opencode/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
+      }
+      (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+        home.persistence."/persist".directories = [".config/opencode"];
+      })
+    ];
 }

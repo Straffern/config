@@ -9,18 +9,19 @@
   };
 
   den.aspects.apps.helium.homeManager = {
-    host,
     lib,
+    host,
     ...
-  }:
-    {
-      imports = [inputs.helium-browser.homeModules.default];
-      programs.helium.enable = true;
-    }
-    // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
-      home.persistence."/persist".directories = [
-        ".config/helium"
-        ".cache/helium"
-      ];
-    };
+  }: {
+    imports = [inputs.helium-browser.homeModules.default];
+    config = lib.mkMerge [
+      {programs.helium.enable = true;}
+      (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+        home.persistence."/persist".directories = [
+          ".config/helium"
+          ".cache/helium"
+        ];
+      })
+    ];
+  };
 }

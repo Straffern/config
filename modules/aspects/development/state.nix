@@ -1,10 +1,10 @@
 {den, ...}: {
   den.aspects.development.state.homeManager = {
-    host,
     lib,
+    host,
     ...
   }:
-    lib.mkIf (host.hasAspect den.aspects.platform.impermanence) {
+    lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
       home.persistence."/persist".directories = [
         ".cargo"
         ".config/github-copilot"

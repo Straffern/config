@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Den leftovers — host vs user routing</title>
+  <title>Historical snapshot (superseded) — Den leftovers</title>
   <style>
     :root {
       --bg: #16161e;
@@ -31,6 +31,22 @@
       padding: 28px 20px 48px;
     }
     h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 6px; }
+    .historical {
+      margin: 0 0 28px;
+      padding: 16px 18px;
+      border: 2px solid var(--dead);
+      border-radius: 12px;
+      background: #321821;
+      color: #ffdbe2;
+    }
+    .historical strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .historical a { color: var(--ok); font-weight: 650; }
     .lede { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
     h2 { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
     section { margin-bottom: 36px; }
@@ -113,6 +129,15 @@
 </head>
 <body>
   <main>
+    <aside class="historical" role="alert">
+      <strong>Historical snapshot — superseded; do not use as current guidance</strong>
+      This page records an earlier migration state. Its claims about Frostmourne
+      users, Sonic profile duplication, and dropped host Home Manager content are
+      no longer true. See the
+      <a href="den-implementation-audit.md">current Den implementation audit</a>
+      for the repository's present architecture and remaining gaps.
+    </aside>
+
     <h1>The leftover is scope, not missing Den APIs</h1>
     <p class="lede">Hosts already exist. Mixed profiles still get included twice so Home Manager content that host-scope silently drops can reach Alex.</p>
 
