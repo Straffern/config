@@ -26,6 +26,7 @@
 
     provides.alex.includes = [
       den.aspects.profiles.development
+      den.aspects.styles.stylix-home
       den.aspects.cli.opencode
       den.aspects.apps.clipy
       den.aspects._palantir-home

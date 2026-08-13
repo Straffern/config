@@ -61,7 +61,11 @@ This matches Den's distinction between entity facts and aspect behavior.
 ### Aspects and composition
 
 - `modules/aspects/` is feature-first and concern-owned. Profiles are thin
-  include graphs rather than independent host definitions.
+  include graphs rather than independent host definitions. `profiles.common`
+  is a GUI-free host foundation; desktop system fonts and theming are selected
+  by `profiles.desktop`, while user fonts, theming, and other user desktop
+  behavior remain in `profiles.desktop-home`. The underlying style aspects are
+  split by Nix class so a user-only selection cannot import system styling.
 - Host entities select system/profile aspects. Palantir and Sonic use
   `provides.alex` for user-specific additions.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager

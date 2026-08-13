@@ -6,7 +6,5 @@
     den.aspects.platform.nix
     den.aspects.platform.zsh
     den.aspects.security.sops
-    den.aspects.styles.fonts
-    den.aspects.styles.stylix
   ];
 }

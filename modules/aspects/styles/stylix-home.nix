@@ -6,7 +6,7 @@
   monolisaPackage = pkgs: pkgs.callPackage ./packages/_package/monolisa {};
   wallpapersPackage = pkgs: pkgs.callPackage ./packages/_package/wallpapers {};
 in {
-  den.aspects.styles.stylix = {
+  den.aspects.styles.stylix-home = {
     includes = [den.aspects.styles.packages];
     homeManager = {
       config,

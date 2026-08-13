@@ -2,6 +2,8 @@
   den.aspects.profiles.desktop = {
     includes = [
       den.aspects.profiles.common
+      den.aspects.styles.fonts-system
+      den.aspects.styles.stylix-system
       den.aspects.desktop.base
       den.aspects.desktop.input-tools
       den.aspects.desktop.wayland-session

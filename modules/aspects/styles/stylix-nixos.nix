@@ -10,7 +10,7 @@ in {
     url = "github:nix-community/stylix/release-26.05";
     inputs.nixpkgs.follows = "nixpkgs";
   };
-  den.aspects.styles.stylix = {
+  den.aspects.styles.stylix-system = {
     includes = [den.aspects.styles.packages];
     nixos = {
       config,

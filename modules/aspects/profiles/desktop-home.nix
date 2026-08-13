@@ -2,6 +2,8 @@
   den.aspects.profiles.desktop-home = {
     includes = [
       den.aspects.profiles.development
+      den.aspects.styles.stylix-home
+      den.aspects.styles.fonts-home
       den.aspects.cli.kitty
       den.aspects.development.state
       den.aspects.apps.brave
