@@ -25,10 +25,9 @@
     includes = [
       den.aspects.profiles.desktop
       den.aspects.profiles.desktop-home
-      den.aspects.profiles.gaming
+      den.aspects.gaming.niri-session
       den.aspects.profiles.social
       den.aspects.cli.opencode
-      den.aspects.desktop.niri
       den.aspects.desktop.dms
       den.aspects.services.hindsight
       den.aspects.services.tailscale
