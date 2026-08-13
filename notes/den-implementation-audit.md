@@ -69,11 +69,12 @@ This matches Den's distinction between entity facts and aspect behavior.
   Sonic selects both to preserve the paired system service and user integration.
   Hardware-specific AMD monitoring remains a Sonic user provision rather than a
   generic desktop-home dependency. Gaming core is reusable without a compositor;
-  Sonic selects a Gaming + Niri integration aspect that composes both concerns
-  and contributes its Steam Gamescope session through native list merging rather
-  than replacing unrelated display sessions. Coherent cross-class concerns such
-  as Niri and DMS remain unified. Shared Nix tooling does not imply a graphics
-  wrapper.
+  Sonic selects a Gaming + Niri integration aspect through the canonical gaming
+  profile and contributes its Steam Gamescope session through native list merging
+  rather than replacing unrelated display sessions. Social composition is limited
+  to chat, while the independent photos profile owns Shotwell. Coherent cross-class
+  concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
+  a graphics wrapper.
 - Host entities select system/profile aspects. Palantir and Sonic use
   `provides.alex` for user-specific additions.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager

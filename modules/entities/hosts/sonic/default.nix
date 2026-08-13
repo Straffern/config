@@ -27,6 +27,7 @@
       den.aspects.profiles.desktop-home
       den.aspects.gaming.niri-session
       den.aspects.profiles.social
+      den.aspects.profiles.photos
       den.aspects.cli.opencode
       den.aspects.desktop.dms
       den.aspects.services.hindsight

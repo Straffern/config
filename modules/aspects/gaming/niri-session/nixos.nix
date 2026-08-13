@@ -1,7 +1,7 @@
 {den, ...}: {
   den.aspects.gaming.niri-session = {
     includes = [
-      den.aspects.gaming.core
+      den.aspects.profiles.gaming
       den.aspects.desktop.niri
     ];
 
