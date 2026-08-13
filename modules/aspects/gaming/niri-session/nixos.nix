@@ -2,7 +2,6 @@
   den.aspects.gaming.niri-session = {
     includes = [
       den.aspects.profiles.gaming
-      den.aspects.gaming.amd-graphics
       den.aspects.desktop.niri
     ];
 
