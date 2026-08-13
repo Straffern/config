@@ -98,13 +98,11 @@
 
     nix.homeManager = {
       config,
-      inputs',
       lib,
       pkgs,
       ...
     }: {
       home.packages = with pkgs; [
-        inputs'.nixgl.packages.nixGLIntel
         nix-output-monitor
         nvd
       ];
@@ -125,6 +123,10 @@
         json = lib.mkForce {};
         entries = lib.mkForce [];
       };
+    };
+
+    nixgl.homeManager = {inputs', ...}: {
+      home.packages = [inputs'.nixgl.packages.nixGLIntel];
     };
   };
 }

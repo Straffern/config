@@ -4,6 +4,11 @@
       den.aspects.profiles.development
       den.aspects.styles.stylix-home
       den.aspects.styles.fonts-home
+      den.aspects.platform.nixgl
+      den.aspects.desktop.input-tools
+      den.aspects.desktop.wayland-session
+      den.aspects.desktop.media-controls
+      den.aspects.hardware.amd-monitoring
       den.aspects.cli.kitty
       den.aspects.development.state
       den.aspects.apps.brave
