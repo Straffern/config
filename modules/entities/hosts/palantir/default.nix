@@ -7,9 +7,8 @@
 
   den.hosts.x86_64-linux.palantir.users.alex = {};
 
-  denful.deployment.nodes.palantir = {
+  den.hosts.x86_64-linux.palantir.deployment = {
     enable = true;
-    hostname = "palantir";
     sshUser = "alex";
     activationTimeout = 600;
     confirmTimeout = 60;

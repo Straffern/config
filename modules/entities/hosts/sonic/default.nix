@@ -16,9 +16,8 @@
 
   den.hosts.x86_64-linux.sonic.users.alex = {};
 
-  denful.deployment.nodes.sonic = {
+  den.hosts.x86_64-linux.sonic.deployment = {
     enable = true;
-    hostname = "sonic";
     sshUser = "alex";
   };
 

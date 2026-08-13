@@ -245,9 +245,13 @@ mechanism (already in `README.md`).
 class / flake-parts forward. [`guides/custom-classes.mdx`](https://github.com/denful/den/blob/main/docs/src/content/docs/guides/custom-classes.mdx),
 [`tutorials/flake-parts-modules.mdx`](https://github.com/denful/den/blob/main/docs/src/content/docs/tutorials/flake-parts-modules.mdx)
 
-`options.denful.deployment.nodes` is a local option tree, not a Den namespace
-(`den.ful.<name>`). Fine as private config; rename only if you want it to be a
-shareable namespace. [`guides/namespaces.mdx`](https://github.com/denful/den/blob/main/docs/src/content/docs/guides/namespaces.mdx)
+Deployment previously used a parallel `options.denful.deployment.nodes`
+registry. It now extends `den.schema.host` with typed `deployment` metadata;
+concrete values live on each `den.hosts.x86_64-linux.<name>` entity, and output
+generation uses the entity's canonical `hostName`. This keeps host facts on Den
+entities rather than recreating an independent host registry. Custom
+namespaces (`den.ful.<name>`) remain unnecessary here.
+[`guides/namespaces.mdx`](https://github.com/denful/den/blob/main/docs/src/content/docs/guides/namespaces.mdx)
 
 ### 9. Optional Den surfaces not used (not bugs)
 

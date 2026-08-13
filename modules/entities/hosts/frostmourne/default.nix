@@ -8,9 +8,8 @@
     niko.classes = ["user"];
   };
 
-  denful.deployment.nodes.frostmourne = {
+  den.hosts.x86_64-linux.frostmourne.deployment = {
     enable = true;
-    hostname = "frostmourne";
     sshUser = "alex";
   };
 
