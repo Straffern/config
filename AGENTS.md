@@ -15,8 +15,9 @@ aspect-owned declaration modules, not the generated file.
 ## Contract
 
 The only entity system is `x86_64-linux`. Alex is an integrated Home Manager
-user on Palantir and Sonic; Frostmourne is home-less. Home Manager is
-host-integrated rather than emitted as a separate output. Use native
+user on Palantir and Sonic. Frostmourne declares Alex and Niko as home-less
+Den users. Home Manager is host-integrated rather than emitted as a separate
+output. Use native
 NixOS/Home Manager options and ordinary lexical package values; directory
 presence does not create outputs.
 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Den leftovers — host vs user routing</title>
+  <style>
+    :root {
+      --bg: #16161e;
+      --panel: #1a1b26;
+      --ink: #c0caf5;
+      --muted: #565f89;
+      --line: #292e42;
+      --nixos: #7aa2f7;
+      --home: #9ece6a;
+      --warn: #e0af68;
+      --dead: #f7768e;
+      --ok: #73daca;
+      --host: #bb9af7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 "IBM Plex Sans", "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+    h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 6px; }
+    .lede { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+    h2 { font-size: 0.78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+    section { margin-bottom: 36px; }
+    .hosts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 100%;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 1rem; }
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: .04em;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .tag.warn { color: var(--warn); border-color: #3d3420; background: #241f14; }
+    .tag.ok { color: var(--ok); border-color: #1e3a34; background: #142422; }
+    .lane { font-size: 0.72rem; letter-spacing: .08em; text-transform: uppercase; margin: 10px 0 4px; }
+    .lane.os { color: var(--nixos); }
+    .lane.hm { color: var(--home); }
+    .lane.raw { color: var(--dead); }
+    ul { margin: 0; padding-left: 1.1em; color: var(--ink); }
+    li { margin: 2px 0; }
+    .dup { color: var(--warn); }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .arrow {
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 1.4rem;
+    }
+    .drop { opacity: .45; text-decoration: line-through; }
+    .keep { color: var(--home); }
+    .oskeep { color: var(--nixos); }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    pre {
+      margin: 0;
+      background: #0f1017;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font: 12.5px/1.5 "IBM Plex Mono", ui-monospace, monospace;
+    }
+    .add { color: var(--home); }
+    .del { color: var(--dead); }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .item { padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+    .item b { display: block; margin-bottom: 4px; }
+    .n { color: var(--host); font-variant-numeric: tabular-nums; margin-right: 6px; }
+    @media (max-width: 860px) {
+      .hosts, .flow, .compare, .board { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); justify-content: center; height: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>The leftover is scope, not missing Den APIs</h1>
+    <p class="lede">Hosts already exist. Mixed profiles still get included twice so Home Manager content that host-scope silently drops can reach Alex.</p>
+
+    <section>
+      <h2>Who includes what today</h2>
+      <div class="hosts">
+        <article class="card">
+          <span class="tag warn">no den.users</span>
+          <h3>frostmourne</h3>
+          <div class="lane os">host.includes → nixos</div>
+          <ul>
+            <li>profiles.kubernetes → server → common</li>
+            <li>platform.boot</li>
+            <li class="dup">_frostmourne-users (raw alex/niko)</li>
+          </ul>
+          <div class="lane hm">provides.alex</div>
+          <ul><li>none — no user entity</li></ul>
+        </article>
+        <article class="card">
+          <span class="tag ok">closest to docs</span>
+          <h3>palantir + alex</h3>
+          <div class="lane os">host.includes → nixos</div>
+          <ul>
+            <li>profiles.server</li>
+            <li>hermes, hindsight, tailscale…</li>
+          </ul>
+          <div class="lane hm">provides.alex → homeManager</div>
+          <ul>
+            <li>profiles.development</li>
+            <li>zsh, opencode, git, stylix, clipy</li>
+          </ul>
+        </article>
+        <article class="card">
+          <span class="tag warn">double include</span>
+          <h3>sonic + alex</h3>
+          <div class="lane os">host.includes → nixos</div>
+          <ul>
+            <li class="dup">profiles.desktop</li>
+            <li>gaming, niri, dms, kvm…</li>
+          </ul>
+          <div class="lane hm">provides.alex → homeManager</div>
+          <ul>
+            <li class="dup">profiles.desktop again</li>
+            <li>social, niri, dms, clipy…</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why the double include exists</h2>
+      <div class="flow">
+        <article class="card">
+          <h3>profiles.desktop is mixed</h3>
+          <p class="oskeep">nixos: niri/dms/wayland, common OS</p>
+          <p class="keep">homeManager: kitty, slack, brave, development CLI…</p>
+        </article>
+        <div class="arrow">→</div>
+        <article class="card">
+          <h3>host.includes</h3>
+          <p class="oskeep">nixos applies</p>
+          <p class="drop">homeManager is inert at host scope</p>
+          <p>So Sonic repeats the profile on <code>provides.alex</code> to recover the dropped home half.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Canonical split</h2>
+      <div class="compare">
+        <pre><span class="del">- den.aspects.sonic.includes = [
+-   den.aspects.profiles.desktop   # mixed
+-   den.aspects.desktop.niri
+-   den.aspects.desktop.dms
+- ];
+- den.aspects.sonic.provides.alex.includes = [
+-   den.aspects.profiles.desktop   # again
+-   den.aspects.desktop.niri
+-   den.aspects.desktop.dms
+- ];</span></pre>
+        <pre><span class="add">+ den.aspects.sonic.includes = [
++   den.aspects.profiles.desktop-os
++   den.aspects.desktop.niri
++   den.aspects.desktop.dms
++ ];
++ den.aspects.sonic.provides.alex.includes = [
++   den.aspects.profiles.desktop-home
++   den.aspects.desktop.niri
++   den.aspects.desktop.dms
++ ];</span></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Then the smaller scars</h2>
+      <div class="board">
+        <div class="item"><b><span class="n">2</span>Frostmourne users</b>Declare <code>users.alex/niko</code> with no homeManager class instead of raw <code>users.users</code>.</div>
+        <div class="item"><b><span class="n">3</span>dendritic.nix</b>Import both dendritic flakeModules; drop <code>removeAttrs … overlays</code> if unused.</div>
+        <div class="item"><b><span class="n">4</span>host.name</b>Replace <code>networking.hostName == "palantir"</code> and hardcoded alex groups with context args.</div>
+        <div class="item"><b><span class="n">5</span>CLI leaves</b>Collapse ~80 one-package files; keep jj/neovim/hermes as real concerns.</div>
+        <div class="item"><b><span class="n">6</span>Dead aspects</b>hyprland, zellij, profiles.video/gamedev — attach or delete.</div>
+        <div class="item"><b><span class="n">—</span>Keep</b>lexical <code>_package</code>, package allowlist, no <code>den.homes</code>, <code>host.hasAspect</code>.</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -40,9 +40,11 @@
     environment.sessionVariables.WLR_NO_HARDWARE_CURSORS = "1";
   };
 
-  den.aspects.hardware.hidraw.nixos = {
-    users.groups.hidraw = {};
-    users.users.alex.extraGroups = ["hidraw"];
-    services.udev.extraRules = ''KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="hidraw"'';
+  den.aspects.hardware.hidraw = {
+    nixos = {
+      users.groups.hidraw = {};
+      services.udev.extraRules = ''KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", GROUP="hidraw"'';
+    };
+    user.extraGroups = ["hidraw"];
   };
 }

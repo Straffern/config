@@ -10,7 +10,7 @@
         enable = true;
         clean.enable = true;
         clean.extraArgs = "--keep-since 4d --keep 3";
-        flake = "/home/alex/.dotfiles";
+        flake = "${config.users.users.alex.home}/.dotfiles";
       };
     };
     nix-ld.nixos = {pkgs, ...}: {

@@ -2,15 +2,16 @@
 
 NixOS configurations built with Den and flake-parts for three x86_64-linux hosts:
 `frostmourne`, `palantir`, and `sonic`. Alex is an integrated Home Manager user
-on Palantir and Sonic; Frostmourne has no Home Manager user. Home Manager is
-host-integrated rather than emitted as a separate output.
+on Palantir and Sonic. Frostmourne declares Alex and Niko as home-less Den users.
+Home Manager is host-integrated rather than emitted as a separate output.
 
 ## Layout
 
 - `modules/aspects/` contains concern-owned Den aspects. Profiles are thin
   aspects composed with `includes`.
 - `modules/entities/hosts/` defines the three host identity entities and their
-  host-local details. Alex is declared inline by the Palantir and Sonic entities.
+  host-local details. Palantir and Sonic declare Alex as a Home Manager user;
+  Frostmourne declares Alex and Niko without Home Manager.
 - Colocated `_` directories hold subordinate package expressions, assets, and
   generated host data owned by their parent aspect.
 - Den has one entity system, `x86_64-linux`. flake-parts derives its `systems`

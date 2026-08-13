@@ -14,12 +14,14 @@ in {
   den.aspects.services.hermes = {
     nixos = {
       config,
+      host,
       lib,
       pkgs,
       ...
     }: let
       cfg = config.services.hermes;
-      hostSecretsFile = inputs.self + "/secrets/hosts/${config.networking.hostName}.yaml";
+      hostSecretsFile = inputs.self + "/secrets/hosts/${host.name}.yaml";
+      onPalantir = host.name == "palantir";
       xurl = xurlPackage pkgs;
       hermesLink = hermesLinkPackage pkgs;
       dashboardScript = dashboardPackage pkgs;
@@ -251,7 +253,7 @@ in {
             RuntimeMaxSec = "12h";
           };
         };
-        systemd.services.palantir-status-dashboard = lib.mkIf (config.networking.hostName == "palantir") {
+        systemd.services.palantir-status-dashboard = lib.mkIf onPalantir {
           description = "Serve the Palantir service status dashboard";
           wantedBy = ["multi-user.target"];
           after = ["network.target"];
@@ -267,7 +269,7 @@ in {
             ProtectHome = true;
           };
         };
-        systemd.services.hermes-tailscale-serve = lib.mkIf (config.networking.hostName == "palantir") {
+        systemd.services.hermes-tailscale-serve = lib.mkIf onPalantir {
           description = "Expose Hermes on the tailnet";
           wantedBy = ["multi-user.target"];
           after = [
@@ -293,7 +295,7 @@ in {
           };
         };
         systemd.services.palantir-restart-hermes-link =
-          lib.mkIf (config.networking.hostName == "palantir")
+          lib.mkIf onPalantir
           {
             description = "Restart HermesPilot Link from dashboard";
             serviceConfig.Type = "oneshot";
@@ -302,7 +304,7 @@ in {
               ${pkgs.systemd}/bin/systemctl restart hermes-link.service
             '';
           };
-        systemd.paths.palantir-restart-hermes-link = lib.mkIf (config.networking.hostName == "palantir") {
+        systemd.paths.palantir-restart-hermes-link = lib.mkIf onPalantir {
           description = "Watch for HermesPilot Link dashboard restart requests";
           wantedBy = ["multi-user.target"];
           after = ["palantir-status-dashboard.service"];

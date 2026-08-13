@@ -9,7 +9,7 @@
     host,
     ...
   }: let
-    hostSecretsFile = inputs.self + "/secrets/hosts/${config.networking.hostName}.yaml";
+    hostSecretsFile = inputs.self + "/secrets/hosts/${host.name}.yaml";
     routerConfig = builtins.toJSON {
       model_list = [
         {
@@ -62,7 +62,7 @@
     options.services.hindsight = {
       workerId = lib.mkOption {
         type = lib.types.str;
-        default = "hindsight-${config.networking.hostName}";
+        default = "hindsight-${host.name}";
       };
       reflectTimeoutSeconds = lib.mkOption {
         type = lib.types.int;
@@ -110,7 +110,7 @@
         wants = ["sops-nix.service"];
         restartTriggers = [config.sops.templates."hindsight-env".content];
       };
-      systemd.services.hindsight-tailscale-serve = lib.mkIf (config.networking.hostName == "palantir") {
+      systemd.services.hindsight-tailscale-serve = lib.mkIf (host.name == "palantir") {
         description = "Expose Hindsight on the tailnet";
         wantedBy = ["multi-user.target"];
         after = [

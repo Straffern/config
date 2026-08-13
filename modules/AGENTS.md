@@ -12,8 +12,8 @@ configuration interface.
 - `aspects/platform/`, `security/`, `hardware/`, and `network/` — system
   foundations.
 - `aspects/profiles/` — thin composition aspects such as `common`, `desktop`,
-  `server`, `development`, `gaming`, `kubernetes`, `social`, `video`, and
-  `gamedev`.
+  `desktop-home`, `server`, `development`, `gaming`, `kubernetes`, `social`,
+  `video`, and `gamedev`.
 - `aspects/services/` — service aspects, including Hermes.
 - `entities/hosts/` — `frostmourne`, `palantir`, and `sonic` host entities.
 - `_` directories — subordinate expressions/assets owned by their parent
@@ -39,7 +39,8 @@ option; do not mutate the shared package set to create aliases. Use ordinary
 inside integrated host/user composition and NixOS options in system aspects.
 
 The entity system is only `x86_64-linux`. Home Manager is integrated for Alex
-on Palantir and Sonic; it is not emitted as a separate output.
+on Palantir and Sonic. Frostmourne declares Alex and Niko as home-less Den
+users (`classes = ["user"]`). Home Manager is not emitted as a separate output.
 
 ## Anti-patterns
 

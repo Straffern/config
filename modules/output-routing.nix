@@ -17,7 +17,8 @@
   den.schema.flake-system.excludes = [
     den.policies.packages-to-flake
   ];
-  den.aspects.outputs.includes = [
+  den.schema.flake-parts.includes = [
+    den.policies.packages-to-flake-parts
     den.aspects.apps.clipy
     den.aspects.apps.waldl
     den.aspects.services.hermes
@@ -34,9 +35,5 @@
     den.aspects.tooling.dev-shell
     den.aspects.tooling.treefmt
     den.aspects.deployment
-  ];
-  den.schema.flake-parts.includes = [
-    den.policies.packages-to-flake-parts
-    den.aspects.outputs
   ];
 }

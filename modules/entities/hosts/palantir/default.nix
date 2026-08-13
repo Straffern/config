@@ -29,10 +29,7 @@
 
     provides.alex.includes = [
       den.aspects.profiles.development
-      den.aspects.cli.zsh
       den.aspects.cli.opencode
-      den.aspects.cli.git
-      den.aspects.styles.stylix
       den.aspects.apps.clipy
       den.aspects._palantir-home
     ];

@@ -4,9 +4,10 @@
       den.aspects.development.mutable-source
       den.aspects.cli.neovim
       den.aspects.cli.tmux
+      den.aspects.cli.zellij
       den.aspects.cli.bat
       den.aspects.cli.bottom
-      den.aspects.cli.process-monitor
+      den.aspects.cli.btop
       den.aspects.cli.database
       den.aspects.cli.direnv
       den.aspects.cli.devenv
@@ -25,60 +26,15 @@
       den.aspects.cli.ssh
       den.aspects.cli.starship
       den.aspects.cli.television
+      den.aspects.cli.toolbox
+      den.aspects.cli.go-suite
+      den.aspects.cli.js
+      den.aspects.cli.zsh
+      den.aspects.cli.sourcegraph
       den.aspects.cli.yazi
       den.aspects.cli.zoxide
-      den.aspects.cli.broot
-      den.aspects.cli.choose
-      den.aspects.cli.curlie
-      den.aspects.cli.chafa
-      den.aspects.cli.doggo
-      den.aspects.cli.duf
-      den.aspects.cli.dust
-      den.aspects.cli.dysk
-      den.aspects.cli.entr
-      den.aspects.cli.erdtree
-      den.aspects.cli.fd
-      den.aspects.cli.gdu
-      den.aspects.cli.gping
-      den.aspects.cli.grex
-      den.aspects.cli.hyperfine
-      den.aspects.cli.hexyl
-      den.aspects.cli.jqp
-      den.aspects.cli.jnv
-      den.aspects.cli.ouch
-      den.aspects.cli.the-silver-searcher
-      den.aspects.cli.procs
-      den.aspects.cli.tokei
-      den.aspects.cli.trash-cli
-      den.aspects.cli.tailspin
-      den.aspects.cli.gtrash
-      den.aspects.cli.ripgrep
-      den.aspects.cli.sd
-      den.aspects.cli.xcp
-      den.aspects.cli.yq
-      den.aspects.cli.viddy
       den.aspects.cli.snitch
       den.aspects.cli.lazyjournal
-      den.aspects.cli.jq
-      den.aspects.cli.tealdeer
-      den.aspects.cli.go
-      den.aspects.cli.golangci-lint
-      den.aspects.cli.air
-      den.aspects.cli.templ
-      den.aspects.cli.sqlc
-      den.aspects.cli.golines
-      den.aspects.cli.gotools
-      den.aspects.cli.go-task
-      den.aspects.cli.mockery
-      den.aspects.cli.gotestsum
-      den.aspects.cli.nodejs
-      den.aspects.cli.bun
-      den.aspects.cli.unzip
-      den.aspects.cli.sshfs
-      den.aspects.cli.ffmpeg
-      den.aspects.cli.python
-      den.aspects.cli.wl-clipboard
-      den.aspects.cli.libinput
     ];
   };
 }

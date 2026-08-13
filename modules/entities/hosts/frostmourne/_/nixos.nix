@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: {
+{lib, ...}: {
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
   boot.loader.grub = {
@@ -10,5 +6,4 @@
     efiSupport = true;
     efiInstallAsRemovable = true;
   };
-  environment.systemPackages = [pkgs.home-manager];
 }

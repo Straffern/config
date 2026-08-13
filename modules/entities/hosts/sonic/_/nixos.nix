@@ -14,7 +14,6 @@
   services.gnome.at-spi2-core.enable = true;
   networking = {
     useNetworkd = false;
-    hostName = "sonic";
     firewall = {
       allowedTCPPortRanges = [
         {

@@ -3,9 +3,10 @@
   inputs,
   ...
 }: {
-  imports = [./_/users.nix];
-
-  den.hosts.x86_64-linux.frostmourne = {};
+  den.hosts.x86_64-linux.frostmourne.users = {
+    alex.classes = ["user"];
+    niko.classes = ["user"];
+  };
 
   denful.deployment.nodes.frostmourne = {
     enable = true;
@@ -17,7 +18,6 @@
     includes = [
       den.aspects.profiles.kubernetes
       den.aspects.platform.boot
-      den.aspects._frostmourne-users
     ];
 
     nixos = {...}: {
@@ -27,7 +27,6 @@
         ./_/hardware-configuration.nix
         ./_/nixos.nix
       ];
-      networking.hostName = "frostmourne";
       system.stateVersion = "26.05";
     };
   };

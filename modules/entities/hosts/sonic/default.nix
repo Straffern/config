@@ -25,6 +25,7 @@
   den.aspects.sonic = {
     includes = [
       den.aspects.profiles.desktop
+      den.aspects.profiles.desktop-home
       den.aspects.profiles.gaming
       den.aspects.desktop.niri
       den.aspects.desktop.dms
@@ -42,10 +43,9 @@
       den.aspects.platform.zsh
     ];
     provides.alex.includes = [
-      den.aspects.profiles.desktop
       den.aspects.profiles.social
-      den.aspects.desktop.niri
-      den.aspects.desktop.dms
+      den.aspects.profiles.video
+      den.aspects.profiles.gamedev
       den.aspects.cli.alacritty
       den.aspects.cli.lobster
       den.aspects.cli.opencode
