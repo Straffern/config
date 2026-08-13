@@ -18,33 +18,34 @@
       host,
       lib,
       ...
-    }: {
-      services.fail2ban = {
-        enable = true;
-        maxretry = 3;
-        bantime = "1h";
-        ignoreIP = [
-          "127.0.0.0/8"
-          "::1"
-        ];
-        bantime-increment = {
+    }:
+      {
+        services.fail2ban = {
           enable = true;
-          maxtime = "168h";
-          factor = "4";
-          overalljails = true;
-        };
-        jails.sshd.settings = {
-          enabled = true;
-          port = "ssh";
-          filter = "sshd[mode=aggressive]";
           maxretry = 3;
-          findtime = "10m";
+          bantime = "1h";
+          ignoreIP = [
+            "127.0.0.0/8"
+            "::1"
+          ];
+          bantime-increment = {
+            enable = true;
+            maxtime = "168h";
+            factor = "4";
+            overalljails = true;
+          };
+          jails.sshd.settings = {
+            enabled = true;
+            port = "ssh";
+            filter = "sshd[mode=aggressive]";
+            maxretry = 3;
+            findtime = "10m";
+          };
         };
+      }
+      // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+        environment.persistence."/persist".directories = ["/var/lib/fail2ban"];
       };
-      environment.persistence."/persist".directories =
-        lib.mkIf (host.hasAspect den.aspects.platform.impermanence)
-        ["/var/lib/fail2ban"];
-    };
     audit.nixos = {pkgs, ...}: {
       security.audit = {
         enable = true;

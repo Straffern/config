@@ -4,7 +4,6 @@
       den.aspects.development.mutable-source
       den.aspects.cli.neovim
       den.aspects.cli.tmux
-      den.aspects.cli.zellij
       den.aspects.cli.bat
       den.aspects.cli.bottom
       den.aspects.cli.btop

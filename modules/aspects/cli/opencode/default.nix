@@ -1,7 +1,4 @@
-{
-  den,
-  ...
-}: let
+{den, ...}: let
   opencode = inputs': inputs'.llm-agents.packages.opencode;
 
   managedSource = config: path:
@@ -15,14 +12,19 @@ in {
   };
   den.aspects.cli.opencode.homeManager = {
     config,
+    host,
     inputs',
+    lib,
     ...
-  }: {
-    programs.opencode = {
-      enable = true;
-      package = opencode inputs';
+  }:
+    {
+      programs.opencode = {
+        enable = true;
+        package = opencode inputs';
+      };
+      home.file.".config/opencode/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
+    }
+    // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+      home.persistence."/persist".directories = [".config/opencode"];
     };
-    home.file.".config/opencode/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
-    home.persistence."/persist".directories = [".config/opencode"];
-  };
 }

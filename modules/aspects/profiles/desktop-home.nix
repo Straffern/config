@@ -9,7 +9,6 @@
       den.aspects.apps.slack
       den.aspects.apps.blender
       den.aspects.apps.kdeconnect
-      den.aspects.apps.spotify
       den.aspects.apps.desktop-utilities
       den.aspects.desktop.addons.xdg
       den.aspects.desktop.kitty

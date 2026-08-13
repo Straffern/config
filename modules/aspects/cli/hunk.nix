@@ -3,7 +3,11 @@
   inputs,
   ...
 }: {
-  den.aspects.cli.hunk.homeManager = {inputs', pkgs, ...}: {
+  den.aspects.cli.hunk.homeManager = {
+    inputs',
+    pkgs,
+    ...
+  }: {
     imports = [inputs.hunk.homeManagerModules.default];
     programs.hunk = {
       enable = true;

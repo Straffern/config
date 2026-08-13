@@ -1,16 +1,24 @@
 {den, ...}: {
-  den.aspects.cli.direnv.homeManager = {config, ...}: {
-    programs.direnv = {
-      enable = true;
-      enableZshIntegration = true;
-      nix-direnv.enable = true;
+  den.aspects.cli.direnv.homeManager = {
+    config,
+    host,
+    lib,
+    ...
+  }:
+    {
+      programs.direnv = {
+        enable = true;
+        enableZshIntegration = true;
+        nix-direnv.enable = true;
+      };
+      home.sessionVariables.DIRENV_LOG_FORMAT = "";
+      home.file.".config/direnv/direnv.toml".text = ''
+        [global]
+        log_format = "-"
+        log_filter = "^$"
+      '';
+    }
+    // lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
+      home.persistence."/persist".directories = [".local/share/direnv"];
     };
-    home.sessionVariables.DIRENV_LOG_FORMAT = "";
-    home.file.".config/direnv/direnv.toml".text = ''
-      [global]
-      log_format = "-"
-      log_filter = "^$"
-    '';
-    home.persistence."/persist".directories = [".local/share/direnv"];
-  };
 }

@@ -24,6 +24,13 @@
     };
 
     homeManager = {
+      unfree.packages = [
+        "aseprite"
+        "brave"
+        "davinci-resolve-studio"
+        "goofcord"
+        "keymapp"
+      ];
       xdg.dataFile."face.icon".source = ./_assets/pfp.jpg;
       xdg.dataFile."sounds/bell.oga".source = ./_assets/fuck.oga;
     };

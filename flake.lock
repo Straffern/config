@@ -1906,21 +1906,6 @@
         "type": "github"
       }
     },
-    "persist-retro": {
-      "locked": {
-        "lastModified": 1764675833,
-        "narHash": "sha256-mDFLM3O0ENnpLQvGTPgFxjJDYjzU2eMyEfwhmpPm/AI=",
-        "owner": "straffern",
-        "repo": "persist-retro",
-        "rev": "dc8f704b3550261052763561a5bbdcf5f4f8cfdd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "straffern",
-        "repo": "persist-retro",
-        "type": "github"
-      }
-    },
     "pre-commit": {
       "inputs": {
         "flake-compat": "flake-compat_6",
@@ -2027,7 +2012,6 @@
         "nixpkgs": "nixpkgs_9",
         "nixpkgs-lib": "nixpkgs-lib_3",
         "nur": "nur",
-        "persist-retro": "persist-retro",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
         "treefmt-nix": "treefmt-nix_5",

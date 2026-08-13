@@ -53,7 +53,6 @@
             "application/pdf" = ["helium.desktop"];
             "application/x-gnome-saved-search" = ["org.gnome.Nautilus.desktop"];
             "x-scheme-handler/discord" = ["discord.desktop"];
-            "x-scheme-handler/spotify" = ["spotify.desktop"];
             "x-scheme-handler/tg" = ["telegramdesktop.desktop"];
             "application/toml" = "org.gnome.TextEditor.desktop";
             "text/plain" = "org.gnome.TextEditor.desktop";

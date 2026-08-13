@@ -20,11 +20,9 @@
       den.aspects.profiles.server
       den.aspects.services.hermes
       den.aspects.services.hindsight
-      den.aspects.services.tailscale
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.boot
-      den.aspects.security.sops
     ];
 
     provides.alex.includes = [

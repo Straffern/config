@@ -34,10 +34,7 @@
 
     niriEnabled = config.programs.niri.enable or false;
 
-    terminalCommand =
-      if niriEnabled
-      then "kitty"
-      else "kitty";
+    terminalCommand = "kitty";
 
     # --- DMS settings bootstrap (compositor-agnostic) ---
 

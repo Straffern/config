@@ -32,7 +32,6 @@
       den.aspects.services.hindsight
       den.aspects.services.tailscale
       den.aspects.virtualization.kvm
-      den.aspects.virtualization.podman
       den.aspects.hardware.hidraw
       den.aspects.hardware.v4l2loopback
       den.aspects.platform.battery
@@ -40,7 +39,6 @@
       den.aspects.platform.impermanence
       den.aspects.platform.boot
       den.aspects.hardware.amd-debug-tools
-      den.aspects.platform.zsh
     ];
     provides.alex.includes = [
       den.aspects.profiles.social
