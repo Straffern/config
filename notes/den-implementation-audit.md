@@ -68,10 +68,11 @@ This matches Den's distinction between entity facts and aspect behavior.
   use separate system/home leaves so each profile selects only its own class;
   Sonic selects both to preserve the paired system service and user integration.
   Hardware-specific AMD monitoring remains a Sonic user provision rather than a
-  generic desktop-home dependency. Gaming core is reusable without a compositor;
-  Sonic selects a Gaming + Niri integration aspect through the canonical gaming
-  profile and contributes its Steam Gamescope session through native list merging
-  rather than replacing unrelated display sessions. Social composition is limited
+  generic desktop-home dependency. Gaming core is reusable without compositor or
+  GPU-vendor assumptions; Sonic's Gaming + Niri integration composes the canonical
+  gaming profile with an explicit AMD graphics aspect and contributes its Steam
+  Gamescope session through native list merging rather than replacing unrelated
+  display sessions. Social composition is limited
   to chat, while the independent photos profile owns Shotwell. Coherent cross-class
   concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
   a graphics wrapper.
@@ -214,6 +215,10 @@ These are bounded current issues, not reasons for speculative framework work:
   `den.batteries.import-tree` legacy bridge remains.
 - No backward-compatibility namespace or additional output abstraction is
   required.
+- Development profile decomposition is deferred: its broad workstation bundle
+  needs a separate behavior-neutral composition change and host-intent review.
+- Tmux's `navi` binding and implicit `sponge` dependency remain a tooling
+  cohesion risk to address separately.
 
 ## Audit procedure
 
