@@ -24,7 +24,6 @@
   den.aspects.sonic = {
     includes = [
       den.aspects.profiles.desktop
-      den.aspects.profiles.desktop-home
       den.aspects.gaming.niri-session
       den.aspects.gaming.amd-graphics
       den.aspects.profiles.social

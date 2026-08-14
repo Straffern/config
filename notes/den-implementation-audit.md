@@ -62,14 +62,17 @@ This matches Den's distinction between entity facts and aspect behavior.
 
 - `modules/aspects/` is feature-first and concern-owned. Profiles are thin
   include graphs rather than independent host definitions. `profiles.common`
-  is a GUI-free host foundation; desktop system fonts and theming are selected
-  by `profiles.desktop`, while user fonts, theming, nixGL, and Home Manager-only
-  desktop behavior remain in `profiles.desktop-home`. Desktop base and Nautilus
-  use separate system/home leaves so each profile selects only its own class;
-  Sonic selects both to preserve the paired system service and user integration.
-  Hardware-specific AMD monitoring remains a Sonic user provision rather than a
-  generic desktop-home dependency. Gaming core is reusable without compositor or
-  GPU-vendor assumptions; Sonic selects AMD graphics directly beside its generic
+  is a GUI-free host foundation; the cohesive `profiles.desktop` selects both
+  system and user desktop concerns. Each concern has one aspect identity, such
+  as `styles.fonts`, `styles.stylix`, `desktop.base`, and `desktop.nautilus`,
+  with its NixOS and Home Manager behavior expressed as class outputs of that
+  aspect rather than separate class-named aspects. Stylix's NixOS payload is
+  gated by desktop-profile membership so Palantir can select the same concern
+  for Alex without turning the server into a system-themed desktop. Hardware-
+  specific AMD monitoring remains a Sonic user provision rather than a generic
+  desktop
+  dependency. Gaming core is reusable without compositor or GPU-vendor
+  assumptions; Sonic selects AMD graphics directly beside its generic
   Gaming + Niri integration, which composes the canonical gaming profile and
   contributes its Steam Gamescope session through native list merging rather than
   replacing unrelated display sessions. Social composition is limited
@@ -79,9 +82,9 @@ This matches Den's distinction between entity facts and aspect behavior.
 - Host entities select system/profile aspects. Palantir and Sonic use
   `provides.alex` for user-specific additions.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager
-  classes selected by the host are projected to Alex. Sonic's separate
-  `profiles.desktop` and `profiles.desktop-home` avoid the former mixed-profile
-  double-include pattern.
+  classes selected by the host are projected to Alex. Sonic selects the
+  cross-class `profiles.desktop` once; Den routes each included aspect's class
+  outputs to the appropriate host and user entities.
 - Host-local Disko, hardware, facter, and private home fragments remain under
   each entity's `_` directory and are imported by the owning entity/aspect.
   `_` directory presence has no output semantics.
