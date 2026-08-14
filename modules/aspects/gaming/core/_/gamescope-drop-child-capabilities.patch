@@ -1,0 +1,29 @@
+--- a/src/Utils/Process.cpp
++++ b/src/Utils/Process.cpp
+@@ -225,6 +225,18 @@
+         sigprocmask( SIG_SETMASK, &set, nullptr );
+     }
+ 
++    static void ClearAmbientCapabilities()
++    {
++#if defined(__linux__)
++        // The compositor may need CAP_SYS_NICE, but its children must not inherit
++        // ambient capabilities. Steam's Bubblewrap rejects such a process.
++        if ( prctl( PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0 ) != 0 )
++        {
++            s_ProcessLog.errorf_errno( "Failed to clear ambient capabilities in child process" );
++        }
++#endif
++    }
++
+     static void ProcessPreSpawn()
+     {
+         ResetSignals();
+@@ -232,6 +244,7 @@
+         RestoreFdLimit();
+         RestoreNice();
+         RestoreRealtime();
++        ClearAmbientCapabilities();
+     }
+ 
+     bool CloseFd( int nFd )

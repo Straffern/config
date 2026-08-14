@@ -12,7 +12,12 @@
       gamemode.enable = true;
       gamescope = {
         enable = true;
-        capSysNice = true; # Needed for DRM session scheduling + setuid bwrap
+        capSysNice = true;
+        package = pkgs.gamescope.overrideAttrs (old: {
+          patches =
+            (old.patches or [])
+            ++ [./_/gamescope-drop-child-capabilities.patch];
+        });
       };
       steam = {
         enable = true;

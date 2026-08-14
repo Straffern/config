@@ -10,72 +10,60 @@
       pkgs,
       ...
     }: let
-      # nixpkgs' steam-gamescope session does not propagate its XWayland
-      # display or graphical-session target to user services. Keep this
-      # integration at the explicit Gaming + Niri selection boundary instead
-      # of making reusable gaming.core depend on Niri.
+      # Gamescope keeps CAP_SYS_NICE for scheduling. The package patch clears
+      # ambient capabilities only in forked children before they exec Steam.
       gamescopeCmd = "${config.security.wrapperDir}/gamescope";
 
       steam-gamescope = pkgs.writeShellScript "steam-gamescope" ''
-        set -uo pipefail
+        set -euo pipefail
 
-        LOG="/tmp/gamescope-session.log"
-        echo "=== gamescope session $(date --iso-8601=seconds) ===" >> "$LOG"
-        exec > >(tee -a "$LOG") 2>&1
+        echo "=== gamescope session $(date --iso-8601=seconds) ==="
 
         export XDG_CURRENT_DESKTOP=gamescope
         export XDG_SESSION_DESKTOP=gamescope
+        GAMESCOPE_PID=""
 
-        ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd \
-          XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP
-
-        BEFORE_SOCKETS=$(ls /tmp/.X11-unix/ 2>/dev/null || true)
+        cleanup() {
+          status=$?
+          trap - EXIT INT TERM HUP
+          ${pkgs.systemd}/bin/systemctl --user stop gamescope-session.target graphical-session.target 2>/dev/null || true
+          ${pkgs.systemd}/bin/systemctl --user unset-environment DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP 2>/dev/null || true
+          if [ -n "$GAMESCOPE_PID" ] && kill -0 "$GAMESCOPE_PID" 2>/dev/null; then
+            kill "$GAMESCOPE_PID" 2>/dev/null || true
+            for _attempt in $(${pkgs.coreutils}/bin/seq 1 50); do
+              kill -0 "$GAMESCOPE_PID" 2>/dev/null || break
+              ${pkgs.coreutils}/bin/sleep 0.1
+            done
+            kill -KILL "$GAMESCOPE_PID" 2>/dev/null || true
+            wait "$GAMESCOPE_PID" 2>/dev/null || true
+          fi
+          echo "=== session ended $(date --iso-8601=seconds) ($status) ==="
+          exit "$status"
+        }
+        trap cleanup EXIT
+        trap 'exit 129' HUP
+        trap 'exit 130' INT
+        trap 'exit 143' TERM
 
         ${gamescopeCmd} --steam \
           --xwayland-count 2 \
           --adaptive-sync \
-          -w 1920 -h 1280 \
-          -- steam -tenfoot -pipewire-dmabuf &
+          -- ${pkgs.bash}/bin/bash -c '
+              ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd \
+                DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP
+              ${pkgs.systemd}/bin/systemctl --user start gamescope-session.target
+              exec "$@"
+            ' bash ${config.programs.steam.package}/bin/steam -tenfoot -pipewire-dmabuf &
         GAMESCOPE_PID=$!
         echo "gamescope started (pid $GAMESCOPE_PID)"
 
-        DISPLAY_FOUND=""
-        for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
-          if ! kill -0 $GAMESCOPE_PID 2>/dev/null; then
-            echo "ERROR: gamescope exited before display was ready"
-            wait $GAMESCOPE_PID
-            exit $?
-          fi
-
-          for i in $(${pkgs.coreutils}/bin/seq 0 15); do
-            case " $BEFORE_SOCKETS " in
-              *" X$i "*) continue ;;
-            esac
-            if [ -S "/tmp/.X11-unix/X$i" ]; then
-              DISPLAY_FOUND=":$i"
-              break 2
-            fi
-          done
-          sleep 0.5
-        done
-
-        if [ -n "$DISPLAY_FOUND" ]; then
-          export DISPLAY="$DISPLAY_FOUND"
-          echo "found DISPLAY=$DISPLAY"
-          ${pkgs.dbus}/bin/dbus-update-activation-environment --systemd DISPLAY
-          ${pkgs.systemd}/bin/systemctl --user import-environment DISPLAY
-          ${pkgs.systemd}/bin/systemctl --user start --no-block gamescope-session.target
-          echo "session environment propagated"
-        else
-          echo "WARNING: could not discover DISPLAY after 30s"
-        fi
-
-        wait $GAMESCOPE_PID
-        EXIT_CODE=$?
-        echo "gamescope exited ($EXIT_CODE)"
-
-        ${pkgs.systemd}/bin/systemctl --user stop --no-block gamescope-session.target 2>/dev/null || true
-        echo "=== session ended $(date --iso-8601=seconds) ==="
+        set +e
+        wait "$GAMESCOPE_PID"
+        status=$?
+        set -e
+        GAMESCOPE_PID=""
+        echo "gamescope exited ($status)"
+        exit "$status"
       '';
 
       gamescopeSessionFile =
@@ -99,6 +87,7 @@
         bindsTo = ["graphical-session.target"];
         wants = ["graphical-session-pre.target"];
         after = ["graphical-session-pre.target"];
+        before = ["graphical-session.target"];
       };
     };
   };
