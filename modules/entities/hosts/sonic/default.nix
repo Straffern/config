@@ -30,6 +30,16 @@
       graphics = true;
       overrides = [
         {
+          reason = "The VM uses deterministic 2D virtio-gpu instead of Sonic's physical AMD GPU";
+          module = _: {
+            environment.sessionVariables.QT_QUICK_BACKEND = "software";
+            virtualisation.qemu.options = [
+              "-vga none"
+              "-device virtio-gpu-pci"
+            ];
+          };
+        }
+        {
           reason = "The VM deliberately has no private Home Manager SOPS identity";
           module = {lib, ...}: {
             home-manager.users.alex.systemd.user.services.sops-nix.Unit.ConditionPathExists =

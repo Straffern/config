@@ -96,11 +96,15 @@ in {
     vmSmoke = [
       {
         name = "neovim";
-        description = "Neovim starts headlessly";
+        description = "Neovim loads the packaged FFF module";
         phase = "session";
+        module = {pkgs, ...}: {
+          environment.etc."vm-smoke/fff-nvim".source = pkgs.vimPlugins.fff-nvim;
+        };
         script = ''
           assert login_user is not None, "Neovim smoke test requires vmSmoke.loginUser"
-          machine.succeed(user_command(f"timeout 30 {login_home}/.local/state/nix/profile/bin/nvim --clean --headless +qa"))
+          machine.succeed("printf '%s\\n' 'local ok, err = pcall(require, \"fff\")' 'if not ok then' '  io.stderr:write(err .. \"\\n\")' '  vim.cmd(\"cquit 1\")' 'end' 'vim.cmd(\"quitall\")' > /tmp/vm-smoke-neovim.lua")
+          machine.succeed(user_command(f"timeout 30 {login_home}/.local/state/nix/profile/bin/nvim --clean --headless --cmd 'set runtimepath^=/etc/vm-smoke/fff-nvim' -c 'luafile /tmp/vm-smoke-neovim.lua'"))
         '';
       }
     ];

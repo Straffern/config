@@ -78,6 +78,7 @@
     vm = host.vmSmoke;
     loginEnabled = vm.loginUser != null;
     hostOverrides = map (override: override.module) vm.overrides;
+    descriptorModules = map (descriptor: descriptor.module) configuration.config.dotfiles.vmSmoke.descriptors;
   in
     pkgs.testers.runNixOSTest {
       name = "vm-smoke-${name}";
@@ -90,6 +91,7 @@
       nodes.machine = {lib, ...}: {
         imports =
           configuration._module.args.modules
+          ++ descriptorModules
           ++ hostOverrides
           ++ lib.optional loginEnabled (mkLoginModule host);
 
@@ -159,6 +161,15 @@
 
         with subtest("no process dumped core"):
             machine.succeed('test -z "$(coredumpctl --no-pager --no-legend 2>/dev/null)"')
+
+        ${lib.optionalString loginEnabled ''
+          with subtest("graphical test session shuts down cleanly"):
+              machine.succeed(f"loginctl terminate-user {login_user}")
+              machine.wait_until_succeeds(f"test -z \"$(loginctl list-sessions --no-legend | awk '$3 == \\\"{login_user}\\\" {{ print $1 }}')\"")
+              machine.wait_until_succeeds(f"! systemctl is-active --quiet user@{login_uid}.service")
+              machine.succeed("systemctl stop vm-smoke-login.service")
+              machine.succeed('test -z "$(systemctl --failed --no-legend --plain)"')
+        ''}
 
         machine.shutdown()
       '';
@@ -265,6 +276,11 @@ in {
             default = "session";
           };
           script = lib.mkOption {type = lib.types.lines;};
+          module = lib.mkOption {
+            type = lib.types.deferredModule;
+            default = {};
+            description = "VM-only NixOS fixture owned by this probe's aspect";
+          };
         };
       };
       names = map (descriptor: descriptor.name) config.dotfiles.vmSmoke.descriptors;

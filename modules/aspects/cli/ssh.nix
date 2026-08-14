@@ -14,20 +14,16 @@
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;
-          matchBlocks."*" = {
-            addKeysToAgent = "yes";
-            compression = true;
-            controlMaster = "auto";
-            controlPath = "~/.ssh/cm-%r@%h:%p";
-            controlPersist = "10m";
-            extraOptions = {
-              TCPKeepAlive = "no";
-              IPQoS = "lowdelay throughput";
-            };
-            setEnv = {
-              TERM = "xterm";
-            };
-            identityFile = "~/.ssh/id_ed25519";
+          settings."*" = {
+            AddKeysToAgent = "yes";
+            Compression = "yes";
+            ControlMaster = "auto";
+            ControlPath = "~/.ssh/cm-%r@%h:%p";
+            ControlPersist = "10m";
+            IdentityFile = "~/.ssh/id_ed25519";
+            IPQoS = "lowdelay throughput";
+            SetEnv.TERM = "xterm";
+            TCPKeepAlive = "no";
           };
         };
         programs.zsh.initContent = lib.mkAfter ''

@@ -241,9 +241,11 @@
             BusName = "org.freedesktop.Notifications";
             ExecReload = "${pkgs.coreutils}/bin/kill -USR1 $MAINPID";
             RestartSec = "3s";
+            SuccessExitStatus = [143];
             TimeoutStopSec = 10;
           };
         };
+        systemd.user.services.dcal.Service.SuccessExitStatus = [143];
 
         # GTK apps need a real theme package; DMS only manages the live color overlay.
         home.packages = [pkgs.adw-gtk3];

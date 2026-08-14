@@ -169,6 +169,18 @@ in {
             EOF
           '';
       });
+      restoreTmux = pkgs.writeShellScript "restore-tmux" ''
+        resurrect_dir="''${XDG_CACHE_HOME:-$HOME/.cache}/.tmux/resurrect"
+        if [ -s "$resurrect_dir/last" ]; then
+          ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh >/dev/null 2>&1 || true
+        fi
+      '';
+      stopTmux = pkgs.writeShellScript "stop-tmux" ''
+        if ${pkgs.tmux}/bin/tmux list-sessions >/dev/null 2>&1; then
+          ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh 2>/dev/null || true
+        fi
+        ${pkgs.tmux}/bin/tmux kill-server >/dev/null 2>&1 || true
+      '';
     in {
       home.packages = [
         pkgs.sesh
@@ -478,24 +490,23 @@ in {
           Type = "forking";
           Environment = "TMPDIR=%t";
           ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -s default";
-          ExecStartPost = "-${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh";
-          ExecStop = [
-            "-${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
-            "-${pkgs.tmux}/bin/tmux kill-server"
-          ];
+          ExecStartPost = restoreTmux;
+          ExecStop = stopTmux;
           KillMode = "mixed";
         };
         Install.WantedBy = ["default.target"];
       };
-      # Remove tmux-continuum's stale generated unit if it's a plain file (not
-      # HM's symlink). Without this, HM refuses to link the declarative unit.
+      # Preserve a pre-Home-Manager unit before replacing the target with HM's
+      # declarative symlink. This covers old Continuum output without deleting
+      # an unrecognized user-managed unit.
       home.activation.removeStaleTmuxService = {
         after = [];
         before = ["checkLinkTargets"];
         data = ''
           tmuxUnit="$HOME/.config/systemd/user/tmux.service"
           if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
-            $DRY_RUN_CMD rm -f "$tmuxUnit"
+            $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv --backup=numbered \
+              "$tmuxUnit" "$tmuxUnit.before-home-manager"
           fi
         '';
       };
