@@ -69,10 +69,16 @@ This matches Den's distinction between entity facts and aspect behavior.
   behavior expressed as class outputs of that aspect rather than separate
   class-named aspects. Composition selects whole aspects and lets Den resolve
   and route their active classes; call sites do not import another aspect's
-  class payload directly. Font and icon identities are separate concerns:
-  `styles.fonts` owns font installation, while `styles.icons` owns GTK icon
-  activation and selection; Stylix generates the surrounding theme. Package concerns follow the
-  same rule: `styles.monolisa` owns its package and
+  class payload directly. Optional host policy stays outside reusable profiles:
+  Sonic and Palantir select the complete Stylix concern explicitly, while Sonic
+  selects its machine-specific Kanshi output policy explicitly beside Niri and
+  keeps WireGuard support explicit beside Tailscale rather than hiding both
+  behind a generic VPN alias.
+  Stylix-aware consumers guard their integration options, so Neovim, FZF, and
+  DMS remain independently selectable. Font and icon identities are separate
+  concerns: `styles.fonts` owns font installation, while `styles.icons` owns
+  GTK icon activation and selection; Stylix generates the surrounding theme.
+  Package concerns follow the same rule: `styles.monolisa` owns its package and
   NixOS font payload, while `styles.wallpapers` owns its package. Nautilus owns
   its desktop package, Sushi companion, NixOS services, and Home Manager
   settings; `cli.jj` likewise owns Jujutsu installation and persistence. Hardware-specific AMD monitoring
@@ -84,15 +90,17 @@ This matches Den's distinction between entity facts and aspect behavior.
   replacing unrelated display sessions. Social composition is limited
   to chat, while the independent photos profile owns Shotwell. Coherent cross-class
   concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
-  a graphics wrapper.
+  a graphics wrapper; integrated NixOS Home Manager therefore carries no nixGL
+  wrapper or unused nixGL input.
 - Host entities select system/profile aspects. Palantir and Sonic use
   `provides.alex` only for user-specific additions. Named providers filter by
   entity, not by class, so a provided aspect's NixOS class can intentionally
   contribute to its enclosing host. Palantir instead selects the complete
   cross-class Stylix, icons, and Podman concerns at host scope.
 - Alex includes `den.batteries.host-aspects`, so Home Manager classes selected
-  by the host are projected to Alex. Sonic selects `profiles.desktop` once;
-  Palantir selects its whole cross-class concerns directly. Frostmourne's Alex
+  by the host are projected to Alex. Sonic selects `profiles.desktop` plus its
+  explicit optional and machine-specific concerns; Palantir selects its whole
+  cross-class concerns directly. Frostmourne's Alex
   and Niko have no Home Manager class, so Home Manager payloads in the selected
   host DAG remain inert. `profiles.common` therefore selects the whole `cli.zsh`
   concern, while the complete Podman concern is selected only on Sonic and

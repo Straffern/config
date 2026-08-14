@@ -2,17 +2,19 @@
   den.aspects.cli.fzf.homeManager = {
     config,
     lib,
+    options,
     pkgs,
     ...
   }: let
     dmsEnabled = config.programs ? dank-material-shell && config.programs.dank-material-shell.enable;
+    stylixEnabled = options ? stylix.enable && config.stylix.enable;
     template = pkgs.writeText "dms-fzf-template" (builtins.readFile ./_assets/dms-theme.txt);
     bootstrap = pkgs.writeText "dms-fzf-bootstrap" "";
   in {
     programs.fzf = {
       enable = true;
       enableZshIntegration = true;
-      colors = lib.mkIf (!dmsEnabled) (
+      colors = lib.mkIf (!dmsEnabled && stylixEnabled) (
         with config.lib.stylix.colors.withHashtag;
           lib.mkForce {
             bg = base00;

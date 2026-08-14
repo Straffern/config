@@ -96,6 +96,7 @@ in {
     homeManager = {
       config,
       lib,
+      options,
       pkgs,
       ...
     }: let
@@ -103,43 +104,47 @@ in {
         if config.mutableSources.active
         then config.lib.file.mkOutOfStoreSymlink (toString path)
         else path;
-    in {
-      programs.neovim = {
-        enable = true;
-        defaultEditor = true;
-        withRuby = false;
-        withPython3 = false;
-        extraPackages = with pkgs; [
-          deno
-          imagemagick
-          ripgrep
-          zig
-          gnumake
-          cargo
-          nodejs_24
-          tree-sitter
-          marksman
-        ];
-        initLua = ''
-          vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs}/bin"
-          vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
-          vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
+    in
+      lib.mkMerge [
+        {
+          programs.neovim = {
+            enable = true;
+            defaultEditor = true;
+            withRuby = false;
+            withPython3 = false;
+            extraPackages = with pkgs; [
+              deno
+              imagemagick
+              ripgrep
+              zig
+              gnumake
+              cargo
+              nodejs_24
+              tree-sitter
+              marksman
+            ];
+            initLua = ''
+              vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs}/bin"
+              vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
+              vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
 
-          -- bootstrap lazy.nvim, LazyVim and your plugins
-          require("config.lazy")
-        '';
-        viAlias = true;
-        vimAlias = true;
-        vimdiffAlias = true;
-      };
+              -- bootstrap lazy.nvim, LazyVim and your plugins
+              require("config.lazy")
+            '';
+            viAlias = true;
+            vimAlias = true;
+            vimdiffAlias = true;
+          };
 
-      stylix.targets.neovim = lib.mkIf config.stylix.enable {enable = false;};
-
-      xdg.configFile."nvim/lua" = {
-        recursive = true;
-        source = mutableSource ./_config;
-      };
-    };
+          xdg.configFile."nvim/lua" = {
+            recursive = true;
+            source = mutableSource ./_config;
+          };
+        }
+        (lib.optionalAttrs (options ? stylix.enable && options ? stylix.targets.neovim.enable) {
+          stylix.targets.neovim = lib.mkIf config.stylix.enable {enable = false;};
+        })
+      ];
 
     packages = {pkgs, ...}: {
       supermaven-jj-git-shim = supermaven-jj-git-shim pkgs;

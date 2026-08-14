@@ -22,6 +22,8 @@
   den.aspects.sonic = {
     includes = [
       den.aspects.profiles.desktop
+      den.aspects.styles.stylix
+      den.aspects.desktop.addons.kanshi
       den.aspects.gaming.niri-session
       den.aspects.gaming.amd-graphics
       den.aspects.profiles.social
@@ -30,6 +32,7 @@
       den.aspects.desktop.dms
       den.aspects.services.hindsight
       den.aspects.services.tailscale
+      den.aspects.network.wireguard
       den.aspects.virtualization.kvm
       den.aspects.hardware.hidraw
       den.aspects.hardware.v4l2loopback

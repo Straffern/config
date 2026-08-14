@@ -77,10 +77,6 @@
       url = "github:BirdeeHub/nix-wrapper-modules";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixgl = {
-      url = "github:nix-community/nixGL";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nixos-anywhere = {
       url = "github:numtide/nixos-anywhere";
       inputs = {

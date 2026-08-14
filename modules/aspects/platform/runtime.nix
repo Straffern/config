@@ -1,9 +1,4 @@
 {den, ...}: {
-  flake-file.inputs.nixgl = {
-    url = "github:nix-community/nixGL";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
   den.aspects.platform = {
     nh = {user}: {
       nixos = {config, ...}: {

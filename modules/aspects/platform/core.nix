@@ -124,9 +124,5 @@
         entries = lib.mkForce [];
       };
     };
-
-    nixgl.homeManager = {inputs', ...}: {
-      home.packages = [inputs'.nixgl.packages.nixGLIntel];
-    };
   };
 }

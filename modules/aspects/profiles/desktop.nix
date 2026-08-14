@@ -4,20 +4,17 @@
       den.aspects.profiles.common
       den.aspects.styles.fonts
       den.aspects.styles.icons
-      den.aspects.styles.stylix
       den.aspects.desktop.base
       den.aspects.desktop.nautilus
       den.aspects.hardware.audio
       den.aspects.hardware.bluetooth
       den.aspects.network.avahi
-      den.aspects.network.vpn
       den.aspects.services.ydotool
       den.aspects.platform.nh
       den.aspects.platform.nix-ld
       den.aspects.platform.boot-plymouth
       den.aspects.virtualization.podman
       den.aspects.profiles.development
-      den.aspects.platform.nixgl
       den.aspects.desktop.input-tools
       den.aspects.desktop.wayland-session
       den.aspects.desktop.media-controls
