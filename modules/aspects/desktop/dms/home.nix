@@ -197,12 +197,17 @@
               + ''
                 chmod -R u+w "$out/share/quickshell/dms"
                 patch --fuzz=0 --no-backup-if-mismatch -d "$out/share/quickshell/dms" -p1 < ${./_assets/mic-volume.patch}
+                patch --fuzz=0 --no-backup-if-mismatch -d "$out/share/quickshell/dms" -p1 < ${./_assets/matugen-custom-startup.patch}
               '';
           });
           systemd.enable = true;
           enableSystemMonitoring = true;
           enableDynamicTheming = true;
           enableClipboardPaste = true;
+          settings = {
+            runDmsMatugenTemplates = true;
+            matugenTemplateNeovim = true;
+          };
         };
         programs.kitty.extraConfig = lib.mkAfter ''
           include dank-tabs.conf

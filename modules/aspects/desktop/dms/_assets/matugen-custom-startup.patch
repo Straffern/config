@@ -1,0 +1,14 @@
+diff --git a/Common/Theme.qml b/Common/Theme.qml
+--- a/Common/Theme.qml
++++ b/Common/Theme.qml
+@@ -181,7 +181,9 @@ Singleton {
+                         setDesiredTheme("image", rawWallpaperPath, isLight, iconTheme, selectedMatugenType);
+                     }
+                 }
+-            } else if (currentTheme !== "custom") {
++            } else if (currentTheme === "custom") {
++                generateSystemThemesFromCurrentTheme();
++            } else {
+                 const darkTheme = StockThemes.getThemeByName(currentTheme, false);
+                 const lightTheme = StockThemes.getThemeByName(currentTheme, true);
+                 if (darkTheme && darkTheme.primary) {
