@@ -1,5 +1,18 @@
 {den, ...}: {
   den.aspects.desktop.addons.xdg = {
+    vmSmoke = [
+      {
+        name = "desktop-portal";
+        description = "The desktop portal owns its session bus name";
+        phase = "session";
+        script = ''
+          assert login_user is not None, "desktop portal smoke test requires vmSmoke.loginUser"
+          machine.wait_until_succeeds(user_command("systemctl --user is-active --quiet xdg-desktop-portal.service"))
+          machine.succeed(user_command("busctl --user status org.freedesktop.portal.Desktop"))
+        '';
+      }
+    ];
+
     homeManager = {
       config,
       lib,

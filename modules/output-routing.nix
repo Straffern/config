@@ -21,6 +21,7 @@
     den.aspects.styles.monolisa
     den.aspects.styles.wallpapers
     den.aspects.tooling.dev-shell
+    den.aspects.tooling.vm-smoke
     den.aspects.tooling.treefmt
     den.aspects.deployment
   ];

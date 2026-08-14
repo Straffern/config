@@ -93,6 +93,18 @@
     };
 in {
   den.aspects.cli.neovim = {
+    vmSmoke = [
+      {
+        name = "neovim";
+        description = "Neovim starts and loads FFF";
+        phase = "session";
+        script = ''
+          assert login_user is not None, "Neovim smoke test requires vmSmoke.loginUser"
+          machine.succeed(user_command(f"timeout 60 {login_home}/.local/state/nix/profile/bin/nvim --headless \"+lua assert(pcall(require, 'fff'))\" +qa"))
+        '';
+      }
+    ];
+
     homeManager = {
       config,
       lib,

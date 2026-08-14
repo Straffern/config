@@ -6,6 +6,17 @@ in {
       den.aspects.services.hermes
       den.aspects.services.tailscale
     ];
+    vmSmoke = [
+      {
+        name = "palantir-dashboard";
+        description = "The Palantir status dashboard answers HTTP requests";
+        phase = "session";
+        script = ''
+          machine.wait_for_unit("palantir-status-dashboard.service")
+          machine.wait_until_succeeds("curl --fail --silent http://127.0.0.1:8080/ | grep -F 'Palantir services'")
+        '';
+      }
+    ];
     nixos = {
       config,
       pkgs,

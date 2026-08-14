@@ -14,9 +14,30 @@
 
   den.hosts.x86_64-linux.sonic.users.alex = {};
 
-  den.hosts.x86_64-linux.sonic.deployment = {
-    enable = true;
-    sshUser = "alex";
+  den.hosts.x86_64-linux.sonic = {
+    deployment = {
+      enable = true;
+      sshUser = "alex";
+    };
+
+    vmSmoke = {
+      waitForUnit = "graphical.target";
+      loginUser = "alex";
+      sessionCommand = "niri-session";
+      memorySize = 4096;
+      cores = 4;
+      diskSize = 16384;
+      graphics = true;
+      overrides = [
+        {
+          reason = "The VM deliberately has no private Home Manager SOPS identity";
+          module = {lib, ...}: {
+            home-manager.users.alex.systemd.user.services.sops-nix.Unit.ConditionPathExists =
+              lib.mkForce "/run/vm-smoke-sops-identity";
+          };
+        }
+      ];
+    };
   };
 
   den.aspects.sonic = {

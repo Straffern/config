@@ -5,11 +5,33 @@
 }: {
   den.hosts.x86_64-linux.palantir.users.alex = {};
 
-  den.hosts.x86_64-linux.palantir.deployment = {
-    enable = true;
-    sshUser = "alex";
-    activationTimeout = 600;
-    confirmTimeout = 60;
+  den.hosts.x86_64-linux.palantir = {
+    deployment = {
+      enable = true;
+      sshUser = "alex";
+      activationTimeout = 600;
+      confirmTimeout = 60;
+    };
+
+    vmSmoke = {
+      allowedKernelErrors = [
+        "kvm_intel: VMX not supported by CPU 0"
+        "kvm_intel: VMX not supported by CPU 1"
+      ];
+      overrides = [
+        {
+          reason = "Hermes and tailnet integrations require unavailable SOPS material and Tailscale identity";
+          module = {lib, ...}: {
+            systemd.services = {
+              hermes-agent.wantedBy = lib.mkForce [];
+              hermes-link.wantedBy = lib.mkForce [];
+              hermes-tailscale-serve.wantedBy = lib.mkForce [];
+              hindsight-tailscale-serve.wantedBy = lib.mkForce [];
+            };
+          };
+        }
+      ];
+    };
   };
 
   den.aspects.palantir = {

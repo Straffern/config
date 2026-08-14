@@ -40,11 +40,11 @@ pkgs.writeText "palantir-status-dashboard.py" ''
               ("Hermes Link", link_status, "52379", "not exposed"),
           ]
           body = "".join(f"<tr><td>{name}</td><td>{status}</td><td><code>{port}</code></td><td>{href}</td></tr>" for name, status, port, href in rows)
-          page = f'''<!doctype html>
+          page = f"""<!doctype html>
   <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Palantir services</title>
   <style>body {{ font: 1rem system-ui, sans-serif; margin: 2rem auto; max-width: 55rem; padding: 0 1rem; }} table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #ddd; padding: .6rem; text-align: left; }} code {{ white-space: nowrap; }} button {{ font: inherit; margin-top: 1rem; padding: .6rem; }}</style></head>
   <body><h1>Palantir services</h1><table><thead><tr><th>Service</th><th>Status</th><th>Backend port</th><th>Tailnet link</th></tr></thead><tbody>{body}</tbody></table>
-  <form method="post" action="/restart-hermes-link" onsubmit="return confirm('Restart Hermes Link?')"><input type="hidden" name="csrf" value="{RESTART_TOKEN}"><button type="submit">Restart Hermes Link</button></form></body></html>'''
+  <form method="post" action="/restart-hermes-link" onsubmit="return confirm('Restart Hermes Link?')"><input type="hidden" name="csrf" value="{RESTART_TOKEN}"><button type="submit">Restart Hermes Link</button></form></body></html>"""
           payload = page.encode()
           self.send_response(200)
           self.send_header("Content-Type", "text/html; charset=utf-8")
