@@ -10,7 +10,6 @@
       den.aspects.hardware.bluetooth
       den.aspects.network.avahi
       den.aspects.network.vpn
-      den.aspects.virtualization.podman
       den.aspects.services.ydotool
       den.aspects.platform.nh
       den.aspects.platform.nix-ld
@@ -31,5 +30,14 @@
       den.aspects.desktop.addons.xdg
       den.aspects.desktop.kitty
     ];
+    nixos = {
+      host,
+      lib,
+      ...
+    }: {
+      imports = [
+        {config = den.aspects.virtualization.podman.nixos {inherit host lib;};}
+      ];
+    };
   };
 }

@@ -24,5 +24,4 @@
     path = "${config.users.users.alex.home}/.ssh/id_ed25519.pub";
     sopsFile = ../../../../../secrets/hosts/palantir.yaml;
   };
-  programs.zsh.enable = true;
 }

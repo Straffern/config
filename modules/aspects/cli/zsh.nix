@@ -4,6 +4,20 @@
   ...
 }: {
   den.aspects.cli.zsh = {
+    nixos = {
+      programs.zsh = {
+        enable = true;
+        enableCompletion = true;
+        enableGlobalCompInit = false;
+        interactiveShellInit = ''
+          if [[ $EUID -eq 0 && -z ''${__HM_ZSH_SESS_VARS_SOURCED+x} ]]; then
+            autoload -U compinit && compinit
+          fi
+        '';
+      };
+      environment.pathsToLink = ["/share/zsh"];
+    };
+
     homeManager = {
       config,
       lib,

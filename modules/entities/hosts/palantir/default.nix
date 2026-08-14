@@ -17,7 +17,6 @@
       den.aspects.profiles.server
       den.aspects.services.hermes
       den.aspects.services.hindsight
-      den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.boot
     ];
@@ -49,8 +48,13 @@
       };
     };
 
-    nixos = {...}: {
+    nixos = {
+      host,
+      lib,
+      ...
+    }: {
       imports = [
+        {config = den.aspects.virtualization.podman.nixos {inherit host lib;};}
         inputs.disko.nixosModules.disko
         ./_/disko.nix
         ./_/hardware-configuration.nix

@@ -21,19 +21,21 @@
       den.aspects.cli.network-tools
       den.aspects.cli.nix-index
       den.aspects.cli.nix-search-tv
-      den.aspects.cli.podman
       den.aspects.cli.ssh
       den.aspects.cli.starship
       den.aspects.cli.television
       den.aspects.cli.toolbox
       den.aspects.cli.go-suite
       den.aspects.cli.js
-      den.aspects.cli.zsh
       den.aspects.cli.sourcegraph
       den.aspects.cli.yazi
       den.aspects.cli.zoxide
       den.aspects.cli.snitch
       den.aspects.cli.lazyjournal
+    ];
+    homeManager.imports = [
+      den.aspects.cli.zsh.homeManager
+      den.aspects.virtualization.podman.homeManager
     ];
   };
 }
