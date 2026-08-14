@@ -463,6 +463,7 @@ in {
         };
         Service = {
           Type = "forking";
+          Environment = "TMPDIR=%t";
           ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -s default";
           ExecStartPost = "-${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh";
           ExecStop = [

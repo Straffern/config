@@ -13,7 +13,7 @@
     pkgs,
     ...
   }: let
-    inherit (lib) mkForce;
+    inherit (lib) getExe mkForce;
     niriBlurAppendix = ''
       blur {
         passes 3
@@ -33,6 +33,11 @@
         input.keyboard.xkb = {
           layout = "us,dk";
           options = "grp:alts_toggle";
+        };
+
+        xwayland-satellite = {
+          enable = true;
+          path = getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable;
         };
 
         # Screencasting: dynamic cast target + windowed fullscreen (niri ≥25.05).

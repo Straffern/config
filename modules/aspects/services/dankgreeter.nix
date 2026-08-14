@@ -1,20 +1,18 @@
-{den, ...}: {
+{
+  den,
+  inputs,
+  ...
+}: {
   den.aspects.services.dankgreeter.nixos = {
     config,
-    inputs',
     lib,
     pkgs,
     ...
   }: {
-    systemd.tmpfiles.rules = [
-      "d /var/lib/dms-greeter/.local 0750 dms-greeter dms-greeter -"
-      "d /var/lib/dms-greeter/.local/state 0750 dms-greeter dms-greeter -"
-      "d /var/lib/dms-greeter/.local/state/wireplumber 0750 dms-greeter dms-greeter -"
-    ];
-    services.displayManager.dms-greeter = {
+    imports = [inputs.dank-greeter.nixosModules.default];
+    programs.dms-greeter = {
       enable = true;
       compositor.name = "niri";
-      package = inputs'.dms.packages.default;
       configHome = config.users.users.alex.home;
     };
     services.fprintd.enable = true;

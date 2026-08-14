@@ -16,6 +16,10 @@
       url = "github:AvengeMedia/dankcalendar";
       inputs.nixpkgs.follows = "unstable";
     };
+    dank-greeter = {
+      url = "github:AvengeMedia/dank-greeter";
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
   den.aspects.desktop.dms.homeManager = {
     config,
