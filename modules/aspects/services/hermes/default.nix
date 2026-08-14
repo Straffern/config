@@ -5,7 +5,6 @@
 }: let
   xurlPackage = pkgs: pkgs.callPackage ./_package/xurl {};
   hermesLinkPackage = pkgs: pkgs.callPackage ./_package/hermes-link {};
-  dashboardPackage = pkgs: pkgs.callPackage ./_package/palantir-dashboard.nix {};
 in {
   flake-file.inputs.hermes-agent = {
     url = "github:NousResearch/hermes-agent";
@@ -21,25 +20,12 @@ in {
     }: let
       cfg = config.services.hermes;
       hostSecretsFile = inputs.self + "/secrets/hosts/${host.name}.yaml";
-      onPalantir = host.name == "palantir";
       xurl = xurlPackage pkgs;
       hermesLink = hermesLinkPackage pkgs;
-      dashboardScript = dashboardPackage pkgs;
       hermesUser = config.services.hermes-agent.user;
       hermesGroup = config.services.hermes-agent.group;
       hermesStateDir = config.services.hermes-agent.stateDir;
       hermesWorkingDirectory = config.services.hermes-agent.workingDirectory;
-      tailscaleReadyCheck = pkgs.writeShellScript "palantir-tailscale-ready" ''
-        for attempt in $(seq 1 30); do
-          if ${pkgs.curl}/bin/curl --silent --fail http://127.0.0.1:8080/ >/dev/null &&
-            ${config.services.tailscale.package}/bin/tailscale status --json 2>/dev/null |
-              ${pkgs.jq}/bin/jq -e '.BackendState == "Running"' >/dev/null 2>&1; then
-            exit 0
-          fi
-          sleep 2
-        done
-        exit 1
-      '';
       secretFrom = sopsFile: name: {${name}.sopsFile = sopsFile;};
       envLines =
         [
@@ -251,66 +237,6 @@ in {
             Restart = "always";
             RestartSec = "5s";
             RuntimeMaxSec = "12h";
-          };
-        };
-        systemd.services.palantir-status-dashboard = lib.mkIf onPalantir {
-          description = "Serve the Palantir service status dashboard";
-          wantedBy = ["multi-user.target"];
-          after = ["network.target"];
-          serviceConfig = {
-            ExecStart = "${pkgs.python3}/bin/python ${dashboardScript}";
-            DynamicUser = true;
-            RuntimeDirectory = "palantir-status-dashboard";
-            RuntimeDirectoryMode = "0750";
-            Restart = "always";
-            RestartSec = 2;
-            PrivateTmp = true;
-            ProtectSystem = "strict";
-            ProtectHome = true;
-          };
-        };
-        systemd.services.hermes-tailscale-serve = lib.mkIf onPalantir {
-          description = "Expose Hermes on the tailnet";
-          wantedBy = ["multi-user.target"];
-          after = [
-            "tailscaled.service"
-            "network-online.target"
-            "palantir-status-dashboard.service"
-          ];
-          wants = [
-            "tailscaled.service"
-            "network-online.target"
-            "palantir-status-dashboard.service"
-          ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            ExecStartPre = tailscaleReadyCheck;
-            ExecStart = [
-              "${config.services.tailscale.package}/bin/tailscale serve --yes --bg --http=80 http://127.0.0.1:8080"
-              "${config.services.tailscale.package}/bin/tailscale serve --yes --bg --https=443 http://127.0.0.1:8080"
-            ];
-            Restart = "on-failure";
-            RestartSec = "15s";
-          };
-        };
-        systemd.services.palantir-restart-hermes-link =
-          lib.mkIf onPalantir
-          {
-            description = "Restart HermesPilot Link from dashboard";
-            serviceConfig.Type = "oneshot";
-            script = ''
-              ${pkgs.coreutils}/bin/rm -f /run/palantir-status-dashboard/restart-hermes-link
-              ${pkgs.systemd}/bin/systemctl restart hermes-link.service
-            '';
-          };
-        systemd.paths.palantir-restart-hermes-link = lib.mkIf onPalantir {
-          description = "Watch for HermesPilot Link dashboard restart requests";
-          wantedBy = ["multi-user.target"];
-          after = ["palantir-status-dashboard.service"];
-          pathConfig = {
-            PathExists = "/run/palantir-status-dashboard/restart-hermes-link";
-            Unit = "palantir-restart-hermes-link.service";
           };
         };
       };

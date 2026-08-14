@@ -111,30 +111,6 @@
           wants = ["sops-nix.service"];
           restartTriggers = [config.sops.templates."hindsight-env".content];
         };
-        systemd.services.hindsight-tailscale-serve = lib.mkIf (host.name == "palantir") {
-          description = "Expose Hindsight on the tailnet";
-          wantedBy = ["multi-user.target"];
-          after = [
-            "tailscaled.service"
-            "network-online.target"
-            "podman-hindsight.service"
-          ];
-          wants = [
-            "tailscaled.service"
-            "network-online.target"
-            "podman-hindsight.service"
-          ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            ExecStart = [
-              "${config.services.tailscale.package}/bin/tailscale serve --yes --bg --https=8443 http://127.0.0.1:9999"
-              "${config.services.tailscale.package}/bin/tailscale serve --yes --bg --https=8444 http://127.0.0.1:8888"
-            ];
-            Restart = "on-failure";
-            RestartSec = "15s";
-          };
-        };
       }
       (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         environment.persistence."/persist".directories = ["/var/lib/hindsight"];

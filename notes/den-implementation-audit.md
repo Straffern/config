@@ -104,7 +104,10 @@ This matches Den's distinction between entity facts and aspect behavior.
   and Niko have no Home Manager class, so Home Manager payloads in the selected
   host DAG remain inert. `profiles.common` therefore selects the whole `cli.zsh`
   concern, while the complete Podman concern is selected only on Sonic and
-  Palantir. Den resolves and routes each active class without surgical imports.
+  Palantir. Palantir selects explicit Hermes dashboard and Hindsight tailnet
+  integrations; those integration aspects include their complete base service
+  and Tailscale dependencies, while Sonic selects reusable base Hindsight alone.
+  Den resolves and routes each active class without surgical imports.
 - Host-local Disko, hardware, facter, and private home fragments remain under
   each entity's `_` directory and are imported by the owning entity/aspect.
   `_` directory presence has no output semantics.
@@ -206,11 +209,7 @@ These are bounded current issues, not reasons for speculative framework work:
    desktop could produce conflicting values for the machine-wide
    `programs.nh.flake`; introduce explicit typed ownership metadata when that
    topology exists.
-3. **Named-host predicates remain in two reusable services.** Hermes and
-   Hindsight use `host.name == "palantir"` for Palantir-specific behavior. This
-   is valid Den context usage and evaluates correctly, but host metadata or a
-   host-owned provided aspect would scale better if those roles become dynamic.
-4. **Persistence contributions use native options.** Contributors generally test
+3. **Persistence contributions use native options.** Contributors generally test
    projected `host.hasAspect impermanence` and merge native persistence options
    with `lib.mkMerge`. On Sonic, the only impermanent host, affected contributors
    including Social/Discord and OpenCode are host-routed and observe
