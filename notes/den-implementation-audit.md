@@ -69,7 +69,10 @@ This matches Den's distinction between entity facts and aspect behavior.
   behavior expressed as class outputs of that aspect rather than separate
   class-named aspects. Explicit class imports at profile and host call sites
   preserve narrower selection intent without creating alternate identities.
-  Package concerns follow the same rule: `styles.monolisa` owns its package and
+  Font and icon identities are separate concerns: `styles.fonts` owns font
+  installation, while `styles.icons` owns icon packages and GTK selection;
+  Stylix only generates the surrounding theme. Package concerns follow the
+  same rule: `styles.monolisa` owns its package and
   NixOS font payload, while `styles.wallpapers` owns its package. Nautilus owns
   its desktop package, Sushi companion, NixOS services, and Home Manager
   settings; `cli.jj` likewise owns Jujutsu installation and persistence. Hardware-specific AMD monitoring
@@ -218,7 +221,10 @@ These are bounded current issues, not reasons for speculative framework work:
   routing edge.
 - Small leaf aspects are not inherently Snowfall-shaped debt. Keep a leaf when
   it is an independently selectable concern; consolidate only when selection
-  boundaries are demonstrably identical.
+  boundaries are demonstrably identical. Conversely, `cli.toolbox` and
+  `apps.desktop-utilities` are intentionally curated utility-bundle concerns,
+  not class-output splits; exploding them into one aspect per package would add
+  interfaces without creating useful selection seams.
 - `profiles.video`, `profiles.gamedev`, and their package aspects are attached to
   Sonic. They are not dead configuration.
 - Host-local raw NixOS settings are not a second architecture: they are private

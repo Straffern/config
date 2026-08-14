@@ -3,6 +3,7 @@
     includes = [
       den.aspects.profiles.common
       den.aspects.styles.fonts
+      den.aspects.styles.icons
       den.aspects.styles.stylix
       den.aspects.desktop.base
       den.aspects.desktop.nautilus

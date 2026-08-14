@@ -81,15 +81,6 @@ in {
         enable = true;
         autoEnable = !cfg.useCatppuccinNative;
         base16Scheme = lib.mkIf (cfg.base16Scheme != null) cfg.base16Scheme;
-        icons = {
-          enable = true;
-          package = pkgs.catppuccin-papirus-folders.override {
-            flavor = "mocha";
-            accent = "lavender";
-          };
-          dark = "Papirus-Dark";
-        };
-
         image = let
           canRecolor = cfg.patch.recolor && cfg.base16Scheme != null;
           isModified = cfg.patch.brightness != 0 || cfg.patch.contrast != 0 || canRecolor;

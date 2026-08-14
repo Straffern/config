@@ -25,12 +25,6 @@
         open-sans
         source-serif
         noto-fonts-color-emoji
-        tela-icon-theme
-        tela-circle-icon-theme
-        (catppuccin-papirus-folders.override {
-          flavor = "mocha";
-          accent = "lavender";
-        })
       ];
     };
 

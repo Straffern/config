@@ -32,7 +32,10 @@
         pkgs,
         ...
       }: {
-        imports = [den.aspects.styles.stylix.homeManager];
+        imports = [
+          den.aspects.styles.icons.homeManager
+          den.aspects.styles.stylix.homeManager
+        ];
         programs.zsh.sessionVariables.PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
         programs.git = {
           signing = {

@@ -4,7 +4,7 @@
   ...
 }: {
   den.aspects.cli.zsh = {
-    nixos = {
+    nixos = _: {
       programs.zsh = {
         enable = true;
         enableCompletion = true;
