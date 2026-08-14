@@ -31,8 +31,14 @@
           ];
         };
       };
-      homeManager.dconf.settings = {
-        "com/github/stunkymonkey/nautilus-open-any-terminal".terminal = "kitty";
+      homeManager = {pkgs, ...}: {
+        home.packages = with pkgs; [
+          nautilus
+          sushi
+        ];
+        dconf.settings = {
+          "com/github/stunkymonkey/nautilus-open-any-terminal".terminal = "kitty";
+        };
       };
     };
   };

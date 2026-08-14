@@ -246,16 +246,5 @@ in {
         jj-starship = jj-starship pkgs;
       };
     };
-
-    starship.homeManager = {pkgs, ...}: {
-      programs.starship = {
-        enable = true;
-        enableZshIntegration = true;
-        settings = {
-          command_timeout = 2000;
-          scan_timeout = 100;
-        };
-      };
-    };
   };
 }

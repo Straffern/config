@@ -12,7 +12,6 @@
         {
           home.packages = with pkgs; [
             lazygit
-            jujutsu
             delta
           ];
           home.file.".config/lazygit/config.yml".text = ''
@@ -81,10 +80,7 @@
           };
         }
         (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
-          home.persistence."/persist".directories = [
-            ".config/lazygit"
-            ".config/jj"
-          ];
+          home.persistence."/persist".directories = [".config/lazygit"];
         })
       ];
   };

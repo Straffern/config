@@ -4,10 +4,8 @@
       foliate
       gnome-disk-utility
       loupe
-      nautilus
       pavucontrol
       pwvucontrol
-      sushi
       totem
       trayscale
     ];

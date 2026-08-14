@@ -64,11 +64,15 @@ This matches Den's distinction between entity facts and aspect behavior.
   include graphs rather than independent host definitions. `profiles.common`
   is a GUI-free host foundation; the cohesive `profiles.desktop` selects both
   system and user desktop concerns. Each concern has one aspect identity, such
-  as `styles.fonts`, `styles.stylix`, `desktop.base`, and `desktop.nautilus`,
-  with its NixOS and Home Manager behavior expressed as class outputs of that
-  aspect rather than separate class-named aspects. Package concerns follow the
-  same rule: `styles.monolisa` owns its package and NixOS font payload, while
-  `styles.wallpapers` owns its package. Hardware-specific AMD monitoring
+  as `styles.fonts`, `styles.stylix`, `desktop.base`, `desktop.nautilus`,
+  `cli.zsh`, and `virtualization.podman`, with its NixOS and Home Manager
+  behavior expressed as class outputs of that aspect rather than separate
+  class-named aspects. Explicit class imports at profile and host call sites
+  preserve narrower selection intent without creating alternate identities.
+  Package concerns follow the same rule: `styles.monolisa` owns its package and
+  NixOS font payload, while `styles.wallpapers` owns its package. Nautilus owns
+  its desktop package, Sushi companion, NixOS services, and Home Manager
+  settings; `cli.jj` likewise owns Jujutsu installation and persistence. Hardware-specific AMD monitoring
   remains a Sonic user provision rather than a generic desktop dependency.
   Gaming core is reusable without compositor or GPU-vendor
   assumptions; Sonic selects AMD graphics directly beside its generic
@@ -83,9 +87,11 @@ This matches Den's distinction between entity facts and aspect behavior.
   in a named provider's `includes` is still traversed across its classes in the
   integrated host evaluation. Palantir therefore imports only
   `styles.stylix.homeManager` at its provider module seam; including the whole
-  concern there would also select its NixOS payload. This is explicit class
-  routing at the call site, not a second class-named aspect identity or a hidden
-  membership gate.
+  concern there would also select its NixOS payload. The common and development
+  profiles similarly route the system and user classes of `cli.zsh` and
+  `virtualization.podman` where their selection intent differs. This is explicit
+  class routing at the call site, not a second class-named aspect identity or a
+  hidden membership gate.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager
   classes selected by the host are projected to Alex. Sonic selects the
   cross-class `profiles.desktop` once; Den routes each included aspect's class
