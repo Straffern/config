@@ -8,11 +8,15 @@
       config,
       lib,
       ...
-    }: {
+    }: let
+      dmsEnabled =
+        config.programs ? dank-material-shell
+        && config.programs.dank-material-shell.enable;
+    in {
       programs.alacritty = {
         enable = true;
         settings = {
-          general = lib.mkIf config.programs.dank-material-shell.enable {
+          general = lib.mkIf dmsEnabled {
             import = ["~/.config/alacritty/dank-theme.toml"];
           };
           shell.program = "zsh";
