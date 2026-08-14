@@ -87,7 +87,6 @@ in {
       systemd.paths.palantir-restart-hermes-link = {
         description = "Watch for HermesPilot Link dashboard restart requests";
         wantedBy = ["multi-user.target"];
-        after = ["palantir-status-dashboard.service"];
         pathConfig = {
           PathExists = "/run/palantir-status-dashboard/restart-hermes-link";
           Unit = "palantir-restart-hermes-link.service";

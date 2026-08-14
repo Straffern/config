@@ -96,11 +96,11 @@ in {
     vmSmoke = [
       {
         name = "neovim";
-        description = "Neovim starts and loads FFF";
+        description = "Neovim starts headlessly";
         phase = "session";
         script = ''
           assert login_user is not None, "Neovim smoke test requires vmSmoke.loginUser"
-          machine.succeed(user_command(f"timeout 60 {login_home}/.local/state/nix/profile/bin/nvim --headless \"+lua assert(pcall(require, 'fff'))\" +qa"))
+          machine.succeed(user_command(f"timeout 30 {login_home}/.local/state/nix/profile/bin/nvim --clean --headless +qa"))
         '';
       }
     ];

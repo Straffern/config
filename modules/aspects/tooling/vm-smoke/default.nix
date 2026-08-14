@@ -87,11 +87,7 @@
         specialArgs = configuration.extraArgs;
       };
 
-      nodes.machine = {
-        config,
-        lib,
-        ...
-      }: {
+      nodes.machine = {lib, ...}: {
         imports =
           configuration._module.args.modules
           ++ hostOverrides
@@ -128,7 +124,18 @@
         login_uid = ${pythonLiteral loginUid}
         login_home = ${pythonLiteral loginHome}
         ${lib.optionalString loginEnabled ''
-          user_prefix = f"runuser -u {login_user} -- env HOME={login_home} XDG_RUNTIME_DIR=/run/user/{login_uid}"
+          user_prefix = (
+              f"runuser -u {login_user} -- env "
+              f"HOME={login_home} "
+              f"USER={login_user} "
+              f"LOGNAME={login_user} "
+              f"PATH={login_home}/.local/state/nix/profile/bin:/run/current-system/sw/bin "
+              f"XDG_CONFIG_HOME={login_home}/.config "
+              f"XDG_CACHE_HOME={login_home}/.cache "
+              f"XDG_DATA_HOME={login_home}/.local/share "
+              f"XDG_STATE_HOME={login_home}/.local/state "
+              f"XDG_RUNTIME_DIR=/run/user/{login_uid}"
+          )
           def user_command(command):
               return f"{user_prefix} {command}"
         ''}
