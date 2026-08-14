@@ -30,24 +30,18 @@
           machine.sleep(1)
           machine.send_chars("test")
           machine.send_key("ret")
-          machine.wait_until_succeeds(f"pgrep -u {login_uid} -x niri", timeout=120)
-          machine.wait_until_succeeds(f"loginctl show-user {login_user} -p State --value | grep -Fx active", timeout=30)
+          machine.wait_until_succeeds(f"loginctl show-user {login_user} -p State --value | grep -Fx active", timeout=120)
         '';
       }
     ];
 
     nixos = {
-      config,
       lib,
       pkgs,
       ...
     }: {
       imports = [inputs.dank-greeter.nixosModules.default];
-      programs.dms-greeter = {
-        enable = true;
-        compositor.name = "niri";
-        configHome = config.users.users.alex.home;
-      };
+      programs.dms-greeter.enable = true;
       users.users.greeter.home = "/var/lib/dms-greeter";
       services.fprintd.enable = true;
       security.pam.services.login.fprintAuth = false;

@@ -13,12 +13,25 @@
       }
     ];
 
-    nixos = {pkgs, ...}: {
-      environment.sessionVariables.NIXOS_OZONE_WL = "1";
-      programs.niri = {
-        enable = true;
-        package = pkgs.niri;
-      };
+    nixos = {
+      config,
+      lib,
+      options,
+      pkgs,
+      ...
+    }: {
+      config = lib.mkMerge [
+        {
+          environment.sessionVariables.NIXOS_OZONE_WL = "1";
+          programs.niri = {
+            enable = true;
+            package = pkgs.niri;
+          };
+        }
+        (lib.mkIf (options ? programs.dms-greeter.enable && config.programs.dms-greeter.enable) {
+          programs.dms-greeter.compositor.name = "niri";
+        })
+      ];
     };
   };
 }
