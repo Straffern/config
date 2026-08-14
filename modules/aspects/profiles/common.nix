@@ -6,7 +6,7 @@
       den.aspects.platform.locale
       den.aspects.platform.nix
       den.aspects.security.sops
+      den.aspects.cli.zsh
     ];
-    nixos.imports = [den.aspects.cli.zsh.nixos];
   };
 }

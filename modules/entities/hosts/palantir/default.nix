@@ -17,6 +17,9 @@
       den.aspects.profiles.server
       den.aspects.services.hermes
       den.aspects.services.hindsight
+      den.aspects.styles.icons
+      den.aspects.styles.stylix
+      den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.boot
     ];
@@ -32,10 +35,6 @@
         pkgs,
         ...
       }: {
-        imports = [
-          den.aspects.styles.icons.homeManager
-          den.aspects.styles.stylix.homeManager
-        ];
         programs.zsh.sessionVariables.PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
         programs.git = {
           signing = {
@@ -51,13 +50,8 @@
       };
     };
 
-    nixos = {
-      host,
-      lib,
-      ...
-    }: {
+    nixos = {...}: {
       imports = [
-        {config = den.aspects.virtualization.podman.nixos {inherit host lib;};}
         inputs.disko.nixosModules.disko
         ./_/disko.nix
         ./_/hardware-configuration.nix

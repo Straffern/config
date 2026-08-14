@@ -67,11 +67,11 @@ This matches Den's distinction between entity facts and aspect behavior.
   as `styles.fonts`, `styles.stylix`, `desktop.base`, `desktop.nautilus`,
   `cli.zsh`, and `virtualization.podman`, with its NixOS and Home Manager
   behavior expressed as class outputs of that aspect rather than separate
-  class-named aspects. Explicit class imports at profile and host call sites
-  preserve narrower selection intent without creating alternate identities.
-  Font and icon identities are separate concerns: `styles.fonts` owns font
-  installation, while `styles.icons` owns icon packages and GTK selection;
-  Stylix only generates the surrounding theme. Package concerns follow the
+  class-named aspects. Composition selects whole aspects and lets Den resolve
+  and route their active classes; call sites do not import another aspect's
+  class payload directly. Font and icon identities are separate concerns:
+  `styles.fonts` owns font installation, while `styles.icons` owns GTK icon
+  activation and selection; Stylix generates the surrounding theme. Package concerns follow the
   same rule: `styles.monolisa` owns its package and
   NixOS font payload, while `styles.wallpapers` owns its package. Nautilus owns
   its desktop package, Sushi companion, NixOS services, and Home Manager
@@ -86,19 +86,17 @@ This matches Den's distinction between entity facts and aspect behavior.
   concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
   a graphics wrapper.
 - Host entities select system/profile aspects. Palantir and Sonic use
-  `provides.alex` for user-specific additions. In locked Den, an aspect placed
-  in a named provider's `includes` is still traversed across its classes in the
-  integrated host evaluation. Palantir therefore imports only
-  `styles.stylix.homeManager` at its provider module seam; including the whole
-  concern there would also select its NixOS payload. The common and development
-  profiles similarly route the system and user classes of `cli.zsh` and
-  `virtualization.podman` where their selection intent differs. This is explicit
-  class routing at the call site, not a second class-named aspect identity or a
-  hidden membership gate.
-- Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager
-  classes selected by the host are projected to Alex. Sonic selects the
-  cross-class `profiles.desktop` once; Den routes each included aspect's class
-  outputs to the appropriate host and user entities.
+  `provides.alex` only for user-specific additions. Named providers filter by
+  entity, not by class, so a provided aspect's NixOS class can intentionally
+  contribute to its enclosing host. Palantir instead selects the complete
+  cross-class Stylix, icons, and Podman concerns at host scope.
+- Alex includes `den.batteries.host-aspects`, so Home Manager classes selected
+  by the host are projected to Alex. Sonic selects `profiles.desktop` once;
+  Palantir selects its whole cross-class concerns directly. Frostmourne's Alex
+  and Niko have no Home Manager class, so Home Manager payloads in the selected
+  host DAG remain inert. `profiles.common` therefore selects the whole `cli.zsh`
+  concern, while the complete Podman concern is selected only on Sonic and
+  Palantir. Den resolves and routes each active class without surgical imports.
 - Host-local Disko, hardware, facter, and private home fragments remain under
   each entity's `_` directory and are imported by the owning entity/aspect.
   `_` directory presence has no output semantics.

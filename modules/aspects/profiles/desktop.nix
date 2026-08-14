@@ -15,6 +15,7 @@
       den.aspects.platform.nh
       den.aspects.platform.nix-ld
       den.aspects.platform.boot-plymouth
+      den.aspects.virtualization.podman
       den.aspects.profiles.development
       den.aspects.platform.nixgl
       den.aspects.desktop.input-tools
@@ -31,14 +32,5 @@
       den.aspects.desktop.addons.xdg
       den.aspects.desktop.kitty
     ];
-    nixos = {
-      host,
-      lib,
-      ...
-    }: {
-      imports = [
-        {config = den.aspects.virtualization.podman.nixos {inherit host lib;};}
-      ];
-    };
   };
 }

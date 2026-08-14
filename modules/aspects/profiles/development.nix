@@ -33,9 +33,5 @@
       den.aspects.cli.snitch
       den.aspects.cli.lazyjournal
     ];
-    homeManager.imports = [
-      den.aspects.cli.zsh.homeManager
-      den.aspects.virtualization.podman.homeManager
-    ];
   };
 }
