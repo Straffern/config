@@ -18,6 +18,7 @@ in {
       Unit = {
         Description = "VoxType push-to-talk voice-to-text daemon";
         Documentation = "https://voxtype.io";
+        ConditionPathExists = "%h/.config/voxtype/config.toml";
         PartOf = ["graphical-session.target"];
         After = [
           "graphical-session.target"

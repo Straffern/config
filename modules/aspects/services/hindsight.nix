@@ -75,6 +75,7 @@
         sops.secrets.groq_api_key.sopsFile = hostSecretsFile;
         sops.secrets.openrouter_api_key.sopsFile = hostSecretsFile;
         sops.templates."hindsight-env" = {
+          restartUnits = ["podman-hindsight.service"];
           content = ''
             HINDSIGHT_API_LLM_PROVIDER=litellmrouter
             HINDSIGHT_API_LLM_LITELLMROUTER_CONFIG=${routerConfig}
@@ -108,8 +109,8 @@
         ];
         systemd.services.podman-hindsight = {
           after = ["sops-nix.service"];
-          wants = ["sops-nix.service"];
-          restartTriggers = [config.sops.templates."hindsight-env".content];
+          requires = ["sops-nix.service"];
+          unitConfig.ConditionPathExists = config.sops.templates."hindsight-env".path;
         };
       }
       (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {

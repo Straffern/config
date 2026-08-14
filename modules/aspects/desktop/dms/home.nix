@@ -269,8 +269,9 @@
           Service = {
             Type = "oneshot";
             # 8s delay: niri needs time to settle outputs after dock/undock/suspend.
-            # reset-failed clears the rate-limit counter so the next start succeeds.
-            ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 8 && systemctl --user reset-failed dms.service 2>/dev/null; exec systemctl --user start dms.service'";
+            # A compositor logout also fails DMS when its Wayland socket disappears;
+            # that is normal and must not restart it outside a graphical session.
+            ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 8; systemctl --user --quiet is-active graphical-session.target || exit 0; systemctl --user reset-failed dms.service 2>/dev/null; exec systemctl --user start dms.service'";
           };
         };
       }
@@ -285,8 +286,22 @@
           };
         };
 
-        # Match `systemctl --user add-wants niri.service dms` semantics.
-        systemd.user.services.dms.Install.WantedBy = mkForce ["niri.service"];
+        # DMS belongs to Niri, not every graphical session (for example Gamescope).
+        systemd.user.services = {
+          dms = {
+            Unit = {
+              PartOf = ["niri.service"];
+              Requisite = ["niri.service"];
+              After = ["niri.service"];
+            };
+            Install.WantedBy = mkForce ["niri.service"];
+          };
+          dms-rescue.Unit = {
+            PartOf = ["niri.service"];
+            Requisite = ["niri.service"];
+            After = ["niri.service"];
+          };
+        };
 
         programs.niri.settings.environment = {
           QT_QPA_PLATFORMTHEME = "qt6ct";
