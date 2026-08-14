@@ -118,6 +118,7 @@ in {
               ripgrep
               zig
               gnumake
+              stdenv.cc
               cargo
               nodejs_24
               tree-sitter
