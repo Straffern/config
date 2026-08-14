@@ -144,7 +144,19 @@ in {
       lib,
       pkgs,
       ...
-    }: {
+    }: let
+      continuumNoSystemd = pkgs.tmuxPlugins.continuum.overrideAttrs (old: {
+        postPatch =
+          (old.postPatch or "")
+          + ''
+            cat > scripts/handle_tmux_automatic_start.sh <<'EOF'
+            #!${pkgs.runtimeShell}
+            # Home Manager owns tmux.service; Continuum only saves/restores sessions.
+            exit 0
+            EOF
+          '';
+      });
+    in {
       home.packages = [
         pkgs.sesh
         pkgs.lsof
@@ -215,10 +227,11 @@ in {
               '';
           }
           {
-            plugin = continuum;
+            plugin = continuumNoSystemd;
             extraConfig = ''
-              set -g @continuum-restore 'on'
-              set -g @continuum-boot 'on'
+              # systemd starts tmux and restores only after the default session exists.
+              set -g @continuum-restore 'off'
+              set -g @continuum-boot 'off'
               set -g @continuum-save-interval '10'
               # set -g @continuum-systemd-start-cmd 'start-server'
             '';
@@ -438,11 +451,8 @@ in {
         '';
       };
       # Declarative tmux service replaces tmux-continuum's auto-generated unit.
-      # Continuum's systemd_enable.sh writes ~/.config/systemd/user/tmux.service
-      # with hardcoded nix-store generation paths that break after GC.
-      # With @continuum-boot 'on', continuum skips writing if the unit file already
-      # exists (write_unit_file_unless_exists checks [ -e path ]), so HM's symlink
-      # takes precedence. Resurrect scripts use absolute Nix store paths.
+      # The patched plugin leaves systemd ownership to Home Manager while retaining
+      # Continuum's periodic saves and automatic Resurrect restore.
       systemd.user.services.tmux = {
         # Preserve live sessions across Home Manager applies. ExecStop still
         # saves then kills the server for explicit stops and shutdown.
@@ -453,14 +463,13 @@ in {
         };
         Service = {
           Type = "forking";
-          Environment = ["DISPLAY=:0" "TMUX_TMPDIR=%t"];
-          ExecStart = "${pkgs.tmux}/bin/tmux start-server";
+          ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -s default";
+          ExecStartPost = "-${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh";
           ExecStop = [
-            "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
-            "${pkgs.tmux}/bin/tmux kill-server"
+            "-${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh"
+            "-${pkgs.tmux}/bin/tmux kill-server"
           ];
           KillMode = "mixed";
-          RestartSec = 2;
         };
         Install.WantedBy = ["default.target"];
       };
