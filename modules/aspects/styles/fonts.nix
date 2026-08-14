@@ -1,6 +1,6 @@
 {den, ...}: {
   den.aspects.styles.fonts = {
-    includes = [den.aspects.styles.packages];
+    includes = [den.aspects.styles.monolisa];
     homeManager = {pkgs, ...}: {
       fonts.fontconfig.enable = true;
       home.packages = with pkgs; [

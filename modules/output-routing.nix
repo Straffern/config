@@ -18,7 +18,8 @@
     den.aspects.cli.neovim
     den.aspects.hardware.amd-debug-tools
     den.aspects.hardware.v4l2loopback
-    den.aspects.styles.packages
+    den.aspects.styles.monolisa
+    den.aspects.styles.wallpapers
     den.aspects.tooling.dev-shell
     den.aspects.tooling.treefmt
     den.aspects.deployment

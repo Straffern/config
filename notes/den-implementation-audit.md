@@ -66,12 +66,11 @@ This matches Den's distinction between entity facts and aspect behavior.
   system and user desktop concerns. Each concern has one aspect identity, such
   as `styles.fonts`, `styles.stylix`, `desktop.base`, and `desktop.nautilus`,
   with its NixOS and Home Manager behavior expressed as class outputs of that
-  aspect rather than separate class-named aspects. Stylix's NixOS payload is
-  gated by desktop-profile membership so Palantir can select the same concern
-  for Alex without turning the server into a system-themed desktop. Hardware-
-  specific AMD monitoring remains a Sonic user provision rather than a generic
-  desktop
-  dependency. Gaming core is reusable without compositor or GPU-vendor
+  aspect rather than separate class-named aspects. Package concerns follow the
+  same rule: `styles.monolisa` owns its package and NixOS font payload, while
+  `styles.wallpapers` owns its package. Hardware-specific AMD monitoring
+  remains a Sonic user provision rather than a generic desktop dependency.
+  Gaming core is reusable without compositor or GPU-vendor
   assumptions; Sonic selects AMD graphics directly beside its generic
   Gaming + Niri integration, which composes the canonical gaming profile and
   contributes its Steam Gamescope session through native list merging rather than
@@ -80,7 +79,13 @@ This matches Den's distinction between entity facts and aspect behavior.
   concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
   a graphics wrapper.
 - Host entities select system/profile aspects. Palantir and Sonic use
-  `provides.alex` for user-specific additions.
+  `provides.alex` for user-specific additions. In locked Den, an aspect placed
+  in a named provider's `includes` is still traversed across its classes in the
+  integrated host evaluation. Palantir therefore imports only
+  `styles.stylix.homeManager` at its provider module seam; including the whole
+  concern there would also select its NixOS payload. This is explicit class
+  routing at the call site, not a second class-named aspect identity or a hidden
+  membership gate.
 - Alex includes `den.batteries.host-aspects`, so user-relevant Home Manager
   classes selected by the host are projected to Alex. Sonic selects the
   cross-class `profiles.desktop` once; Den routes each included aspect's class

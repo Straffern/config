@@ -12,8 +12,6 @@
     };
   };
 
-  imports = [./_/home.nix];
-
   den.hosts.x86_64-linux.sonic.users.alex = {};
 
   den.hosts.x86_64-linux.sonic.deployment = {
@@ -41,22 +39,28 @@
       den.aspects.platform.boot
       den.aspects.hardware.amd-debug-tools
     ];
-    provides.alex.includes = [
-      den.aspects.hardware.amd-monitoring
-      den.aspects.profiles.video
-      den.aspects.profiles.gamedev
-      den.aspects.cli.alacritty
-      den.aspects.cli.lobster
-      den.aspects.cli.pi
-      den.aspects.cli.omp
-      den.aspects.cli.ai-shell
-      den.aspects.apps.waldl
-      den.aspects.apps.voxtype
-      den.aspects.apps.clipy
-      den.aspects.apps.nwg-displays
-      den.aspects.apps.guvcview
-      den.aspects._sonic-home
-    ];
+    provides.alex = {
+      includes = [
+        den.aspects.hardware.amd-monitoring
+        den.aspects.profiles.video
+        den.aspects.profiles.gamedev
+        den.aspects.cli.alacritty
+        den.aspects.cli.lobster
+        den.aspects.cli.pi
+        den.aspects.cli.omp
+        den.aspects.cli.ai-shell
+        den.aspects.apps.waldl
+        den.aspects.apps.voxtype
+        den.aspects.apps.clipy
+        den.aspects.apps.nwg-displays
+        den.aspects.apps.guvcview
+      ];
+      homeManager = {config, ...}: {
+        programs.zsh.sessionVariables.PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
+        programs.ssh.includes = [config.sops.secrets.ssh_config.path];
+        sops.secrets.ssh_config.sopsFile = ../../../../secrets/hosts/sonic.yaml;
+      };
+    };
 
     nixos = {...}: {
       imports = [

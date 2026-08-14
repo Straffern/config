@@ -3,8 +3,6 @@
   inputs,
   ...
 }: {
-  imports = [./_/home.nix];
-
   den.hosts.x86_64-linux.palantir.users.alex = {};
 
   den.hosts.x86_64-linux.palantir.deployment = {
@@ -24,13 +22,32 @@
       den.aspects.platform.boot
     ];
 
-    provides.alex.includes = [
-      den.aspects.profiles.development
-      den.aspects.styles.stylix
-      den.aspects.cli.opencode
-      den.aspects.apps.clipy
-      den.aspects._palantir-home
-    ];
+    provides.alex = {
+      includes = [
+        den.aspects.profiles.development
+        den.aspects.cli.opencode
+        den.aspects.apps.clipy
+      ];
+      homeManager = {
+        lib,
+        pkgs,
+        ...
+      }: {
+        imports = [den.aspects.styles.stylix.homeManager];
+        programs.zsh.sessionVariables.PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
+        programs.git = {
+          signing = {
+            key = null;
+            signByDefault = lib.mkForce false;
+          };
+          settings.commit.gpgsign = lib.mkForce false;
+        };
+        stylix = {
+          enable = true;
+          base16Scheme = "${pkgs.base16-schemes}/share/themes/dracula.yaml";
+        };
+      };
+    };
 
     nixos = {...}: {
       imports = [
