@@ -46,6 +46,7 @@
       builtins.toJSON {
         blurEnabled = true;
         gtkThemingEnabled = true;
+        runDmsMatugenTemplates = true;
         matugenTemplateNeovim = true;
         enableFprint = true;
         greeterEnableFprint = true;
@@ -72,6 +73,7 @@
           if type == "object" then
             (if has("blurEnabled") then . else . + { blurEnabled: true } end)
             | (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
+            | (if has("runDmsMatugenTemplates") then . else . + { runDmsMatugenTemplates: true } end)
             | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
             | (if has("enableFprint") then . else . + { enableFprint: true } end)
             | (if has("greeterEnableFprint") then . else . + { greeterEnableFprint: true } end)
@@ -87,6 +89,15 @@
         fi
       else
         echo "Skipping DMS settings bootstrap due to invalid JSON in $settings_path" >&2
+      fi
+    '';
+
+    restoreDmsBackup = path: ''
+      target=${escapeShellArg path}
+      backup="$target.pre-home-manager"
+      if [ ! -e "$target" ] && [ ! -L "$target" ] && [ -f "$backup" ]; then
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$target")"
+        $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$backup" "$target"
       fi
     '';
 
@@ -193,6 +204,15 @@
     ];
     config = mkMerge [
       {
+        assertions = [
+          {
+            assertion =
+              !(config.programs.dank-material-shell.enable or false)
+              || !(config.stylix.targets.dank-material-shell.enable or false);
+            message = "Stylix's DMS target must be disabled when DMS is enabled so settings remain writable";
+          }
+        ];
+
         programs.dank-material-shell = {
           enable = true;
           package = (inputs.dms.lib.mkDmsShell pkgs).overrideAttrs (old: {
@@ -208,11 +228,11 @@
           enableSystemMonitoring = true;
           enableDynamicTheming = true;
           enableClipboardPaste = true;
-          settings = {
-            runDmsMatugenTemplates = true;
-            matugenTemplateNeovim = true;
-          };
         };
+
+        # DMS settings and session are interactive application state. Stylix's
+        # adapter would make both files immutable Home Manager store links.
+        stylix.targets.dank-material-shell.enable = false;
         programs.kitty.extraConfig = lib.mkAfter ''
           include dank-tabs.conf
           include dank-theme.conf
@@ -252,9 +272,11 @@
 
         # Bootstrap DMS settings + terminal theme stubs (compositor-agnostic).
         home.activation.dmsBootstrap = {
-          after = ["writeBoundary"];
+          after = ["linkGeneration"];
           before = [];
           data = ''
+            ${restoreDmsBackup "${config.xdg.configHome}/DankMaterialShell/settings.json"}
+            ${restoreDmsBackup "${config.xdg.stateHome}/DankMaterialShell/session.json"}
             ${bootstrapDmsSettings}
 
             ${installMissingFile dmsTerminalFiles.alacritty "${config.xdg.configHome}/alacritty/dank-theme.toml"}

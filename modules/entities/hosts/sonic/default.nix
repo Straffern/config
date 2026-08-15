@@ -54,6 +54,12 @@
               "d /home/alex/.config 0755 alex users -"
               "d /home/alex/.config/gtk-3.0 0755 alex users -"
               "f /home/alex/.config/gtk-3.0/settings.ini 0644 alex users - legacy"
+              "d /home/alex/.config/DankMaterialShell 0755 alex users -"
+              "f /home/alex/.config/DankMaterialShell/settings.json.pre-home-manager 0644 alex users - {\"userSetting\":\"preserved\"}"
+              "d /home/alex/.local 0755 alex users -"
+              "d /home/alex/.local/state 0755 alex users -"
+              "d /home/alex/.local/state/DankMaterialShell 0755 alex users -"
+              "f /home/alex/.local/state/DankMaterialShell/session.json.pre-home-manager 0644 alex users - {\"wallpaperPath\":\"/home/alex/Pictures/chosen.png\"}"
               "d /var/lib/dms-greeter 0750 greeter greeter -"
               "f /var/lib/dms-greeter/wallpaper 0644 greeter greeter - wallpaper"
               "f /var/lib/dms-greeter/session.json 0644 greeter greeter - {\\\"wallpaperPath\\\":\\\"/var/lib/dms-greeter/wallpaper\\\"}"
@@ -68,6 +74,18 @@
                 script = ''
                   machine.wait_for_unit("home-manager-alex.service")
                   machine.succeed("grep -Fx legacy /home/alex/.config/gtk-3.0/settings.ini.pre-home-manager")
+                  machine.succeed("test -f /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("test ! -L /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("runuser -u alex -- test -w /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("grep -F '\"userSetting\": \"preserved\"' /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("grep -F '\"runDmsMatugenTemplates\": true' /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("grep -F '\"matugenTemplateNeovim\": true' /home/alex/.config/DankMaterialShell/settings.json")
+                  machine.succeed("test ! -e /home/alex/.config/DankMaterialShell/settings.json.pre-home-manager")
+                  machine.succeed("test -f /home/alex/.local/state/DankMaterialShell/session.json")
+                  machine.succeed("test ! -L /home/alex/.local/state/DankMaterialShell/session.json")
+                  machine.succeed("runuser -u alex -- test -w /home/alex/.local/state/DankMaterialShell/session.json")
+                  machine.succeed("grep -F '\"wallpaperPath\":\"/home/alex/Pictures/chosen.png\"' /home/alex/.local/state/DankMaterialShell/session.json")
+                  machine.succeed("test ! -e /home/alex/.local/state/DankMaterialShell/session.json.pre-home-manager")
                 '';
               }
             ];
