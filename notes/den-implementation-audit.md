@@ -220,8 +220,9 @@ These are bounded current issues, not reasons for speculative framework work:
 
 ## Explicitly deferred or non-issues
 
-- No custom quirk, pipe, namespace, standalone home, Darwin system, or extra
-  entity kind is justified by the current fleet.
+- No additional custom quirk, pipe, namespace, standalone home, Darwin system,
+  or extra entity kind is justified by the current fleet. VM smoke testing
+  already uses the `vmSmoke` quirk to aggregate probe descriptors.
 - More custom policies would add mechanism without adding a missing topology or
   routing edge.
 - Small leaf aspects are not inherently Snowfall-shaped debt. Keep a leaf when

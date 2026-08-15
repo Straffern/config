@@ -60,7 +60,8 @@ The public output policy is exact:
 - flake-file also exports generator packages `write-flake`, `write-inputs`,
   and `write-lock`
 - `devShells.x86_64-linux.default`, the x86_64-linux formatter, and checks
-  `treefmt`, `deploy-schema`, and `deploy-activate`
+  `check-flake-file`, `treefmt`, `deploy-schema`, `deploy-activate`,
+  `vm-smoke-frostmourne`, `vm-smoke-palantir`, and `vm-smoke-sonic`
 - explicit deploy nodes for the same three hosts
 There is no extra public package-set or output family, and no non-x86_64-linux
 output system.

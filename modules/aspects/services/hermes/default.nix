@@ -193,14 +193,8 @@ in {
           );
         };
         systemd.services.hermes-agent = {
-          after = [
-            "sops-nix.service"
-            "podman-hindsight.service"
-          ];
-          wants = [
-            "sops-nix.service"
-            "podman-hindsight.service"
-          ];
+          after = ["podman-hindsight.service"];
+          wants = ["podman-hindsight.service"];
           restartTriggers = [
             config.sops.templates."hermes-env".content
             config.sops.templates."hermes-xurl-token".content

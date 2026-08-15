@@ -84,7 +84,7 @@ in {
         programs.jujutsu = {
           enable = true;
           settings = {
-            aliases = import ./_config/aliases.nix {inherit pkgs lib;};
+            aliases = (import ./_config/aliases.nix {inherit pkgs lib;}).aliases;
             revset-aliases = import ./_config/revsets.nix {
               userName = "Alexander Flensborg";
               email = "alex@flensborg.dev";

@@ -107,11 +107,8 @@
           "d /var/lib/hindsight 0750 1000 1000 -"
           "d /var/lib/hindsight/pg0 0750 1000 1000 -"
         ];
-        systemd.services.podman-hindsight = {
-          after = ["sops-nix.service"];
-          requires = ["sops-nix.service"];
-          unitConfig.ConditionPathExists = config.sops.templates."hindsight-env".path;
-        };
+        systemd.services.podman-hindsight.unitConfig.ConditionPathExists =
+          config.sops.templates."hindsight-env".path;
       }
       (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         environment.persistence."/persist".directories = ["/var/lib/hindsight"];
