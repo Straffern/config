@@ -28,48 +28,6 @@
       };
     };
 
-  televisionSeshChannel = ''
-    # Television channel for sesh session management
-    # Upstream: https://github.com/alexpasmantier/television/blob/main/cable/unix/sesh.toml
-    # https://github.com/joshmedeski/sesh
-    [metadata]
-    name = "sesh"
-    description = "Session manager integrating tmux sessions, zoxide directories, and config paths"
-    requirements = ["sesh", "fd"]
-
-    [source]
-    # Multiple source commands for cycling through different modes
-    # Press Ctrl+S to cycle between sources
-    command = [
-      { name = "All",         run = "sesh list --icons" },
-      { name = "Tmux",        run = "sesh list -t --icons" },
-      { name = "Configs",     run = "sesh list -c --icons" },
-      { name = "Zoxide",      run = "sesh list -z --icons" },
-      { name = "Directories", run = "fd -H -d 2 -t d -E .Trash . ~" },
-    ]
-    ansi = true
-    frecency = false # handled by sesh
-    no_sort = true # handled by sesh
-    output = "{strip_ansi|split: :1..|join: }"
-
-    [preview]
-    command = "sesh preview '{strip_ansi|split: :1..|join: }'"
-
-    [keybindings]
-    enter = "actions:connect"
-    ctrl-d = ["actions:kill_session", "reload_source"]
-
-    [actions.connect]
-    description = "Connect to selected session"
-    command = "sesh connect '{strip_ansi|split: :1..|join: }'"
-    mode = "execute"
-
-    [actions.kill_session]
-    description = "Kill selected tmux session (press Ctrl+r to reload)"
-    command = "tmux kill-session -t '{strip_ansi|split: :1..|join: }'"
-    mode = "fork"
-  '';
-
   copyCurrentLineScript = pkgs: ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -194,7 +152,7 @@ in {
       xdg.configFile."television/cable/sesh.toml" =
         lib.mkIf config.programs.television.enable
         {
-          text = televisionSeshChannel;
+          source = "${pkgs.television.src}/cable/unix/sesh.toml";
         };
 
       xdg.configFile."tmux/scripts/copy-current-line.sh" = {
