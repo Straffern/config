@@ -76,8 +76,6 @@
     provides.alex = {
       includes = [
         den.aspects.hardware.amd-monitoring
-        den.aspects.profiles.video
-        den.aspects.profiles.gamedev
         den.aspects.cli.alacritty
         den.aspects.cli.lobster
         den.aspects.cli.pi
