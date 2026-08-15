@@ -46,6 +46,31 @@
               lib.mkForce "/run/vm-smoke-sops-identity";
           };
         }
+        {
+          reason = "Exercise activation and greeter against state left by the previous generation";
+          module = {
+            systemd.tmpfiles.rules = [
+              "d /home/alex 0755 alex users -"
+              "d /home/alex/.config 0755 alex users -"
+              "d /home/alex/.config/gtk-3.0 0755 alex users -"
+              "f /home/alex/.config/gtk-3.0/settings.ini 0644 alex users - legacy"
+              "d /var/lib/dms-greeter 0750 greeter greeter -"
+              "f /var/lib/dms-greeter/wallpaper 0644 greeter greeter - wallpaper"
+              "f /var/lib/dms-greeter/session.json 0644 greeter greeter - {\\\"wallpaperPath\\\":\\\"/var/lib/dms-greeter/wallpaper\\\"}"
+            ];
+            dotfiles.vmSmoke.descriptors = [
+              {
+                name = "home-manager-state-migration";
+                description = "Home Manager adopts files from the previous generation";
+                phase = "boot";
+                script = ''
+                  machine.wait_for_unit("home-manager-alex.service")
+                  machine.succeed("grep -Fx legacy /home/alex/.config/gtk-3.0/settings.ini.pre-home-manager")
+                '';
+              }
+            ];
+          };
+        }
       ];
     };
   };
@@ -69,7 +94,6 @@
       den.aspects.hardware.v4l2loopback
       den.aspects.platform.battery
       den.aspects.platform.environment
-      den.aspects.platform.impermanence
       den.aspects.platform.boot
       den.aspects.hardware.amd-debug-tools
     ];
@@ -89,12 +113,20 @@
       ];
       homeManager = {config, ...}: {
         programs.zsh.sessionVariables.PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
+        xdg.configFile = {
+          "gtk-3.0/gtk.css".force = true;
+          "gtk-4.0/gtk.css".force = true;
+        };
         programs.ssh.includes = [config.sops.secrets.ssh_config.path];
         sops.secrets.ssh_config.sopsFile = ../../../../secrets/hosts/sonic.yaml;
       };
     };
 
     nixos = {...}: {
+      home-manager = {
+        backupFileExtension = "pre-home-manager";
+        overwriteBackup = true;
+      };
       imports = [
         inputs.disko.nixosModules.disko
         ./_/hardware-configuration.nix
