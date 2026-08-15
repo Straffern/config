@@ -117,7 +117,9 @@
           if [ -f settings.json ]; then
             theme_file="$(${jq} -r '.customThemeFile // empty' settings.json)"
             if [ -f "$theme_file" ] && [ -r "$theme_file" ]; then
-              cp "$theme_file" custom-theme.json
+              if [ "$(readlink -f "$theme_file")" != "$(readlink -f custom-theme.json)" ]; then
+                cp "$theme_file" custom-theme.json
+              fi
               mv settings.json settings.orig.json
               ${jq} '.customThemeFile = "${cacheDir}/custom-theme.json"' settings.orig.json > settings.json
             fi

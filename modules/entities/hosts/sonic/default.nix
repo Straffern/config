@@ -57,6 +57,8 @@
               "d /var/lib/dms-greeter 0750 greeter greeter -"
               "f /var/lib/dms-greeter/wallpaper 0644 greeter greeter - wallpaper"
               "f /var/lib/dms-greeter/session.json 0644 greeter greeter - {\\\"wallpaperPath\\\":\\\"/var/lib/dms-greeter/wallpaper\\\"}"
+              "f /var/lib/dms-greeter/custom-theme.json 0644 greeter greeter - {}"
+              "f /var/lib/dms-greeter/settings.json 0644 greeter greeter - {\\\"customThemeFile\\\":\\\"/var/lib/dms-greeter/custom-theme.json\\\"}"
             ];
             dotfiles.vmSmoke.descriptors = [
               {
