@@ -8,9 +8,16 @@ rustPlatform.buildRustPackage {
   pname = "waldl";
   version = "0.1.0";
 
-  src = lib.cleanSource ./.;
+  src = lib.fileset.toSource {
+    root = ./.;
+    fileset = lib.fileset.unions [
+      ./Cargo.lock
+      ./Cargo.toml
+      ./src
+    ];
+  };
 
-  cargoHash = "sha256-9XsjSdNb9Nt0l3eY+cdfiVoZXjVdfGnKwbJu7sK81ws=";
+  cargoHash = "sha256-CFkAratnw6551Dr2INtuRnOaZcOd/ZasHdJ7rCZC7PM=";
 
   nativeBuildInputs = [pkg-config];
 
