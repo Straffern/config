@@ -15,8 +15,6 @@
     homeManager = {
       unfree.packages = [
         "aseprite"
-        "brave"
-        "davinci-resolve-studio"
         "goofcord"
         "keymapp"
       ];

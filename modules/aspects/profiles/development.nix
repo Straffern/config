@@ -2,6 +2,7 @@
   den.aspects.profiles.development = {
     includes = [
       den.aspects.development.mutable-source
+      den.aspects.development.state
       den.aspects.cli.neovim
       den.aspects.cli.tmux
       den.aspects.cli.bat

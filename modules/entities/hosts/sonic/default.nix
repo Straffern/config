@@ -46,14 +46,17 @@
   den.aspects.sonic = {
     includes = [
       den.aspects.profiles.desktop
-      den.aspects.styles.stylix
+      den.aspects.profiles.development
+      den.aspects.virtualization.podman
+      den.aspects.apps.kdeconnect
+      den.aspects.apps.desktop-utilities
       den.aspects.desktop.addons.kanshi
       den.aspects.gaming.niri-session
       den.aspects.gaming.amd-graphics
-      den.aspects.profiles.social
+      den.aspects.apps.discord
       den.aspects.apps.helium
       den.aspects.apps.slack
-      den.aspects.profiles.photos
+      den.aspects.apps.shotwell
       den.aspects.cli.opencode
       den.aspects.desktop.dms
       den.aspects.services.hindsight
@@ -84,10 +87,6 @@
       ];
       homeManager = {config, ...}: {
         programs.zsh.sessionVariables.PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
-        xdg.configFile = {
-          "gtk-3.0/gtk.css".force = true;
-          "gtk-4.0/gtk.css".force = true;
-        };
         programs.ssh.includes = [config.sops.secrets.ssh_config.path];
         sops.secrets.ssh_config.sopsFile = ../../../../secrets/hosts/sonic.yaml;
       };

@@ -204,15 +204,6 @@
     ];
     config = mkMerge [
       {
-        assertions = [
-          {
-            assertion =
-              !(config.programs.dank-material-shell.enable or false)
-              || !(config.stylix.targets.dank-material-shell.enable or false);
-            message = "Stylix's DMS target must be disabled when DMS is enabled so settings remain writable";
-          }
-        ];
-
         programs.dank-material-shell = {
           enable = true;
           package = (inputs.dms.lib.mkDmsShell pkgs).overrideAttrs (old: {
@@ -230,9 +221,6 @@
           enableClipboardPaste = true;
         };
 
-        # DMS settings and session are interactive application state. Stylix's
-        # adapter would make both files immutable Home Manager store links.
-        stylix.targets.dank-material-shell.enable = false;
         programs.kitty.extraConfig = lib.mkAfter ''
           include dank-tabs.conf
           include dank-theme.conf

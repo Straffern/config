@@ -13,15 +13,10 @@
       den.aspects.platform.nh
       den.aspects.platform.nix-ld
       den.aspects.platform.boot-plymouth
-      den.aspects.virtualization.podman
-      den.aspects.profiles.development
       den.aspects.desktop.input-tools
       den.aspects.desktop.wayland-session
       den.aspects.desktop.media-controls
       den.aspects.cli.kitty
-      den.aspects.development.state
-      den.aspects.apps.kdeconnect
-      den.aspects.apps.desktop-utilities
       den.aspects.desktop.addons.xdg
     ];
   };

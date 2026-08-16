@@ -62,22 +62,26 @@ This matches Den's distinction between entity facts and aspect behavior.
 
 - `modules/aspects/` is feature-first and concern-owned. Profiles are thin
   include graphs rather than independent host definitions. `profiles.common`
-  is a GUI-free host foundation; the cohesive `profiles.desktop` selects both
-  system and user desktop concerns. Each concern has one aspect identity, such
+  is a GUI-free host foundation; `profiles.desktop` is the GUI session only.
+  Workstation CLI stays in `profiles.development`, selected by Sonic at host
+  scope and by Palantir via `provides.alex`. Podman, KDE Connect, and
+  `apps.desktop-utilities` are host includes, not desktop-profile members.
+  Each concern has one aspect identity, such
   as `styles.fonts`, `styles.stylix`, `desktop.base`, `desktop.nautilus`,
   `cli.zsh`, and `virtualization.podman`, with its NixOS and Home Manager
   behavior expressed as class outputs of that aspect rather than separate
   class-named aspects. Composition selects whole aspects and lets Den resolve
   and route their active classes; call sites do not import another aspect's
   class payload directly. Optional host policy stays outside reusable profiles:
-  Sonic and Palantir select the complete Stylix concern explicitly, while Sonic
-  selects its machine-specific Kanshi output policy explicitly beside Niri and
-  keeps WireGuard support explicit beside Tailscale rather than hiding both
-  behind a generic VPN alias.
-  Stylix-aware consumers guard their integration options, so Neovim, FZF, and
-  DMS remain independently selectable. Font and icon identities are separate
+  Palantir selects the complete Stylix concern explicitly; Sonic selects DMS
+  directly and does not select `styles.stylix`. The DMS aspect asserts that
+  its selection is incompatible with Stylix, preventing both concerns from
+  being selected together on Sonic.
+  Stylix-aware consumers guard their integration options, while DMS is an
+  explicit non-consumer of Stylix. Font and icon identities are separate
   concerns: `styles.fonts` owns font installation, while `styles.icons` owns
-  GTK icon activation and selection; Stylix generates the surrounding theme.
+  GTK icon activation and selection; Palantir's Stylix generates its
+  surrounding theme.
   Package concerns follow the same rule: `styles.monolisa` owns its package and
   NixOS font payload, while `styles.wallpapers` owns its package. Nautilus owns
   its desktop package, Sushi companion, NixOS services, and Home Manager
@@ -87,8 +91,8 @@ This matches Den's distinction between entity facts and aspect behavior.
   assumptions; Sonic selects AMD graphics directly beside its generic
   Gaming + Niri integration, which composes the canonical gaming profile and
   contributes its Steam Gamescope session through native list merging rather than
-  replacing unrelated display sessions. Social composition is limited
-  to chat, while the independent photos profile owns Shotwell. Coherent cross-class
+  replacing unrelated display sessions. Sonic selects Discord and Shotwell
+  directly; neither needs a one-edge profile alias. Coherent cross-class
   concerns such as Niri and DMS remain unified. Shared Nix tooling does not imply
   a graphics wrapper; integrated NixOS Home Manager therefore carries no nixGL
   wrapper or unused nixGL input.
@@ -98,9 +102,10 @@ This matches Den's distinction between entity facts and aspect behavior.
   contribute to its enclosing host. Palantir instead selects the complete
   cross-class Stylix, icons, and Podman concerns at host scope.
 - Alex includes `den.batteries.host-aspects`, so Home Manager classes selected
-  by the host are projected to Alex. Sonic selects `profiles.desktop` plus its
-  explicit optional and machine-specific concerns; Palantir selects its whole
-  cross-class concerns directly. Frostmourne's Alex
+  by the host are projected to Alex. Sonic selects `profiles.desktop` and
+  `profiles.development` plus its explicit optional and machine-specific
+  concerns; Palantir selects its whole cross-class concerns directly and
+  provides `profiles.development` to Alex. Frostmourne's Alex
   and Niko have no Home Manager class, so Home Manager payloads in the selected
   host DAG remain inert. `profiles.common` therefore selects the whole `cli.zsh`
   concern, while the complete Podman concern is selected only on Sonic and
@@ -212,7 +217,7 @@ These are bounded current issues, not reasons for speculative framework work:
 3. **Persistence contributions use native options.** Contributors generally test
    projected `host.hasAspect impermanence` and merge native persistence options
    with `lib.mkMerge`. On Sonic, the only impermanent host, affected contributors
-   including Social/Discord and OpenCode are host-routed and observe
+   including Discord and OpenCode are host-routed and observe
    impermanence. Palantir provides development and OpenCode directly to Alex;
    they correctly observe false because Palantir is not impermanent. A
    persistence quirk plus pipe would become worthwhile only if multiple backends
@@ -230,10 +235,12 @@ These are bounded current issues, not reasons for speculative framework work:
   boundaries are demonstrably identical. Conversely, `cli.toolbox` and
   `apps.desktop-utilities` are intentionally curated utility-bundle concerns,
   not class-output splits; exploding them into one aspect per package would add
-  interfaces without creating useful selection seams.
-- `profiles.video` and `profiles.gamedev` are unused include graphs. Sonic does
-  not select them, Brave, or Blender. Helium and Slack remain Sonic host
-  includes, not `profiles.desktop`.
+- The weightless `profiles.social` and `profiles.photos` aliases and unused
+  `profiles.video` and `profiles.gamedev` graphs were deleted. Sonic selects
+  Discord and Shotwell directly. Brave configuration and its desktop IDs
+  `brave-browser.desktop` and `com.brave.Browser.desktop` are absent; Helium
+  and Slack remain directly selected. Sonic's XDG web MIME and scheme
+  defaults, plus added associations, point to `helium.desktop`.
 - Host-local raw NixOS settings are not a second architecture: they are private
   modules owned and imported by a host aspect.
 - Deployment walks `config.den.hosts` and projects enabled nodes with
@@ -243,8 +250,9 @@ These are bounded current issues, not reasons for speculative framework work:
   `den.batteries.import-tree` legacy bridge remains.
 - No backward-compatibility namespace or additional output abstraction is
   required.
-- Development profile decomposition is deferred: its broad workstation bundle
-  needs a separate behavior-neutral composition change and host-intent review.
+- Development profile contents stay a workstation bundle: Sonic relies on
+  most of it. The desktop/development include split is done; do not shrink
+  `profiles.development` unless a later weekly-use review drops specific tools.
 - Tmux's `navi` binding and implicit `sponge` dependency remain a tooling
   cohesion risk to address separately.
 

@@ -27,4 +27,10 @@ If a real client-only consumer appears later, runtime and client are separate se
 
 ### Stylix and icons
 
-Palantir now selects the complete `styles.stylix` and `styles.icons` concerns at host scope, matching Sonic's whole-aspect composition. This intentionally enables both Palantir system Stylix and Alex's projected Home Manager Stylix; Alex retains the Palantir Dracula override. `styles.icons` enables GTK and installs the configured Catppuccin Papirus package through `gtk.iconTheme`, so it no longer relies on Stylix to activate GTK or installs unrelated Tela packages.
+Palantir selects the complete `styles.stylix` and `styles.icons` concerns at
+host scope, enabling Palantir system Stylix and Alex's projected Home Manager
+Stylix; Alex retains the Palantir Dracula override. Sonic selects DMS directly
+and does not select `styles.stylix`; the DMS aspect asserts that DMS and Stylix
+cannot be selected together. `styles.icons` enables GTK and installs the
+configured Catppuccin Papirus package through `gtk.iconTheme`, so it no longer
+relies on Stylix to activate GTK or installs unrelated Tela packages.

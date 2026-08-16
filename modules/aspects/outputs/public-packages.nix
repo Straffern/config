@@ -1,4 +1,4 @@
-{ den, ... }: {
+{den, ...}: {
   den.aspects.outputs.public-packages.includes = [
     den.aspects.apps.clipy
     den.aspects.apps.waldl

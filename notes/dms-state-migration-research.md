@@ -11,7 +11,20 @@ Before the migration, DMS—not Home Manager or Stylix—owned its mutable runti
 - `~/.config/DankMaterialShell/settings.json`
 - `~/.local/state/DankMaterialShell/session.json`
 
-The Den migration dropped the configuration that excluded DMS from Stylix. A later DMS change also began setting `programs.dank-material-shell.settings` declaratively. Both changes cause the upstream DMS Home Manager module to emit immutable store-backed symlinks.
+The Den migration dropped the configuration that excluded DMS from Stylix. A
+later DMS change also began setting
+`programs.dank-material-shell.settings` declaratively. In that historical
+state, both changes caused the upstream DMS Home Manager module to emit
+immutable store-backed symlinks.
+
+## Resolution and current state
+
+The historical regression is resolved. Sonic now selects DMS without selecting
+Stylix, and the DMS aspect asserts that DMS and Stylix cannot be selected
+together. Palantir remains the Stylix consumer. DMS runtime settings and
+session state are therefore owned by DMS rather than by a Stylix DMS target;
+the historical “Sonic now includes both” state below must not be read as the
+current configuration.
 
 ## Before the migration
 
@@ -37,13 +50,17 @@ This matches the surviving pre-migration files:
 
 Source: repository revision `d66b260d-`, `modules/home/desktops/shells/dms/default.nix`.
 
-## What changed
+## Historical diagnosis (resolved)
 
-### 1. Den migration enabled Stylix beside DMS
+### 1. The Den migration historically enabled Stylix beside DMS
 
-Change `d66b260d` (`refactor: migrate configuration to Den`) moved DMS to `modules/aspects/desktop/dms/home.nix`, but omitted the old `styles.stylix.enable = mkForce false` policy.
+Change `d66b260d` (`refactor: migrate configuration to Den`) moved DMS to
+`modules/aspects/desktop/dms/home.nix`, but omitted the old
+`styles.stylix.enable = mkForce false` policy.
 
-Sonic now includes both `den.aspects.styles.stylix` and `den.aspects.desktop.dms`. `stylix.autoEnable` is true, and the current evaluated target is fully enabled:
+At that historical state, Sonic included both
+`den.aspects.styles.stylix` and `den.aspects.desktop.dms`. `stylix.autoEnable`
+was true, and the historical evaluated target was fully enabled:
 
 ```json
 {
@@ -68,7 +85,8 @@ programs.dank-material-shell.session = {
 
 The configured Stylix image defaults to `wallpapers.windows-error`, explaining why the selected wallpaper changed.
 
-Source: pinned Stylix input, `modules/dank-material-shell/hm.nix`; current `modules/aspects/styles/stylix-home.nix`.
+Source: pinned Stylix input, `modules/dank-material-shell/hm.nix`; repository
+Stylix module `modules/aspects/styles/stylix-home.nix`.
 
 ### 2. A later change declared DMS settings directly
 
@@ -102,17 +120,25 @@ Sources:
 - pinned DMS input, `quickshell/Common/SettingsData.qml`
 - pinned DMS input, `quickshell/Common/SessionData.qml`
 
-## Correct restoration
+## Historical restoration procedure
 
-Restore the pre-migration ownership model:
+The restoration work returned ownership to the pre-migration model:
 
-1. Set `stylix.targets.dank-material-shell.enable = false` in the DMS aspect. This disables only Stylix's DMS adapter, not Stylix globally.
+1. Disable Stylix's DMS adapter in the DMS aspect (without disabling Stylix
+   globally).
 2. Remove the declarative `programs.dank-material-shell.settings` value.
-3. Add `runDmsMatugenTemplates` to the existing mutable bootstrap merge, alongside `matugenTemplateNeovim`.
-4. During the transition, restore `settings.json.pre-home-manager` and `session.json.pre-home-manager` after Home Manager removes its stale links and before bootstrap runs.
-5. Keep DMS dynamic theming enabled. DMS then derives runtime colors from the wallpaper selected through its GUI, as before.
+3. Add `runDmsMatugenTemplates` to the existing mutable bootstrap merge,
+   alongside `matugenTemplateNeovim`.
+4. During the transition, restore `settings.json.pre-home-manager` and
+   `session.json.pre-home-manager` after Home Manager removes its stale links
+   and before bootstrap runs.
+5. Keep DMS dynamic theming enabled. DMS then derives runtime colors from the
+   wallpaper selected through its GUI, as before.
 
-This restores the clean seam: Nix installs and bootstraps DMS; DMS owns interactive settings and session state.
+This restored the clean seam: Nix installs and bootstraps DMS; DMS owns
+interactive settings and session state. The current selection guard is
+documented above; the historical checklist is not a claim that Sonic
+currently selects Stylix.
 
 ## Greeter note
 

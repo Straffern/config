@@ -15,10 +15,7 @@ in {
       den.aspects.styles.monolisa
       den.aspects.styles.wallpapers
     ];
-    nixos = {
-      pkgs,
-      ...
-    }: let
+    nixos = {pkgs, ...}: let
       monolisa = monolisaPackage pkgs;
       wallpapers = wallpapersPackage pkgs;
     in {
@@ -63,10 +60,7 @@ in {
         };
       };
     };
-    homeManager = {
-      pkgs,
-      ...
-    }: let
+    homeManager = {pkgs, ...}: let
       monolisa = monolisaPackage pkgs;
       wallpapers = wallpapersPackage pkgs;
     in {

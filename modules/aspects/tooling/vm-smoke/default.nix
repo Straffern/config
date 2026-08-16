@@ -79,7 +79,7 @@
     loginEnabled = vm.loginUser != null;
     hostOverrides = map (override: override.module) vm.overrides;
     descriptorModules = map (descriptor: descriptor.module) configuration.config.dotfiles.vmSmoke.descriptors;
-    extraArgs = configuration.extraArgs // {vmSmoke = host.vmSmoke;};
+    extraArgs = configuration.extraArgs // {inherit (host) vmSmoke;};
   in
     pkgs.testers.runNixOSTest {
       name = "vm-smoke-${name}";
