@@ -54,7 +54,7 @@ The public output policy is exact:
 
 - `nixosConfigurations`: `frostmourne`, `palantir`, `sonic`
 - `packages.x86_64-linux`: `amd-debug-tools`, `btop`, `clipy`,
-  `gh-fork-cleanup`, `hermes-link`, `jj-ryu`, `jj-starship`,
+  `gh-fork-cleanup`, `hermes-link`, `jj-starship`,
   `kitty-same-cwd`, `lazyjournal`, `monolisa`, `supermaven-jj-git-shim`,
   `waldl`, `wallpapers`, `warmcam`, and `xurl`
 - flake-file also exports generator packages `write-flake`, `write-inputs`,

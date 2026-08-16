@@ -7,7 +7,11 @@
   ww = inputs': inputs'.ww.packages.default;
   lumen = pkgs: pkgs.callPackage ./_package/lumen.nix {src = inputs.lumen;};
   jj-starship = pkgs: pkgs.callPackage ./_package/jj-starship.nix {};
-  jj-ryu = pkgs: pkgs.callPackage ./_package/jj-ryu.nix {};
+  ji = inputs': pkgs:
+    pkgs.callPackage ./_package/ji.nix {
+      jujutsu = inputs'.unstable.legacyPackages.jujutsu;
+      rustPlatform = inputs'.unstable.legacyPackages.rustPlatform;
+    };
 in {
   flake-file.inputs = {
     lumen.url = "github:jnsahaj/lumen/v2.22.0";
@@ -43,12 +47,11 @@ in {
         ...
       }: {
         home.packages = [
-          pkgs.jujutsu
+          inputs'.unstable.legacyPackages.jujutsu
           pkgs.watchman
           pkgs.difftastic
           (jjui inputs')
           (jj-starship pkgs)
-          (jj-ryu pkgs)
         ];
 
         programs.zsh.initContent = lib.mkAfter ''
@@ -83,8 +86,9 @@ in {
 
         programs.jujutsu = {
           enable = true;
+          package = inputs'.unstable.legacyPackages.jujutsu;
           settings = {
-            aliases = (import ./_config/aliases.nix {inherit pkgs lib;}).aliases;
+            inherit ((import ./_config/aliases.nix {inherit pkgs lib;})) aliases;
             revset-aliases = import ./_config/revsets.nix {
               userName = "Alexander Flensborg";
               email = "alex@flensborg.dev";
@@ -242,8 +246,25 @@ in {
       };
 
       packages = {pkgs, ...}: {
-        jj-ryu = jj-ryu pkgs;
         jj-starship = jj-starship pkgs;
+      };
+    };
+
+    ji = {
+      includes = [den.aspects.cli.jj];
+      homeManager = {
+        inputs',
+        lib,
+        pkgs,
+        ...
+      }: {
+        home.packages = [
+          (ji inputs' pkgs)
+          pkgs.wl-clipboard
+        ];
+        programs.zsh.initContent = lib.mkAfter ''
+          eval "$(ji config shell init zsh)"
+        '';
       };
     };
   };

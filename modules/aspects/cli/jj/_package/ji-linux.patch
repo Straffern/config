@@ -1,0 +1,56 @@
+--- a/src/shell.rs
++++ b/src/shell.rs
+@@ -1,6 +1,9 @@
+ use anyhow::{Context, Result, bail};
++#[cfg(target_os = "macos")]
+ use libproc::bsd_info::BSDInfo;
+-use libproc::proc_pid::{pidinfo, pidpath};
++use libproc::proc_pid::pidpath;
++#[cfg(target_os = "macos")]
++use libproc::proc_pid::pidinfo;
+ use std::ops::Range;
+ use std::os::unix::fs::OpenOptionsExt;
+ use std::path::{Path, PathBuf};
+@@ -328,10 +331,22 @@
+ /// `parent_of` over the live process tree. `ppid <= 1` (launchd / reparented)
+ /// stops the walk.
+ fn live_parent(pid: i32) -> Option<i32> {
+-    pidinfo::<BSDInfo>(pid, 0)
+-        .ok()
+-        .map(|info| info.pbi_ppid as i32)
+-        .filter(|&ppid| ppid > 1)
++    #[cfg(target_os = "macos")]
++    {
++        pidinfo::<BSDInfo>(pid, 0)
++            .ok()
++            .map(|info| info.pbi_ppid as i32)
++            .filter(|&ppid| ppid > 1)
++    }
++    #[cfg(target_os = "linux")]
++    {
++        let stat = std::fs::read_to_string(format!("/proc/{pid}/stat")).ok()?;
++        let (_, stat) = stat.rsplit_once(") ")?;
++        stat.split_whitespace()
++            .nth(1)
++            .and_then(|ppid| ppid.parse::<i32>().ok())
++            .filter(|&ppid| ppid > 1)
++    }
+ }
+ 
+ /// `name_of` over the live process tree: the full executable path, or `None`
+--- a/src/tui/copy_dialog.rs
++++ b/src/tui/copy_dialog.rs
+@@ -127,7 +127,12 @@
+ pub(crate) fn copy_to_clipboard(text: &str) {
+     use std::io::Write;
+     use std::process::{Command, Stdio};
+-    if let Ok(mut child) = Command::new("pbcopy").stdin(Stdio::piped()).spawn() {
++    #[cfg(target_os = "macos")]
++    let clipboard_command = "pbcopy";
++    #[cfg(target_os = "linux")]
++    let clipboard_command = "wl-copy";
++
++    if let Ok(mut child) = Command::new(clipboard_command).stdin(Stdio::piped()).spawn() {
+         if let Some(stdin) = child.stdin.as_mut() {
+             let _ = stdin.write_all(text.as_bytes());
+         }

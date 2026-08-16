@@ -22,7 +22,7 @@ NixOS/Home Manager options and ordinary lexical package values; directory
 presence does not create outputs.
 
 Public packages are exactly: `amd-debug-tools`, `btop`, `clipy`,
-`gh-fork-cleanup`, `hermes-link`, `jj-ryu`, `jj-starship`,
+`gh-fork-cleanup`, `hermes-link`, `jj-starship`,
 `kitty-same-cwd`, `lazyjournal`, `monolisa`, `supermaven-jj-git-shim`, `waldl`,
 `wallpapers`, `warmcam`, and `xurl`. flake-file also exports generator
 packages `write-flake`, `write-inputs`, and `write-lock`. No additional public
