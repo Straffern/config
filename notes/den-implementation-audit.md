@@ -231,12 +231,14 @@ These are bounded current issues, not reasons for speculative framework work:
   `apps.desktop-utilities` are intentionally curated utility-bundle concerns,
   not class-output splits; exploding them into one aspect per package would add
   interfaces without creating useful selection seams.
-- `profiles.video`, `profiles.gamedev`, and their package aspects are attached to
-  Sonic. They are not dead configuration.
+- `profiles.video` and `profiles.gamedev` are unused include graphs. Sonic does
+  not select them, Brave, or Blender. Helium and Slack remain Sonic host
+  includes, not `profiles.desktop`.
 - Host-local raw NixOS settings are not a second architecture: they are private
   modules owned and imported by a host aspect.
-- The fixed `x86_64-linux` deployment projection follows the repository's
-  single-system contract; generalization would be speculative.
+- Deployment walks `config.den.hosts` and projects enabled nodes with
+  `host.system`. Palantir and Frostmourne are the remote deploy targets; the
+  fleet currently has one CPU architecture.
 - Migration has reached the native Den end state: no
   `den.batteries.import-tree` legacy bridge remains.
 - No backward-compatibility namespace or additional output abstraction is

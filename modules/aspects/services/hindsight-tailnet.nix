@@ -4,6 +4,16 @@
       den.aspects.services.hindsight
       den.aspects.services.tailscale
     ];
+    vmSmoke = [
+      {
+        name = "hindsight-tailscale-serve-skipped";
+        description = "Hindsight tailnet serve stays off without Tailscale identity";
+        phase = "boot";
+        module = {lib, ...}: {
+          systemd.services.hindsight-tailscale-serve.wantedBy = lib.mkForce [];
+        };
+      }
+    ];
     nixos = {config, ...}: {
       systemd.services.hindsight-tailscale-serve = {
         description = "Expose Hindsight on the tailnet";

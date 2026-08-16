@@ -18,6 +18,7 @@
           environment.persistence."/persist".directories = ["/var/lib/containers"];
         })
       ];
+    user.extraGroups = ["podman"];
 
     homeManager = {pkgs, ...}: {
       home.packages = with pkgs; [

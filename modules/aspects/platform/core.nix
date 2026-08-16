@@ -97,7 +97,6 @@
     };
 
     nix.homeManager = {
-      config,
       lib,
       pkgs,
       ...
@@ -107,7 +106,6 @@
         nvd
       ];
       systemd.user.startServices = "sd-switch";
-      home.sessionVariables.NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
       nix.settings = {
         extra-trusted-substituters = ["https://numtide.cachix.org?priority=42"];
         extra-trusted-public-keys = ["numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="];

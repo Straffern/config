@@ -18,19 +18,6 @@
         "kvm_intel: VMX not supported by CPU 0"
         "kvm_intel: VMX not supported by CPU 1"
       ];
-      overrides = [
-        {
-          reason = "Hermes and tailnet integrations require unavailable SOPS material and Tailscale identity";
-          module = {lib, ...}: {
-            systemd.services = {
-              hermes-agent.wantedBy = lib.mkForce [];
-              hermes-link.wantedBy = lib.mkForce [];
-              hermes-tailscale-serve.wantedBy = lib.mkForce [];
-              hindsight-tailscale-serve.wantedBy = lib.mkForce [];
-            };
-          };
-        }
-      ];
     };
   };
 
@@ -43,6 +30,7 @@
       den.aspects.styles.stylix
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
+      den.aspects.platform.nh
       den.aspects.platform.boot
     ];
 

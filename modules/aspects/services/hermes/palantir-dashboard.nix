@@ -11,6 +11,13 @@ in {
         name = "palantir-dashboard";
         description = "The Palantir status dashboard answers HTTP requests";
         phase = "session";
+        module = {lib, ...}: {
+          systemd.services = {
+            hermes-agent.wantedBy = lib.mkForce [];
+            hermes-link.wantedBy = lib.mkForce [];
+            hermes-tailscale-serve.wantedBy = lib.mkForce [];
+          };
+        };
         script = ''
           machine.wait_for_unit("palantir-status-dashboard.service")
           machine.wait_until_succeeds("curl --fail --silent http://127.0.0.1:8080/ | grep -F 'Palantir services'")

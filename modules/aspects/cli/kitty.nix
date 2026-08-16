@@ -6,22 +6,20 @@
   kitty-same-cwd = pkgs:
     pkgs.writeShellApplication {
       name = "kitty-same-cwd";
-      runtimeInputs = with pkgs; [jq kitty procps];
+      runtimeInputs = with pkgs; [niri jq kitty procps];
       text = ''
-        # Get CWD from focused kitty window and open new kitty there
-        # Requires: hyprctl (from Hyprland), kitty remote control enabled
-
-        FOCUSED=$(hyprctl activewindow -j 2>/dev/null)
+        # Get CWD from the focused kitty window and open a new kitty there.
+        FOCUSED=$(niri msg --json focused-window 2>/dev/null)
 
         if [[ -z "$FOCUSED" || "$FOCUSED" == "null" ]]; then
           kitty &
           exit 0
         fi
 
-        FOCUSED_CLASS=$(echo "$FOCUSED" | jq -r '.class // empty')
+        FOCUSED_APP_ID=$(echo "$FOCUSED" | jq -r '.app_id // empty')
         FOCUSED_PID=$(echo "$FOCUSED" | jq -r '.pid // empty')
 
-        if [[ "$FOCUSED_CLASS" == "kitty" && -n "$FOCUSED_PID" ]]; then
+        if [[ "$FOCUSED_APP_ID" == "kitty" && -n "$FOCUSED_PID" ]]; then
           CWD=$(kitty @ --to unix:/tmp/kitty ls 2>/dev/null | \
             jq -r --argjson pid "$FOCUSED_PID" \
             '[.[] | .tabs[]? | .windows[]? | select(.foreground_processes[]?.pid == $pid or .pid == $pid)] | .[0].cwd // empty' 2>/dev/null)
@@ -59,7 +57,11 @@ in {
       lib,
       pkgs,
       ...
-    }: {
+    }: let
+      dmsEnabled =
+        config.programs ? dank-material-shell
+        && config.programs.dank-material-shell.enable;
+    in {
       home.packages = [(kitty-same-cwd pkgs)];
       programs.kitty = {
         enable = true;
@@ -81,6 +83,8 @@ in {
           "super+l" = "no_op";
         };
         settings = {
+          background_opacity = lib.mkIf (!dmsEnabled) (lib.mkForce 1.0);
+          font_size = lib.mkIf (!dmsEnabled) 14;
           shell = "zsh";
           allow_remote_control = "socket-only";
           listen_on = "unix:/tmp/kitty";

@@ -142,5 +142,6 @@
         pulsemixer
       ];
     };
+    user.extraGroups = ["audio" "sound"];
   };
 }

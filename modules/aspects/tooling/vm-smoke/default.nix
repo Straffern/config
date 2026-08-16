@@ -79,13 +79,15 @@
     loginEnabled = vm.loginUser != null;
     hostOverrides = map (override: override.module) vm.overrides;
     descriptorModules = map (descriptor: descriptor.module) configuration.config.dotfiles.vmSmoke.descriptors;
+    extraArgs = configuration.extraArgs // {vmSmoke = host.vmSmoke;};
   in
     pkgs.testers.runNixOSTest {
       name = "vm-smoke-${name}";
       globalTimeout = vm.timeout;
       node = {
         pkgsReadOnly = false;
-        specialArgs = configuration.extraArgs;
+        # host.mainModule omits Den host-instantiation effects such as the integrated Home Manager bridge.
+        specialArgs = extraArgs;
       };
 
       nodes.machine = {lib, ...}: {
@@ -102,7 +104,9 @@
 
       testScript = {nodes, ...}: let
         machineConfig = nodes.machine;
-        descriptors = sortDescriptors machineConfig.dotfiles.vmSmoke.descriptors;
+        descriptors =
+          builtins.filter (descriptor: lib.trim descriptor.script != "")
+          (sortDescriptors machineConfig.dotfiles.vmSmoke.descriptors);
         inherit (vm) loginUser;
         loginUid =
           if loginEnabled
@@ -275,7 +279,10 @@ in {
             type = lib.types.enum (builtins.attrNames phaseOrder);
             default = "session";
           };
-          script = lib.mkOption {type = lib.types.lines;};
+          script = lib.mkOption {
+            type = lib.types.lines;
+            default = "";
+          };
           module = lib.mkOption {
             type = lib.types.deferredModule;
             default = {};

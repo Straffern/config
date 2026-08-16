@@ -4,12 +4,18 @@
   inputs,
   lib,
   ...
-}: let
-  system = "x86_64-linux";
-  enabledHosts = lib.filterAttrs (_: host: host.deployment.enable) config.den.hosts.${system};
-  mkNode = name: host: let
-    inherit (host) deployment;
-  in
+}:
+let
+  enabledHosts = lib.concatMapAttrs (
+    _system: hosts: lib.filterAttrs (_: host: host.deployment.enable) hosts
+  ) config.den.hosts;
+
+  mkNode =
+    name: host:
+    let
+      inherit (host) deployment;
+      inherit (host) system;
+    in
     {
       hostname = host.hostName;
       inherit (deployment) sshUser;
@@ -24,13 +30,15 @@
     // lib.optionalAttrs (deployment.confirmTimeout != null) {
       inherit (deployment) confirmTimeout;
     };
+
   deploy.nodes = lib.mapAttrs mkNode enabledHosts;
-in {
+in
+{
   config = {
-    den.schema.host = {lib, ...}: {
+    den.schema.host = { lib, ... }: {
       options.deployment = {
         enable = lib.mkEnableOption "deploy-rs node";
-        sshUser = lib.mkOption {type = lib.types.str;};
+        sshUser = lib.mkOption { type = lib.types.str; };
         activationTimeout = lib.mkOption {
           type = lib.types.nullOr lib.types.int;
           default = null;
@@ -44,9 +52,16 @@ in {
 
     flake.deploy = deploy;
 
-    den.aspects.deployment.flake-parts = {system, ...}: {
-      checks = inputs.deploy-rs.lib.${system}.deployChecks deploy;
-    };
+    den.aspects.deployment.flake-parts =
+      { system, ... }:
+      let
+        nodes = lib.filterAttrs (
+          name: _: (enabledHosts.${name} or { }).system or null == system
+        ) deploy.nodes;
+      in
+      {
+        checks = inputs.deploy-rs.lib.${system}.deployChecks { inherit nodes; };
+      };
 
     flake-file.inputs.deploy-rs = {
       url = "github:serokell/deploy-rs";

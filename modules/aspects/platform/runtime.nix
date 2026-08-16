@@ -9,6 +9,9 @@
           flake = "${config.users.users.${user.userName}.home}/.dotfiles";
         };
       };
+      homeManager = {config, ...}: {
+        home.sessionVariables.NH_FLAKE = "${config.home.homeDirectory}/.dotfiles";
+      };
     };
     nix-ld.nixos = {pkgs, ...}: {
       programs.nix-ld = {
