@@ -54,3 +54,18 @@
          if let Some(stdin) = child.stdin.as_mut() {
              let _ = stdin.write_all(text.as_bytes());
          }
+--- a/src/jujutsu.rs
++++ b/src/jujutsu.rs
+@@ -789,7 +789,11 @@
+ /// Returns the root of the **default** workspace.
+ /// This is the one bootstrap function that doesn't take a repo path.
+ pub fn workspace_root() -> Result<PathBuf> {
+-    workspace_root_by_name(Some("default"))
++    workspace_root_by_name(Some("default")).or_else(|named_error| {
++        current_workspace_root().with_context(|| {
++            format!("resolving default workspace failed ({named_error:#}); resolving current workspace also failed")
++        })
++    })
+ }
+ 
+ /// Returns the root of the current workspace (whichever workspace the user is in).

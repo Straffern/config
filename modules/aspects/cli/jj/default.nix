@@ -4,7 +4,6 @@
   ...
 }: let
   jjui = inputs': inputs'.jjui.packages.jjui;
-  ww = inputs': inputs'.ww.packages.default;
   lumen = pkgs: pkgs.callPackage ./_package/lumen.nix {src = inputs.lumen;};
   jj-starship = pkgs: pkgs.callPackage ./_package/jj-starship.nix {};
   ji = inputs': pkgs:
@@ -15,7 +14,6 @@
 in {
   flake-file.inputs = {
     lumen.url = "github:jnsahaj/lumen/v2.22.0";
-    ww.url = "github:omihirofumi/ww";
     jjui = {
       url = "github:idursun/jjui/v0.10.7";
       inputs.nixpkgs.follows = "unstable";
@@ -28,16 +26,9 @@ in {
       };
     };
 
-    ww = {
-      homeManager = {inputs', ...}: {
-        home.packages = [(ww inputs')];
-      };
-    };
-
     jj = {
       includes = [
         den.aspects.cli.lumen
-        den.aspects.cli.ww
       ];
       homeManager = {
         config,
@@ -55,9 +46,6 @@ in {
         ];
 
         programs.zsh.initContent = lib.mkAfter ''
-          # ww - jj workspace wrapper
-          eval "$(ww init zsh)"
-
           # jj - route `jj help flow ...` to the flow wrapper without changing
           # other help or command invocations.
           jj() {
@@ -69,10 +57,6 @@ in {
               command jj "$@"
             fi
           }
-        '';
-
-        xdg.configFile."zsh/completions/_ww".source = pkgs.runCommand "ww-zsh-completion" {} ''
-          ${lib.getExe (ww inputs')} completion zsh > $out
         '';
 
         programs.starship.settings = {

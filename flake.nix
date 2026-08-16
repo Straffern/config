@@ -113,6 +113,5 @@
       url = "github:peteonrails/voxtype";
       inputs.nixpkgs.follows = "unstable";
     };
-    ww.url = "github:omihirofumi/ww";
   };
 }

@@ -622,7 +622,5 @@ in {
 
                   eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
       '';
-
-    # NOTE: `jj wa` alias removed - replaced by `ww` tool (github:Straffern/ww)
   };
 }
