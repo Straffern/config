@@ -57,7 +57,6 @@
       den.aspects.apps.helium
       den.aspects.apps.slack
       den.aspects.apps.shotwell
-      den.aspects.cli.opencode
       den.aspects.desktop.dms
       den.aspects.services.hindsight
       den.aspects.services.tailscale

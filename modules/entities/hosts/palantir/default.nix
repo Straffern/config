@@ -37,7 +37,6 @@
     provides.alex = {
       includes = [
         den.aspects.profiles.development
-        den.aspects.cli.opencode
         den.aspects.apps.clipy
       ];
       homeManager = {
