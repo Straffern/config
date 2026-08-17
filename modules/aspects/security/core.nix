@@ -1,19 +1,5 @@
-{
-  den,
-  inputs,
-  ...
-}: {
-  flake-file.inputs.sops-nix = {
-    url = "github:mic92/sops-nix";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
+{den, ...}: {
   den.aspects.security = {
-    sops.nixos = {
-      imports = [inputs.sops-nix.nixosModules.sops];
-      sops.age.sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
-    };
-
     fail2ban.nixos = {
       lib,
       host,
