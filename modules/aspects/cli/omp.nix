@@ -1,28 +1,28 @@
 {den, ...}: let
   omp = pkgs: let
     inherit (pkgs) lib stdenv;
-    version = "17.3.4";
+    version = "17.3.7";
     platforms = {
       aarch64-darwin = {
         asset = "omp-darwin-arm64";
-        hash = "sha256-dqbCL4ukujGePVKK3NkhlJ4DOPKxMEJyHmS5kPb//hY=";
+        hash = "sha256-15pzXN7TNorW536Yj33DA6/rAzGi3W/0Zm5pRRLeLgk=";
       };
       aarch64-linux = {
         asset = "omp-linux-arm64";
-        hash = "sha256-jifnv+SfwPM/bLC1ASirhf5UAzMNHftbs0zx90Is3Og=";
+        hash = "sha256-jHNhiSj4RBEY61eD5LBIApT5dB1/6dWbzyfri0rGG+w=";
       };
       x86_64-darwin = {
         asset = "omp-darwin-x64";
-        hash = "sha256-zClVM8MtHl3B/r6MWXLBI15BuWFDGL7FdEHQPEdfcME=";
+        hash = "sha256-vZTWV9ifgYuJ/G9Iyh0NPNNElCocJohv7m4Qfmh6meI=";
       };
       x86_64-linux = {
         asset = "omp-linux-x64";
-        hash = "sha256-P85LJWKAZLDNe/vGJF7NraMxdQ7Us0Gspr0pukR4qrU=";
+        hash = "sha256-TubtKDvhAhHUc+ndRbEn8iKYIN8+JyKlowW5p/l364M=";
       };
     };
     platform =
       platforms.${stdenv.hostPlatform.system}
-        or (throw "Unsupported platform for omp: ${stdenv.hostPlatform.system}");
+          or (throw "Unsupported platform for omp: ${stdenv.hostPlatform.system}");
     src = pkgs.fetchurl {
       url = "https://github.com/can1357/oh-my-pi/releases/download/v${version}/${platform.asset}";
       inherit (platform) hash;
@@ -31,7 +31,7 @@
       owner = "can1357";
       repo = "oh-my-pi";
       rev = "v${version}";
-      hash = "sha256-l+SDCOQ1F2hTSRCICROeNwgBD5cweZIvXWuWIMBk1lM=";
+      hash = "sha256-PqPEUz6uAYyxLupt0QZbX9rvY1UpyGPObeQHgx3SAjU=";
     };
     linuxNativeFilename =
       if stdenv.hostPlatform.isx86_64
@@ -41,7 +41,7 @@
       pname = "omp-native-wayland";
       inherit version;
       src = linuxSource;
-      cargoHash = "sha256-tiacgnm58TNN24vpfk8BS0FO3rcycW8YsPJK27/cm1w=";
+      cargoHash = "sha256-zHKQg0qZUAn4NayDZZ/RWo6xrURnDk0yg5XqcN9Dc/8=";
       buildType = "ci";
       cargoBuildFlags = [
         "-p"
@@ -101,6 +101,17 @@
         ''}
 
         runHook postInstall
+      '';
+
+      doInstallCheck = stdenv.hostPlatform.isLinux;
+      installCheckPhase = ''
+        runHook preInstallCheck
+
+        mkdir -p "$TMPDIR/.omp/natives"
+        ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
+        HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
+
+        runHook postInstallCheck
       '';
 
       passthru.category = "AI Coding Agents";
