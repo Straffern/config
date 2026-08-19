@@ -12,29 +12,30 @@
   pipewire,
   zlib,
   pcre2,
-}: let
-  version = "17.3.7";
+}:
+let
+  version = "17.3.8";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-15pzXN7TNorW536Yj33DA6/rAzGi3W/0Zm5pRRLeLgk=";
+      hash = "sha256-hHBaHKgz9Zr8zKLbev9VngnLdJAuelqvhwd6iPPIS4Q=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-jHNhiSj4RBEY61eD5LBIApT5dB1/6dWbzyfri0rGG+w=";
+      hash = "sha256-XZfbqAaMnDsZvClJVneY4Kg53sXxHEWLTGQr/g9NFKA=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-vZTWV9ifgYuJ/G9Iyh0NPNNElCocJohv7m4Qfmh6meI=";
+      hash = "sha256-jqM1kXdBzdb1pKZxzUxiON/dJ7mjA+ntNXxEKHd2jWw=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-TubtKDvhAhHUc+ndRbEn8iKYIN8+JyKlowW5p/l364M=";
+      hash = "sha256-79tU8AVOgK/hwFwJ9D1c7QnOjsi3XD+2sMpc5IBbOD8=";
     };
   };
   platform =
     platforms.${stdenv.hostPlatform.system}
-        or (throw "Unsupported platform for omp: ${stdenv.hostPlatform.system}");
+      or (throw "Unsupported platform for omp: ${stdenv.hostPlatform.system}");
   src = fetchurl {
     url = "https://github.com/can1357/oh-my-pi/releases/download/v${version}/${platform.asset}";
     inherit (platform) hash;
@@ -43,17 +44,18 @@
     owner = "can1357";
     repo = "oh-my-pi";
     rev = "v${version}";
-    hash = "sha256-PqPEUz6uAYyxLupt0QZbX9rvY1UpyGPObeQHgx3SAjU=";
+    hash = "sha256-4ffZoaprz5rXso4xc9JIKpebB7yxzM4S3nK+/ObQKZ8=";
   };
   linuxNativeFilename =
-    if stdenv.hostPlatform.isx86_64
-    then "pi_natives.linux-x64-baseline.node"
-    else "pi_natives.linux-arm64.node";
+    if stdenv.hostPlatform.isx86_64 then
+      "pi_natives.linux-x64-baseline.node"
+    else
+      "pi_natives.linux-arm64.node";
   linuxNativeAddon = rustPlatform.buildRustPackage {
     pname = "omp-native-wayland";
     inherit version;
     src = linuxSource;
-    cargoHash = "sha256-zHKQg0qZUAn4NayDZZ/RWo6xrURnDk0yg5XqcN9Dc/8=";
+    cargoHash = "sha256-AApywf994ZvVvmqHoLcglqxn3lsqmvWWN5AjJpeTxmk=";
     buildType = "ci";
     cargoBuildFlags = [
       "-p"
@@ -81,59 +83,58 @@
     pcre2
   ];
 in
-  stdenvNoCC.mkDerivation {
-    pname = "omp";
-    inherit version src;
+stdenvNoCC.mkDerivation {
+  pname = "omp";
+  inherit version src;
 
-    dontUnpack = true;
-    dontStrip = true;
+  dontUnpack = true;
+  dontStrip = true;
 
-    nativeBuildInputs =
-      [
-        makeWrapper
-      ]
-      ++ lib.optionals stdenv.hostPlatform.isLinux [autoPatchelfHook];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
 
-    buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
+  buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
 
-    installPhase = ''
-      runHook preInstall
+  installPhase = ''
+    runHook preInstall
 
-      install -Dm755 "$src" "$out/lib/omp/omp"
-      makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
-        --set PI_SKIP_VERSION_CHECK 1 \
-        ${lib.optionalString stdenv.hostPlatform.isLinux "--unset XDG_DATA_HOME --unset XDG_STATE_HOME --unset XDG_CACHE_HOME \\"}
-        ${lib.optionalString stdenv.hostPlatform.isLinux "--set PI_NATIVE_VARIANT baseline \\"}
-        ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
+    install -Dm755 "$src" "$out/lib/omp/omp"
+    makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
+      --set PI_SKIP_VERSION_CHECK 1 \
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--unset XDG_DATA_HOME --unset XDG_STATE_HOME --unset XDG_CACHE_HOME \\"}
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--set PI_NATIVE_VARIANT baseline \\"}
+      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
 
-      ${lib.optionalString stdenv.hostPlatform.isLinux ''
-        mkdir -p "$out/lib/omp/natives/${version}"
-        ln -s ${linuxNativeAddon}/${linuxNativeFilename} \
-          "$out/lib/omp/natives/${version}/${linuxNativeFilename}"
-      ''}
+    ${lib.optionalString stdenv.hostPlatform.isLinux ''
+      mkdir -p "$out/lib/omp/natives/${version}"
+      ln -s ${linuxNativeAddon}/${linuxNativeFilename} \
+        "$out/lib/omp/natives/${version}/${linuxNativeFilename}"
+    ''}
 
-      runHook postInstall
-    '';
+    runHook postInstall
+  '';
 
-    doInstallCheck = stdenv.hostPlatform.isLinux;
-    installCheckPhase = ''
-      runHook preInstallCheck
+  doInstallCheck = stdenv.hostPlatform.isLinux;
+  installCheckPhase = ''
+    runHook preInstallCheck
 
-      mkdir -p "$TMPDIR/.omp/natives"
-      ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
-      HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
+    mkdir -p "$TMPDIR/.omp/natives"
+    ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
+    HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
 
-      runHook postInstallCheck
-    '';
+    runHook postInstallCheck
+  '';
 
-    passthru.category = "AI Coding Agents";
+  passthru.category = "AI Coding Agents";
 
-    meta = {
-      description = "Oh My Pi, an AI coding agent";
-      homepage = "https://github.com/can1357/oh-my-pi";
-      changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
-      mainProgram = "omp";
-      sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
-      platforms = builtins.attrNames platforms;
-    };
-  }
+  meta = {
+    description = "Oh My Pi, an AI coding agent";
+    homepage = "https://github.com/can1357/oh-my-pi";
+    changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
+    mainProgram = "omp";
+    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
+    platforms = builtins.attrNames platforms;
+  };
+}
