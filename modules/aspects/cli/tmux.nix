@@ -149,12 +149,6 @@ in {
         pkgs.python3
       ];
 
-      xdg.configFile."television/cable/sesh.toml" =
-        lib.mkIf config.programs.television.enable
-        {
-          source = "${pkgs.television.src}/cable/unix/sesh.toml";
-        };
-
       xdg.configFile."tmux/scripts/copy-current-line.sh" = {
         text = copyCurrentLineScript pkgs;
         executable = true;
