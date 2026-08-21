@@ -54,6 +54,11 @@
 
   # Helper to create bash-based jj aliases
   mkExecAlias = program: ["util" "exec" "--" program];
+  # argc annotations must start at column 0; alejandra reindents '' strings.
+  outdent = text:
+    lib.concatStringsSep "\n" (
+      map (lib.removePrefix "        ") (lib.splitString "\n" text)
+    );
   mkBashAlias = name: text:
     mkExecAlias
     (lib.getExe (pkgs.writers.writeBashBin "jj-${name}" text));
@@ -276,8 +281,7 @@ in {
     # Flow - Megamerge workflow manager
     # ══════════════════════════════════════════════════════════════════════════
 
-    "flow" =
-      mkBashAlias "flow" # bash
+    "flow" = mkBashAlias "flow" (outdent # bash
       
       ''
         source ${jj-helpers-lib}
@@ -621,6 +625,6 @@ in {
         }
 
         eval "$(${pkgs.argc}/bin/argc --argc-eval "$0" "$@")"
-      '';
+      '');
   };
 }

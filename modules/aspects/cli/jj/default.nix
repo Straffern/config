@@ -169,7 +169,7 @@ in {
             in
               {
                 backend = "ssh";
-                behaviour =
+                behavior =
                   if signCommits
                   then "own"
                   else "never";

@@ -6,7 +6,8 @@
   # Base references
   # ══════════════════════════════════════════════════════════════════════════
 
-  "head" = "git_head()";
+  # git_head() was removed in jj 0.44; colocated Git HEAD is first_parent(@).
+  "head" = "first_parent(@)";
   "latest" = "latest(curbranch..@ ~ subject(exact:'') ~ empty())";
   # Common ancestor of trunk and the working copy (useful base reference)
   "bases" = "fork_point(trunk() | @)";
