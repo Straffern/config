@@ -306,6 +306,10 @@ in {
             Advance the flow tip by creating a new commit at the current flow bookmark.
             Use when you want to continue the flow from its current head.
 
+          jj flow list
+            Show the revisions currently tracked by the flow.
+            The synthetic flow control commit is not included.
+
           jj flow changes add <revset>
             Add an existing revision to the flow.
             Use when a change already exists and should become part of the flow.
@@ -364,6 +368,23 @@ in {
         Notes
           - This does not add new branches to the flow.
           - If fixes belong in underlying branches, move or squash them back there.
+        EOF
+        }
+
+        flow_list_help() {
+          cat <<'EOF'
+        jj flow list — show tracked revisions
+
+        Usage
+          jj flow list
+
+        What it does
+          Shows the parent revisions tracked by the synthetic `flow` bookmark.
+          The synthetic control commit is not included.
+
+        Notes
+          - A missing flow produces an empty log.
+          - Output uses the configured `jj log` template and graph.
         EOF
         }
 
@@ -518,6 +539,10 @@ in {
             flow_tip_help
             exit 0
             ;;
+          2:list\ --help|2:list\ -h)
+            flow_list_help
+            exit 0
+            ;;
           2:changes\ --help|2:changes\ -h)
             flow_changes_help
             exit 0
@@ -547,6 +572,11 @@ in {
         # @cmd Move to the tip of the flow
         tip() {
           log_and_run jj new 'bookmarks(exact:"flow")'
+        }
+
+        # @cmd Show the revisions currently tracked by the flow
+        list() {
+          jj log --revisions 'parents(present(bookmarks(exact:"flow")))'
         }
 
         # @cmd Manage the set of changes managed by the flow
