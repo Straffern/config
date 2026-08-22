@@ -73,8 +73,9 @@ in {
           map shift+escape kitty_scrollback_nvim
           map ctrl+shift+escape kitty_scrollback_nvim --config ksb_builtin_last_cmd_output
 
-          # OMP uses Ctrl+Shift+O to toggle tool activity.
+          # Pass OMP shortcuts through to the terminal application.
           map ctrl+shift+o
+          map ctrl+shift+x
 
           # Temporary until tmux kitty keyboard protocol support lands: https://github.com/tmux/tmux/pull/4912
           map shift+enter send_text all \e[13;2u
