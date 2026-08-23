@@ -7,10 +7,11 @@
         phase = "session";
         script = ''
           assert login_user is not None, "PipeWire smoke test requires vmSmoke.loginUser"
-          for unit in ["pipewire.service", "pipewire-pulse.service", "wireplumber.service"]:
+          for unit in ["pipewire.service", "pipewire-pulse.socket", "wireplumber.service"]:
               machine.wait_until_succeeds(user_command(f"systemctl --user is-active --quiet {unit}"))
           machine.succeed(user_command("pw-cli info 0"))
           machine.succeed(user_command("wpctl status"))
+          machine.succeed(user_command("pactl info"))
         '';
       }
     ];
