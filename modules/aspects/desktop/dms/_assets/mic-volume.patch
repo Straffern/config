@@ -57,7 +57,8 @@
 -
          const currentVolume = Math.round(root.source.audio.volume * 100);
          const stepValue = parseInt(step || "5");
-         const newVolume = Math.max(0, Math.min(100, currentVolume - stepValue));
+-        const newVolume = Math.max(0, Math.min(100, currentVolume - stepValue));
++        const newVolume = Math.max(0, Math.min(root.sourceMaxVolume, currentVolume - stepValue));
  
 -        root.source.audio.volume = newVolume / 100;
 -        micVolumeChanged();
@@ -175,16 +176,16 @@
      function handleBrightnessWheel(delta) {
 --- a/Modules/OSD/MicVolumeOSD.qml
 +++ b/Modules/OSD/MicVolumeOSD.qml
-@@ -99,7 +99,7 @@
-                 x: parent.gap * 2 + Theme.iconSize
-                 anchors.verticalCenter: parent.verticalCenter
+@@ -75,7 +75,7 @@
+                 iconInteractive: true
+                 value: root._displayVolume
                  minimum: 0
 -                maximum: 100
 +                maximum: AudioService.sourceMaxVolume
-                 enabled: AudioService.source?.audio ?? false
-                 showValue: true
-                 unit: "%"
-@@ -116,7 +116,7 @@
+                 sliderEnabled: !!AudioService.source?.audio
+                 displayText: AudioService.source?.audio?.muted ? I18n.tr("Muted") : ""
+                 onIconClicked: AudioService.toggleMicMute()
+@@ -84,7 +84,7 @@
                      if (!AudioService.source?.audio)
                          return;
                      SessionData.suppressOSDTemporarily();
@@ -192,8 +193,26 @@
 +                    AudioService.setMicVolume(newValue);
                      resetHideTimer();
                  }
- 
-@@ -236,9 +236,9 @@
+                 Component.onCompleted: root._syncVolume()
+@@ -152,7 +152,7 @@
+                 Rectangle {
+                     id: vertFill
+                     width: parent.width
+-                    height: (vertSlider.value / 100) * parent.height
++                    height: (vertSlider.value / AudioService.sourceMaxVolume) * parent.height
+                     anchors.bottom: parent.bottom
+                     anchors.horizontalCenter: parent.horizontalCenter
+                     color: AudioService.source?.audio?.muted ? Theme.error : Theme.primary
+@@ -165,7 +165,7 @@
+                     height: 8
+                     radius: Theme.cornerRadius
+                     y: {
+-                        const ratio = vertSlider.value / 100;
++                        const ratio = vertSlider.value / AudioService.sourceMaxVolume;
+                         const travel = parent.height - height;
+                         return Math.max(0, Math.min(travel, travel * (1 - ratio)));
+                     }
+@@ -203,9 +203,9 @@
                          if (!AudioService.source?.audio)
                              return;
                          const ratio = 1.0 - (mouse.y / height);
