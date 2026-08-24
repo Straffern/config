@@ -63,6 +63,7 @@
       den.aspects.network.wireguard
       den.aspects.virtualization.kvm
       den.aspects.hardware.hidraw
+      den.aspects.hardware.printing
       den.aspects.hardware.v4l2loopback
       den.aspects.platform.battery
       den.aspects.platform.environment
