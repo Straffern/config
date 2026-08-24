@@ -93,6 +93,20 @@
     };
 
     nixos = {...}: {
+      hardware.printers = {
+        ensurePrinters = [
+          {
+            name = "Canon-TS3300-series";
+            description = "Canon TS3300 series";
+            location = "home";
+            deviceUri = "ipp://33A649000000.local:631/ipp/print";
+            model = "everywhere";
+            ppdOptions.PageSize = "A4";
+          }
+        ];
+        ensureDefaultPrinter = "Canon-TS3300-series";
+      };
+
       home-manager = {
         backupFileExtension = "pre-home-manager";
         overwriteBackup = true;
