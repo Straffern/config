@@ -691,7 +691,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		if !m.editing {
  			return nil
  		}
-+		if m.generating {
++		if m.generating || m.awaitingPrompt {
 +			return nil
 +		}
  	case common.UpdateRevSetMsg:
@@ -746,3 +746,24 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		if !m.editing {
  			return nil, false
  		}
+diff -Naur a/internal/ui/ui.go b/internal/ui/ui.go
+--- a/internal/ui/ui.go
++++ b/internal/ui/ui.go
+@@ -478,7 +478,7 @@
+ 	}
+ 
+ 	scopes = append(scopes, m.status.Scopes()...)
+-	if m.revsetModel.IsEditing() {
++	if m.revsetModel.IsEditing() && m.stacked == nil {
+ 		scopes = append(scopes, m.revsetModel.Scopes()...)
+ 	}
+ 
+@@ -495,7 +495,7 @@
+ 	}
+ 
+ 	scopes = append(scopes, m.splitScopes()...)
+-	if !m.revsetModel.IsEditing() {
++	if !m.revsetModel.IsEditing() || m.stacked != nil {
+ 		scopes = append(scopes, m.revsetModel.Scopes()...)
+ 	}
+ 	scopes = append(scopes, common.Scope{
