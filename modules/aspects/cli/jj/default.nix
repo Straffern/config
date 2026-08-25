@@ -3,7 +3,15 @@
   inputs,
   ...
 }: let
-  jjui = inputs': inputs'.jjui.packages.jjui;
+  jjui = inputs':
+    inputs'.jjui.packages.jjui.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [./_patches/jjui-ai-revset.patch];
+    });
+  jj-revset-ai = inputs': pkgs:
+    pkgs.callPackage ./_package/jj-revset-ai.nix {
+      jujutsu = inputs'.unstable.legacyPackages.jujutsu;
+      pi = inputs'.llm-agents.packages.pi;
+    };
   lumen = pkgs: pkgs.callPackage ./_package/lumen.nix {src = inputs.lumen;};
   jj-starship = pkgs: pkgs.callPackage ./_package/jj-starship.nix {};
   ji = inputs': pkgs:
@@ -16,6 +24,10 @@ in {
     lumen.url = "github:jnsahaj/lumen/v2.22.0";
     jjui = {
       url = "github:idursun/jjui/v0.10.7";
+      inputs.nixpkgs.follows = "unstable";
+    };
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "unstable";
     };
   };
@@ -42,8 +54,14 @@ in {
           pkgs.watchman
           pkgs.difftastic
           (jjui inputs')
+          (jj-revset-ai inputs' pkgs)
           (jj-starship pkgs)
         ];
+
+        xdg.configFile."jjui/config.toml".text = ''
+          [revset]
+          ai_command = "${jj-revset-ai inputs' pkgs}/bin/jj-revset-ai"
+        '';
 
         programs.zsh.initContent = lib.mkAfter ''
           # jj - route `jj help flow ...` to the flow wrapper without changing
@@ -57,6 +75,8 @@ in {
               command jj "$@"
             fi
           }
+
+          source ${import ./_config/jj-ask.nix {inherit pkgs;}}
         '';
 
         programs.starship.settings = {

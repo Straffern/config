@@ -1,0 +1,748 @@
+diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
+--- a/cmd/jjui/main.go
++++ b/cmd/jjui/main.go
+@@ -166,6 +166,7 @@
+ 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+ 		return 1
+ 	}
++	aiCommand := config.Current.Revset.AICommand
+ 	// if JJUI_CONFIG_DIR is set, skip loading repository config as env config takes precedence over both global and repo-local configs. Otherwise load repo-local config which overrides global config on conflicts.
+ 	if config.EnvConfigDir() == "" {
+ 		if output, err := config.LoadRepoConfigFile(rootLocation); err == nil {
+@@ -182,6 +183,7 @@
+ 			return 1
+ 		}
+ 	}
++	config.Current.Revset.AICommand = aiCommand
+ 
+ 	if err := scripting.InitVM(appContext); err != nil {
+ 		fmt.Fprintf(os.Stderr, "Error initializing Lua VM: %v\n", err)
+@@ -200,6 +202,7 @@
+ 			return 1
+ 		}
+ 	}
++	aiCommand = config.Current.Revset.AICommand
+ 
+ 	// if JJUI_CONFIG_DIR is set, skip loading repository config as env config takes precedence over both global and repo-local configs. Otherwise load repo-local config which overrides global config on conflicts.
+ 	if config.EnvConfigDir() == "" {
+@@ -217,6 +220,7 @@
+ 			}
+ 		}
+ 	}
++	config.Current.Revset.AICommand = aiCommand
+ 
+ 	var theme map[string]config.Color
+ 	if !appContext.TerminalThemeDetected {
+diff -Naur a/internal/config/config.go b/internal/config/config.go
+--- a/internal/config/config.go
++++ b/internal/config/config.go
+@@ -22,6 +22,7 @@
+ 	Bindings        []BindingConfig `toml:"bindings"`
+ 	UI              UIConfig        `toml:"ui"`
+ 	Suggest         SuggestConfig   `toml:"suggest"`
++	Revset          RevsetConfig     `toml:"revset"`
+ 	Revisions       RevisionsConfig `toml:"revisions"`
+ 	Preview         PreviewConfig   `toml:"preview"`
+ 	OpLog           OpLogConfig     `toml:"oplog"`
+@@ -126,6 +127,10 @@
+ 	Revset       string `toml:"revset"`
+ }
+ 
++type RevsetConfig struct {
++	AICommand string `toml:"ai_command"`
++}
++
+ type PreviewPosition int
+ 
+ const (
+diff -Naur a/internal/config/default/bindings.toml b/internal/config/default/bindings.toml
+--- a/internal/config/default/bindings.toml
++++ b/internal/config/default/bindings.toml
+@@ -21,6 +21,7 @@
+     # revset
+     { key = ["esc", "ctrl+c"], action = "revset.cancel", scope = "revset", desc = "cancel" },
+     { key = "enter", action = "revset.apply", scope = "revset", desc = "apply" },
++    { key = "ctrl+g", action = "revset.generate", scope = "revset", desc = "generate revset" },
+     { key = "tab", action = "revset.autocomplete", scope = "revset", desc = "autocomplete" },
+     { key = "shift+tab", action = "revset.autocomplete_back", scope = "revset", desc = "autocomplete back" },
+     { key = ["up", "ctrl+p"], action = "revset.move_up", scope = "revset", desc = "up" },
+diff -Naur a/internal/config/default/config.toml b/internal/config/default/config.toml
+--- a/internal/config/default/config.toml
++++ b/internal/config/default/config.toml
+@@ -20,6 +20,9 @@
+   # template = 'builtin_log_compact' # overrides jj's templates.log
+   # revset = "zzzzzzz"               # overrides jj's revsets.log
+ 
++[revset]
++  ai_command = ""
++
+ [preview]
+   revision_command = ["show", "--color", "always", "-r", "$change_id"]
+   evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1"]
+diff -Naur a/internal/config/default/types.lua b/internal/config/default/types.lua
+--- a/internal/config/default/types.lua
++++ b/internal/config/default/types.lua
+@@ -411,6 +411,7 @@
+ ---@field autocomplete_back fun()
+ ---@field cancel fun()
+ ---@field edit fun(args: {clear?: boolean})
++---@field generate fun()
+ ---@field move_down fun()
+ ---@field move_up fun()
+ ---@field reset fun()
+diff -Naur a/internal/ui/actionmeta/builtins_gen.go b/internal/ui/actionmeta/builtins_gen.go
+--- a/internal/ui/actionmeta/builtins_gen.go
++++ b/internal/ui/actionmeta/builtins_gen.go
+@@ -239,6 +239,7 @@
+ 	"revset.autocomplete_back":                   {"revset"},
+ 	"revset.cancel":                              {"revset"},
+ 	"revset.edit":                                {"revset"},
++	"revset.generate":                            {"revset"},
+ 	"revset.move_down":                           {"revset"},
+ 	"revset.move_up":                             {"revset"},
+ 	"revset.reset":                               {"revset"},
+diff -Naur a/internal/ui/actions/catalog_gen.go b/internal/ui/actions/catalog_gen.go
+--- a/internal/ui/actions/catalog_gen.go
++++ b/internal/ui/actions/catalog_gen.go
+@@ -601,6 +601,8 @@
+ 			return intents.Cancel{}, true
+ 		case keybindings.Action("revset.edit"):
+ 			return intents.Edit{Clear: actionargs.BoolArg(args, "clear", false)}, true
++		case keybindings.Action("revset.generate"):
++			return intents.Generate{}, true
+ 		case keybindings.Action("revset.move_down"):
+ 			return intents.CompletionMove{Delta: 1}, true
+ 		case keybindings.Action("revset.move_up"):
+diff -Naur a/internal/ui/intents/revset_intents.go b/internal/ui/intents/revset_intents.go
+--- a/internal/ui/intents/revset_intents.go
++++ b/internal/ui/intents/revset_intents.go
+@@ -20,6 +20,11 @@
+ 
+ func (Reset) isIntent() {}
+ 
++//jjui:bind scope=revset action=generate
++type Generate struct{}
++
++func (Generate) isIntent() {}
++
+ //jjui:bind scope=revset action=autocomplete
+ //jjui:bind scope=revset action=autocomplete_back set=Reverse:true
+ type CompletionCycle struct {
+diff -Naur a/internal/ui/revset/generate.go b/internal/ui/revset/generate.go
+--- a/internal/ui/revset/generate.go
++++ b/internal/ui/revset/generate.go
+@@ -0,0 +1,223 @@
++package revset
++
++import (
++	"bytes"
++	"context"
++	"errors"
++	"fmt"
++	"io"
++	"os/exec"
++	"path/filepath"
++	"strings"
++	"syscall"
++	"time"
++
++	tea "charm.land/bubbletea/v2"
++	"github.com/idursun/jjui/internal/config"
++	"github.com/idursun/jjui/internal/ui/input"
++	"github.com/idursun/jjui/internal/ui/intents"
++)
++
++const aiOutputLimit = 64 * 1024
++
++type generateResultMsg struct {
++	id       int
++	value    string
++	err      error
++	canceled bool
++}
++
++func (m *Model) startGeneratePrompt() tea.Cmd {
++	if !m.editing {
++		return nil
++	}
++	if m.generating {
++		return intents.Invoke(intents.AddMessage{Text: "revset generation already running"})
++	}
++	if strings.TrimSpace(config.Current.Revset.AICommand) == "" {
++		return intents.Invoke(intents.AddMessage{Text: "revset.ai_command is not configured"})
++	}
++	m.awaitingPrompt = true
++	return input.ShowWithTitle("Generate revset", "intent: ", "")
++}
++
++func (m *Model) startGenerateCommand(request string) tea.Cmd {
++	if !m.editing {
++		return nil
++	}
++	command, err := resolveAICommand(config.Current.Revset.AICommand)
++	if err != nil {
++		return intents.Invoke(intents.AddMessage{Text: err.Error(), Err: err})
++	}
++	if strings.TrimSpace(request) == "" {
++		return intents.Invoke(intents.AddMessage{Text: "generation request is empty"})
++	}
++	m.generateID++
++	id := m.generateID
++	if m.generateCancel != nil {
++		m.generateCancel()
++	}
++	ctx, cancel := context.WithCancel(context.Background())
++	m.generateCancel = cancel
++	m.generating = true
++	buffer := m.autoComplete.Value()
++	dir := m.context.Location
++	return func() tea.Msg {
++		stdout, stderr, err := runAICommand(ctx, command, request, buffer, dir)
++		if ctx.Err() != nil {
++			return generateResultMsg{id: id, canceled: true}
++		}
++		if err != nil {
++			msg := strings.TrimSpace(stderr)
++			if msg == "" {
++				msg = err.Error()
++			}
++			return generateResultMsg{id: id, err: errors.New(msg)}
++		}
++		line, parseErr := parseGeneratedRevset(stdout)
++		if parseErr != nil {
++			return generateResultMsg{id: id, err: parseErr}
++		}
++		if err := validateGeneratedRevset(ctx, dir, line); err != nil {
++			if ctx.Err() != nil {
++				return generateResultMsg{id: id, canceled: true}
++			}
++			return generateResultMsg{id: id, err: err}
++		}
++		return generateResultMsg{id: id, value: line}
++	}
++}
++
++func (m *Model) handleGenerateResult(msg generateResultMsg) tea.Cmd {
++	if msg.id != m.generateID {
++		return nil
++	}
++	m.generating = false
++	if m.generateCancel != nil {
++		m.generateCancel()
++		m.generateCancel = nil
++	}
++	if msg.canceled || !m.editing {
++		return nil
++	}
++	if msg.err != nil {
++		return intents.Invoke(intents.AddMessage{Text: msg.err.Error(), Err: msg.err})
++	}
++	m.autoComplete.SetValue(msg.value)
++	m.autoComplete.CursorEnd()
++	m.userInput = msg.value
++	m.selectedIndex = -1
++	m.updateCompletionItems()
++	return nil
++}
++
++func (m *Model) cancelGeneration() bool {
++	if !m.generating && m.generateCancel == nil {
++		return false
++	}
++	m.generateID++
++	if m.generateCancel != nil {
++		m.generateCancel()
++		m.generateCancel = nil
++	}
++	m.generating = false
++	return true
++}
++
++func parseGeneratedRevset(output string) (string, error) {
++	if output == "" {
++		return "", errors.New("generated revset was empty")
++	}
++	if strings.HasSuffix(output, "\r\n") {
++		output = strings.TrimSuffix(output, "\r\n")
++	} else {
++		output = strings.TrimSuffix(output, "\n")
++	}
++	if strings.ContainsAny(output, "\r\n") {
++		return "", fmt.Errorf("generated revset must be a single line")
++	}
++	line := strings.TrimSpace(output)
++	if line == "" {
++		return "", errors.New("generated revset was empty")
++	}
++	return line, nil
++}
++
++var validateGeneratedRevset = defaultValidateGeneratedRevset
++
++func defaultValidateGeneratedRevset(ctx context.Context, dir, revset string) error {
++	cmd := exec.CommandContext(ctx, "jj", "log", "-r", revset, "-n", "1", "--ignore-working-copy", "--no-graph", "--color", "never", "--template", `""`)
++	cmd.Dir = dir
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	cmd.Cancel = func() error {
++		if cmd.Process == nil {
++			return nil
++		}
++		return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
++	}
++	cmd.WaitDelay = 200 * time.Millisecond
++	cmd.Stdout = io.Discard
++	var stderr bytes.Buffer
++	cmd.Stderr = &limitedWriter{buf: &stderr, n: aiOutputLimit}
++	if err := cmd.Run(); err != nil {
++		msg := strings.TrimSpace(stderr.String())
++		if msg == "" {
++			return err
++		}
++		return errors.New(msg)
++	}
++	return nil
++}
++
++func resolveAICommand(command string) (string, error) {
++	command = strings.TrimSpace(command)
++	if command == "" {
++		return "", errors.New("revset.ai_command is not configured")
++	}
++	if !filepath.IsAbs(command) {
++		return "", errors.New("revset.ai_command must be an absolute path")
++	}
++	return command, nil
++}
++
++func runAICommand(ctx context.Context, command, request, stdin, dir string) (string, string, error) {
++	cmd := exec.CommandContext(ctx, command, request)
++	cmd.Dir = dir
++	cmd.Stdin = strings.NewReader(stdin)
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	cmd.Cancel = func() error {
++		if cmd.Process == nil {
++			return nil
++		}
++		return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
++	}
++	cmd.WaitDelay = 200 * time.Millisecond
++	var stdout, stderr bytes.Buffer
++	cmd.Stdout = &limitedWriter{buf: &stdout, n: aiOutputLimit}
++	cmd.Stderr = &limitedWriter{buf: &stderr, n: aiOutputLimit}
++	err := cmd.Run()
++	return stdout.String(), stderr.String(), err
++}
++
++type limitedWriter struct {
++	buf *bytes.Buffer
++	n   int
++}
++
++func (w *limitedWriter) Write(p []byte) (int, error) {
++	if w.n <= 0 {
++		return len(p), nil
++	}
++	if len(p) > w.n {
++		if _, err := w.buf.Write(p[:w.n]); err != nil {
++			return 0, err
++		}
++		w.n = 0
++		return len(p), nil
++	}
++	n, err := w.buf.Write(p)
++	w.n -= n
++	return n, err
++}
++
++var _ io.Writer = (*limitedWriter)(nil)
+diff -Naur a/internal/ui/revset/generate_test.go b/internal/ui/revset/generate_test.go
+--- a/internal/ui/revset/generate_test.go
++++ b/internal/ui/revset/generate_test.go
+@@ -0,0 +1,280 @@
++package revset
++
++import (
++	"context"
++	"errors"
++	"os"
++	"path/filepath"
++	"testing"
++	"time"
++
++	tea "charm.land/bubbletea/v2"
++	"github.com/idursun/jjui/internal/config"
++	"github.com/idursun/jjui/internal/ui/common"
++	"github.com/idursun/jjui/internal/ui/input"
++	"github.com/idursun/jjui/internal/ui/intents"
++	"github.com/idursun/jjui/test"
++	"github.com/stretchr/testify/assert"
++	"github.com/stretchr/testify/require"
++)
++
++func withValidate(t *testing.T, fn func(context.Context, string, string) error) {
++	t.Helper()
++	original := validateGeneratedRevset
++	validateGeneratedRevset = fn
++	t.Cleanup(func() { validateGeneratedRevset = original })
++}
++
++func writeHelper(t *testing.T, body string) string {
++	t.Helper()
++	path := filepath.Join(t.TempDir(), "jj-revset-ai")
++	require.NoError(t, os.WriteFile(path, []byte("#!/bin/sh\n"+body+"\n"), 0o755))
++	return path
++}
++
++func withAICommand(t *testing.T, command string) {
++	t.Helper()
++	original := config.Current.Revset.AICommand
++	config.Current.Revset.AICommand = command
++	t.Cleanup(func() {
++		config.Current.Revset.AICommand = original
++	})
++}
++
++func editingModel(t *testing.T, runner *test.CommandRunner, buffer string) *Model {
++	t.Helper()
++	ctx := test.NewTestContext(runner)
++	ctx.CurrentRevset = "trunk()"
++	model := New(ctx)
++	model.editing = true
++	model.autoComplete.SetValue(buffer)
++	model.userInput = buffer
++	return model
++}
++
++func TestParseGeneratedRevset_RejectsBlankLineContamination(t *testing.T) {
++	_, err := parseGeneratedRevset("\nall()\n\n")
++	require.Error(t, err)
++	assert.Contains(t, err.Error(), "single line")
++	value, err := parseGeneratedRevset("all()\n")
++	require.NoError(t, err)
++	assert.Equal(t, "all()", value)
++}
++
++func TestGenerate_SuccessReplacesEditorBufferOnly(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	withValidate(t, func(context.Context, string, string) error { return nil })
++
++	withAICommand(t, writeHelper(t, `cat >/dev/null
++printf '%s\n' "$1"
++`))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, handled := model.HandleIntent(intents.Generate{})
++	require.True(t, handled)
++	require.NotNil(t, cmd)
++	show := cmd()
++	_, ok := show.(common.ShowInputMsg)
++	require.True(t, ok)
++
++	runCmd := model.Update(input.SelectedMsg{Value: "all()"})
++	require.NotNil(t, runCmd)
++	result := runCmd()
++	follow := model.Update(result)
++	assert.Nil(t, follow)
++
++	assert.True(t, model.editing)
++	assert.Equal(t, "all()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_InvalidOutputPreservesBuffer(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	withAICommand(t, writeHelper(t, `cat >/dev/null
++printf 'one()\ntwo()\n'
++`))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	model.Update(input.SelectedMsg{}) // not awaiting
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	runCmd := model.Update(input.SelectedMsg{Value: "anything"})
++	result := runCmd()
++	follow := model.Update(result)
++	require.NotNil(t, follow)
++	msg := follow()
++	add, ok := msg.(intents.AddMessage)
++	require.True(t, ok)
++	assert.Contains(t, add.Text, "single line")
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_ProcessFailurePreservesBuffer(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	withAICommand(t, writeHelper(t, `cat >/dev/null
++echo boom >&2
++exit 1
++`))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	runCmd := model.Update(input.SelectedMsg{Value: "request"})
++	result := runCmd()
++	follow := model.Update(result)
++	require.NotNil(t, follow)
++	msg := follow()
++	add, ok := msg.(intents.AddMessage)
++	require.True(t, ok)
++	assert.Contains(t, add.Text, "boom")
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_InvalidRevsetPreservesBuffer(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	withValidate(t, func(context.Context, string, string) error { return errors.New("bad revset") })
++
++	withAICommand(t, writeHelper(t, `cat >/dev/null
++echo 'this-is-not-a-valid-revset-xyzzy()'
++`))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	runCmd := model.Update(input.SelectedMsg{Value: "request"})
++	result := runCmd()
++	follow := model.Update(result)
++	require.NotNil(t, follow)
++	msg := follow()
++	add, ok := msg.(intents.AddMessage)
++	require.True(t, ok)
++	assert.Equal(t, "bad revset", add.Text)
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_CancelLeavesBufferAndRevsetUnchanged(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	ready := filepath.Join(t.TempDir(), "ready")
++	withAICommand(t, writeHelper(t, "touch "+ready+"\ncat >/dev/null\nsleep 30\n"))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	runCmd := model.Update(input.SelectedMsg{Value: "request"})
++	require.NotNil(t, runCmd)
++
++	done := make(chan tea.Msg, 1)
++	go func() {
++		done <- runCmd()
++	}()
++
++	require.Eventually(t, func() bool {
++		_, err := os.Stat(ready)
++		return err == nil
++	}, 2*time.Second, 10*time.Millisecond)
++	cancelCmd, handled := model.HandleIntent(intents.Cancel{})
++	assert.True(t, handled)
++	assert.Nil(t, cancelCmd)
++	assert.True(t, model.editing, "cancel during generation should keep the editor open")
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++
++	select {
++	case result := <-done:
++		follow := model.Update(result)
++		assert.Nil(t, follow)
++	case <-time.After(5 * time.Second):
++		t.Fatal("generation command did not return after cancel")
++	}
++
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_ApplyDuringGenerationPreservesState(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	ready := filepath.Join(t.TempDir(), "ready")
++	withAICommand(t, writeHelper(t, "touch "+ready+"\ncat >/dev/null\nsleep 30\n"))
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	runCmd := model.Update(input.SelectedMsg{Value: "request"})
++	require.NotNil(t, runCmd)
++
++	done := make(chan tea.Msg, 1)
++	go func() {
++		done <- runCmd()
++	}()
++
++	require.Eventually(t, func() bool {
++		_, err := os.Stat(ready)
++		return err == nil
++	}, 2*time.Second, 10*time.Millisecond)
++
++	applyCmd, handled := model.HandleIntent(intents.Apply{})
++	assert.True(t, handled)
++	assert.Nil(t, applyCmd)
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++
++	select {
++	case result := <-done:
++		follow := model.Update(result)
++		assert.Nil(t, follow)
++	case <-time.After(5 * time.Second):
++		t.Fatal("generation command did not return after apply-cancel")
++	}
++
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++}
++
++func TestGenerate_NonAbsoluteCommandIsRejected(t *testing.T) {
++	commandRunner := test.NewTestCommandRunner(t)
++	defer commandRunner.Verify()
++
++	withAICommand(t, "jj-revset-ai")
++	model := editingModel(t, commandRunner, "trunk()")
++	originalRevset := model.context.CurrentRevset
++
++	cmd, _ := model.HandleIntent(intents.Generate{})
++	_ = cmd()
++	follow := model.Update(input.SelectedMsg{Value: "request"})
++	require.NotNil(t, follow)
++	msg := follow()
++	add, ok := msg.(intents.AddMessage)
++	require.True(t, ok)
++	assert.Contains(t, add.Text, "absolute path")
++	assert.True(t, model.editing)
++	assert.Equal(t, "trunk()", model.GetValue())
++	assert.Equal(t, originalRevset, model.context.CurrentRevset)
++	assert.False(t, model.generating)
++}
+diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
+--- a/internal/ui/revset/revset.go
++++ b/internal/ui/revset/revset.go
+@@ -1,6 +1,7 @@
+ package revset
+ 
+ import (
++	"context"
+ 	"strings"
+ 
+ 	tea "charm.land/bubbletea/v2"
+@@ -10,6 +11,7 @@
+ 	"github.com/idursun/jjui/internal/ui/common"
+ 	"github.com/idursun/jjui/internal/ui/common/autocompletion"
+ 	appContext "github.com/idursun/jjui/internal/ui/context"
++	"github.com/idursun/jjui/internal/ui/input"
+ 	"github.com/idursun/jjui/internal/ui/intents"
+ 	"github.com/idursun/jjui/internal/ui/layout"
+ 	"github.com/idursun/jjui/internal/ui/render"
+@@ -57,6 +59,10 @@
+ 	completionItems    []CompletionItem
+ 	selectedIndex      int
+ 	userInput          string // tracks what the user actually typed (separate from preview)
++	awaitingPrompt     bool
++	generating         bool
++	generateID         int
++	generateCancel     context.CancelFunc
+ }
+ 
+ func (m *Model) IsEditing() bool {
+@@ -157,6 +163,17 @@
+ 	case intents.Intent:
+ 		cmd, _ := m.HandleIntent(msg)
+ 		return cmd
++	case generateResultMsg:
++		return m.handleGenerateResult(msg)
++	case input.SelectedMsg:
++		if !m.awaitingPrompt {
++			return nil
++		}
++		m.awaitingPrompt = false
++		return m.startGenerateCommand(msg.Value)
++	case input.CancelledMsg:
++		m.awaitingPrompt = false
++		return nil
+ 	case completionScrollMsg:
+ 		if msg.Horizontal {
+ 			return nil
+@@ -177,7 +194,11 @@
+ 		if !m.editing {
+ 			return nil
+ 		}
++		if m.generating {
++			return nil
++		}
+ 	case common.UpdateRevSetMsg:
++		m.cancelGeneration()
+ 		if m.editing {
+ 			m.editing = false
+ 		}
+@@ -243,6 +264,7 @@
+ func (m *Model) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
+ 	switch intent := intent.(type) {
+ 	case intents.Set:
++		m.cancelGeneration()
+ 		m.editing = false
+ 		m.autoComplete.Blur()
+ 		value := intent.Value
+@@ -251,10 +273,12 @@
+ 		}
+ 		return tea.Batch(common.Close, common.UpdateRevSet(value)), true
+ 	case intents.Reset:
++		m.cancelGeneration()
+ 		m.editing = false
+ 		m.autoComplete.Blur()
+ 		return tea.Batch(common.Close, common.UpdateRevSet(m.context.DefaultRevset)), true
+ 	case intents.Edit:
++		m.cancelGeneration()
+ 		m.editing = true
+ 		m.autoComplete.Focus()
+ 		m.completionProvider.Load(m.context.RunCommandImmediate)
+@@ -267,7 +291,15 @@
+ 		m.selectedIndex = -1 // no selection initially
+ 		m.updateCompletionItems()
+ 		return m.autoComplete.Init(), true
++	case intents.Generate:
++		if !m.editing {
++			return nil, false
++		}
++		return m.startGeneratePrompt(), true
+ 	case intents.Cancel:
++		if m.cancelGeneration() {
++			return nil, true
++		}
+ 		if !m.editing {
+ 			return nil, false
+ 		}
+@@ -275,6 +307,9 @@
+ 		m.autoComplete.Blur()
+ 		return nil, true
+ 	case intents.Apply:
++		if m.cancelGeneration() {
++			return nil, true
++		}
+ 		if !m.editing {
+ 			return nil, false
+ 		}
