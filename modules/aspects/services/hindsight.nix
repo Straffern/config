@@ -100,7 +100,15 @@
             ];
             environmentFiles = [config.sops.templates."hindsight-env".path];
             volumes = ["/var/lib/hindsight/pg0:/home/hindsight/.pg0"];
-            extraOptions = ["--pull=always"];
+            extraOptions = [
+              ''--health-cmd=/app/api/.venv/bin/python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8888/health', timeout=5)"''
+              "--health-interval=30s"
+              "--health-retries=3"
+              "--health-start-period=120s"
+              "--health-timeout=10s"
+              "--health-on-failure=kill"
+              "--pull=always"
+            ];
           };
         };
         systemd.tmpfiles.rules = [
