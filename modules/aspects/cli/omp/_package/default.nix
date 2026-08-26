@@ -14,23 +14,23 @@
   pcre2,
 }:
 let
-  version = "18.0.4";
+  version = "18.0.6";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-1JMWOIe8+Pd7mZGrchn3dxK1sn3mVk969ygwZKyoSCQ=";
+      hash = "sha256-aNkRA44GHTXIyqanHJGhW2Cpj4xUZK2fR+XR6u2mvkw=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-8rfIoBloHt4xSsFlEAwcW1zUkAE5B1lI2oCcAEvsXOc=";
+      hash = "sha256-hWawqMvG+0oB3syTf6N1cr3thsPedfgR7zf7L6tD+RI=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-8hd1L19XnSsiCBhGL8UVrTM+ikEPG7/NYweCW3BSYPU=";
+      hash = "sha256-pR0hGun9zKokLTEkEYQGBxVipUBwj8XRqNQ85Z+K8KY=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-lOxC0X1xl1o4HiAzW7PABaf9fuwZsxk1jfbSLyjhazc=";
+      hash = "sha256-nLx4vpumNXtTpqBVyYrXr+5MANIKMg1Ru3apSbilpEQ=";
     };
   };
   platform =
@@ -44,7 +44,7 @@ let
     owner = "can1357";
     repo = "oh-my-pi";
     rev = "v${version}";
-    hash = "sha256-BHh6OAu5yY3gbXQf1+NAxCgDcAQ4Mli47Eq79c14XNU=";
+    hash = "sha256-mOg6F5LFTLvHzWZIufykPchBuvBslwKhAKt4fS3qdhs=";
   };
   linuxNativeFilename =
     if stdenv.hostPlatform.isx86_64 then
@@ -55,7 +55,7 @@ let
     pname = "omp-native-wayland";
     inherit version;
     src = linuxSource;
-    cargoHash = "sha256-o5xMO98pQPJXk3OJQt9pyH4bM0L1I6cyRYtZDBrk3Nc=";
+    cargoHash = "sha256-FDKqhCcNHTb0o2jrCnXv6S2TgX5RPr2FcFv3eC600WU=";
     buildType = "ci";
     cargoBuildFlags = [
       "-p"
