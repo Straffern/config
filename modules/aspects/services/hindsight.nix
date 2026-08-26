@@ -7,6 +7,7 @@
   den.aspects.services.hindsight.nixos = {
     config,
     host,
+    pkgs,
     ...
   }: let
     hostSecretsFile = inputs.self + "/secrets/hosts/${host.name}.yaml";
@@ -102,7 +103,7 @@
             volumes = ["/var/lib/hindsight/pg0:/home/hindsight/.pg0"];
             extraOptions = [
               ''--health-cmd=/app/api/.venv/bin/python3 -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8888/health', timeout=5)"''
-              "--health-interval=30s"
+              "--health-interval=disable"
               "--health-retries=3"
               "--health-start-period=120s"
               "--health-timeout=10s"
@@ -117,6 +118,26 @@
         ];
         systemd.services.podman-hindsight.unitConfig.ConditionPathExists =
           config.sops.templates."hindsight-env".path;
+        systemd.services.hindsight-healthcheck = {
+          description = "Check Hindsight container health";
+          after = ["podman-hindsight.service"];
+          requires = ["podman-hindsight.service"];
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = "${lib.getExe pkgs.podman} healthcheck run hindsight";
+            SuccessExitStatus = [1];
+          };
+        };
+        systemd.timers.hindsight-healthcheck = {
+          description = "Periodically check Hindsight container health";
+          wantedBy = ["podman-hindsight.service"];
+          partOf = ["podman-hindsight.service"];
+          after = ["podman-hindsight.service"];
+          timerConfig = {
+            OnActiveSec = "120s";
+            OnUnitActiveSec = "30s";
+          };
+        };
       }
       (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         environment.persistence."/persist".directories = ["/var/lib/hindsight"];
