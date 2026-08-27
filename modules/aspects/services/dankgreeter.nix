@@ -55,7 +55,10 @@
       jq = lib.getExe pkgs.jq;
     in {
       imports = [inputs.dank-greeter.nixosModules.default];
-      programs.dms-greeter.enable = true;
+      programs.dms-greeter = {
+        enable = true;
+        quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      };
       users.users.greeter.home = "/var/lib/dms-greeter";
       services.fprintd.enable = true;
       security.pam.services.login.fprintAuth = false;
