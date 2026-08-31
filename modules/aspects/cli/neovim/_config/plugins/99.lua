@@ -54,6 +54,55 @@ return {
 
 			_99.Providers.pi = PiAgentProvider
 
+			local OmpProvider = setmetatable({}, { __index = BaseProvider })
+
+			function OmpProvider._build_command(_, query, context)
+				return {
+					"omp",
+					"-p",
+					"--no-session",
+					"--model",
+					context.model,
+					query,
+				}
+			end
+
+			function OmpProvider.fetch_models(callback)
+				vim.system({ "omp", "models", "--json" }, { text = true }, function(obj)
+					vim.schedule(function()
+						if obj.code ~= 0 then
+							callback(nil, "Failed to fetch models from omp")
+							return
+						end
+
+						local ok, data = pcall(vim.json.decode, obj.stdout or "")
+						if not ok or type(data) ~= "table" or type(data.models) ~= "table" then
+							callback(nil, "Failed to parse models from omp")
+							return
+						end
+
+						local models = {}
+						for _, model in ipairs(data.models) do
+							if type(model) == "table" and type(model.selector) == "string" then
+								table.insert(models, model.selector)
+							end
+						end
+
+						callback(models, nil)
+					end)
+				end)
+			end
+
+			function OmpProvider._get_provider_name()
+				return "omp"
+			end
+
+			function OmpProvider._get_default_model()
+				return "openai-codex/gpt-5.4-mini"
+			end
+
+			_99.Providers.omp = OmpProvider
+
 			_99.setup({
 				provider = _99.Providers.pi,
 				model = "openai-codex/gpt-5.4-mini",
