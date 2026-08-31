@@ -7,9 +7,6 @@ return {
 
 			cli = {
 				tools = {
-					opencode = {
-						keys = { prompt = { "<a-p>", "prompt" } },
-					},
 					omp = {
 						cmd = { "omp" },
 						is_proc = "\\<omp\\>",
@@ -21,11 +18,6 @@ return {
 		},
   -- stylua: ignore
   keys = {
-    {
-      "<leader>ac",
-      function() require("sidekick.cli").toggle({ name = "opencode", focus = true }) end,
-      desc = "Sidekick Toggle Claude",
-    },
     {
       "<leader>ao",
       function() require("sidekick.cli").toggle({ name = "omp", focus = true }) end,
