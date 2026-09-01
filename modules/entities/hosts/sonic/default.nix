@@ -55,6 +55,7 @@
       den.aspects.gaming.amd-graphics
       den.aspects.apps.discord
       den.aspects.apps.helium
+      den.aspects.cli.chrome-devtools
       den.aspects.apps.slack
       den.aspects.apps.shotwell
       den.aspects.desktop.dms
