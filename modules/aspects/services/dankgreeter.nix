@@ -66,15 +66,15 @@
         greetd = {
           fprintAuth = true;
           rules.auth.fprintd.settings = {
-            "max-tries" = "1";
-            timeout = "5";
+            "max-tries" = "2";
+            timeout = "10";
           };
         };
         dms-greeter = {
           fprintAuth = true;
           rules.auth.fprintd.settings = {
-            "max-tries" = "1";
-            timeout = "5";
+            "max-tries" = "2";
+            timeout = "10";
           };
         };
       };
