@@ -6,5 +6,6 @@
 in {
   den.aspects.development.ai-harness.homeManager = {config, ...}: {
     home.file.".agents/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
+    home.file.".codex/AGENTS.md".source = managedSource config ./_data/AGENTS.md;
   };
 }
