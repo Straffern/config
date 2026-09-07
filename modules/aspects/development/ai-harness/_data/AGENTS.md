@@ -1,6 +1,7 @@
 Responses terse and telegraphic. Preserve technical precision. Omit filler and pleasantries.
 State uncertainty plainly.
 Do not preserve backwards compatibility.
+Follow YAGNI principles, and prefer one-liner solutions.
 
 ## Code mode
 
