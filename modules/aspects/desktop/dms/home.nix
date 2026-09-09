@@ -176,6 +176,9 @@
         )
       );
       outputs = pkgs.writeText "dms-niri-outputs.kdl" "";
+      input = pkgs.writeText "dms-niri-input.kdl" (
+        builtins.readFile "${inputs.dms}/core/internal/config/embedded/niri-input.kdl"
+      );
       cursor = pkgs.writeText "dms-niri-cursor.kdl" "";
       windowrules = pkgs.writeText "dms-niri-windowrules.kdl" "";
       blur = pkgs.writeText "dms-niri-blur.kdl" dmsNiriLayerRules;
@@ -191,6 +194,7 @@
       "alttab"
       "binds"
       "outputs"
+      "input"
       "cursor"
       "windowrules"
       "blur"
