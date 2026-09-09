@@ -197,6 +197,7 @@
       inherit keybinds castRule;
       shellRule = ./_assets/shell-windowrule.kdl;
       niri = niriEnabled;
+      niriBin = lib.optionalString niriEnabled "${config.programs.niri.package}/bin";
       dms = lib.getExe config.programs.dank-material-shell.package;
       configHome = config.xdg.configHome;
       marker = "${config.xdg.stateHome}/DankMaterialShell/hm-ownership-migrated";

@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from unittest.mock import patch
 
 
 generation = Path(sys.argv[1])
@@ -27,6 +28,12 @@ def command(manifest, *args):
         args, check=True, capture_output=True, text=True,
         env=os.environ | {"XDG_CONFIG_HOME": manifest["configHome"]},
     ).stdout
+
+
+def activate(manifest, **kwargs):
+    # Home Manager activation does not inherit the interactive desktop PATH.
+    with patch.dict(os.environ, {"PATH": "/no-programs"}):
+        bootstrap.run(manifest, **kwargs)
 
 
 with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
@@ -59,10 +66,10 @@ with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
             backup = state / "DankMaterialShell/session.json.pre-home-manager"
             bootstrap.write(backup, b'{"wallpaperPath":"/chosen.png"}')
 
-        bootstrap.run(manifest, files_only=True)
+        activate(manifest, files_only=True)
         for name in ("config.kdl", "hm.kdl"):
             (config / "niri" / name).symlink_to(generation / "home-files/.config/niri" / name)
-        bootstrap.run(manifest)
+        activate(manifest)
 
         for target in manifest["files"]:
             path = Path(target)
@@ -101,8 +108,8 @@ with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
         rules.write_text("// User removed all rules\n")
         autostart.unlink()
         before = {p: p.read_bytes() for p in (settings, gtk, binds, rules)}
-        bootstrap.run(manifest, files_only=True)
-        bootstrap.run(manifest)
+        activate(manifest, files_only=True)
+        activate(manifest)
         assert all(path.read_bytes() == data for path, data in before.items())
         assert not autostart.exists(), "Deleted autostart was restored"
         parsed = json.loads(command(manifest, dms, "keybinds", "show", "niri"))

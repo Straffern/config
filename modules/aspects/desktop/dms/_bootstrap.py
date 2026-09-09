@@ -48,7 +48,10 @@ def run(manifest, files_only=False):
     write(settings, (json.dumps(defaults | current, indent=2) + "\n").encode())
 
     if manifest["niri"]:
-        env = os.environ | {"XDG_CONFIG_HOME": manifest["configHome"]}
+        env = os.environ | {
+            "XDG_CONFIG_HOME": manifest["configHome"],
+            "PATH": manifest["niriBin"] + os.pathsep + os.environ.get("PATH", ""),
+        }
         dms = manifest["dms"]
         result = subprocess.run(
             [dms, "keybinds", "show", "niri"], env=env, check=True, capture_output=True, text=True
@@ -59,7 +62,7 @@ def run(manifest, files_only=False):
             if key_parts(key) not in owned:
                 subprocess.run(
                     [dms, "keybinds", "set", "niri", key, bind["action"], "--desc", bind["description"]],
-                    env=env, check=True, capture_output=True,
+                    env=env, check=True, stdout=subprocess.DEVNULL,
                 )
 
         rules = Path(manifest["configHome"]) / "niri/dms/windowrules.kdl"
