@@ -27,14 +27,13 @@
   };
   den.aspects.desktop.dms.homeManager = {
     config,
+    host,
     lib,
     pkgs,
     ...
   }: let
     inherit
       (lib)
-      concatStringsSep
-      escapeShellArg
       mkForce
       mkIf
       mkMerge
@@ -42,7 +41,7 @@
 
     niriEnabled = config.programs.niri.enable or false;
 
-    terminalCommand = "kitty";
+    terminalCommand = "xdg-terminal-exec";
 
     # --- DMS settings bootstrap (compositor-agnostic) ---
 
@@ -55,55 +54,14 @@
         enableFprint = true;
         greeterEnableFprint = true;
         greeterRememberLastUser = true;
+        keyboardLayouts = "us,dk";
+        keyboardOptions = "grp:alts_toggle";
+        iconThemeDark = "Papirus-Dark";
+        iconThemeLight = "Papirus-Dark";
+        acProfileName = "2";
+        batteryProfileName = "0";
       }
     );
-
-    bootstrapDmsSettings = let
-      settingsPath = "${config.xdg.configHome}/DankMaterialShell/settings.json";
-    in ''
-      settings_path=${escapeShellArg settingsPath}
-      settings_dir=$(${pkgs.coreutils}/bin/dirname "$settings_path")
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$settings_dir"
-
-      if [ ! -e "$settings_path" ]; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 \
-          ${escapeShellArg "${dmsSettingsBootstrap}"} \
-          "$settings_path"
-      elif [ ! -w "$settings_path" ]; then
-        echo "Skipping DMS settings bootstrap for read-only $settings_path" >&2
-      elif ${pkgs.jq}/bin/jq -e . "$settings_path" >/dev/null; then
-        tmp="$(${pkgs.coreutils}/bin/mktemp)"
-        ${pkgs.jq}/bin/jq '
-          if type == "object" then
-            (if has("blurEnabled") then . else . + { blurEnabled: true } end)
-            | (if has("gtkThemingEnabled") then . else . + { gtkThemingEnabled: true } end)
-            | (if has("runDmsMatugenTemplates") then . else . + { runDmsMatugenTemplates: true } end)
-            | (if has("matugenTemplateNeovim") then . else . + { matugenTemplateNeovim: true } end)
-            | (if has("enableFprint") then . else . + { enableFprint: true } end)
-            | (if has("greeterEnableFprint") then . else . + { greeterEnableFprint: true } end)
-            | (if has("greeterRememberLastUser") then . else . + { greeterRememberLastUser: true } end)
-          else .
-          end
-        ' "$settings_path" > "$tmp"
-
-        if ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$settings_path"; then
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$tmp" "$settings_path"
-        else
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/rm -f "$tmp"
-        fi
-      else
-        echo "Skipping DMS settings bootstrap due to invalid JSON in $settings_path" >&2
-      fi
-    '';
-
-    restoreDmsBackup = path: ''
-      target=${escapeShellArg path}
-      backup="$target.pre-home-manager"
-      if [ ! -e "$target" ] && [ ! -L "$target" ] && [ -f "$backup" ]; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$target")"
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$backup" "$target"
-      fi
-    '';
 
     # --- Terminal theme stubs (compositor-agnostic) ---
 
@@ -113,14 +71,6 @@
       kittyTabs = pkgs.writeText "dms-kitty-tabs.conf" "";
       foot = pkgs.writeText "dms-foot-colors.ini" "";
     };
-
-    installMissingFile = source: target: ''
-      if [ ! -e ${escapeShellArg target} ]; then
-        $DRY_RUN_CMD ${pkgs.coreutils}/bin/install -Dm644 \
-          ${escapeShellArg "${source}"} \
-          ${escapeShellArg target}
-      fi
-    '';
 
     # --- Niri-specific: KDL config fragments from DMS source ---
 
@@ -147,11 +97,6 @@
 
       window-rule {
       	match app-id=r#"com.danklinux.dms$"#
-
-      	background-effect {
-      		xray false
-      	}
-
       	popups {
       		background-effect {
       			xray false
@@ -201,12 +146,76 @@
       "wpblur"
     ];
 
-    installMissingNiriFile = name: installMissingFile dmsNiriFiles.${name} "${config.xdg.configHome}/niri/dms/${name}.kdl";
-    bootstrappedNiriFiles = builtins.filter (name: name != "blur") niriFilesToInclude;
+    castRule = ./_assets/cast-windowrule.kdl;
+    keybinds = {
+      "Mod+Shift+S" = {
+        action = "set-dynamic-cast-window";
+        description = "Cast Window";
+      };
+      "Mod+Ctrl+Shift+S" = {
+        action = "set-dynamic-cast-monitor";
+        description = "Cast Monitor";
+      };
+      "Mod+Ctrl+S" = {
+        action = "clear-dynamic-cast-target";
+        description = "Stop Cast";
+      };
+      "Mod+Ctrl+Shift+F" = {
+        action = "toggle-windowed-fullscreen";
+        description = "Windowed Fullscreen";
+      };
+    };
+    kdeconnectEnabled = host.hasAspect den.aspects.apps.kdeconnect;
+    autostart = name: command: hidden:
+      pkgs.writeText "dms-${name}.desktop" ''
+        [Desktop Entry]
+        Type=Application
+        Name=${name}
+        Exec=${command}
+        Hidden=${lib.boolToString hidden}
+      '';
+    configFiles =
+      {
+        "DankMaterialShell/settings.json" = dmsSettingsBootstrap;
+        "alacritty/dank-theme.toml" = dmsTerminalFiles.alacritty;
+        "kitty/dank-theme.conf" = dmsTerminalFiles.kittyTheme;
+        "kitty/dank-tabs.conf" = dmsTerminalFiles.kittyTabs;
+        "foot/dank-colors.ini" = dmsTerminalFiles.foot;
+        "gtk-3.0/settings.ini" = pkgs.writeText "dms-gtk-settings.ini" "[Settings]\ngtk-icon-theme-name=Papirus-Dark\n";
+        "gtk-4.0/settings.ini" = configFiles."gtk-3.0/settings.ini";
+        "autostart/blueman.desktop" = autostart "Bluetooth" "blueman-applet" true;
+        "xdg-terminals.list" = pkgs.writeText "dms-xdg-terminals.list" "kitty.desktop\n";
+      }
+      // lib.optionalAttrs kdeconnectEnabled {
+        "autostart/org.kde.kdeconnect.daemon.desktop" = autostart "KDE Connect" "kdeconnectd" false;
+        "autostart/kdeconnect-indicator.desktop" = autostart "KDE Connect Indicator" "kdeconnect-indicator" false;
+      }
+      // lib.optionalAttrs niriEnabled (
+        lib.mapAttrs' (name: source: lib.nameValuePair "niri/dms/${name}.kdl" source) dmsNiriFiles
+      );
+    bootstrapManifest = pkgs.writeText "dms-bootstrap.json" (builtins.toJSON {
+      inherit keybinds castRule;
+      shellRule = ./_assets/shell-windowrule.kdl;
+      niri = niriEnabled;
+      dms = lib.getExe config.programs.dank-material-shell.package;
+      configHome = config.xdg.configHome;
+      marker = "${config.xdg.stateHome}/DankMaterialShell/hm-ownership-migrated";
+      settings = "${config.xdg.configHome}/DankMaterialShell/settings.json";
+      replaceStoreLinks = [
+        "${config.xdg.configHome}/autostart/blueman.desktop"
+        "${config.xdg.configHome}/autostart/org.kde.kdeconnect.daemon.desktop"
+        "${config.xdg.configHome}/niri/dms/blur.kdl"
+      ];
+      files =
+        lib.mapAttrs' (name: source: lib.nameValuePair "${config.xdg.configHome}/${name}" source) configFiles
+        // {
+          "${config.xdg.stateHome}/DankMaterialShell/session.json" = pkgs.writeText "dms-session.json" "{}";
+        };
+    });
+    bootstrapCommand = "${lib.getExe pkgs.python3} ${./_bootstrap.py} ${bootstrapManifest}";
   in {
     imports = [
       inputs.dms.homeModules.dank-material-shell
-      inputs.dms.homeModules.niri
       inputs.danksearch.homeModules.dsearch
       inputs.dankcalendar.homeModules.default
     ];
@@ -264,32 +273,29 @@
         systemd.user.services.dcal.Service.SuccessExitStatus = [143];
 
         # GTK apps need a real theme package; DMS only manages the live color overlay.
-        home.packages = [pkgs.adw-gtk3];
+        home.packages = [pkgs.adw-gtk3 pkgs.xdg-terminal-exec];
 
-        # Bootstrap DMS settings + terminal theme stubs (compositor-agnostic).
+        # Detach retired HM links before linkGeneration removes them.
+        home.activation.dmsBootstrapFiles = {
+          after = ["writeBoundary"];
+          before = ["linkGeneration"];
+          data = "$DRY_RUN_CMD ${bootstrapCommand} --files-only";
+        };
         home.activation.dmsBootstrap = {
           after = ["linkGeneration"];
-          before = [];
-          data = ''
-            ${restoreDmsBackup "${config.xdg.configHome}/DankMaterialShell/settings.json"}
-            ${restoreDmsBackup "${config.xdg.stateHome}/DankMaterialShell/session.json"}
-            ${bootstrapDmsSettings}
-
-            ${installMissingFile dmsTerminalFiles.alacritty "${config.xdg.configHome}/alacritty/dank-theme.toml"}
-            ${installMissingFile dmsTerminalFiles.kittyTheme "${config.xdg.configHome}/kitty/dank-theme.conf"}
-            ${installMissingFile dmsTerminalFiles.kittyTabs "${config.xdg.configHome}/kitty/dank-tabs.conf"}
-            ${installMissingFile dmsTerminalFiles.foot "${config.xdg.configHome}/foot/dank-colors.ini"}
-          '';
+          before = ["reloadSystemd"];
+          data = "$DRY_RUN_CMD ${bootstrapCommand}";
         };
+
+        assertions = [
+          {
+            assertion = builtins.all (name: !(config.xdg.configFile.${name}.enable or false)) (builtins.attrNames configFiles);
+            message = "DMS settings files must be writable bootstrap state, not Home Manager links.";
+          }
+        ];
 
         # DankSearch — indexed file search
         programs.dsearch.enable = true;
-
-        # DMS has its own bluetooth panel and notification center.
-        xdg.configFile."autostart/blueman.desktop".text = ''
-          [Desktop Entry]
-          Hidden=true
-        '';
 
         # Rescue oneshot — if DMS crash-loops into start-rate limiting, wait for
         # outputs to settle, clear failed state, then restart shell.
@@ -311,36 +317,17 @@
 
       # ── Niri compositor integration ──
       (mkIf niriEnabled {
-        programs.dank-material-shell.niri = {
-          enableSpawn = false;
-          includes = {
-            enable = true;
-            filesToInclude = niriFilesToInclude;
-          };
+        xdg.configFile.niri-config.target = mkForce "niri/hm.kdl";
+        xdg.configFile.niri-config-dms = {
+          target = "niri/config.kdl";
+          text =
+            lib.concatMapStringsSep "\n" (name: ''include optional=true "${name}.kdl"'')
+            (["hm"] ++ map (name: "dms/${name}") niriFilesToInclude);
         };
 
         # Select the compositor lifecycle through DMS's existing target seam.
         # Other compositor integrations can choose their own owning target.
         programs.dank-material-shell.systemd.target = "niri.service";
-
-        programs.niri.settings.environment = {
-          QT_QPA_PLATFORMTHEME = "qt6ct";
-          QT_QPA_PLATFORMTHEME_QT6 = "qt6ct";
-        };
-
-        xdg.configFile."niri/dms/blur.kdl".source = dmsNiriFiles.blur;
-
-        # Bootstrap niri-specific DMS config fragments.
-        home.activation.dmsNiriBootstrap = {
-          after = ["writeBoundary"];
-          before = [];
-          data = ''
-            dms_dir=${escapeShellArg "${config.xdg.configHome}/niri/dms"}
-            $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$dms_dir"
-
-            ${concatStringsSep "\n" (map installMissingNiriFile bootstrappedNiriFiles)}
-          '';
-        };
       })
     ];
   };

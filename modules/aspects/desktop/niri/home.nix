@@ -28,60 +28,16 @@
     # Use same updated niri input for runtime package and config validation.
     programs.niri = {
       package = pkgs.niri;
-      settings = {
-        # input.focus-follows-mouse.enable = true;
-        input.keyboard.xkb = {
-          layout = "us,dk";
-          options = "grp:alts_toggle";
-        };
-
-        xwayland-satellite = {
-          enable = true;
-          path = getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable;
-        };
-
-        # Screencasting: dynamic cast target + windowed fullscreen (niri ≥25.05).
-        # S = screencast; modifier escalation: Shift=window, Ctrl+Shift=monitor, Ctrl=clear.
-        binds = with config.lib.niri.actions; {
-          "Mod+Shift+S" = {
-            action = set-dynamic-cast-window;
-            hotkey-overlay.title = "Cast Window";
-          };
-          "Mod+Ctrl+Shift+S" = {
-            action = set-dynamic-cast-monitor;
-            hotkey-overlay.title = "Cast Monitor";
-          };
-          "Mod+Ctrl+S" = {
-            action = clear-dynamic-cast-target;
-            hotkey-overlay.title = "Stop Cast";
-          };
-          "Mod+Ctrl+Shift+F" = {
-            action = toggle-windowed-fullscreen;
-            hotkey-overlay.title = "Windowed Fullscreen";
-          };
-        };
-
-        # Red indicator on windows actively targeted by screencast.
-        window-rules = [
-          {
-            matches = [{is-window-cast-target = true;}];
-            focus-ring = {
-              active.color = "#f38ba8";
-              inactive.color = "#7d0d2d";
-            };
-            border = {
-              inactive.color = "#7d0d2d";
-            };
-            shadow = {
-              color = "#7d0d2d70";
-            };
-            tab-indicator = {
-              active.color = "#f38ba8";
-              inactive.color = "#7d0d2d";
-            };
-          }
-        ];
-      };
+      # Keep only compositor integration here. DMS owns desktop preferences.
+      config = ''
+        xwayland-satellite {
+          path "${getExe inputs.niri.packages.${pkgs.stdenv.hostPlatform.system}.xwayland-satellite-unstable}"
+        }
+        environment {
+          QT_QPA_PLATFORMTHEME "qt6ct"
+          QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
+        }
+      '';
     };
 
     xdg.configFile.niri-config.source = mkForce (

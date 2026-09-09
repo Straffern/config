@@ -1,0 +1,5 @@
+// @id=dotfiles-shell-blur @name=DMS window blur
+window-rule {
+    match app-id=r#"com.danklinux.dms$"#
+    background-effect { xray false; }
+}

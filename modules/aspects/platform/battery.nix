@@ -1,10 +1,12 @@
 {den, ...}: {
   den.aspects.platform.battery.nixos = {
     config,
+    host,
     lib,
     pkgs,
     ...
   }: let
+    dmsEnabled = host.hasAspect den.aspects.desktop.dms;
     # Detect CPU vendor from hardware configuration.
     # Check microcode settings or kernel modules for CPU type
     hasAmdMicrocode = config.hardware.cpu.amd.updateMicrocode or false;
@@ -22,17 +24,17 @@
 
       # Automatically switch power profiles based on AC power state
       # Performance when plugged in, power-saver when on battery
-      udev.extraRules = lib.mkIf config.services.power-profiles-daemon.enable ''
+      udev.extraRules = lib.mkIf (config.services.power-profiles-daemon.enable && !dmsEnabled) ''
         # When AC adapter is plugged in - switch to performance
         SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance"
         # When AC adapter is unplugged - switch to power-saver
         SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver"
       '';
 
-      power-profiles-daemon.enable = isAmd || !isIntel;
+      power-profiles-daemon.enable = dmsEnabled || isAmd || !isIntel;
 
       auto-cpufreq = {
-        enable = isIntel;
+        enable = isIntel && !dmsEnabled;
         settings = lib.mkIf isIntel {
           battery = {
             governor = "powersave";
@@ -58,7 +60,7 @@
 
     boot.kernel.sysctl."vm.dirty_writeback_centisecs" = 6000;
 
-    systemd.user.timers.notify-on-low-battery = {
+    systemd.user.timers.notify-on-low-battery = lib.mkIf (!dmsEnabled) {
       timerConfig = {
         OnBootSec = "2m";
         OnUnitInactiveSec = "2m";
@@ -67,7 +69,7 @@
       wantedBy = ["timers.target"];
     };
 
-    systemd.user.services.notify-on-low-battery = {
+    systemd.user.services.notify-on-low-battery = lib.mkIf (!dmsEnabled) {
       serviceConfig.PassEnvironment = "DISPLAY";
       script = ''
         for battery in /sys/class/power_supply/BAT*; do

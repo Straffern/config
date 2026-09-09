@@ -11,7 +11,7 @@
     vmSmoke = [
       {
         name = "dms-state-migration";
-        description = "Home Manager adopts DMS and GTK files from the previous generation";
+        description = "DMS retains writable settings across Home Manager activation";
         phase = "boot";
         module = {vmSmoke, ...}: let
           user = vmSmoke.loginUser;
@@ -33,7 +33,8 @@
         script = ''
           assert login_user is not None, "DMS state migration requires vmSmoke.loginUser"
           machine.wait_for_unit(f"home-manager-{login_user}.service")
-          machine.succeed(f"grep -Fx legacy {login_home}/.config/gtk-3.0/settings.ini.pre-home-manager")
+          machine.succeed(f"grep -Fx legacy {login_home}/.config/gtk-3.0/settings.ini")
+          machine.succeed(f"test ! -L {login_home}/.config/gtk-3.0/settings.ini")
           machine.succeed(f"test -f {login_home}/.config/DankMaterialShell/settings.json")
           machine.succeed(f"test ! -L {login_home}/.config/DankMaterialShell/settings.json")
           machine.succeed(f"runuser -u {login_user} -- test -w {login_home}/.config/DankMaterialShell/settings.json")

@@ -50,7 +50,6 @@
       den.aspects.virtualization.podman
       den.aspects.apps.kdeconnect
       den.aspects.apps.desktop-utilities
-      den.aspects.desktop.addons.kanshi
       den.aspects.gaming.niri-session
       den.aspects.gaming.amd-graphics
       den.aspects.apps.discord
