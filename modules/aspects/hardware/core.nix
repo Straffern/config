@@ -14,6 +14,7 @@
           settings.General = {
             Experimental = true;
             KernelExperimental = true;
+            JustWorksRepairing = "confirm";
           };
         };
         systemd.services.bluetooth-unblock = {
