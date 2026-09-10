@@ -81,6 +81,7 @@ in {
           map shift+enter send_text all \e[13;2u
           map ctrl+enter send_text application \x1b[27;5;13~
           map ctrl+period send_text all \e[46;5u
+          map ctrl+slash send_text all \e[47;5u
           mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
         '';
         keybindings = {
