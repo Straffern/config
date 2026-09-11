@@ -6,6 +6,10 @@
 # Display the user public key:
 # age-keygen -y ~/.config/sops/age/keys.txt
 
+# Display the SSH-derived user public age key:
+# ssh-to-age -i ~/.ssh/id_ed25519.pub
+# Interactive sops derives its identity on demand and prompts for the SSH passphrase.
+
 # Make a host public key:
 # nix-shell -p ssh-to-age
 # ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub
@@ -18,6 +22,7 @@
 keys:
   - &users:
     - &alex age1ff98yfdlxax5ymnlu9rdzermuyvg8jwq98z6h86tpj8ajlxw7upsq4k8a0
+    - &alex_ssh age15gjn34qpz83h9s5272tf5p8ww0rnyxnhmt7jjawd475erm8nn42sdnz5mu
   - &host:
     - &frostmourne age1kjqhsyucjhuw6gazjrjqcuavay6pfgpr8fasltft99vzfdkjdsdsvfx4xv
     - &palantir age1ajyn9l0v2fv5kyhdzvkr4dxw6rm602w06sk3qnxz5d7aj67ygy0qv4drf9
@@ -28,14 +33,17 @@ creation_rules:
       - age:
           - *frostmourne
           - *alex
+          - *alex_ssh
   - path_regex: ^secrets/hosts/palantir\.ya?ml$
     key_groups:
       - age:
           - *palantir
           - *alex
+          - *alex_ssh
 
   - path_regex: ^secrets/hosts/sonic\.ya?ml$
     key_groups:
       - age:
           - *sonic
           - *alex
+          - *alex_ssh
