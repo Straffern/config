@@ -8,6 +8,11 @@
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
+  # Keep long-running browsers reachable when /tmp is cleaned.
+  den.aspects.apps.helium.nixos.systemd.tmpfiles.rules = [
+    "x /tmp/org.chromium.Chromium.*/SingletonCookie - - - -"
+  ];
+
   den.aspects.apps.helium.homeManager = {
     lib,
     host,
