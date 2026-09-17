@@ -1,0 +1,14 @@
+--- a/Modules/Settings/DisplayConfig/DisplayConfigState.qml
++++ b/Modules/Settings/DisplayConfig/DisplayConfigState.qml
+@@ -559,8 +559,9 @@
+         ensureEnabledOutput(configEntry);
+         const outputKeys = Object.keys(configEntry.outputs || {});
+         const hasRealOutput = outputKeys.some(k => {
+-            const o = configEntry.outputs[k];
+-            return o.make && o.model;
++            const o = Object.entries(outputs).find(([name, output]) =>
++                profileKeyMatchesOutput(k, output, name))?.[1];
++            return o?.make && o?.model;
+         });
+         if (!hasRealOutput) {
+             backendWriteOutputsConfig({}, null, success => {
