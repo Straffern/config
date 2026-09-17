@@ -42,6 +42,10 @@ in {
       includes = [
         den.aspects.cli.lumen
       ];
+      nixos.environment.etc."watchman.json".text = builtins.toJSON {
+        root_files = [".jj"];
+        enforce_root_files = true;
+      };
       homeManager = {
         config,
         inputs',
