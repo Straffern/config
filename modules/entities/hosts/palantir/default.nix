@@ -24,8 +24,8 @@
   den.aspects.palantir = {
     includes = [
       den.aspects.profiles.server
-      den.aspects.services.hermes-palantir-dashboard
-      den.aspects.services.hindsight-tailnet
+      # den.aspects.services.hermes-palantir-dashboard
+      # den.aspects.services.hindsight-tailnet
       den.aspects.services.robomp
       den.aspects.styles.icons
       den.aspects.styles.stylix

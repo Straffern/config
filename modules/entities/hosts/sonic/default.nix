@@ -58,7 +58,7 @@
       den.aspects.apps.slack
       den.aspects.apps.shotwell
       den.aspects.desktop.dms
-      den.aspects.services.hindsight
+      # den.aspects.services.hindsight
       den.aspects.services.tailscale
       den.aspects.network.wireguard
       den.aspects.virtualization.kvm
@@ -93,19 +93,19 @@
     };
 
     nixos = {...}: {
-      hardware.printers = {
-        ensurePrinters = [
-          {
-            name = "Canon-TS3300-series";
-            description = "Canon TS3300 series";
-            location = "home";
-            deviceUri = "ipp://33A649000000.local:631/ipp/print";
-            model = "everywhere";
-            ppdOptions.PageSize = "A4";
-          }
-        ];
-        ensureDefaultPrinter = "Canon-TS3300-series";
-      };
+      # hardware.printers = {
+      #   ensurePrinters = [
+      #     {
+      #       name = "Canon-TS3300-series";
+      #       description = "Canon TS3300 series";
+      #       location = "home";
+      #       deviceUri = "ipp://33A649000000.local:631/ipp/print";
+      #       model = "everywhere";
+      #       ppdOptions.PageSize = "A4";
+      #     }
+      #   ];
+      #   ensureDefaultPrinter = "Canon-TS3300-series";
+      # };
 
       home-manager = {
         backupFileExtension = "pre-home-manager";
