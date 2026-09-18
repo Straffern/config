@@ -5,7 +5,7 @@
 }: {
   flake-file.inputs = {
     dms = {
-      url = "github:AvengeMedia/DankMaterialShell/master";
+      url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "unstable";
     };
     danksearch = {
@@ -231,7 +231,6 @@
                 chmod -R u+w "$out/share/quickshell/dms"
                 patch --fuzz=0 --no-backup-if-mismatch -d "$out/share/quickshell/dms" -p1 < ${./_assets/mic-volume.patch}
                 patch --fuzz=0 --no-backup-if-mismatch -d "$out/share/quickshell/dms" -p1 < ${./_assets/matugen-custom-startup.patch}
-                patch --fuzz=0 --no-backup-if-mismatch -d "$out/share/quickshell/dms" -p1 < ${./_assets/display-profile-matching.patch}
               '';
           });
           systemd.enable = true;
@@ -268,7 +267,7 @@
             BusName = "org.freedesktop.Notifications";
             ExecReload = "${pkgs.coreutils}/bin/kill -USR1 $MAINPID";
             RestartSec = "3s";
-            SuccessExitStatus = [143];
+            SuccessExitStatus = mkForce [143 "TEMPFAIL"];
             TimeoutStopSec = 10;
           };
         };
