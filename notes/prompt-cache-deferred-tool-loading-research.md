@@ -7,7 +7,7 @@
 
 - OpenAI documents `defer_loading: true` as a way to omit function tools from the initial request and expose them through a later `tool_search` call. The documented example sends a namespace plus `{ type: "tool_search" }`.
 - OpenAI prompt caching uses an exact prompt-prefix match. Any change in the cached prefix prevents reuse after that point. Therefore, a client that changes or replays an earlier `tool_search_output` item can cause the large re-read reported by Autolith. This is expected cache behavior, not evidence of a model defect.
-- OpenAI's public documentation does not state that deferred tools are cache-safe. It also does not document a special cache-preserving replay rule for `tool_search_output`.
+- OpenAI states that tool search is designed to preserve the model cache. It says that newly discovered tools are injected at the end of the context window. Therefore, a large prefix miss after tool discovery indicates a client or provider integration problem, or a different earlier prompt change.
 - The public Codex source implements deferred-tool discovery locally. It builds a `ToolSearchHandler` from entries whose exposure is deferred and returns a `ToolSearchOutput`. This confirms that dynamic tool discovery and tool-search output are active protocol state, but it does not prove that the OpenAI server cache is preserved across replay.
 - I found no public, indexed Autolith issue or discussion that documents this exact warning or a maintained mitigation. The warning is therefore best treated as an Autolith/provider interaction, not as a publicly documented Autolith feature or guarantee.
 
@@ -15,7 +15,7 @@
 
 ### OpenAI: deferred tools and `tool_search`
 
-- [Tools guide, “Deferred tool loading”](https://developers.openai.com/api/docs/guides/tools). The page states that `tool_search` is supported on `gpt-5.4` and later, shows function definitions with `defer_loading: true`, and sends `tools: [crm_namespace, { type: "tool_search" }]`. In the rendered source, the relevant example contains the exact fields `defer_loading: true` and `{ type: "tool_search" }`.
+- [Tool search guide](https://developers.openai.com/api/docs/guides/tools-tool-search). OpenAI states that tool search "is designed to preserve the model’s cache" and that newly discovered tools are injected at the end of the context window. The page also states that `tool_search` requires GPT-5.4 or later and shows `defer_loading: true`.
 - [Responses API reference](https://developers.openai.com/api/reference/resources/responses). This is the API reference for Responses input and output items, including tool-search items. Use it as the schema authority when comparing a client replay with the server's accepted item shape.
 
 ### OpenAI: prompt caching
@@ -30,9 +30,9 @@
 
 ## Interpretation for the Autolith warning
 
-The warning says that the provider could not reuse the previous prompt prefix. A report such as `34.6K of 41.9K ... re-read` means that only the prefix before the changed point was reusable. If Autolith loads tools dynamically, then serializes, normalizes, or replays a `tool_search_output` item differently on the next request, the prefix differs. The provider must reprocess the suffix at uncached input price.
+The warning says that the provider could not reuse most of the previous prompt prefix. A report such as `34.6K of 41.9K ... re-read` means that only the prefix before the changed point was reusable.
 
-This is especially expensive in long sessions because the changed item can be before a large transcript suffix. Deferred loading can reduce the first request size, but it adds mutable protocol state. It does not guarantee lower total input cost.
+OpenAI says that discovered tools should be injected at the end of the context. Correct tool search should therefore preserve the existing cached prefix. If Autolith serializes, normalizes, or replays an earlier `tool_search_output` differently on the next request, the prefix can differ and the provider must reprocess the suffix at the uncached input price. This can become expensive in long sessions.
 
 ## Recommended mitigation
 
