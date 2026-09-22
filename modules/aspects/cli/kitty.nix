@@ -77,11 +77,36 @@ in {
           map ctrl+shift+o
           map ctrl+shift+x
 
-          # Temporary until tmux kitty keyboard protocol support lands: https://github.com/tmux/tmux/pull/4912
+          # Translate modified keys that tmux 3.6 cannot receive from Kitty's keyboard protocol.
+          # Remove these when tmux gains Kitty keyboard protocol support:
+          # https://github.com/tmux/tmux/pull/4912
           map shift+enter send_text all \e[13;2u
           map ctrl+enter send_text application \x1b[27;5;13~
           map ctrl+period send_text all \e[46;5u
           map ctrl+slash send_text all \e[47;5u
+
+          # OpenCode session navigation and Which-Key controls.
+          map ctrl+alt+b send_text all \e[98;7u
+          map ctrl+alt+d send_text all \e[100;7u
+          map ctrl+alt+e send_text all \e[101;7u
+          map ctrl+alt+f send_text all \e[102;7u
+          map ctrl+alt+g send_text all \e[103;7u
+          map ctrl+alt+n send_text all \e[110;7u
+          map ctrl+alt+p send_text all \e[112;7u
+          map ctrl+alt+u send_text all \e[117;7u
+          map ctrl+alt+y send_text all \e[121;7u
+          map ctrl+alt+left_bracket send_text all \e[91;7u
+          map ctrl+alt+right_bracket send_text all \e[93;7u
+          map ctrl+alt+shift+k send_text all \e[107;8u
+          map ctrl+alt+shift+p send_text all \e[112;8u
+          map ctrl+alt+left send_text all \e[1;7D
+          map ctrl+alt+right send_text all \e[1;7C
+          map ctrl+alt+up send_text all \e[1;7A
+          map ctrl+alt+down send_text all \e[1;7B
+          map ctrl+alt+page_up send_text all \e[5;7~
+          map ctrl+alt+page_down send_text all \e[6;7~
+          map ctrl+alt+home send_text all \e[1;7H
+          map ctrl+alt+end send_text all \e[1;7F
           mouse_map ctrl+shift+right press ungrabbed combine : mouse_select_command_output : kitty_scrollback_nvim --config ksb_builtin_last_visited_cmd_output
         '';
         keybindings = {
