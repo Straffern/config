@@ -10,14 +10,14 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "lumen";
-  version = "2.22.0";
+  version = "2.32.0";
 
   inherit src;
 
   # Rebased upstream PR #110 fix for workspace-root path resolution.
   patches = [../_patches/jj-subdir.patch];
 
-  cargoHash = "sha256-gQ8CMB29uce9SIqE8lmMELtz8vfrxUeyQjiI8rHdn6Y=";
+  cargoHash = "sha256-ZXw7KEvf1sUHWIM5R4Th2SmekTX6rGXznAq3mtcf3Zo=";
 
   nativeBuildInputs = [pkg-config perl];
 

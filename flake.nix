@@ -59,7 +59,7 @@
     };
     import-tree.url = "github:denful/import-tree";
     jjui = {
-      url = "github:idursun/jjui/v0.10.7";
+      url = "github:idursun/jjui/v0.10.11";
       inputs.nixpkgs.follows = "unstable";
     };
     lanzaboote = {
@@ -71,7 +71,7 @@
       inputs.nixpkgs.follows = "unstable";
     };
     lobster.url = "github:justchokingaround/lobster";
-    lumen.url = "github:jnsahaj/lumen/v2.22.0";
+    lumen.url = "github:jnsahaj/lumen/v2.32.0";
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";

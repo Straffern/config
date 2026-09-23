@@ -5,16 +5,16 @@
 }:
 rustPlatform.buildRustPackage {
   pname = "jj-starship";
-  version = "0.2.1";
+  version = "0.7.4";
 
   src = fetchFromGitHub {
     owner = "dmmulroy";
     repo = "jj-starship";
-    rev = "v0.2.1";
-    hash = "sha256-wmQn1qw+jfxH9xBS7bdgWiK369bCeGV9klZzlFHrGOw=";
+    rev = "v0.7.4";
+    hash = "sha256-z2nEavoTW+aXc0lbBQe0dTGIP0qKachCUSqa+EbWxfo=";
   };
 
-  cargoHash = "sha256-dGutKgOG0gPDYcTODrBUmmJBl2k437E5/lz+9cFzgs4=";
+  cargoHash = "sha256-N1kjoQGPmzLwmXwSXhy6kv1e4zl7uq4tBw+U5eFwgSo=";
 
   # JJ-only: exclude git2 dependency
   buildFeatures = []; # Empty features (JJ-only, no git)

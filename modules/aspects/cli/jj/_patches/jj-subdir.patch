@@ -1,9 +1,35 @@
---- a/src/command/diff/git.rs
-+++ b/src/command/diff/git.rs
-@@ -102,8 +102,9 @@
+diff -Naur a/src/command/diff/app.rs b/src/command/diff/app.rs
+--- a/src/command/diff/app.rs	1970-01-01 01:00:01.000000000 +0100
++++ b/src/command/diff/app.rs	2026-09-23 13:57:27.121397630 +0200
+@@ -1919,6 +1919,8 @@
+                                     std::env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
+                                 let filename =
+                                     state.file_diffs[state.current_file].filename.clone();
++                                // Use absolute path to avoid issues when running from subdirectory
++                                let full_path = backend.get_workspace_root().join(&filename);
+ 
+                                 let line_arg = if let Some(hunk_idx) = state.focused_hunk {
+                                     state.ensure_cache();
+@@ -1941,10 +1943,10 @@
+                                 let status = if let Some(line) = line_arg {
+                                     std::process::Command::new(&editor)
+                                         .arg(format!("+{}", line))
+-                                        .arg(filename)
++                                        .arg(&full_path)
+                                         .status()
+                                 } else {
+-                                    std::process::Command::new(&editor).arg(filename).status()
++                                    std::process::Command::new(&editor).arg(&full_path).status()
+                                 };
+                                 let _ = status;
+ 
+diff -Naur a/src/command/diff/git.rs b/src/command/diff/git.rs
+--- a/src/command/diff/git.rs	1970-01-01 01:00:01.000000000 +0100
++++ b/src/command/diff/git.rs	2026-09-23 13:57:27.003396256 +0200
+@@ -135,8 +135,9 @@
              .get_file_content_at_ref(to, Path::new(filename))
              .unwrap_or_default(),
-         DiffRefs::WorkingTree => {
+         DiffRefs::WorkingTree | DiffRefs::RangeToWorkingTree { .. } => {
 -            // Read from working tree (actual filesystem)
 -            fs::read_to_string(filename).unwrap_or_default()
 +            // Read from working tree (actual filesystem) using workspace root
@@ -12,8 +38,9 @@
          }
      }
  }
---- a/src/vcs/backend.rs
-+++ b/src/vcs/backend.rs
+diff -Naur a/src/vcs/backend.rs b/src/vcs/backend.rs
+--- a/src/vcs/backend.rs	1970-01-01 01:00:01.000000000 +0100
++++ b/src/vcs/backend.rs	2026-09-23 13:57:18.050114859 +0200
 @@ -1,4 +1,5 @@
  use std::path::Path;
 +use std::path::PathBuf;
@@ -31,15 +58,16 @@
      /// Get the name of this VCS backend ("git" or "jj").
      fn name(&self) -> &'static str;
  }
---- a/src/vcs/git.rs
-+++ b/src/vcs/git.rs
+diff -Naur a/src/vcs/git.rs b/src/vcs/git.rs
+--- a/src/vcs/git.rs	1970-01-01 01:00:01.000000000 +0100
++++ b/src/vcs/git.rs	2026-09-23 13:57:18.050824238 +0200
 @@ -1,4 +1,5 @@
  use std::path::Path;
 +use std::path::PathBuf;
  
  use git2::{Commit, DiffFormat, DiffOptions, Repository, StatusOptions, Time, Tree};
  
-@@ -784,6 +785,13 @@
+@@ -792,6 +793,13 @@
          Ok(commits)
      }
  
@@ -53,8 +81,9 @@
      fn name(&self) -> &'static str {
          "git"
      }
---- a/src/vcs/jj.rs
-+++ b/src/vcs/jj.rs
+diff -Naur a/src/vcs/jj.rs b/src/vcs/jj.rs
+--- a/src/vcs/jj.rs	1970-01-01 01:00:01.000000000 +0100
++++ b/src/vcs/jj.rs	2026-09-23 13:57:18.051414282 +0200
 @@ -2,6 +2,7 @@
  
  use std::collections::HashMap;
@@ -117,26 +146,3 @@
      fn name(&self) -> &'static str {
          "jj"
      }
---- a/src/command/diff/app.rs
-+++ b/src/command/diff/app.rs
-@@ -1515,6 +1515,8 @@
-                                 let editor =
-                                     std::env::var("EDITOR").unwrap_or_else(|_| "vim".to_string());
-                                 let filename = state.file_diffs[state.current_file].filename.clone();
-+                                // Use absolute path to avoid issues when running from subdirectory
-+                                let full_path = backend.get_workspace_root().join(&filename);
- 
-                                 let line_arg = if let Some(hunk_idx) = state.focused_hunk {
-                                     state.ensure_cache();
-@@ -1537,10 +1539,10 @@
-                                 let status = if let Some(line) = line_arg {
-                                     std::process::Command::new(&editor)
-                                         .arg(format!("+{}", line))
--                                        .arg(filename)
-+                                        .arg(&full_path)
-                                         .status()
-                                 } else {
--                                    std::process::Command::new(&editor).arg(filename).status()
-+                                    std::process::Command::new(&editor).arg(&full_path).status()
-                                 };
-                                 let _ = status;
