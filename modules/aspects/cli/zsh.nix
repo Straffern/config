@@ -2,7 +2,8 @@
   den,
   inputs,
   ...
-}: {
+}:
+{
   den.aspects.cli.zsh = {
     nixos = _: {
       programs.zsh = {
@@ -15,16 +16,17 @@
           fi
         '';
       };
-      environment.pathsToLink = ["/share/zsh"];
+      environment.pathsToLink = [ "/share/zsh" ];
     };
 
-    homeManager = {
-      config,
-      lib,
-      host,
-      pkgs,
-      ...
-    }:
+    homeManager =
+      {
+        config,
+        lib,
+        host,
+        pkgs,
+        ...
+      }:
       lib.mkMerge [
         {
           programs.zsh = {
@@ -130,8 +132,9 @@
             ];
           };
         }
+        { programs.zsh.initContent = lib.mkAfter (builtins.readFile ./zsh/xdg-fpath.zsh); }
         (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
-          home.persistence."/persist".directories = [".local/share/zsh"];
+          home.persistence."/persist".directories = [ ".local/share/zsh" ];
         })
       ];
   };
