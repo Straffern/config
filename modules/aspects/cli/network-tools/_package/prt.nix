@@ -14,6 +14,9 @@ rustPlatform.buildRustPackage {
     hash = "sha256-mMeC+SgHNDk4KPHevwaeWYdrVvy2uv832S+q2Ytl804=";
   };
 
+  # Upstream has no way back from Processes; Esc/Backspace return to Connections.
+  patches = [ ./prt-esc-back.patch ];
+
   cargoHash = "sha256-SQo4ZM506ic5/N10/ynoWOBZ/qqk+OcSLXMU3PuOdvE=";
   cargoBuildFlags = [
     "-p"

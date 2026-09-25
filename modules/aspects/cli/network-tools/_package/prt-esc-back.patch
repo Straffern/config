@@ -1,0 +1,15 @@
+diff -r a/crates/prt/src/input.rs b/crates/prt/src/input.rs
+--- a/crates/prt/src/input.rs
++++ b/crates/prt/src/input.rs
+@@ -187,6 +187,11 @@
+         KeyCode::Char('q') => app.should_quit = true,
+         KeyCode::Char('?') => app.show_help = true,
+         KeyCode::Char('/') => app.filter_mode = true,
++        // Back from the Processes section to the Connections list.
++        KeyCode::Esc | KeyCode::Backspace if app.view_mode == ViewMode::Processes => {
++            app.view_mode = ViewMode::Connections;
++            app.scroll_offset = 0;
++        }
+         // Cascade: only meaningful Esc action at top-level is clearing a
+         // non-empty filter. To prevent accidental loss, require two presses.
+         KeyCode::Esc if !app.filter.is_empty() => {
