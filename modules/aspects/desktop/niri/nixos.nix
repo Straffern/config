@@ -41,8 +41,8 @@
             package = pkgs.niri;
           };
         }
-        (lib.mkIf (options ? programs.dms-greeter.enable && config.programs.dms-greeter.enable) {
-          programs.dms-greeter.compositor.name = "niri";
+        (lib.optionalAttrs (options ? programs.dms-greeter.enable) {
+          programs.dms-greeter.compositor.name = lib.mkIf config.programs.dms-greeter.enable "niri";
         })
       ];
     };
