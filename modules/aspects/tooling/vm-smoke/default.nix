@@ -61,6 +61,12 @@
       hashedPassword = lib.mkForce testPasswordHash;
       initialHashedPassword = lib.mkForce null;
     };
+    users.users.greeter = {
+      isSystemUser = true;
+      group = "greeter";
+    };
+    users.groups.greeter = {};
+    security.pam.services.greetd.startSession = true;
 
     systemd.services.vm-smoke-login = {
       description = "Authenticate the VM smoke-test user on a separate greetd seat";
@@ -80,6 +86,21 @@
     hostOverrides = map (override: override.module) vm.overrides;
     descriptorModules = map (descriptor: descriptor.module) configuration.config.dotfiles.vmSmoke.descriptors;
     extraArgs = configuration.extraArgs // {inherit (host) vmSmoke;};
+    loginDescriptor = {
+      name = "graphical-login";
+      description = "vm-smoke-login authenticates the VM test user";
+      phase = "login";
+      script = ''
+        machine.succeed("systemctl start vm-smoke-login.service")
+        machine.sleep(1)
+        machine.send_chars(login_user)
+        machine.send_key("ret")
+        machine.sleep(1)
+        machine.send_chars("test")
+        machine.send_key("ret")
+        machine.wait_until_succeeds(f"loginctl show-user {login_user} -p State --value | grep -Fx active", timeout=120)
+      '';
+    };
   in
     pkgs.testers.runNixOSTest {
       name = "vm-smoke-${name}";
@@ -106,7 +127,7 @@
         machineConfig = nodes.machine;
         descriptors =
           builtins.filter (descriptor: lib.trim descriptor.script != "")
-          (sortDescriptors machineConfig.dotfiles.vmSmoke.descriptors);
+          (sortDescriptors (machineConfig.dotfiles.vmSmoke.descriptors ++ lib.optional loginEnabled loginDescriptor));
         inherit (vm) loginUser;
         loginUid =
           if loginEnabled
@@ -171,6 +192,8 @@
               machine.succeed(f"loginctl terminate-user {login_user}")
               machine.wait_until_succeeds(f"test -z \"$(loginctl list-sessions --no-legend | awk '$3 == \\\"{login_user}\\\" {{ print $1 }}')\"")
               machine.wait_until_succeeds(f"! systemctl is-active --quiet user@{login_uid}.service")
+              # greetd ignores SIGTERM while it is still opening the greeter session it respawns here.
+              machine.wait_until_succeeds("pgrep -u greeter -x agreety")
               machine.succeed("systemctl stop vm-smoke-login.service")
               machine.succeed('test -z "$(systemctl --failed --no-legend --plain)"')
         ''}

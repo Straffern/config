@@ -26,22 +26,6 @@
           machine.succeed("pgrep -x dms-greeter")
         '';
       }
-      {
-        name = "graphical-login";
-        description = "greetd authenticates the VM test user";
-        phase = "login";
-        script = ''
-          assert login_user is not None, "Dank Greeter smoke test requires vmSmoke.loginUser"
-          machine.succeed("systemctl start vm-smoke-login.service")
-          machine.sleep(1)
-          machine.send_chars(login_user)
-          machine.send_key("ret")
-          machine.sleep(1)
-          machine.send_chars("test")
-          machine.send_key("ret")
-          machine.wait_until_succeeds(f"loginctl show-user {login_user} -p State --value | grep -Fx active", timeout=120)
-        '';
-      }
     ];
 
     nixos = {
