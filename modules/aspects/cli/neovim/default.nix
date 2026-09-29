@@ -115,12 +115,7 @@ in {
       options,
       pkgs,
       ...
-    }: let
-      mutableSource = path:
-        if config.mutableSources.active
-        then config.lib.file.mkOutOfStoreSymlink (toString path)
-        else path;
-    in
+    }:
       lib.mkMerge [
         {
           programs.neovim = {
@@ -153,10 +148,10 @@ in {
             vimdiffAlias = true;
           };
 
-          xdg.configFile."nvim/lua" = {
-            recursive = true;
-            source = mutableSource ./_config;
-          };
+          xdg.configFile = lib.listToAttrs (map (file: {
+            name = "nvim/lua/${lib.removePrefix "${toString ./_config}/" (toString file)}";
+            value.source = config.lib.mutableSources.source file;
+          }) (lib.filesystem.listFilesRecursive ./_config));
         }
         (lib.optionalAttrs (options ? stylix.enable && options ? stylix.targets.neovim.enable) {
           stylix.targets.neovim = lib.mkIf config.stylix.enable {enable = false;};
