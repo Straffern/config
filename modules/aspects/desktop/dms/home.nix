@@ -40,6 +40,7 @@
       ;
 
     niriEnabled = config.programs.niri.enable or false;
+    dmsDesktops = lib.optional niriEnabled "niri";
 
     terminalCommand = "xdg-terminal-exec";
 
@@ -133,18 +134,6 @@
       );
     };
 
-    niriFilesToInclude = [
-      "colors"
-      "layout"
-      "alttab"
-      "binds"
-      "outputs"
-      "input"
-      "cursor"
-      "windowrules"
-      "blur"
-      "wpblur"
-    ];
 
     castRule = ./_assets/cast-windowrule.kdl;
     keybinds = {
@@ -201,6 +190,7 @@
       dms = lib.getExe config.programs.dank-material-shell.package;
       configHome = config.xdg.configHome;
       marker = "${config.xdg.stateHome}/DankMaterialShell/hm-ownership-migrated";
+      seeded = "${config.xdg.stateHome}/DankMaterialShell/hm-seeded.json";
       settings = "${config.xdg.configHome}/DankMaterialShell/settings.json";
       replaceStoreLinks = [
         "${config.xdg.configHome}/autostart/blueman.desktop"
@@ -234,6 +224,7 @@
               '';
           });
           systemd.enable = true;
+          systemd.target = "graphical-session.target";
           enableSystemMonitoring = true;
           enableDynamicTheming = true;
           enableClipboardPaste = true;
@@ -257,6 +248,7 @@
           Unit = {
             Description = mkForce "Dank Material Shell (DMS)";
             Requisite = [config.programs.dank-material-shell.systemd.target];
+            ConditionEnvironment = map (desktop: "|XDG_CURRENT_DESKTOP=${desktop}") dmsDesktops;
             StartLimitIntervalSec = 60;
             StartLimitBurst = 5;
             OnFailure = ["dms-rescue.service"];
@@ -321,14 +313,9 @@
         xdg.configFile.niri-config.target = mkForce "niri/hm.kdl";
         xdg.configFile.niri-config-dms = {
           target = "niri/config.kdl";
-          text =
-            lib.concatMapStringsSep "\n" (name: ''include optional=true "${name}.kdl"'')
-            (["hm"] ++ map (name: "dms/${name}") niriFilesToInclude);
+          source = config.lib.mutableSources.link ./_config/niri/config.kdl;
         };
 
-        # Select the compositor lifecycle through DMS's existing target seam.
-        # Other compositor integrations can choose their own owning target.
-        programs.dank-material-shell.systemd.target = "niri.service";
       })
     ];
   };

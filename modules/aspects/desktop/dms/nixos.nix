@@ -7,6 +7,7 @@
     includes = [
       den.aspects.services.dankgreeter
       den.aspects.styles.monolisa
+      den.aspects.development.mutable-source
     ];
     vmSmoke = [
       {

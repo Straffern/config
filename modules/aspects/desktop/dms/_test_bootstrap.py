@@ -111,8 +111,15 @@ with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
         activate(manifest, files_only=True)
         activate(manifest)
         assert all(path.read_bytes() == data for path, data in before.items())
-        assert not autostart.exists(), "Deleted autostart was restored"
+        assert not autostart.exists(), "User-deleted autostart was restored"
+        new_file = config / "hypr/dms/new-seed.lua"
+        manifest["files"][str(new_file)] = manifest["files"][str(outputs)]
+        activate(manifest)
+        assert new_file.read_bytes() == Path(manifest["files"][str(outputs)]).read_bytes()
+        assert all(path.read_bytes() == data for path, data in before.items())
+        assert not autostart.exists()
+        assert str(new_file) in json.loads(Path(manifest["seeded"]).read_text())
         parsed = json.loads(command(manifest, dms, "keybinds", "show", "niri"))
         assert not any(bootstrap.key_parts(b["key"]) == bootstrap.key_parts("Mod+Ctrl+Shift+F") for group in parsed["binds"].values() for b in group)
         command(manifest, "niri", "validate", "-c", str(config / "niri/config.kdl"))
-        print(f"{scenario}: writable defaults, DMS edits/removal, and repeat activation passed")
+        print(f"{scenario}: writable defaults, DMS edits, seed-once defaults, and repeat activation passed")

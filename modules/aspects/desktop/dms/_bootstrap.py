@@ -33,11 +33,16 @@ def key_parts(key):
 
 def run(manifest, files_only=False):
     marker = Path(manifest["marker"])
+    seeded_path = Path(manifest["seeded"])
+    seeded = set(json.loads(seeded_path.read_text())) if seeded_path.exists() else set()
+    unseeded = {target: source for target, source in manifest["files"].items() if target not in seeded}
+    for target, source in unseeded.items():
+        bootstrap(Path(target), Path(source), target in manifest["replaceStoreLinks"])
+    if unseeded:
+        write(seeded_path, (json.dumps(sorted(seeded | unseeded.keys())) + "\n").encode())
+
     if marker.exists():
         return
-
-    for target, source in manifest["files"].items():
-        bootstrap(Path(target), Path(source), target in manifest["replaceStoreLinks"])
 
     if files_only:
         return
