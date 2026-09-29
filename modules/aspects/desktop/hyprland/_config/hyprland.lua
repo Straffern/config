@@ -23,13 +23,8 @@ hl.config({
 		rounding = 12,
 		active_opacity = 1.0,
 		inactive_opacity = 1.0,
-		shadow = {
-			enabled = true,
-			range = 30,
-			render_power = 5,
-			offset = "0 5",
-			color = "rgba(00000070)",
-		},
+		blur = { enabled = false },
+		shadow = { enabled = false },
 	},
 	misc = {
 		disable_hyprland_logo = true,
@@ -43,12 +38,12 @@ hl.config({
 	},
 })
 
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 3, bezier = "default" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 3, bezier = "default" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 5, bezier = "default" })
-hl.animation({ leaf = "windowsMove", enabled = true, speed = 4, bezier = "default" })
-hl.animation({ leaf = "fade", enabled = true, speed = 3, bezier = "default" })
-hl.animation({ leaf = "border", enabled = true, speed = 3, bezier = "default" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 2, bezier = "default" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.5, bezier = "default" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 2.5, bezier = "default" })
+hl.animation({ leaf = "windowsMove", enabled = true, speed = 2, bezier = "default" })
+hl.animation({ leaf = "fade", enabled = true, speed = 2, bezier = "default" })
+hl.animation({ leaf = "border", enabled = true, speed = 2, bezier = "default" })
 
 hl.window_rule({ match = { class = "^(org\\.wezfurlong\\.wezterm)$" }, tile = true })
 hl.window_rule({ match = { class = "^(org\\.gnome\\.)" }, rounding = 12 })

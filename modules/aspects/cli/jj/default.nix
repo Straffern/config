@@ -102,7 +102,7 @@ in {
               email = "alex@flensborg.dev";
             };
             fsmonitor.backend = "watchman";
-            fsmonitor.watchman.register-snapshot-trigger = true;
+            fsmonitor.watchman.register-snapshot-trigger = false;
 
             user = {
               email = "alex@flensborg.dev";
@@ -195,7 +195,7 @@ in {
                 backend = "ssh";
                 behavior =
                   if signCommits
-                  then "own"
+                  then "drop"
                   else "never";
               }
               // lib.optionalAttrs signCommits {
