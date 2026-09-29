@@ -58,6 +58,7 @@
       den.aspects.apps.slack
       den.aspects.apps.shotwell
       den.aspects.desktop.dms
+      den.aspects.desktop.hyprland
       # den.aspects.services.hindsight
       den.aspects.services.tailscale
       den.aspects.network.wireguard

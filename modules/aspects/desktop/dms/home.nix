@@ -40,7 +40,8 @@
       ;
 
     niriEnabled = config.programs.niri.enable or false;
-    dmsDesktops = lib.optional niriEnabled "niri";
+    hyprlandEnabled = host.hasAspect den.aspects.desktop.hyprland;
+    dmsDesktops = lib.optional niriEnabled "niri" ++ lib.optional hyprlandEnabled "Hyprland";
 
     terminalCommand = "xdg-terminal-exec";
 
@@ -133,7 +134,17 @@
         builtins.readFile "${inputs.dms}/quickshell/Services/niri-wpblur.kdl"
       );
     };
-
+    dmsHyprFiles = lib.genAttrs ["colors" "outputs" "layout" "cursor" "binds" "binds-user" "windowrules"] (
+      name:
+        pkgs.writeText "dms-hypr-${name}.lua" (
+          if lib.elem name ["outputs" "cursor" "windowrules"]
+          then ""
+          else
+            builtins.replaceStrings ["{{TERMINAL_COMMAND}}"] [terminalCommand] (
+              builtins.readFile "${inputs.dms}/core/internal/config/embedded/hypr-${name}.lua"
+            )
+        )
+    );
 
     castRule = ./_assets/cast-windowrule.kdl;
     keybinds = {
@@ -181,6 +192,9 @@
       }
       // lib.optionalAttrs niriEnabled (
         lib.mapAttrs' (name: source: lib.nameValuePair "niri/dms/${name}.kdl" source) dmsNiriFiles
+      )
+      // lib.optionalAttrs hyprlandEnabled (
+        lib.mapAttrs' (name: source: lib.nameValuePair "hypr/dms/${name}.lua" source) dmsHyprFiles
       );
     bootstrapManifest = pkgs.writeText "dms-bootstrap.json" (builtins.toJSON {
       inherit keybinds castRule;
@@ -315,7 +329,6 @@
           target = "niri/config.kdl";
           source = config.lib.mutableSources.link ./_config/niri/config.kdl;
         };
-
       })
     ];
   };
