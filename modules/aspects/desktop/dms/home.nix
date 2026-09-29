@@ -134,15 +134,13 @@
         builtins.readFile "${inputs.dms}/quickshell/Services/niri-wpblur.kdl"
       );
     };
-    dmsHyprFiles = lib.genAttrs ["colors" "outputs" "layout" "cursor" "binds" "binds-user" "windowrules"] (
+    # binds-user, layout, outputs, cursor and windowrules are dotfiles-owned links (hyprland aspect).
+    dmsHyprFiles = lib.genAttrs ["colors" "binds"] (
       name:
         pkgs.writeText "dms-hypr-${name}.lua" (
-          if lib.elem name ["outputs" "cursor" "windowrules"]
-          then ""
-          else
-            builtins.replaceStrings ["{{TERMINAL_COMMAND}}"] [terminalCommand] (
-              builtins.readFile "${inputs.dms}/core/internal/config/embedded/hypr-${name}.lua"
-            )
+          builtins.replaceStrings ["{{TERMINAL_COMMAND}}"] [terminalCommand] (
+            builtins.readFile "${inputs.dms}/core/internal/config/embedded/hypr-${name}.lua"
+          )
         )
     );
 
