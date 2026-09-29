@@ -71,8 +71,10 @@
   # Immutability and special branches
   # ══════════════════════════════════════════════════════════════════════════
 
-  # By default, show the repo trunk, the remote bookmarks, and all remote tags.
-  "immutable_heads()" = "present(trunk()) | remote_bookmarks() | tags()";
+  # Trunk, tags and other people's pushed bookmarks. My own pushed bookmarks
+  # stay mutable so open PRs can be rebased without --ignore-immutable; my
+  # commits under someone else's bookmark stay immutable as its ancestors.
+  "immutable_heads()" = "present(trunk()) | tags() | (remote_bookmarks() ~ mine())";
 
   # Useful to ignore in many repos. For repos like `jj` these are consistently
   # populated with auto-generated commits, so ignoring is often nice.
