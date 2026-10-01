@@ -278,7 +278,15 @@
         systemd.user.services.dcal.Service.SuccessExitStatus = [143];
 
         # GTK apps need a real theme package; DMS only manages the live color overlay.
-        home.packages = [pkgs.adw-gtk3 pkgs.xdg-terminal-exec];
+        # DMS lists cursor themes from XDG_DATA_DIRS; Stylix normally supplies them but cannot run alongside DMS.
+        home.packages = with pkgs; [
+          adw-gtk3
+          xdg-terminal-exec
+          bibata-cursors
+          phinger-cursors
+          rose-pine-cursor
+          capitaine-cursors-themed
+        ];
 
         # Detach retired HM links before linkGeneration removes them.
         home.activation.dmsBootstrapFiles = {
