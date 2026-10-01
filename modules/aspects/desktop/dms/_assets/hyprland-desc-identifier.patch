@@ -1,0 +1,15 @@
+--- a/Services/HyprlandService.qml
++++ b/Services/HyprlandService.qml
+@@ -106,7 +106,10 @@
+ 
+     function getOutputIdentifier(output, outputName) {
+-        if (output.explicitIdentifier)
+-            return outputName;
++        if (output.explicitIdentifier) {
++            if (!outputName.includes(" ") || outputName.startsWith("desc:"))
++                return outputName;
++            return "desc:" + outputName.replace(/ Unknown$/, "");
++        }
+         if (SettingsData.displayNameMode === "model" && output.make && output.model)
+             return ("desc:" + [output.make, output.model, output.serial].filter(p => p).join(" ")).replace(/,/g, "");
+         return outputName;
