@@ -265,13 +265,18 @@ in {
         lib,
         pkgs,
         ...
-      }: {
+      }: let
+        package = ji inputs' pkgs;
+        zshHook = pkgs.runCommand "ji-zsh-hook" {} ''
+          ${lib.getExe' package "ji"} config shell init zsh > "$out"
+        '';
+      in {
         home.packages = [
-          (ji inputs' pkgs)
+          package
           pkgs.wl-clipboard
         ];
         programs.zsh.initContent = lib.mkAfter ''
-          eval "$(ji config shell init zsh)"
+          source ${zshHook}
         '';
       };
     };

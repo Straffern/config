@@ -6,13 +6,19 @@
       inputs',
       lib,
       host,
+      pkgs,
       ...
-    }:
+    }: let
+      devenv = inputs'.devenv.packages.devenv;
+      zshHook = pkgs.runCommand "devenv-zsh-hook" {} ''
+        ${lib.getExe devenv} hook zsh > "$out"
+      '';
+    in
     lib.mkMerge [
       {
-        home.packages = [ inputs'.devenv.packages.devenv ];
-        # Store path: flake devShells shadow `devenv` with a wrapper lacking `hook`.
-        programs.zsh.initContent = lib.mkIf config.programs.zsh.enable ''eval "$(${lib.getExe inputs'.devenv.packages.devenv} hook zsh)"'';
+        home.packages = [ devenv ];
+        # Generate with the real package; devShell wrappers do not provide `hook`.
+        programs.zsh.initContent = lib.mkIf config.programs.zsh.enable ''source ${zshHook}'';
       }
       (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
         home.persistence."/persist".directories = [
