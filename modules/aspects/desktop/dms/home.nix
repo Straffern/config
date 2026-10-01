@@ -60,7 +60,7 @@
         keyboardOptions = "grp:alts_toggle";
         iconThemeDark = "Papirus-Dark";
         iconThemeLight = "Papirus-Dark";
-        acProfileName = "2";
+        acProfileName = "1";
         batteryProfileName = "0";
       }
     );
