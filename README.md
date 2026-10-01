@@ -85,3 +85,19 @@ sudo nixos-rebuild switch --flake .#HOSTNAME \
 
 Secrets remain encrypted with SOPS/age. Persistent state is opt-in through the
 platform aspects; disk layouts remain declarative with Disko.
+
+### Interactive performance settings
+
+Devenv and ji zsh hooks are generated with their pinned packages at build time.
+Their prompt-time behavior remains dynamic. Nix permits four simultaneous
+builds with four cores each and 32 substitutions; its daemon has CPU and IO
+weights of 50. These weights affect contention, not a hard resource cap.
+
+DMS defaults to balanced on AC and power-saver on battery. Existing writable
+DMS settings are preserved: select Balanced under the AC power profile in
+DMS settings, equivalent to `"acProfileName": "1"`, and retain
+`"batteryProfileName": "0"`.
+
+Sonic uses 256 MiB background and 1 GiB foreground dirty-page thresholds,
+zero ratio thresholds, and a five-second writeback interval. Other hosts
+retain the battery aspect's writeback interval.
