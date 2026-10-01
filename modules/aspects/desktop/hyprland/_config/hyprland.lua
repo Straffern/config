@@ -14,17 +14,22 @@ hl.config({
 		},
 	},
 	general = {
-		gaps_in = 5,
-		gaps_out = 5,
-		border_size = 2,
 		layout = "dwindle",
 	},
 	decoration = {
-		rounding = 12,
-		active_opacity = 1.0,
-		inactive_opacity = 1.0,
-		blur = { enabled = false },
+		blur = {
+			enabled = true,
+			size = 6,
+			passes = 2,
+			new_optimizations = true,
+		},
 		shadow = { enabled = false },
+	},
+	render = {
+		direct_scanout = 2,
+	},
+	xwayland = {
+		force_zero_scaling = true,
 	},
 	misc = {
 		disable_hyprland_logo = true,
@@ -37,6 +42,32 @@ hl.config({
 		mfact = 0.5,
 	},
 })
+
+local gap_rules = {}
+
+local function fit_gaps_to_monitors()
+	for _, m in ipairs(hl.get_monitors()) do
+		local out = math.max(4, math.floor(m.width / m.scale / 360 + 0.5))
+		local current = gap_rules[m.name]
+		if not current or current.out ~= out then
+			if current then
+				current.rule:set_enabled(false)
+			end
+			gap_rules[m.name] = {
+				out = out,
+				rule = hl.workspace_rule({
+					workspace = "m[" .. m.name .. "]",
+					gaps_out = out,
+					gaps_in = math.floor(out / 2 + 0.5),
+				}),
+			}
+		end
+	end
+end
+
+fit_gaps_to_monitors()
+hl.on("monitor.added", fit_gaps_to_monitors)
+hl.on("monitor.layout_changed", fit_gaps_to_monitors)
 
 hl.animation({ leaf = "windowsIn", enabled = true, speed = 2, bezier = "default" })
 hl.animation({ leaf = "windowsOut", enabled = true, speed = 1.5, bezier = "default" })
