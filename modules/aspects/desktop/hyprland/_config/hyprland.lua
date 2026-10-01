@@ -130,7 +130,8 @@ for i = 1, 5 do
 	hl.bind("SUPER + ALT + " .. i, hl.dsp.group.active({ index = i }), { description = "Switch to group window " .. i })
 end
 
-hl.bind("SUPER + BackSpace", hl.dsp.window.set_prop({ prop = "opaque", value = "toggle" }), { description = "Toggle window transparency" })
+hl.bind("SUPER + BackSpace", hl.dsp.exec_cmd("dms ipc call lock lock"), { description = "Lock screen" })
+hl.bind("SUPER + W", hl.dsp.window.set_prop({ prop = "opaque", value = "toggle" }), { description = "Toggle window transparency" })
 hl.bind("SUPER + ALT + minus", opacity_step(-0.1), { repeating = true, description = "Decrease window opacity" })
 hl.bind("SUPER + ALT + equal", opacity_step(0.1), { repeating = true, description = "Increase window opacity" })
 

@@ -3,3 +3,4 @@
 hl.unbind("SUPER + Return")
 hl.bind("SUPER + Return", hl.dsp.exec_cmd("xdg-terminal-exec"), { description = "xdg-terminal-exec" })
 hl.unbind("SUPER + T")
+hl.unbind("SUPER + W")
