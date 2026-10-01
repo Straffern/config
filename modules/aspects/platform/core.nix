@@ -49,7 +49,9 @@
           stalled-download-timeout = 30;
           download-attempts = 2;
           http-connections = 128;
-          max-substitution-jobs = 128;
+          max-jobs = 4;
+          cores = 4;
+          max-substitution-jobs = 32;
           fallback = true;
           narinfo-cache-negative-ttl = 21600;
           substituters = [
@@ -73,6 +75,10 @@
             "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
           ];
         };
+      };
+      systemd.services.nix-daemon.serviceConfig = {
+        CPUWeight = 50;
+        IOWeight = 50;
       };
     };
 
