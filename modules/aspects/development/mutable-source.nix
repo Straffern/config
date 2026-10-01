@@ -32,6 +32,10 @@
           machine.succeed(f'test "$(readlink "$(readlink "$(readlink {agents})")")" = {repo_agents}')
           machine.succeed(user_command("mutable status | grep -Fx mutable"))
           machine.succeed(f"systemctl restart home-manager-{login_user}.service")
+          invocation = machine.succeed(f"systemctl show -P InvocationID home-manager-{login_user}.service").strip()
+          machine.succeed("journalctl --sync")
+          activations = machine.succeed(f"journalctl -b -o cat _SYSTEMD_INVOCATION_ID={invocation} | grep -c 'Starting Home Manager activation' || true").strip()
+          assert activations == "1", f"Home Manager restart ran {activations} activations"
           machine.succeed(f'test "$(readlink "$(readlink "$(readlink {nvim})")")" = {repo_nvim}')
           machine.succeed(f'test "$(readlink "$(readlink "$(readlink {agents})")")" = {repo_agents}')
           machine.succeed(user_command("mutable status | grep -Fx mutable"))
@@ -48,16 +52,25 @@
       pkgs,
       ...
     }: {
-      # Home Manager updates current-home after activation hooks, so only a
-      # service post-start can make the mutable child the final GC root.
+      # Activation writes the current-home GC root last, so restarts activate
+      # the selected generation once instead of re-activating the mutable
+      # child afterwards. This replaces Home Manager's hm-setup-env wrapper;
+      # keep the login shell and environment import in sync with it.
       systemd.services = lib.mapAttrs' (user: home:
         lib.nameValuePair "home-manager-${user}" {
-          serviceConfig.ExecStartPost = pkgs.writeShellScript "restore-mutable-${user}" ''
+          serviceConfig.ExecStart = lib.mkForce "${pkgs.writeScript "hm-activate-${user}" ''
+            #! ${pkgs.runtimeShell} -el
+            eval "$(
+              XDG_RUNTIME_DIR=''${XDG_RUNTIME_DIR:-/run/user/$UID} systemctl --user show-environment 2> /dev/null \
+              | ${pkgs.gnused}/bin/sed -En '/^(DBUS_SESSION_BUS_ADDRESS|DISPLAY|WAYLAND_DISPLAY|XAUTHORITY|XDG_RUNTIME_DIR)=/s/^/export /p'
+            )"
+            generation="$1"
             if [ -e "${home.xdg.stateHome}/mutable-sources/active" ] &&
-               [ -x "${home.home.activationPackage}/specialisation/mutable/activate" ]; then
-              "${home.home.activationPackage}/specialisation/mutable/activate" --driver-version 1
+               [ -x "$generation/specialisation/mutable/activate" ]; then
+              generation="$generation/specialisation/mutable"
             fi
-          '';
+            exec "$generation/activate" --driver-version 1
+          ''} ${home.home.activationPackage}";
         })
       config.home-manager.users;
     };
