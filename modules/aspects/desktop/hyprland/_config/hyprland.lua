@@ -137,6 +137,8 @@ hl.bind("SUPER + ALT + equal", opacity_step(0.1), { repeating = true, descriptio
 hl.bind("SUPER + S", hl.dsp.workspace.toggle_special("hidden"), { description = "Toggle hidden workspace" })
 hl.bind("SUPER + ALT + S", hl.dsp.window.move({ workspace = "special:hidden", follow = false }), { description = "Move window to hidden workspace" })
 
+hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("dms ipc call inhibit toggle"), { description = "Toggle idle inhibit (no lock or suspend)" })
+
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd([[mkdir -p ~/Pictures/Screenshots && grimshot save anything - | satty --filename - --output-filename ~/Pictures/Screenshots/screenshot-%Y%m%d-%H%M%S.png --early-exit --actions-on-enter save-to-clipboard,save-to-file,exit --copy-command wl-copy]]), { description = "Screenshot and annotate" })
 
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd([[hyprctl dispatch 'hl.dsp.window.float({ action = "enable" })'; hyprctl dispatch 'hl.dsp.window.pin({ action = "toggle" })']]), { description = "Toggle pin (float on all workspaces)" })
