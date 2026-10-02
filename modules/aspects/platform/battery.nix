@@ -26,10 +26,7 @@
       # Automatically switch power profiles based on AC power state
       # Performance when plugged in, power-saver when on battery
       udev.extraRules = lib.mkIf (config.services.power-profiles-daemon.enable && !dmsEnabled) ''
-        # When AC adapter is plugged in - switch to performance
-        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance"
-        # When AC adapter is unplugged - switch to power-saver
-        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", RUN+="${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver"
+        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", RUN+="${pkgs.systemd}/bin/systemctl --no-block start power-profile-ac.service"
       '';
 
       power-profiles-daemon.enable = dmsEnabled || isAmd || !isIntel;
@@ -60,6 +57,19 @@
     powerManagement.enable = true;
 
     boot.kernel.sysctl."vm.dirty_writeback_centisecs" = 6000;
+
+    systemd.services.power-profile-ac = lib.mkIf (config.services.power-profiles-daemon.enable && !dmsEnabled) {
+      description = "Set the power profile from the current AC state";
+      after = ["power-profiles-daemon.service"];
+      requires = ["power-profiles-daemon.service"];
+      serviceConfig.Type = "oneshot";
+      script = ''
+        case "$(< /sys/class/power_supply/ACAD/online)" in
+          1) ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance ;;
+          0) ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set power-saver ;;
+        esac
+      '';
+    };
 
     systemd.user.timers.notify-on-low-battery = lib.mkIf (!dmsEnabled && !noctaliaEnabled) {
       timerConfig = {
