@@ -7,6 +7,7 @@
     ...
   }: let
     dmsEnabled = host.hasAspect den.aspects.desktop.dms;
+    noctaliaEnabled = config.programs.noctalia.enable or false;
     # Detect CPU vendor from hardware configuration.
     # Check microcode settings or kernel modules for CPU type
     hasAmdMicrocode = config.hardware.cpu.amd.updateMicrocode or false;
@@ -60,7 +61,7 @@
 
     boot.kernel.sysctl."vm.dirty_writeback_centisecs" = 6000;
 
-    systemd.user.timers.notify-on-low-battery = lib.mkIf (!dmsEnabled) {
+    systemd.user.timers.notify-on-low-battery = lib.mkIf (!dmsEnabled && !noctaliaEnabled) {
       timerConfig = {
         OnBootSec = "2m";
         OnUnitInactiveSec = "2m";
@@ -69,7 +70,7 @@
       wantedBy = ["timers.target"];
     };
 
-    systemd.user.services.notify-on-low-battery = lib.mkIf (!dmsEnabled) {
+    systemd.user.services.notify-on-low-battery = lib.mkIf (!dmsEnabled && !noctaliaEnabled) {
       serviceConfig.PassEnvironment = "DISPLAY";
       script = ''
         for battery in /sys/class/power_supply/BAT*; do
