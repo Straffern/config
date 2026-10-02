@@ -11,6 +11,8 @@
           enable = true;
           defaultMaximumIdentityLifetime = 8 * 60 * 60;
         };
+        # HM exports the socket only to shells; graphical apps read the systemd user environment.
+        systemd.user.sessionVariables.SSH_AUTH_SOCK = "$XDG_RUNTIME_DIR/${config.services.ssh-agent.socket}";
         programs.ssh = {
           enable = true;
           enableDefaultConfig = false;

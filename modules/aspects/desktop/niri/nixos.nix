@@ -40,6 +40,8 @@
             enable = true;
             package = pkgs.niri;
           };
+          # Home Manager's ssh-agent is the only agent; niri's gnome-keyring default would add GCR's.
+          services.gnome.gcr-ssh-agent.enable = false;
         }
         (lib.optionalAttrs (options ? programs.dms-greeter.enable) {
           programs.dms-greeter.compositor.name = lib.mkIf config.programs.dms-greeter.enable "niri";
