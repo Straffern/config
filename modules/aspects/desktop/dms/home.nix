@@ -337,6 +337,14 @@
           source = config.lib.mutableSources.link ./_config/niri/config.kdl;
         };
       })
+
+      # ── Hyprland compositor integration ──
+      # DMS rewrites its fragments in place (`cat >`, os.WriteFile), so edits through these links land in the repo.
+      (mkIf hyprlandEnabled {
+        xdg.configFile = lib.genAttrs (["hypr/shell.lua"] ++ map (name: "hypr/dms/${name}.lua") ["binds-user" "layout" "outputs" "cursor" "windowrules"]) (
+          target: {source = config.lib.mutableSources.link (./_config + "/${target}");}
+        );
+      })
     ];
   };
 }

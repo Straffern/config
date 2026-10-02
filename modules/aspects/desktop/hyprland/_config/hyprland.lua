@@ -98,16 +98,9 @@ hl.window_rule({
 })
 hl.window_rule({ match = { class = "^(zoom)$" }, float = true })
 hl.window_rule({ match = { class = "^(com\\.gabm\\.satty)$" }, float = true })
-hl.layer_rule({ match = { namespace = "^(quickshell)$" }, no_anim = true })
-hl.layer_rule({ match = { namespace = "^dms:.*" }, no_anim = true })
 
-require("dms.colors")
-require("dms.outputs")
-require("dms.layout")
-require("dms.cursor")
-require("dms.binds")
-require("dms.binds-user")
-require("dms.windowrules")
+-- The desktop shell aspect (DMS or Noctalia) links its fragment to hypr/shell.lua.
+require("shell")
 
 local function opacity_step(delta)
 	return hl.dsp.exec_cmd(string.format(
@@ -130,15 +123,12 @@ for i = 1, 5 do
 	hl.bind("SUPER + ALT + " .. i, hl.dsp.group.active({ index = i }), { description = "Switch to group window " .. i })
 end
 
-hl.bind("SUPER + BackSpace", hl.dsp.exec_cmd("dms ipc call lock lock"), { description = "Lock screen" })
 hl.bind("SUPER + W", hl.dsp.window.set_prop({ prop = "opaque", value = "toggle" }), { description = "Toggle window transparency" })
 hl.bind("SUPER + ALT + minus", opacity_step(-0.1), { repeating = true, description = "Decrease window opacity" })
 hl.bind("SUPER + ALT + equal", opacity_step(0.1), { repeating = true, description = "Increase window opacity" })
 
 hl.bind("SUPER + S", hl.dsp.workspace.toggle_special("hidden"), { description = "Toggle hidden workspace" })
 hl.bind("SUPER + ALT + S", hl.dsp.window.move({ workspace = "special:hidden", follow = false }), { description = "Move window to hidden workspace" })
-
-hl.bind("SUPER + ALT + I", hl.dsp.exec_cmd("dms ipc call inhibit toggle"), { description = "Toggle idle inhibit (no lock or suspend)" })
 
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd([[mkdir -p ~/Pictures/Screenshots && grimshot save anything - | satty --filename - --output-filename ~/Pictures/Screenshots/screenshot-%Y%m%d-%H%M%S.png --early-exit --actions-on-enter save-to-clipboard,save-to-file,exit --copy-command wl-copy]]), { description = "Screenshot and annotate" })
 
