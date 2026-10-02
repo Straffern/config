@@ -57,7 +57,7 @@
         '';
       };
       environment.extraSetup = ''
-        rm $out/share/wayland-sessions/hyprland.desktop $out/share/wayland-sessions/hyprland-uwsm.desktop
+        rm -f $out/share/wayland-sessions/hyprland.desktop $out/share/wayland-sessions/hyprland-uwsm.desktop
       '';
       assertions = [
         {
