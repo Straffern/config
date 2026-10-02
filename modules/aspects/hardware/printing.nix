@@ -2,15 +2,12 @@
   den.aspects.hardware.printing = {
     includes = [den.aspects.network.avahi];
 
-    nixos = {pkgs, ...}: {
+    nixos = {...}: {
       services.printing = {
         enable = true;
         startWhenNeeded = true;
         browsed.enable = false;
         webInterface = true;
-        drivers = [
-          pkgs.gutenprint
-        ];
       };
 
       programs.system-config-printer.enable = true;
