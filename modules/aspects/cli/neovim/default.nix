@@ -104,7 +104,7 @@ in {
         script = ''
           assert login_user is not None, "Neovim smoke test requires vmSmoke.loginUser"
           machine.succeed("printf '%s\\n' 'local ok, err = pcall(require, \"fff\")' 'if not ok then' '  io.stderr:write(err .. \"\\n\")' '  vim.cmd(\"cquit 1\")' 'end' 'vim.cmd(\"quitall\")' > /tmp/vm-smoke-neovim.lua")
-          machine.succeed(user_command(f"timeout 30 {login_home}/.local/state/nix/profile/bin/nvim --clean --headless --cmd 'set runtimepath^=/etc/vm-smoke/fff-nvim' -c 'luafile /tmp/vm-smoke-neovim.lua'"))
+          machine.succeed(user_command("timeout 30 nvim --clean --headless --cmd 'set runtimepath^=/etc/vm-smoke/fff-nvim' -c 'luafile /tmp/vm-smoke-neovim.lua'"))
         '';
       }
     ];

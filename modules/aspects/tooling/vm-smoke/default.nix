@@ -156,7 +156,7 @@
               f"HOME={login_home} "
               f"USER={login_user} "
               f"LOGNAME={login_user} "
-              f"PATH={login_home}/.local/state/nix/profile/bin:/run/current-system/sw/bin "
+              f"PATH=/etc/profiles/per-user/{login_user}/bin:{login_home}/.local/state/nix/profile/bin:/run/current-system/sw/bin "
               f"XDG_CONFIG_HOME={login_home}/.config "
               f"XDG_CACHE_HOME={login_home}/.cache "
               f"XDG_DATA_HOME={login_home}/.local/share "

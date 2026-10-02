@@ -105,7 +105,7 @@ in {
         script = ''
           assert login_user is not None, "Tmux smoke test requires vmSmoke.loginUser"
           machine.wait_until_succeeds(user_command("systemctl --user is-active --quiet tmux.service"))
-          machine.succeed(user_command(f"TMPDIR=/run/user/{login_uid} {login_home}/.local/state/nix/profile/bin/tmux has-session -t default"))
+          machine.succeed(user_command(f"TMPDIR=/run/user/{login_uid} tmux has-session -t default"))
         '';
       }
     ];

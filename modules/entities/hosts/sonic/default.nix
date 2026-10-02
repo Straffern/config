@@ -110,6 +110,7 @@
       # };
 
       home-manager = {
+        useUserPackages = true;
         backupFileExtension = "pre-home-manager";
         overwriteBackup = true;
       };
