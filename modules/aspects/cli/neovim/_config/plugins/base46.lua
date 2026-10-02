@@ -8,7 +8,12 @@ return {
 	{
 		"LazyVim/LazyVim",
 		opts = {
-			colorscheme = "dms",
+			-- DMS renders the dms colorscheme; other shells fall back to a bundled one.
+			colorscheme = function()
+				if not pcall(vim.cmd.colorscheme, "dms") then
+					vim.cmd.colorscheme("tokyonight")
+				end
+			end,
 		},
 	},
 }

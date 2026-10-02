@@ -1,0 +1,13 @@
+# Declarative Noctalia config. GUI changes land in settings.toml beside this file.
+# https://docs.noctalia.dev/noctalia/configuration/
+
+[shell]
+polkit_agent = true
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-tonal-spot"
+
+[lockscreen]
+fingerprint = true

@@ -101,3 +101,23 @@ DMS settings, equivalent to `"acProfileName": "1"`, and retain
 Sonic uses 256 MiB background and 1 GiB foreground dirty-page thresholds,
 zero ratio thresholds, and a five-second writeback interval. Other hosts
 retain the battery aspect's writeback interval.
+
+### Desktop shell
+
+A desktop host selects exactly one shell aspect: `desktop.noctalia` (Noctalia
+v5 with Noctalia Greeter) or `desktop.dms` (DankMaterialShell with Dank
+Greeter). Switch by swapping the include in the host entity and rebuilding.
+Both shells run under Hyprland and Niri; Noctalia Greeter preselects Hyprland
+when the host includes it. The first rebuild onto Noctalia needs its cache
+passed explicitly:
+
+```bash
+nh os switch -- --option extra-substituters https://noctalia.cachix.org \
+  --option extra-trusted-public-keys noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=
+```
+
+Noctalia's `config.toml`, Settings overrides (`settings.toml`), and its
+Hyprland and Niri fragments live in `modules/aspects/desktop/noctalia/_config/`.
+`mutable on` links them into `~/.dotfiles`, so Settings changes land in the
+repo; `mutable off` returns them to store copies, and Settings changes are
+rejected until mutable mode is back on.

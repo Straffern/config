@@ -43,7 +43,7 @@
         package = unstable.hyprland;
         portalPackage = unstable.xdg-desktop-portal-hyprland;
       };
-      # nixpkgs Hyprland ships a plain and a UWSM session entry and dms-greeter lists every entry on XDG_DATA_DIRS,
+      # nixpkgs Hyprland ships a plain and a UWSM session entry and both greeters list every entry on XDG_DATA_DIRS,
       # so both session directories get the single entry above instead. sessionData merges with //, so order it last.
       services.displayManager.sessionData = lib.mkAfter {
         desktops = pkgs.runCommand "desktops" {} ''
