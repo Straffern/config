@@ -57,7 +57,9 @@
       den.aspects.cli.chrome-devtools
       den.aspects.apps.slack
       den.aspects.apps.shotwell
-      den.aspects.desktop.dms
+      # Desktop shell: select exactly one of desktop.noctalia or desktop.dms.
+      den.aspects.desktop.noctalia
+      # den.aspects.desktop.dms
       den.aspects.desktop.hyprland
       # den.aspects.services.hindsight
       den.aspects.services.tailscale
