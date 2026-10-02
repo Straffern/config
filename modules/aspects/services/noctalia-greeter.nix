@@ -24,6 +24,7 @@
     ];
 
     nixos = {
+      config,
       host,
       lib,
       pkgs,
@@ -54,9 +55,13 @@
       security.pam.services.login.fprintAuth = false;
       security.pam.services.greetd = {
         fprintAuth = true;
-        rules.auth.fprintd.settings = {
-          "max-tries" = "2";
-          timeout = "10";
+        # Password first, so a typed password logs in and unlocks the keyring; an empty or wrong one falls through to the reader.
+        rules.auth.fprintd = {
+          order = config.security.pam.services.greetd.rules.auth.unix.order + 10;
+          settings = {
+            "max-tries" = "2";
+            timeout = "10";
+          };
         };
       };
     };
