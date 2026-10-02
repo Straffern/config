@@ -1,5 +1,9 @@
 config_version = 14
 
+[bar.default]
+reserve_space = false
+smart_auto_hide = true
+
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
@@ -37,11 +41,24 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
         show_unlock_hint = true
         show_weather = true
 
+[shell.panel]
+transparency_mode = "glass"
+
+[theme]
+builtin = "Noctalia"
+community_palette = "Oxocarbon"
+mode = "dark"
+source = "wallpaper"
+wallpaper_scheme = "m3-fruit-salad"
+
 [wallpaper]
 directory = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers"
 
     [wallpaper.default]
-    path = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers/wallhaven-poko7j.jpg"
+    path = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers/cat_n_woman_balcony.png"
 
     [wallpaper.last]
-    path = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers/wallhaven-poko7j.jpg"
+    path = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers/cat_n_woman_balcony.png"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/alex/.dotfiles/modules/aspects/styles/packages/_package/wallpapers/wallpapers/cat_n_woman_balcony.png"
