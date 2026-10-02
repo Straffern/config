@@ -6,7 +6,7 @@
       services.printing = {
         enable = true;
         startWhenNeeded = true;
-        browsed.enable = true;
+        browsed.enable = false;
         webInterface = true;
         drivers = [
           pkgs.gutenprint
