@@ -19,14 +19,13 @@
         };
         systemd.services.bluetooth-unblock = {
           description = "Unblock bluetooth rfkill so desktop shells can manage it";
-          after = ["bluetooth.service"];
-          requires = ["bluetooth.service"];
-          wantedBy = ["bluetooth.target"];
+          bindsTo = ["sys-subsystem-bluetooth-devices-hci0.device"];
+          after = ["sys-subsystem-bluetooth-devices-hci0.device" "systemd-rfkill.service"];
+          wantedBy = ["sys-subsystem-bluetooth-devices-hci0.device"];
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
             ExecStart = "${pkgs.util-linux}/bin/rfkill unblock bluetooth";
-            ExecStartPost = "${pkgs.bluez}/bin/bluetoothctl power off";
           };
         };
       }
