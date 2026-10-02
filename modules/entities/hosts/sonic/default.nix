@@ -48,7 +48,6 @@
       den.aspects.profiles.desktop
       den.aspects.profiles.development
       den.aspects.virtualization.podman
-      den.aspects.apps.kdeconnect
       den.aspects.apps.desktop-utilities
       den.aspects.gaming.niri-session
       den.aspects.gaming.amd-graphics
