@@ -12,6 +12,7 @@
 
   services.fwupd.enable = true;
   services.gnome.at-spi2-core.enable = true;
+  services.journald.extraConfig = "SystemMaxUse=500M";
   networking = {
     useNetworkd = false;
     firewall = {
