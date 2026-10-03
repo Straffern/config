@@ -4,6 +4,12 @@ config_version = 14
 reserve_space = false
 smart_auto_hide = true
 
+[control_center.calendar]
+show_week_numbers = true
+
+[location]
+auto_locate = true
+
 [lockscreen_widgets]
 enabled = false
 schema_version = 2
@@ -40,6 +46,10 @@ widget_order = [ "lockscreen-login-box@eDP-1" ]
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
+
+[nightlight]
+enabled = true
+temperature_night = 2700
 
 [shell.panel]
 transparency_mode = "glass"
