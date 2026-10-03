@@ -93,7 +93,12 @@
       };
     };
 
-    nixos = {...}: {
+    nixos = {pkgs, ...}: {
+      # Mutable Tern in ~/.local/share/tern (self-updates; Nix module cli.tern unused):
+      # libs it dlopens via nix-ld, gdbus for theme detection.
+      programs.nix-ld.libraries = with pkgs; [libGL libxkbcommon linux-pam vulkan-loader wayland];
+      environment.systemPackages = [pkgs.glib];
+
       # hardware.printers = {
       #   ensurePrinters = [
       #     {
