@@ -18,6 +18,7 @@
       den.aspects.desktop.media-controls
       den.aspects.cli.kitty
       den.aspects.cli.foot
+      den.aspects.cli.tern
       den.aspects.desktop.addons.xdg
     ];
   };
