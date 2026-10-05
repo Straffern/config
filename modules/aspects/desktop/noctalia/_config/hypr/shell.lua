@@ -65,8 +65,15 @@ hl.bind("XF86AudioPause", noctalia("media toggle"), { locked = true })
 hl.bind("XF86AudioPlay", noctalia("media toggle"), { locked = true })
 hl.bind("XF86AudioPrev", noctalia("media previous"), { locked = true })
 hl.bind("XF86AudioNext", noctalia("media next"), { locked = true })
-hl.bind("XF86MonBrightnessUp", noctalia("brightness-up"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", noctalia("brightness-down"), { locked = true, repeating = true })
+-- Noctalia's default target is the active window's output, which goes stale for windows
+-- that outlive an output hotplug (e.g. undocking), so pass the focused monitor explicitly.
+local function brightness(direction)
+	return function()
+		hl.dispatch(noctalia("brightness-" .. direction .. " " .. hl.get_active_monitor().name))
+	end
+end
+hl.bind("XF86MonBrightnessUp", brightness("up"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", brightness("down"), { locked = true, repeating = true })
 
 -- === Screenshots ===
 hl.bind("Print", noctalia("screenshot-region"))
