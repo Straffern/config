@@ -19,6 +19,7 @@
       den.aspects.cli.kitty
       den.aspects.cli.foot
       den.aspects.desktop.addons.xdg
+      den.aspects.desktop.addons.kanshi
     ];
   };
 }
