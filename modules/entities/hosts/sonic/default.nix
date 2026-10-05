@@ -97,8 +97,10 @@
 
     nixos = {pkgs, ...}: {
       # Mutable Tern in ~/.local/share/tern (self-updates; Nix module cli.tern unused):
-      # libs it dlopens via nix-ld, gdbus for theme detection.
+      # libs it dlopens via nix-ld, gdbus for theme detection, glib-networking
+      # (GIO_EXTRA_MODULES) for TLS in its WebKit web panes.
       programs.nix-ld.libraries = with pkgs; [libGL libxkbcommon linux-pam vulkan-loader wayland webkitgtk_4_1];
+      services.gnome.glib-networking.enable = true;
       environment.systemPackages = [pkgs.glib];
 
       # hardware.printers = {
