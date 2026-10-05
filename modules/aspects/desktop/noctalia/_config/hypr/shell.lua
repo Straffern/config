@@ -10,8 +10,6 @@ if themed then
 	theme.apply_theme()
 end
 
-hl.monitor({ output = "desc:BOE NE135A1M-NY1", mode = "2880x1920@120.000", position = "0x0", scale = 1.6, vrr = 1 })
-
 hl.config({
 	general = {
 		gaps_in = 5,

@@ -1,0 +1,9 @@
+# Reload after editing: kanshictl reload
+profile undocked {
+  output eDP-1 enable mode 2880x1920@120Hz position 0,0 scale 1.6
+}
+
+profile home_office_laptop_docked {
+  output "Samsung Electric Company U32R59x H4ZN200523" mode 3840x2160@60Hz position 0,0 scale 1
+  output eDP-1 disable
+}
