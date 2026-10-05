@@ -126,10 +126,9 @@ end
 
 hl.bind("SUPER + G", hl.dsp.group.toggle(), { description = "Toggle window grouping" })
 hl.bind("SUPER + ALT + G", hl.dsp.window.move({ out_of_group = true }), { description = "Move window out of group" })
-hl.bind("SUPER + ALT + left", hl.dsp.window.move({ into_group = "l" }), { description = "Move window into group left" })
-hl.bind("SUPER + ALT + right", hl.dsp.window.move({ into_group = "r" }), { description = "Move window into group right" })
-hl.bind("SUPER + ALT + up", hl.dsp.window.move({ into_group = "u" }), { description = "Move window into group up" })
-hl.bind("SUPER + ALT + down", hl.dsp.window.move({ into_group = "d" }), { description = "Move window into group down" })
+for key, dir in pairs({ left = "l", right = "r", up = "u", down = "d", H = "l", L = "r", K = "u", J = "d" }) do
+	hl.bind("SUPER + ALT + " .. key, hl.dsp.window.move({ into_group = dir }), { description = "Move window into group " .. dir })
+end
 hl.bind("SUPER + ALT + TAB", hl.dsp.group.next(), { description = "Next window in group" })
 hl.bind("SUPER + ALT + SHIFT + TAB", hl.dsp.group.prev(), { description = "Previous window in group" })
 hl.bind("SUPER + ALT + mouse_down", hl.dsp.group.next(), { description = "Next window in group" })
