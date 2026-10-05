@@ -1,5 +1,5 @@
 {den, ...}: {
-  den.aspects.profiles.development = {
+  den.aspects.profiles.development-core = {
     includes = [
       den.aspects.development.mutable-source
       den.aspects.development.ai-harness
@@ -7,9 +7,7 @@
       den.aspects.cli.neovim
       den.aspects.cli.tmux
       den.aspects.cli.bat
-      den.aspects.cli.bottom
       den.aspects.cli.btop
-      den.aspects.cli.database
       den.aspects.cli.direnv
       den.aspects.cli.devenv
       den.aspects.cli.eza
@@ -18,20 +16,28 @@
       den.aspects.cli.git
       den.aspects.cli.jj
       den.aspects.cli.hunk
+      den.aspects.cli.js
+      den.aspects.cli.nix-index
+      den.aspects.cli.ssh
+      den.aspects.cli.starship
+      den.aspects.cli.toolbox
+      den.aspects.cli.zoxide
+    ];
+  };
+
+  den.aspects.profiles.development = {
+    includes = [
+      den.aspects.profiles.development-core
+      den.aspects.cli.bottom
+      den.aspects.cli.database
       den.aspects.cli.htop
       den.aspects.cli.kubernetes
       den.aspects.cli.network-tools
-      den.aspects.cli.nix-index
       den.aspects.cli.nix-search-tv
-      den.aspects.cli.ssh
-      den.aspects.cli.starship
       den.aspects.cli.television
-      den.aspects.cli.toolbox
       den.aspects.cli.go-suite
-      den.aspects.cli.js
       den.aspects.cli.sourcegraph
       den.aspects.cli.yazi
-      den.aspects.cli.zoxide
       den.aspects.cli.snitch
       den.aspects.cli.lazyjournal
     ];
