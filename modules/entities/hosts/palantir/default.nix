@@ -34,6 +34,7 @@
       den.aspects.platform.server-runtime
       den.aspects.network.server
       den.aspects.cli.zsh
+      den.aspects.services.tern-remote
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.nh
@@ -41,7 +42,10 @@
     ];
 
     provides.alex = {
-      includes = [den.aspects.profiles.development-core];
+      includes = [
+        den.aspects.profiles.development-core
+        den.aspects.cli.omp
+      ];
       homeManager = {lib, ...}: {
         programs.zsh.sessionVariables.PATH = "$HOME/.local/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
         programs.git = {
