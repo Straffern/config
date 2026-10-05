@@ -66,6 +66,10 @@
         ./_/nixos.nix
       ];
       networking.useNetworkd = true;
+      services.resolved.settings.Resolve = {
+        LLMNR = false;
+        MulticastDNS = false;
+      };
       services.journald.extraConfig = "SystemMaxUse=500M";
       system.stateVersion = "26.05";
     };
