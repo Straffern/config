@@ -3,6 +3,8 @@
 
 [shell]
 polkit_agent = true
+# Own cgroup per app: logout/shell restarts don't wait on or kill launched apps.
+launch_apps_as_systemd_services = true
 
 [theme]
 mode = "dark"
