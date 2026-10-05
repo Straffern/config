@@ -45,6 +45,8 @@ in {
       nixos.environment.etc."watchman.json".text = builtins.toJSON {
         root_files = [".jj"];
         enforce_root_files = true;
+        # Every jj command adds a root that persists across restarts; drop unused ones.
+        idle_reap_age_seconds = 86400;
       };
       homeManager = {
         config,
