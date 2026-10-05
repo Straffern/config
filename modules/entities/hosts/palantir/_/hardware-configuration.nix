@@ -16,7 +16,7 @@
     kernelModules = ["kvm-intel"];
     extraModulePackages = [];
     kernel.sysctl = {
-      # Disable IP forwarding
+      # Podman container networking forwards through the host.
       "net.ipv4.conf.all.forwarding" = 1;
 
       # Enable reverse path filtering

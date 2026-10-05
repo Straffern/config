@@ -23,9 +23,17 @@
 
   den.aspects.palantir = {
     includes = [
-      den.aspects.profiles.server
-      den.aspects.styles.icons
-      den.aspects.styles.stylix
+      den.aspects.services.openssh
+      den.aspects.services.tailscale
+      den.aspects.security.sops
+      den.aspects.security.fail2ban
+      den.aspects.security.server-hardening
+      den.aspects.platform.locale
+      den.aspects.platform.nix
+      den.aspects.platform.headless
+      den.aspects.platform.server-runtime
+      den.aspects.network.server
+      den.aspects.cli.zsh
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.nh
@@ -33,26 +41,15 @@
     ];
 
     provides.alex = {
-      includes = [
-        den.aspects.profiles.development
-        den.aspects.apps.clipy
-      ];
-      homeManager = {
-        lib,
-        pkgs,
-        ...
-      }: {
-        programs.zsh.sessionVariables.PATH = "$HOME/go/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
+      includes = [den.aspects.profiles.development-core];
+      homeManager = {lib, ...}: {
+        programs.zsh.sessionVariables.PATH = "$HOME/.local/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
         programs.git = {
           signing = {
             key = null;
             signByDefault = lib.mkForce false;
           };
           settings.commit.gpgsign = lib.mkForce false;
-        };
-        stylix = {
-          enable = true;
-          base16Scheme = "${pkgs.base16-schemes}/share/themes/dracula.yaml";
         };
       };
     };
@@ -64,6 +61,8 @@
         ./_/hardware-configuration.nix
         ./_/nixos.nix
       ];
+      networking.useNetworkd = true;
+      services.journald.extraConfig = "SystemMaxUse=500M";
       system.stateVersion = "26.05";
     };
   };
