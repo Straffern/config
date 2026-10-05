@@ -53,7 +53,6 @@ hl.bind("SUPER + TAB", noctalia("window-switcher"), { description = "Window swit
 
 -- === Security ===
 hl.bind("SUPER + BackSpace", noctalia("session lock"), { description = "Lock screen" })
-hl.bind("SUPER + ALT + L", noctalia("session lock"), { description = "Lock screen" })
 hl.bind("SUPER + ALT + I", noctalia("caffeine-toggle"), { description = "Toggle idle inhibit (no lock or suspend)" })
 hl.bind("SUPER + SHIFT + E", hl.dsp.exit())
 
