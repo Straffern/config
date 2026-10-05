@@ -96,6 +96,11 @@ hl.window_rule({
 	match = { class = "^(firefox)$", title = "^(Picture-in-Picture)$" },
 	float = true,
 })
+hl.window_rule({
+	match = { class = "^(helium)$", title = "^(Picture in picture)$" },
+	float = true,
+	pin = true,
+})
 hl.window_rule({ match = { class = "^(zoom)$" }, float = true })
 hl.window_rule({ match = { class = "^(com\\.gabm\\.satty)$" }, float = true })
 
