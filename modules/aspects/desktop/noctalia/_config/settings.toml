@@ -23,11 +23,11 @@ widget_order = [ "lockscreen-login-box@DP-3", "lockscreen-login-box@eDP-1" ]
     [lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
     box_height = 196.0
     box_width = 810.0
-    cx = 1920.0
-    cy = 1978.0
+    cx = 1440.0
+    cy = 1483.5
     output = "DP-3"
-    placement_height = 2160.0
-    placement_width = 3840.0
+    placement_height = 1620.0
+    placement_width = 2880.0
     rotation = 0.0
     type = "login_box"
 

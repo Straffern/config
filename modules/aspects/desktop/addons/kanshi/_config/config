@@ -4,6 +4,6 @@ profile undocked {
 }
 
 profile home_office_laptop_docked {
-  output "Samsung Electric Company U32R59x H4ZN200523" mode 3840x2160@60Hz position 0,0 scale 1
+  output "Samsung Electric Company U32R59x H4ZN200523" mode 3840x2160@60Hz position 0,0 scale 1.33
   output eDP-1 disable
 }
