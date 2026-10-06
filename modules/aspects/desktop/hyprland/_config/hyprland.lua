@@ -38,6 +38,9 @@ hl.config({
 		disable_splash_rendering = true,
 		on_focus_under_fullscreen = 1,
 	},
+	binds = {
+		movefocus_cycles_fullscreen = true,
+	},
 	dwindle = {
 		preserve_split = true,
 	},
