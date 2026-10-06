@@ -30,6 +30,7 @@
       den.aspects.platform.nix-ld
       den.aspects.platform.nh
       den.aspects.platform.boot-grub
+      den.aspects.services.robomp-funnel
     ];
 
     provides.alex = {
@@ -65,6 +66,24 @@
       users.users.alex.extraGroups = ["podman"];
       services.journald.extraConfig = "SystemMaxUse=500M";
       system.stateVersion = "26.05";
+      services.robomp = {
+        enable = true;
+        repositories = ["heretask/platform"];
+        secrets.sopsFile = ../../../../secrets/hosts/palantir-robomp.yaml;
+        # RomM owns 127.0.0.1:8080.
+        listen.port = 8090;
+        bot = {
+          login = "heretask-robomp";
+          name = "heretask-robomp";
+          email = "heretask-robomp@users.noreply.github.com";
+          maintainers = ["Straffern"];
+        };
+        settings = {
+          ROBOMP_MAX_CONCURRENCY = 2;
+          ROBOMP_PR_REVIEW_ENABLED = false;
+          ROBOMP_QUESTION_AUTOCLOSE_ENABLED = false;
+        };
+      };
     };
   };
 }

@@ -30,7 +30,7 @@ creation_rules:
       - age:
           - *frostmourne
           - *alex_ssh
-  - path_regex: ^secrets/hosts/palantir\.ya?ml$
+  - path_regex: ^secrets/hosts/palantir(-robomp)?\.ya?ml$
     key_groups:
       - age:
           - *palantir
