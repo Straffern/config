@@ -1,5 +1,5 @@
 {den, ...}: let
-  ai-shell = pkgs:
+  ai-shell = pkgs: model:
     pkgs.writeTextFile {
       name = "ai-shell-function";
       text = ''
@@ -45,7 +45,7 @@
             --mode text
             --no-tools
             --system-prompt "$system_prompt"
-            --model "openai-codex/gpt-5.3-codex-spark"
+            --model "${model}"
           )
 
           local output
@@ -71,9 +71,19 @@
       '';
     };
 in {
-  den.aspects.cli.ai-shell.homeManager = {pkgs, ...}: {
-    programs.zsh.initContent = ''
-      source ${ai-shell pkgs}
+  den.aspects.cli.ai-shell.homeManager = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
+    options.dotfiles.ai.models.shell = lib.mkOption {
+      type = lib.types.str;
+      default = "openai-codex/gpt-6.1-sol:low";
+      description = "pi model used by the `ai` zsh command.";
+    };
+    config.programs.zsh.initContent = ''
+      source ${ai-shell pkgs config.dotfiles.ai.models.shell}
     '';
   };
 }

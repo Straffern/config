@@ -3,6 +3,7 @@
   jujutsu,
   pi,
   coreutils,
+  model,
 }:
 writeShellApplication {
   name = "jj-revset-ai";
@@ -92,7 +93,7 @@ writeShellApplication {
       --no-prompt-templates \
       --no-themes \
       --no-approve \
-      --model openai-codex/gpt-5.6-luna \
+      --model "${model}" \
       --system-prompt "$system_prompt" \
       <"$prompt_file" \
       >"$response_file"; then

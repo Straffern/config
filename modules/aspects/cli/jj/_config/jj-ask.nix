@@ -1,4 +1,7 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  model,
+}:
 pkgs.writeTextFile {
   name = "jj-ask-function";
   text = ''
@@ -76,7 +79,7 @@ pkgs.writeTextFile {
                 --print
                 --mode text
                 --system-prompt "$system_prompt"
-                --model "openai-codex/gpt-5.6-luna"
+                --model "${model}"
               )
               local output
               output=$(pi "''${pi_args[@]}" "Command needed: ''${prompt}")
