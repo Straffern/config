@@ -102,6 +102,10 @@
       url = "github:quickshell-mirror/quickshell/v0.3.1";
       inputs.nixpkgs.follows = "unstable";
     };
+    quickshell-overview = {
+      url = "github:Shanu-Kumawat/quickshell-overview";
+      flake = false;
+    };
     sops-nix = {
       url = "github:mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";

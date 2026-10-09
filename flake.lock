@@ -2025,6 +2025,22 @@
         "type": "github"
       }
     },
+    "quickshell-overview": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786726681,
+        "narHash": "sha256-s1HyEuMQQHVIZeDTwJetOdT467M/mzZl4ymTlENgDuE=",
+        "owner": "Shanu-Kumawat",
+        "repo": "quickshell-overview",
+        "rev": "47f0d402822b26805ed0ecea4a770c38c537b728",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Shanu-Kumawat",
+        "repo": "quickshell-overview",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "comma": "comma",
@@ -2062,6 +2078,7 @@
         "noctalia-greeter": "noctalia-greeter",
         "nur": "nur",
         "quickshell": "quickshell",
+        "quickshell-overview": "quickshell-overview",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
         "treefmt-nix": "treefmt-nix_5",

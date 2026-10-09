@@ -3,8 +3,14 @@
   inputs,
   ...
 }: {
-  # The cachix branch tracks commits Noctalia's CI has cached; no nixpkgs follows, so the cache hits.
-  flake-file.inputs.noctalia.url = "github:noctalia-dev/noctalia/cachix";
+  flake-file.inputs = {
+    # The cachix branch tracks commits Noctalia's CI has cached; no nixpkgs follows, so the cache hits.
+    noctalia.url = "github:noctalia-dev/noctalia/cachix";
+    quickshell-overview = {
+      url = "github:Shanu-Kumawat/quickshell-overview";
+      flake = false;
+    };
+  };
 
   den.aspects.desktop.noctalia.homeManager = {
     config,
@@ -19,6 +25,7 @@
     niriEnabled = config.programs.niri.enable or false;
     hyprlandEnabled = host.hasAspect den.aspects.desktop.hyprland;
     configHome = config.xdg.configHome;
+    quickshell = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
     # Template outputs that HM-managed configs include; seeded empty so includes resolve before the first render.
     themeFiles = {
@@ -108,6 +115,23 @@
 
       (mkIf hyprlandEnabled {
         xdg.configFile."hypr/shell.lua".source = source ./_config/hypr/shell.lua;
+
+        # Noctalia has no Hyprland workspace overview; shell.lua binds SUPER+Tab to this one.
+        xdg.configFile."quickshell/overview".source = inputs.quickshell-overview;
+        home.packages = [quickshell];
+        systemd.user.services.quickshell-overview = {
+          Unit = {
+            Description = "Quickshell workspace overview";
+            PartOf = ["graphical-session.target"];
+            After = ["graphical-session.target"];
+            ConditionEnvironment = "XDG_CURRENT_DESKTOP=Hyprland";
+          };
+          Service = {
+            ExecStart = "${lib.getExe' quickshell "qs"} -c overview";
+            Restart = "on-failure";
+          };
+          Install.WantedBy = ["graphical-session.target"];
+        };
       })
 
       (mkIf niriEnabled {
