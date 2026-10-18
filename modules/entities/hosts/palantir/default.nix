@@ -35,6 +35,7 @@
       den.aspects.network.server
       den.aspects.cli.zsh
       den.aspects.services.tern-remote
+      den.aspects.services.romm
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.nh
