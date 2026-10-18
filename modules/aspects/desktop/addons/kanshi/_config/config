@@ -1,6 +1,6 @@
 # Reload after editing: kanshictl reload
 profile undocked {
-  output eDP-1 enable mode 2880x1920@120Hz position 0,0 scale 1.33
+  output eDP-1 enable mode 2880x1920@120Hz position 0,0 scale 1.6
   # Hyprland keeps eDP-1's DPMS off from while it was disabled: backlight on, black screen.
   exec hyprctl dispatch 'hl.dsp.dpms({ action = "on" })'
 }
