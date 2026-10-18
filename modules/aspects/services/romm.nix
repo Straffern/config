@@ -28,6 +28,8 @@
       hostSecretsFile = inputs.self + "/secrets/hosts/${host.name}.yaml";
       ph = config.sops.placeholder;
       podman = lib.getExe pkgs.podman;
+      tailscale = lib.getExe config.services.tailscale.package;
+      funnelPort = 10000;
     in
       lib.mkMerge [
         {
@@ -66,7 +68,7 @@
               dependsOn = ["romm-db"];
               ports = ["127.0.0.1:8080:8080"];
               environment = {
-                ROMM_BASE_URL = "https://${host.name}.tail3cc997.ts.net";
+                ROMM_BASE_URL = "https://${host.name}.tail3cc997.ts.net:${toString funnelPort}";
                 ROMM_SESSION_SECURE_COOKIE = "true";
                 DB_HOST = "romm-db";
                 DB_NAME = "romm";
@@ -110,7 +112,8 @@
               serviceConfig = {
                 Type = "oneshot";
                 RemainAfterExit = true;
-                ExecStart = "${lib.getExe config.services.tailscale.package} funnel --yes --bg --https=443 http://127.0.0.1:8080";
+                ExecStart = "${tailscale} funnel --yes --bg --https=${toString funnelPort} http://127.0.0.1:8080";
+                ExecStop = "${tailscale} funnel --yes --https=${toString funnelPort} off";
                 Restart = "on-failure";
                 RestartSec = "15s";
               };
