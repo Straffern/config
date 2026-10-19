@@ -155,3 +155,5 @@ hl.bind("SUPER + P", hl.dsp.exec_cmd([[mkdir -p ~/Pictures/Screenshots && grimsh
 
 hl.bind("SUPER + ALT + P", hl.dsp.exec_cmd([[hyprctl dispatch 'hl.dsp.window.float({ action = "enable" })'; hyprctl dispatch 'hl.dsp.window.pin({ action = "toggle" })']]), { description = "Toggle pin (float on all workspaces)" })
 hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd([[r=$(slurp -f '%x %y %w %h') || exit; set -- $r; hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "maximized", action = "unset" })'; hyprctl dispatch 'hl.dsp.window.fullscreen({ mode = "fullscreen", action = "unset" })'; hyprctl dispatch 'hl.dsp.window.float({ action = "enable" })'; hyprctl dispatch "hl.dsp.window.resize({ x = $3, y = $4 })"; hyprctl dispatch "hl.dsp.window.move({ x = $1, y = $2 })"]]), { description = "Draw rectangle to resize window" })
+
+hl.bind("SUPER + ALT + D", hl.dsp.exec_cmd("voxtype record toggle"), { description = "Voxtype toggle" })

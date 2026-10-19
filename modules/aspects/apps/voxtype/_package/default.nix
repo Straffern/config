@@ -5,5 +5,5 @@ let
   voxtypeBase = inputs.voxtype.packages.${system};
 in
 {
-  voxtype-soniox = voxtypeBase.onnx-rocm;
+  voxtype-soniox = voxtypeBase.onnx-migraphx;
 }
