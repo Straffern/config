@@ -60,7 +60,6 @@
             "https://devenv.cachix.org?priority=41"
             "https://nix-community.cachix.org?priority=42"
             "https://niri.cachix.org?priority=43"
-            "https://attic.xuyh0120.win/lantian?priority=45"
             "https://cache.numtide.com?priority=46"
             "https://numtide.cachix.org?priority=42"
           ];
@@ -70,7 +69,6 @@
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
             "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
             "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
-            "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
             "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
             "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
           ];
