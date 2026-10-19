@@ -29,7 +29,7 @@
       ph = config.sops.placeholder;
       podman = lib.getExe pkgs.podman;
       tailscale = lib.getExe config.services.tailscale.package;
-      funnelPort = 10000;
+      funnelPort = 8443;
     in
       lib.mkMerge [
         {
