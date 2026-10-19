@@ -1,0 +1,27 @@
+diff --git a/src/setup/variant_check.rs b/src/setup/variant_check.rs
+--- a/src/setup/variant_check.rs
++++ b/src/setup/variant_check.rs
+@@ -63,7 +63,7 @@
+ /// the feature name is just the engine's canonical name.
+ pub fn required_feature(engine: TranscriptionEngine) -> Option<&'static str> {
+     match engine {
+-        TranscriptionEngine::Whisper => None,
++        TranscriptionEngine::Whisper | TranscriptionEngine::Soniox => None,
+         other => Some(other.name()),
+     }
+ }
+@@ -234,7 +234,6 @@
+             TranscriptionEngine::Dolphin,
+             TranscriptionEngine::Omnilingual,
+             TranscriptionEngine::Cohere,
+-            TranscriptionEngine::Soniox,
+         ];
+         for e in engines {
+             assert!(
+@@ -244,5 +243,6 @@
+             );
+         }
+         assert_eq!(required_feature(TranscriptionEngine::Whisper), None);
++        assert_eq!(required_feature(TranscriptionEngine::Soniox), None);
+     }
+ }
