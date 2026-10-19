@@ -3,6 +3,7 @@
     includes = [den.aspects.cli.lumen];
     homeManager = {
       config,
+      inputs',
       lib,
       host,
       pkgs,
@@ -20,6 +21,7 @@
           '';
           programs.git = {
             enable = true;
+            package = inputs'.unstable.legacyPackages.git;
             signing.signByDefault = true;
             ignores = [
               ".aider*"

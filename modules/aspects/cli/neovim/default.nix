@@ -1,14 +1,15 @@
 {
   den,
   inputs,
+  lib,
   ...
 }: let
-  supermaven-jj-git-shim = pkgs:
+  supermaven-jj-git-shim = pkgs: git: jujutsu:
     pkgs.writeShellApplication {
       name = "git";
-      runtimeInputs = with pkgs; [git gnugrep jujutsu];
+      runtimeInputs = [git pkgs.gnugrep jujutsu];
       text = ''
-        real_git=${pkgs.git}/bin/git
+        real_git=${lib.getExe git}
 
         jj_root=$(jj root 2>/dev/null) || exec "$real_git" "$@"
 
@@ -136,7 +137,7 @@ in {
               marksman
             ];
             initLua = ''
-              vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs}/bin"
+              vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs config.programs.git.package config.programs.jujutsu.package}/bin"
               vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
               vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
 
@@ -159,7 +160,7 @@ in {
       ];
 
     packages = {pkgs, ...}: {
-      supermaven-jj-git-shim = supermaven-jj-git-shim pkgs;
+      supermaven-jj-git-shim = supermaven-jj-git-shim pkgs pkgs.git pkgs.jujutsu;
     };
   };
 }

@@ -2,6 +2,7 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
+  git,
   jujutsu,
 }:
 rustPlatform.buildRustPackage rec {
@@ -19,7 +20,8 @@ rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-Ek75SHdySDpUu3nWrZUhA3SZE5KagqB9sRqQy/Dw3FE=";
 
-  nativeCheckInputs = [jujutsu];
+  # jj >= 0.46 creates Git worktrees for workspaces in colocated repos.
+  nativeCheckInputs = [git jujutsu];
 
   preCheck = ''
     export HOME="$TMPDIR/home"

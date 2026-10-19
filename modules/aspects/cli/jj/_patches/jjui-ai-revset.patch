@@ -1,7 +1,8 @@
-diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
---- a/cmd/jjui/main.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/cmd/jjui/main.go	2026-09-23 13:52:43.172718562 +0200
-@@ -167,6 +167,7 @@
+diff --git a/cmd/jjui/main.go b/cmd/jjui/main.go
+index 50e341a..c96d1af 100644
+--- a/cmd/jjui/main.go
++++ b/cmd/jjui/main.go
+@@ -167,6 +167,7 @@ func run() int {
  		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
  		return 1
  	}
@@ -9,7 +10,7 @@ diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
  	// if JJUI_CONFIG_DIR is set, skip loading repository config as env config takes precedence over both global and repo-local configs. Otherwise load repo-local config which overrides global config on conflicts.
  	if config.EnvConfigDir() == "" {
  		if output, err := config.LoadRepoConfigFile(rootLocation); err == nil {
-@@ -183,6 +184,7 @@
+@@ -183,6 +184,7 @@ func run() int {
  			return 1
  		}
  	}
@@ -17,7 +18,7 @@ diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
  
  	if err := scripting.InitVM(appContext); err != nil {
  		fmt.Fprintf(os.Stderr, "Error initializing Lua VM: %v\n", err)
-@@ -201,6 +203,7 @@
+@@ -201,6 +203,7 @@ func run() int {
  			return 1
  		}
  	}
@@ -25,7 +26,7 @@ diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
  
  	// if JJUI_CONFIG_DIR is set, skip loading repository config as env config takes precedence over both global and repo-local configs. Otherwise load repo-local config which overrides global config on conflicts.
  	if config.EnvConfigDir() == "" {
-@@ -218,6 +221,7 @@
+@@ -218,6 +221,7 @@ func run() int {
  			}
  		}
  	}
@@ -33,10 +34,11 @@ diff -Naur a/cmd/jjui/main.go b/cmd/jjui/main.go
  
  	var resolvedTheme config.ResolvedTheme
  	if !appContext.TerminalThemeDetected {
-diff -Naur a/internal/config/config.go b/internal/config/config.go
---- a/internal/config/config.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/config/config.go	2026-09-23 13:52:43.172980216 +0200
-@@ -22,6 +22,7 @@
+diff --git a/internal/config/config.go b/internal/config/config.go
+index c70b621..2146837 100644
+--- a/internal/config/config.go
++++ b/internal/config/config.go
+@@ -22,6 +22,7 @@ type Config struct {
  	Bindings        []BindingConfig `toml:"bindings"`
  	UI              UIConfig        `toml:"ui"`
  	Suggest         SuggestConfig   `toml:"suggest"`
@@ -44,7 +46,7 @@ diff -Naur a/internal/config/config.go b/internal/config/config.go
  	Revisions       RevisionsConfig `toml:"revisions"`
  	Preview         PreviewConfig   `toml:"preview"`
  	OpLog           OpLogConfig     `toml:"oplog"`
-@@ -239,6 +240,10 @@
+@@ -239,6 +240,10 @@ type RevisionsConfig struct {
  	Revset       string `toml:"revset"`
  }
  
@@ -55,10 +57,11 @@ diff -Naur a/internal/config/config.go b/internal/config/config.go
  type PreviewPosition int
  
  const (
-diff -Naur a/internal/config/default/bindings.toml b/internal/config/default/bindings.toml
---- a/internal/config/default/bindings.toml	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/config/default/bindings.toml	2026-09-23 13:52:43.173081140 +0200
-@@ -22,6 +22,7 @@
+diff --git a/internal/config/default/bindings.toml b/internal/config/default/bindings.toml
+index 65b48d6..78ba1b9 100644
+--- a/internal/config/default/bindings.toml
++++ b/internal/config/default/bindings.toml
+@@ -23,6 +23,7 @@ bindings = [
      # revset
      { key = ["esc", "ctrl+c"], action = "revset.cancel", scope = "revset", desc = "cancel" },
      { key = "enter", action = "revset.apply", scope = "revset", desc = "apply" },
@@ -66,10 +69,11 @@ diff -Naur a/internal/config/default/bindings.toml b/internal/config/default/bin
      { key = "tab", action = "revset.autocomplete", scope = "revset", desc = "autocomplete" },
      { key = "shift+tab", action = "revset.autocomplete_back", scope = "revset", desc = "autocomplete back" },
      { key = ["up", "ctrl+p"], action = "revset.move_up", scope = "revset", desc = "up" },
-diff -Naur a/internal/config/default/config.toml b/internal/config/default/config.toml
---- a/internal/config/default/config.toml	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/config/default/config.toml	2026-09-23 13:52:43.173405599 +0200
-@@ -27,6 +27,9 @@
+diff --git a/internal/config/default/config.toml b/internal/config/default/config.toml
+index de82628..b36f85b 100644
+--- a/internal/config/default/config.toml
++++ b/internal/config/default/config.toml
+@@ -27,6 +27,9 @@ bindings_profile = ":builtin"
    # template = 'builtin_log_compact' # overrides jj's templates.log
    # revset = "zzzzzzz"               # overrides jj's revsets.log
  
@@ -79,10 +83,11 @@ diff -Naur a/internal/config/default/config.toml b/internal/config/default/confi
  [preview]
    revision_command = ["show", "--color", "always", "-r", "$change_id"]
    evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1"]
-diff -Naur a/internal/config/default/types.lua b/internal/config/default/types.lua
---- a/internal/config/default/types.lua	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/config/default/types.lua	2026-09-23 13:52:43.173624031 +0200
-@@ -535,6 +535,7 @@
+diff --git a/internal/config/default/types.lua b/internal/config/default/types.lua
+index 300c759..3c42c9b 100644
+--- a/internal/config/default/types.lua
++++ b/internal/config/default/types.lua
+@@ -535,6 +535,7 @@ function wait_refresh() end
  ---@field autocomplete_back fun()
  ---@field cancel fun()
  ---@field edit fun(args: {clear?: boolean})
@@ -90,10 +95,11 @@ diff -Naur a/internal/config/default/types.lua b/internal/config/default/types.l
  ---@field move_down fun()
  ---@field move_up fun()
  ---@field reset fun()
-diff -Naur a/internal/ui/actionmeta/builtins_gen.go b/internal/ui/actionmeta/builtins_gen.go
---- a/internal/ui/actionmeta/builtins_gen.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/ui/actionmeta/builtins_gen.go	2026-09-23 13:53:10.684403462 +0200
-@@ -323,6 +323,7 @@
+diff --git a/internal/ui/actionmeta/builtins_gen.go b/internal/ui/actionmeta/builtins_gen.go
+index e560e0d..ffac7f5 100644
+--- a/internal/ui/actionmeta/builtins_gen.go
++++ b/internal/ui/actionmeta/builtins_gen.go
+@@ -324,6 +324,7 @@ var builtInActionScopes = map[string][]string{
  	"revset.autocomplete_back":                      {"revset"},
  	"revset.cancel":                                 {"revset"},
  	"revset.edit":                                   {"revset"},
@@ -101,10 +107,11 @@ diff -Naur a/internal/ui/actionmeta/builtins_gen.go b/internal/ui/actionmeta/bui
  	"revset.move_down":                              {"revset"},
  	"revset.move_up":                                {"revset"},
  	"revset.reset":                                  {"revset"},
-diff -Naur a/internal/ui/actions/catalog_gen.go b/internal/ui/actions/catalog_gen.go
---- a/internal/ui/actions/catalog_gen.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/ui/actions/catalog_gen.go	2026-09-23 13:52:43.174582260 +0200
-@@ -805,6 +805,8 @@
+diff --git a/internal/ui/actions/catalog_gen.go b/internal/ui/actions/catalog_gen.go
+index 7dd75e3..0c75845 100644
+--- a/internal/ui/actions/catalog_gen.go
++++ b/internal/ui/actions/catalog_gen.go
+@@ -805,6 +805,8 @@ func ResolveIntent(scope string, action keybindings.Action, args map[string]any)
  			return intents.Cancel{}, true
  		case keybindings.Action("revset.edit"):
  			return intents.Edit{Clear: actionargs.BoolArg(args, "clear", false)}, true
@@ -113,10 +120,11 @@ diff -Naur a/internal/ui/actions/catalog_gen.go b/internal/ui/actions/catalog_ge
  		case keybindings.Action("revset.move_down"):
  			return intents.CompletionMove{Delta: 1}, true
  		case keybindings.Action("revset.move_up"):
-diff -Naur a/internal/ui/intents/revset_intents.go b/internal/ui/intents/revset_intents.go
---- a/internal/ui/intents/revset_intents.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/ui/intents/revset_intents.go	2026-09-23 13:52:43.174725951 +0200
-@@ -20,6 +20,11 @@
+diff --git a/internal/ui/intents/revset_intents.go b/internal/ui/intents/revset_intents.go
+index c1bc57c..c84464d 100644
+--- a/internal/ui/intents/revset_intents.go
++++ b/internal/ui/intents/revset_intents.go
+@@ -20,6 +20,11 @@ type Reset struct{}
  
  func (Reset) isIntent() {}
  
@@ -128,9 +136,11 @@ diff -Naur a/internal/ui/intents/revset_intents.go b/internal/ui/intents/revset_
  //jjui:bind scope=revset action=autocomplete
  //jjui:bind scope=revset action=autocomplete_back set=Reverse:true
  type CompletionCycle struct {
-diff -Naur a/internal/ui/revset/generate.go b/internal/ui/revset/generate.go
---- a/internal/ui/revset/generate.go	1970-01-01 01:00:00.000000000 +0100
-+++ b/internal/ui/revset/generate.go	2026-09-23 13:52:43.174862759 +0200
+diff --git a/internal/ui/revset/generate.go b/internal/ui/revset/generate.go
+new file mode 100644
+index 0000000..1ba9eb0
+--- /dev/null
++++ b/internal/ui/revset/generate.go
 @@ -0,0 +1,223 @@
 +package revset
 +
@@ -355,9 +365,11 @@ diff -Naur a/internal/ui/revset/generate.go b/internal/ui/revset/generate.go
 +}
 +
 +var _ io.Writer = (*limitedWriter)(nil)
-diff -Naur a/internal/ui/revset/generate_test.go b/internal/ui/revset/generate_test.go
---- a/internal/ui/revset/generate_test.go	1970-01-01 01:00:00.000000000 +0100
-+++ b/internal/ui/revset/generate_test.go	2026-09-23 13:52:43.174913014 +0200
+diff --git a/internal/ui/revset/generate_test.go b/internal/ui/revset/generate_test.go
+new file mode 100644
+index 0000000..337b338
+--- /dev/null
++++ b/internal/ui/revset/generate_test.go
 @@ -0,0 +1,280 @@
 +package revset
 +
@@ -639,9 +651,10 @@ diff -Naur a/internal/ui/revset/generate_test.go b/internal/ui/revset/generate_t
 +	assert.Equal(t, originalRevset, model.context.CurrentRevset)
 +	assert.False(t, model.generating)
 +}
-diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
---- a/internal/ui/revset/revset.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/ui/revset/revset.go	2026-09-23 13:52:43.175081163 +0200
+diff --git a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
+index b6fd04d..59702f9 100644
+--- a/internal/ui/revset/revset.go
++++ b/internal/ui/revset/revset.go
 @@ -1,6 +1,7 @@
  package revset
  
@@ -650,7 +663,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  	"strings"
  
  	tea "charm.land/bubbletea/v2"
-@@ -10,6 +11,7 @@
+@@ -10,6 +11,7 @@ import (
  	"github.com/idursun/jjui/internal/ui/common"
  	"github.com/idursun/jjui/internal/ui/common/autocompletion"
  	appContext "github.com/idursun/jjui/internal/ui/context"
@@ -658,7 +671,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  	"github.com/idursun/jjui/internal/ui/intents"
  	"github.com/idursun/jjui/internal/ui/layout"
  	"github.com/idursun/jjui/internal/ui/render"
-@@ -58,6 +60,10 @@
+@@ -57,6 +59,10 @@ type Model struct {
  	completionItems    []CompletionItem
  	selectedIndex      int
  	userInput          string // tracks what the user actually typed (separate from preview)
@@ -669,7 +682,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  }
  
  func (m *Model) IsEditing() bool {
-@@ -158,6 +164,17 @@
+@@ -158,6 +164,17 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
  	case intents.Intent:
  		cmd, _ := m.HandleIntent(msg)
  		return cmd
@@ -687,7 +700,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  	case completionScrollMsg:
  		if msg.Horizontal {
  			return nil
-@@ -178,7 +195,11 @@
+@@ -178,7 +195,11 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
  		if !m.editing {
  			return nil
  		}
@@ -699,7 +712,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		if m.editing {
  			m.editing = false
  		}
-@@ -244,6 +265,7 @@
+@@ -244,6 +265,7 @@ func (m *Model) updatePreview() {
  func (m *Model) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
  	switch intent := intent.(type) {
  	case intents.Set:
@@ -707,7 +720,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		m.editing = false
  		m.autoComplete.Blur()
  		value := intent.Value
-@@ -252,10 +274,12 @@
+@@ -252,10 +274,12 @@ func (m *Model) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
  		}
  		return tea.Batch(common.Close, common.UpdateRevSet(value)), true
  	case intents.Reset:
@@ -720,7 +733,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		m.editing = true
  		m.autoComplete.Focus()
  		m.completionProvider.Load(m.context.RunCommandImmediate)
-@@ -268,7 +292,15 @@
+@@ -268,7 +292,15 @@ func (m *Model) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
  		m.selectedIndex = -1 // no selection initially
  		m.updateCompletionItems()
  		return m.autoComplete.Init(), true
@@ -736,7 +749,7 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		if !m.editing {
  			return nil, false
  		}
-@@ -276,6 +308,9 @@
+@@ -276,6 +308,9 @@ func (m *Model) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
  		m.autoComplete.Blur()
  		return nil, true
  	case intents.Apply:
@@ -746,24 +759,25 @@ diff -Naur a/internal/ui/revset/revset.go b/internal/ui/revset/revset.go
  		if !m.editing {
  			return nil, false
  		}
-diff -Naur a/internal/ui/ui.go b/internal/ui/ui.go
---- a/internal/ui/ui.go	1970-01-01 01:00:01.000000000 +0100
-+++ b/internal/ui/ui.go	2026-09-23 13:53:10.805404879 +0200
-@@ -618,7 +618,7 @@
+diff --git a/internal/ui/ui.go b/internal/ui/ui.go
+index f3432f2..17b6c83 100644
+--- a/internal/ui/ui.go
++++ b/internal/ui/ui.go
+@@ -580,7 +580,7 @@ func (m *Model) dispatchScopes() []common.Scope {
  	}
  
  	scopes = append(scopes, m.status.Scopes()...)
 -	if m.revsetModel.IsEditing() {
-+	if m.revsetModel.IsEditing() && m.stacked == nil {
++	if m.revsetModel.IsEditing() && m.dialog() == nil {
  		scopes = append(scopes, m.revsetModel.Scopes()...)
  	}
  
-@@ -640,7 +640,7 @@
- 		scopes = append(scopes, m.splitScopes(m.revisions.Scopes())...)
+@@ -593,7 +593,7 @@ func (m *Model) dispatchScopes() []common.Scope {
+ 		scopes = append(scopes, m.splitScopes(primary.Scopes())...)
  	}
  
 -	if !m.revsetModel.IsEditing() {
-+	if !m.revsetModel.IsEditing() || m.stacked != nil {
++	if !m.revsetModel.IsEditing() || m.dialog() != nil {
  		scopes = append(scopes, m.revsetModel.Scopes()...)
  	}
  	scopes = append(scopes, common.Scope{

@@ -59,7 +59,7 @@
     };
     import-tree.url = "github:denful/import-tree";
     jjui = {
-      url = "github:idursun/jjui/v0.10.11";
+      url = "github:idursun/jjui/v0.10.12";
       inputs.nixpkgs.follows = "unstable";
     };
     lanzaboote = {

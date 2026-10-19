@@ -1124,16 +1124,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1790028207,
-        "narHash": "sha256-dHw1imeAenwa1/+bgcpS9LUs59UlJDS5LAujoIabVH0=",
+        "lastModified": 1792197068,
+        "narHash": "sha256-tPPvsuMeMIrlSZLkTVXLNrlF6BerNsNjc0vfYO31F18=",
         "owner": "idursun",
         "repo": "jjui",
-        "rev": "cd1da156b1d4d4cae6bedd7fd1f1f23ca42f8f0e",
+        "rev": "f8fab095543ab3aa7d2a3ee99b27d89e35ae72c7",
         "type": "github"
       },
       "original": {
         "owner": "idursun",
-        "ref": "v0.10.11",
+        "ref": "v0.10.12",
         "repo": "jjui",
         "type": "github"
       }
