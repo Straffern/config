@@ -98,14 +98,16 @@ hl.window_rule({
 	no_initial_focus = true,
 	pin = true,
 })
+-- Title only: Helium's PiP window has an empty class. Mirrors Omarchy's pip.lua,
+-- except move uses the fixed width: window_w is still the pre-size width there.
 hl.window_rule({
-	match = { class = "^(firefox)$", title = "^(Picture-in-Picture)$" },
-	float = true,
-})
-hl.window_rule({
-	match = { class = "^(helium)$", title = "^(Picture in picture)$" },
+	match = { title = "(Picture.?in.?[Pp]icture)" },
 	float = true,
 	pin = true,
+	size = { 600, 338 },
+	keep_aspect_ratio = true,
+	border_size = 0,
+	move = { "(monitor_w-600-40)", "(monitor_h*0.04)" },
 })
 hl.window_rule({ match = { class = "^(zoom)$" }, float = true })
 hl.window_rule({ match = { class = "^(com\\.gabm\\.satty)$" }, float = true })
