@@ -42,5 +42,4 @@
         environment.persistence."/persist".directories = ["/var/lib/libvirt"];
       })
     ];
-  den.aspects.virtualization.kvm.user.extraGroups = ["kvm" "libvirtd"];
 }

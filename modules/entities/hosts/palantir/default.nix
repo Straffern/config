@@ -67,6 +67,9 @@
         ./_/nixos.nix
       ];
       networking.useNetworkd = true;
+      # Moved from the shared podman aspect so only palantir keeps rootful docker socket access.
+      virtualisation.podman.dockerSocket.enable = true;
+      users.users.alex.extraGroups = ["podman"];
       services.resolved.settings.Resolve = {
         LLMNR = false;
         MulticastDNS = false;

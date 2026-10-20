@@ -9,7 +9,6 @@
       den.aspects.hardware.audio
       den.aspects.hardware.bluetooth
       den.aspects.network.avahi
-      den.aspects.services.ydotool
       den.aspects.platform.nh
       den.aspects.platform.nix-ld
       den.aspects.platform.boot-plymouth

@@ -92,10 +92,24 @@
         sops.secrets.ssh_config.sopsFile = ../../../../secrets/hosts/sonic.yaml;
         # Read by ~/.omp/agent/extensions/octen-web-search.ts (user-managed omp).
         sops.secrets.octen_api_key.sopsFile = ../../../../secrets/hosts/sonic.yaml;
+        # Rootless podman; the rootful Docker-API socket is not enabled on sonic.
+        home.sessionVariables.DOCKER_HOST = "unix://$XDG_RUNTIME_DIR/podman/podman.sock";
       };
     };
 
-    nixos = {pkgs, ...}: {
+    nixos = {
+      config,
+      lib,
+      pkgs,
+      ...
+    }: {
+      # Agents run as alex, and Nix trust is root-equivalent (nix.conf(5) trusted-users).
+      # alex can still opt into any configured cache per command.
+      nix.settings = {
+        trusted-users = lib.mkForce ["root"];
+        trusted-substituters = config.nix.settings.substituters;
+      };
+
       # Mutable Tern in ~/.local/share/tern (self-updates; Nix module cli.tern unused):
       # libs it dlopens via nix-ld, gdbus for theme detection, glib-networking
       # (GIO_EXTRA_MODULES) for TLS in its WebKit web panes.
