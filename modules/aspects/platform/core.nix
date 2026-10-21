@@ -12,7 +12,12 @@
   };
 
   den.aspects.platform = {
-    nix.nixos = {pkgs, ...}: {
+    nix.nixos = {
+      config,
+      lib,
+      pkgs,
+      ...
+    }: {
       imports = [
         inputs.determinate.nixosModules.default
       ];
@@ -63,6 +68,10 @@
             "https://cache.numtide.com?priority=46"
             "https://numtide.cachix.org?priority=42"
           ];
+          # The daemon already trusts `substituters` exactly as written. Flake nixConfig names
+          # caches without `?priority=`, so trust the bare URLs too: untrusted users can then opt
+          # in to any configured cache, at that cache's advertised priority.
+          trusted-substituters = map (url: lib.head (lib.splitString "?" url)) config.nix.settings.substituters;
           trusted-public-keys = [
             "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
             "cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM="

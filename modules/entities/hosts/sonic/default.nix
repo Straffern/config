@@ -98,17 +98,13 @@
     };
 
     nixos = {
-      config,
       lib,
       pkgs,
       ...
     }: {
       # Agents run as alex, and Nix trust is root-equivalent (nix.conf(5) trusted-users).
       # alex can still opt into any configured cache per command.
-      nix.settings = {
-        trusted-users = lib.mkForce ["root"];
-        trusted-substituters = config.nix.settings.substituters;
-      };
+      nix.settings.trusted-users = lib.mkForce ["root"];
 
       # Mutable Tern in ~/.local/share/tern (self-updates; Nix module cli.tern unused):
       # libs it dlopens via nix-ld, gdbus for theme detection, glib-networking
