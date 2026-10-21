@@ -85,11 +85,6 @@
       };
     };
 
-    # Nix trust is root-equivalent (nix.conf(5) trusted-users), so NixOS trusts only root.
-    # Include on hosts deploy-rs pushes to as a wheel user: it copies unsigned closures with
-    # `--no-check-sigs`, which the daemon allows only for trusted users.
-    nix-trusted-wheel.nixos.nix.settings.trusted-users = ["@wheel"];
-
     boot.nixos = {pkgs, ...}: {
       environment.systemPackages = with pkgs; [
         efibootmgr

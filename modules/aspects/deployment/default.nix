@@ -30,6 +30,9 @@
       inherit (deployment) confirmTimeout;
     };
 
+  # Build on the target: deploy-rs then copies only derivations, which an untrusted
+  # sshUser may add; pushing locally built closures needs Nix trust there.
+  deploy.remoteBuild = true;
   deploy.nodes = lib.mapAttrs mkNode enabledHosts;
 in {
   config = {
