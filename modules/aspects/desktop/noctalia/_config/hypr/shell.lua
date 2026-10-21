@@ -49,6 +49,9 @@ hl.bind("SUPER + N", noctalia("panel-toggle control-center notifications"), { de
 hl.bind("SUPER + Y", noctalia("panel-toggle wallpaper"), { description = "Browse wallpapers" })
 hl.bind("SUPER + X", noctalia("panel-toggle session"), { description = "Session menu" })
 hl.bind("SUPER + F1", noctalia("panel-toggle kenn/keybind-cheatsheet:cheatsheet"), { description = "Keybind cheatsheet" })
+hl.on("config.reloaded", function()
+	hl.exec_cmd("noctalia msg plugin kenn/keybind-cheatsheet:data all refresh")
+end)
 hl.bind("ALT + TAB", noctalia("window-switcher hold"), { description = "Window switcher" })
 hl.bind("SUPER + TAB", hl.dsp.exec_cmd("qs ipc -c overview call overview toggle"), { description = "Workspace overview" })
 
