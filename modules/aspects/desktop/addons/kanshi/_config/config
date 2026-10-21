@@ -2,7 +2,8 @@
 profile undocked {
   output eDP-1 enable mode 2880x1920@120Hz position 0,0 scale 1.6
   # Hyprland keeps eDP-1's DPMS off from while it was disabled: backlight on, black screen.
-  exec hyprctl dispatch 'hl.dsp.dpms({ action = "on" })'
+  # Lua table-call syntax (no parens): kanshi doesn't escape ( ) when handing exec to sh.
+  exec hyprctl dispatch 'hl.dsp.dpms{ action = "on" }'
 }
 
 profile home_office_laptop_docked {
