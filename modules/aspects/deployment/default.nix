@@ -33,6 +33,9 @@
   # Build on the target: deploy-rs then copies only derivations, which an untrusted
   # sshUser may add; pushing locally built closures needs Nix trust there.
   deploy.remoteBuild = true;
+  # deploy-rs opens several ssh sessions, two at once; one short-lived shared connection
+  # keeps that to a single server-key passphrase prompt.
+  deploy.sshOpts = ["-o" "ControlMaster=auto" "-o" "ControlPath=~/.ssh/cm-%C" "-o" "ControlPersist=60"];
   deploy.nodes = lib.mapAttrs mkNode enabledHosts;
 in {
   config = {
