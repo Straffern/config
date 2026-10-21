@@ -132,6 +132,7 @@ end
 
 hl.bind("SUPER + G", hl.dsp.group.toggle(), { description = "Toggle window grouping" })
 hl.bind("SUPER + ALT + G", hl.dsp.window.move({ out_of_group = true }), { description = "Move window out of group" })
+hl.bind("SUPER + SHIFT + G", hl.dsp.group.lock_active({ action = "toggle" }), { description = "Lock/unlock active group" })
 for key, dir in pairs({ left = "l", right = "r", up = "u", down = "d", H = "l", L = "r", K = "u", J = "d" }) do
 	hl.bind("SUPER + ALT + " .. key, hl.dsp.window.move({ into_group = dir }), { description = "Move window into group " .. dir })
 end
