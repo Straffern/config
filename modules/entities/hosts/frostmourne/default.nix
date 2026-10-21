@@ -31,6 +31,7 @@ in {
     includes = [
       den.aspects.profiles.kubernetes
       den.aspects.platform.boot
+      den.aspects.platform.nix-trusted-wheel
     ];
 
     nixos = {...}: {

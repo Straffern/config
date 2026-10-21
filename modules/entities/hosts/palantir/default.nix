@@ -30,6 +30,7 @@
       den.aspects.security.server-hardening
       den.aspects.platform.locale
       den.aspects.platform.nix
+      den.aspects.platform.nix-trusted-wheel
       den.aspects.platform.headless
       den.aspects.platform.server-runtime
       den.aspects.network.server
