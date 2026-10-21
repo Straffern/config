@@ -132,9 +132,9 @@ in {
             EOF
           '';
       });
+      resurrectDir = "${config.xdg.cacheHome}/.tmux/resurrect";
       restoreTmux = pkgs.writeShellScript "restore-tmux" ''
-        resurrect_dir="''${XDG_CACHE_HOME:-$HOME/.cache}/.tmux/resurrect"
-        if [ -s "$resurrect_dir/last" ]; then
+        if [ -s "${resurrectDir}/last" ]; then
           # restore.sh targets the server named by $TMUX, which only run-shell sets.
           ${pkgs.tmux}/bin/tmux run-shell "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh >/dev/null 2>&1" || true
         fi
@@ -203,10 +203,9 @@ in {
               ''
               + ''
                 # Taken from: https://github.com/p3t33/nixos_flake/blob/5a989e5af403b4efe296be6f39ffe6d5d440d6d6/home/modules/tmux.nix
-                resurrect_dir="$XDG_CACHE_HOME/.tmux/resurrect"
-                set -g @resurrect-dir $resurrect_dir
+                set -g @resurrect-dir '${resurrectDir}'
 
-                set -g @resurrect-hook-post-save-all 'target=$(readlink -f $resurrect_dir/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
+                set -g @resurrect-hook-post-save-all 'target=$(readlink -f ${resurrectDir}/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
               '';
           }
           {
@@ -457,8 +456,7 @@ in {
         Service = {
           Type = "simple";
           # Panes and the ExecStartPost/ExecStop clients must resolve the socket unit's path.
-          # The user manager's XDG_CACHE_HOME can drift from the shells', which moves @resurrect-dir.
-          Environment = ["TMUX_TMPDIR=%t" "XDG_CACHE_HOME=${config.xdg.cacheHome}"];
+          Environment = "TMUX_TMPDIR=%t";
           ExecStart = "${pkgs.tmux}/bin/tmux -D";
           ExecStartPost = restoreTmux;
           ExecStop = stopTmux;
