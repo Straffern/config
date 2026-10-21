@@ -125,17 +125,6 @@ in {
       pkgs,
       ...
     }: let
-      continuumNoSystemd = pkgs.tmuxPlugins.continuum.overrideAttrs (old: {
-        postPatch =
-          (old.postPatch or "")
-          + ''
-            cat > scripts/handle_tmux_automatic_start.sh <<'EOF'
-            #!${pkgs.runtimeShell}
-            # Home Manager owns tmux.service; Continuum only saves/restores sessions.
-            exit 0
-            EOF
-          '';
-      });
       resurrectDir = "${config.xdg.cacheHome}/.tmux/resurrect";
       restoreTmux = pkgs.writeShellScript "restore-tmux" ''
         if [ -s "${resurrectDir}/last" ]; then
@@ -143,10 +132,14 @@ in {
           ${pkgs.tmux}/bin/tmux run-shell "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh >/dev/null 2>&1" || true
         fi
       '';
-      stopTmux = pkgs.writeShellScript "stop-tmux" ''
-        if ${pkgs.tmux}/bin/tmux list-sessions >/dev/null 2>&1; then
-          ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh 2>/dev/null || true
+      saveTmux = pkgs.writeShellScript "save-tmux" ''
+        # save.sh repoints `last` at any differing snapshot, so an empty server would erase the restore point.
+        if [ -n "$(${pkgs.tmux}/bin/tmux list-sessions -F x 2>/dev/null)" ]; then
+          ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/save.sh quiet
         fi
+      '';
+      stopTmux = pkgs.writeShellScript "stop-tmux" ''
+        ${saveTmux}
         ${pkgs.tmux}/bin/tmux kill-server >/dev/null 2>&1 || true
       '';
     in {
@@ -211,16 +204,6 @@ in {
 
                 set -g @resurrect-hook-post-save-all 'target=$(readlink -f ${resurrectDir}/last); sed "s| --cmd .*-vim-pack-dir||g; s|/etc/profiles/per-user/$USER/bin/||g; s|/home/$USER/.nix-profile/bin/||g" $target | sponge $target'
               '';
-          }
-          {
-            plugin = continuumNoSystemd;
-            extraConfig = ''
-              # tmux.service restores sessions on start; Continuum only saves.
-              set -g @continuum-restore 'off'
-              set -g @continuum-boot 'off'
-              set -g @continuum-save-interval '10'
-              # set -g @continuum-systemd-start-cmd 'start-server'
-            '';
           }
         ];
         extraConfig = ''
@@ -469,19 +452,24 @@ in {
         # Eager start keeps login-time session restore.
         Install.WantedBy = ["default.target"];
       };
-      # Preserve a pre-Home-Manager unit before replacing the target with HM's
-      # declarative symlink. This covers old Continuum output without deleting
-      # an unrecognized user-managed unit.
-      home.activation.removeStaleTmuxService = {
-        after = [];
-        before = ["checkLinkTargets"];
-        data = ''
-          tmuxUnit="$HOME/.config/systemd/user/tmux.service"
-          if [ -e "$tmuxUnit" ] && [ ! -L "$tmuxUnit" ]; then
-            $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv --backup=numbered \
-              "$tmuxUnit" "$tmuxUnit.before-home-manager"
-          fi
-        '';
+      systemd.user.services.tmux-save = {
+        Unit.Description = "Save tmux sessions";
+        Service = {
+          Type = "oneshot";
+          Environment = "TMUX_TMPDIR=%t";
+          ExecStart = saveTmux;
+        };
+      };
+      systemd.user.timers.tmux-save = {
+        Unit = {
+          Description = "Periodically save tmux sessions";
+          PartOf = ["tmux.service"];
+        };
+        Timer = {
+          OnActiveSec = "10min";
+          OnUnitActiveSec = "10min";
+        };
+        Install.WantedBy = ["tmux.service"];
       };
     };
   };
