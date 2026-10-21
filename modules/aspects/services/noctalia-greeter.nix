@@ -35,10 +35,10 @@
         enable = true;
         # Settings → Security → Noctalia Greeter → Sync copies the shell's look without a password prompt.
         passwordless-sync-users = builtins.attrNames host.users;
-        cursorTheme.package = pkgs.phinger-cursors;
         settings = {
           session.default = lib.mkIf (host.hasAspect den.aspects.desktop.hyprland) "Hyprland";
           cursor = {
+            path = pkgs.phinger-cursors;
             theme = "phinger-cursors-dark";
             size = 24;
           };

@@ -99,7 +99,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     quickshell = {
-      url = "github:quickshell-mirror/quickshell/v0.3.1";
+      url = "github:quickshell-mirror/quickshell/v0.3.2";
       inputs.nixpkgs.follows = "unstable";
     };
     quickshell-overview = {
