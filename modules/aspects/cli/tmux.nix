@@ -100,12 +100,17 @@ in {
     vmSmoke = [
       {
         name = "tmux";
-        description = "Tmux owns a reachable persistent default session";
+        description = "A login shell's tmux reaches the server owned by tmux.service";
         phase = "session";
         script = ''
           assert login_user is not None, "Tmux smoke test requires vmSmoke.loginUser"
           machine.wait_until_succeeds(user_command("systemctl --user is-active --quiet tmux.service"))
-          machine.succeed(user_command(f"TMPDIR=/run/user/{login_uid} tmux has-session -t default"))
+          hm_session_vars = f"/etc/profiles/per-user/{login_user}/etc/profile.d/hm-session-vars.sh"
+          shell_tmux = f". {hm_session_vars} && tmux"
+          machine.succeed(user_command(f"sh -c '{shell_tmux} new-session -d -s vm-smoke'"))
+          server_pid = machine.succeed(user_command(f"sh -c '{shell_tmux} display-message -p -t vm-smoke \"#{{pid}}\"'")).strip()
+          server_cgroup = machine.succeed(f"cat /proc/{server_pid}/cgroup").strip()
+          assert server_cgroup.endswith("/tmux.service"), f"shell tmux reached server {server_pid} in {server_cgroup}, not tmux.service"
         '';
       }
     ];
