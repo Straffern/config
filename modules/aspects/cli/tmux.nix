@@ -135,7 +135,8 @@ in {
       restoreTmux = pkgs.writeShellScript "restore-tmux" ''
         resurrect_dir="''${XDG_CACHE_HOME:-$HOME/.cache}/.tmux/resurrect"
         if [ -s "$resurrect_dir/last" ]; then
-          ${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh >/dev/null 2>&1 || true
+          # restore.sh targets the server named by $TMUX, which only run-shell sets.
+          ${pkgs.tmux}/bin/tmux run-shell "${pkgs.tmuxPlugins.resurrect}/share/tmux-plugins/resurrect/scripts/restore.sh >/dev/null 2>&1" || true
         fi
       '';
       stopTmux = pkgs.writeShellScript "stop-tmux" ''
@@ -211,7 +212,7 @@ in {
           {
             plugin = continuumNoSystemd;
             extraConfig = ''
-              # systemd starts tmux and restores only after the default session exists.
+              # tmux.service restores sessions on start; Continuum only saves.
               set -g @continuum-restore 'off'
               set -g @continuum-boot 'off'
               set -g @continuum-save-interval '10'
@@ -432,25 +433,38 @@ in {
           	"$SHELL --login -i -c 'navi --print | head -c -1 | tmux load-buffer -b tmp - ; tmux paste-buffer -p -t {last} -b tmp -d'"
         '';
       };
-      # Declarative tmux service replaces tmux-continuum's auto-generated unit.
-      # The patched plugin leaves systemd ownership to Home Manager while retaining
-      # Continuum's periodic saves and automatic Resurrect restore.
+      # systemd owns the socket shells connect to, so the server lives in
+      # tmux.service no matter which terminal ran the first tmux command.
+      systemd.user.sockets.tmux = {
+        Unit = {
+          Description = "tmux server socket";
+          X-SwitchMethod = "keep-old";
+        };
+        Socket = {
+          ListenStream = "%t/tmux-%U/default";
+          DirectoryMode = "0700";
+        };
+        Install.WantedBy = ["sockets.target"];
+      };
       systemd.user.services.tmux = {
         # Preserve live sessions across Home Manager applies. ExecStop still
         # saves then kills the server for explicit stops and shutdown.
         Unit = {
-          Description = "tmux default session (detached)";
+          Description = "tmux server";
           Documentation = "man:tmux(1)";
           X-SwitchMethod = "keep-old";
         };
         Service = {
-          Type = "forking";
-          Environment = "TMPDIR=%t";
-          ExecStart = "${pkgs.tmux}/bin/tmux new-session -d -s default";
+          Type = "simple";
+          # Panes and the ExecStartPost/ExecStop clients must resolve the socket unit's path.
+          # The user manager's XDG_CACHE_HOME can drift from the shells', which moves @resurrect-dir.
+          Environment = ["TMUX_TMPDIR=%t" "XDG_CACHE_HOME=${config.xdg.cacheHome}"];
+          ExecStart = "${pkgs.tmux}/bin/tmux -D";
           ExecStartPost = restoreTmux;
           ExecStop = stopTmux;
           KillMode = "mixed";
         };
+        # Eager start keeps login-time session restore.
         Install.WantedBy = ["default.target"];
       };
       # Preserve a pre-Home-Manager unit before replacing the target with HM's
