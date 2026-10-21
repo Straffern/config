@@ -1,4 +1,6 @@
-{den, ...}: {
+{den, ...}: let
+  cacheDir = ".local/cache";
+in {
   den.aspects.desktop.addons.xdg = {
     vmSmoke = [
       {
@@ -13,6 +15,12 @@
       }
     ];
 
+    # uwsm builds the graphical session from /etc/profile, so core.nix's
+    # default would otherwise reach GUI apps and the user manager.
+    nixos = {lib, ...}: {
+      environment.sessionVariables.XDG_CACHE_HOME = lib.mkForce "$HOME/${cacheDir}";
+    };
+
     homeManager = {
       config,
       lib,
@@ -25,7 +33,7 @@
 
       xdg = {
         enable = true;
-        cacheHome = config.home.homeDirectory + "/.local/cache";
+        cacheHome = "${config.home.homeDirectory}/${cacheDir}";
         userDirs = {
           enable = true;
           createDirectories = true;
