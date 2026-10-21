@@ -63,8 +63,7 @@
 
           sops.age = {
             generateKey = true;
-            keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
-            sshKeyPaths = ["${config.home.homeDirectory}/.ssh/id_ed25519"];
+            keyFile = "${config.home.homeDirectory}/.config/sops/age/home-manager.txt";
           };
         }
         (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {

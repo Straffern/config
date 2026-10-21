@@ -89,9 +89,9 @@
       homeManager = {config, ...}: {
         programs.zsh.sessionVariables.PATH = "$XDG_BIN_HOME:$HOME/go/bin:$HOME/.npm-global/bin:$PATH:$XDG_CACHE_HOME/.bun/bin";
         programs.ssh.includes = [config.sops.secrets.ssh_config.path];
-        sops.secrets.ssh_config.sopsFile = ../../../../secrets/hosts/sonic.yaml;
+        sops.secrets.ssh_config.sopsFile = ../../../../secrets/homes/sonic.yaml;
         # Read by ~/.omp/agent/extensions/octen-web-search.ts (user-managed omp).
-        sops.secrets.octen_api_key.sopsFile = ../../../../secrets/hosts/sonic.yaml;
+        sops.secrets.octen_api_key.sopsFile = ../../../../secrets/homes/sonic.yaml;
         # Rootless podman; the rootful Docker-API socket is not enabled on sonic.
         home.sessionVariables.DOCKER_HOST = "unix://$XDG_RUNTIME_DIR/podman/podman.sock";
       };
