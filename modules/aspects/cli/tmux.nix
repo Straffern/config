@@ -438,6 +438,9 @@ in {
         Unit = {
           Description = "tmux server";
           Documentation = "man:tmux(1)";
+          # A direct start (login, switch, manual) must still receive the socket's fd.
+          Requires = ["tmux.socket"];
+          After = ["tmux.socket"];
           X-SwitchMethod = "keep-old";
         };
         Service = {
