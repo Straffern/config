@@ -111,6 +111,10 @@ in {
           server_pid = machine.succeed(user_command(f"sh -c '{shell_tmux} display-message -p -t vm-smoke \"#{{pid}}\"'")).strip()
           server_cgroup = machine.succeed(f"cat /proc/{server_pid}/cgroup").strip()
           assert server_cgroup.endswith("/tmux.service"), f"shell tmux reached server {server_pid} in {server_cgroup}, not tmux.service"
+          machine.succeed(user_command("systemctl --user start tmux-save.service"))
+          resurrect_dir = machine.succeed(user_command(f"sh -c '{shell_tmux} show -gv @resurrect-dir'")).strip()
+          snapshot = machine.succeed(f"cat {resurrect_dir}/last")
+          assert "\tvm-smoke\t" in snapshot, f"{resurrect_dir}/last has no vm-smoke session:\n{snapshot}"
         '';
       }
     ];
