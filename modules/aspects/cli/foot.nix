@@ -13,6 +13,8 @@
         pad = "10x10";
         include = lib.mkIf (config.programs.dank-material-shell.enable or false) "${config.xdg.configHome}/foot/dank-colors.ini";
       };
+      # Default show-urls-launch=Control+Shift+o swallows the key before tmux/omp see it.
+      settings.key-bindings.show-urls-launch = "none";
     };
   };
 }
