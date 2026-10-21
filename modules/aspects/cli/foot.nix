@@ -13,8 +13,13 @@
         pad = "10x10";
         include = lib.mkIf (config.programs.dank-material-shell.enable or false) "${config.xdg.configHome}/foot/dank-colors.ini";
       };
-      # Default show-urls-launch=Control+Shift+o swallows the key before tmux/omp see it.
-      settings.key-bindings.show-urls-launch = "none";
+      # Foot defaults swallow omp's Ctrl+Shift+o (tool visibility) and Ctrl+Shift+x (overlay).
+      # Prompt jumps need OSC 133 marks, which tmux doesn't forward anyway.
+      settings.key-bindings = {
+        show-urls-launch = "Control+Shift+l";
+        prompt-prev = "none";
+        prompt-next = "none";
+      };
     };
   };
 }
