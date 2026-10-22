@@ -60,7 +60,6 @@
       den.aspects.desktop.noctalia
       # den.aspects.desktop.dms
       den.aspects.desktop.hyprland
-      # den.aspects.services.hindsight
       den.aspects.services.tailscale
       den.aspects.network.wireguard
       den.aspects.virtualization.kvm

@@ -2,7 +2,6 @@
   den.aspects.outputs.public-packages.includes = [
     den.aspects.apps.clipy
     den.aspects.apps.waldl
-    den.aspects.services.hermes
     den.aspects.cli.btop
     den.aspects.cli.gh
     den.aspects.cli.jj
