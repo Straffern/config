@@ -63,7 +63,10 @@
       inputs.nixpkgs.follows = "unstable";
     };
     lobster.url = "github:justchokingaround/lobster";
-    lumen.url = "github:jnsahaj/lumen/v2.32.0";
+    lumen = {
+      url = "github:jnsahaj/lumen/v2.32.0";
+      flake = false;
+    };
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -22,7 +22,10 @@
     };
 in {
   flake-file.inputs = {
-    lumen.url = "github:jnsahaj/lumen/v2.32.0";
+    lumen = {
+      url = "github:jnsahaj/lumen/v2.32.0";
+      flake = false;
+    };
     jjui = {
       url = "github:idursun/jjui/v0.10.12";
       inputs.nixpkgs.follows = "unstable";

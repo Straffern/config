@@ -1,11 +1,8 @@
 {
-  lib,
   rustPlatform,
   pkg-config,
   perl,
   openssl,
-  stdenv,
-  darwin,
   src,
 }:
 rustPlatform.buildRustPackage {
@@ -21,12 +18,7 @@ rustPlatform.buildRustPackage {
 
   nativeBuildInputs = [pkg-config perl];
 
-  buildInputs =
-    [openssl]
-    ++ lib.optionals stdenv.isDarwin [
-      darwin.apple_sdk.frameworks.Security
-      darwin.apple_sdk.frameworks.SystemConfiguration
-    ];
+  buildInputs = [openssl];
 
   doCheck = false;
 
