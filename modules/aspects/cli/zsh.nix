@@ -35,13 +35,18 @@
               fpath=(${config.xdg.configHome}/zsh/completions $fpath)
 
               # HM owns compinit (NixOS enableGlobalCompInit = false).
-              # Use -C to skip fpath rescan when dump is fresh (< 1 day old).
+              # Run the full compinit (fpath rescan, compaudit) at most once a day and
+              # use -C otherwise. compinit rewrites the dump only when fpath's file
+              # count changes, so touch it to restart the clock.
               autoload -Uz compinit
-              if [[ -f ''${ZDOTDIR:-$HOME}/.zcompdump && $(find ''${ZDOTDIR:-$HOME}/.zcompdump -mtime -1 2>/dev/null) ]]; then
-                compinit -C
-              else
-                compinit
-              fi
+              () {
+                if (( $# )); then
+                  compinit -C
+                else
+                  compinit
+                  touch -c ''${ZDOTDIR:-$HOME}/.zcompdump
+                fi
+              } ''${ZDOTDIR:-$HOME}/.zcompdump(N.mh-24)
             '';
             autosuggestion = {
               enable = true;
