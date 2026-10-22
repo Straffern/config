@@ -3,24 +3,16 @@
 
 # Whitelist project structure
 !/.gitignore
-!/.gitattributes
 !/.sops.yaml
 !/flake.nix
 !/flake.lock
-!/treefmt.nix
 !/LICENSE
 !/README.md
 !/AGENTS.md
-!/secrets.yaml
-!/homes/
-!/lib/
+!/CONTEXT.md
 !/modules/
 !/modules/**
 !/notes/
-!/overlays/
-!/packages/
-!/shells/
-!/systems/
 !/secrets/
 
 # Global ignores (regardless of location)

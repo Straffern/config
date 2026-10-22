@@ -12,11 +12,11 @@
 # nix-shell -p ssh-to-age
 # ssh-to-age -i /etc/ssh/ssh_host_ed25519_key.pub
 
-# Add secrets
-# sops secrets/secrets.yaml
+# Add or edit secrets
+# sops secrets/hosts/<host>.yaml
 
-# Rekey secrets.yaml after editing recipients in .sops.yaml:
-# sops updatekeys secrets/secrets.yaml
+# Rekey a secrets file after editing recipients in .sops.yaml:
+# sops updatekeys secrets/hosts/<host>.yaml
 keys:
   - &users:
     - &alex_ssh age15gjn34qpz83h9s5272tf5p8ww0rnyxnhmt7jjawd475erm8nn42sdnz5mu
