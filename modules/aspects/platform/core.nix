@@ -78,6 +78,15 @@
       systemd.services.nix-daemon.serviceConfig = {
         CPUWeight = 50;
         IOWeight = 50;
+        # journald stamps all daemon output priority 6, ERRORs included, so LogLevelMax cannot
+        # separate noise from failures. Drop the per-connection lines and determinate-nixd's
+        # warning for every download result its logger cannot parse.
+        LogFilterPatterns = [
+          "~^accepted connection from pid [0-9]+, user"
+          "~^reaped child process [0-9]+, status = succeeded$"
+          "~Unparsed Nix daemon log line"
+          "~^ +(in determinate_nixd::api::logger::handle_connection|at src/api/logger[.]rs:[0-9]+)$"
+        ];
       };
     };
 
