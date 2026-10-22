@@ -14,12 +14,19 @@
         name = "sops-identity-absent";
         description = "Home Manager sops-nix stays inert without a VM identity";
         phase = "boot";
-        module = {lib, ...}: {
-          home-manager.sharedModules = [
-            {
-              systemd.user.services.sops-nix.Unit.ConditionPathExists = lib.mkForce "/run/vm-smoke-sops-identity";
-            }
-          ];
+        # Hosts without Home Manager (frostmourne) have no home-manager option.
+        module = {
+          lib,
+          options,
+          ...
+        }: {
+          config = lib.optionalAttrs (options ? home-manager) {
+            home-manager.sharedModules = [
+              {
+                systemd.user.services.sops-nix.Unit.ConditionPathExists = lib.mkForce "/run/vm-smoke-sops-identity";
+              }
+            ];
+          };
         };
       }
     ];
