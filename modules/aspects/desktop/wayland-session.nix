@@ -10,6 +10,7 @@
       slurp
       sway-contrib.grimshot
       satty
+      wl-clipboard
     ];
   };
 }

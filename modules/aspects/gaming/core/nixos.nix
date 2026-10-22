@@ -34,7 +34,6 @@
       winetricks
       wineWow64Packages.waylandFull
       adwsteamgtk
-      ffmpeg
     ];
   };
 }

@@ -17,7 +17,6 @@
       entr
       erdtree
       fd
-      ffmpeg
       gdu
       git-remote-gcrypt
       gping
@@ -28,7 +27,6 @@
       jnv
       jq
       jqp
-      libinput
       moreutils
       ouch
       procs
@@ -43,7 +41,6 @@
       trash-cli
       unzip
       viddy
-      wl-clipboard
       xcp
       yq
     ];
