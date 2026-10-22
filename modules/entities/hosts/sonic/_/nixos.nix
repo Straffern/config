@@ -39,7 +39,7 @@
       "vm.dirty_bytes" = 1073741824;
       "vm.dirty_background_ratio" = lib.mkForce 0;
       "vm.dirty_ratio" = lib.mkForce 0;
-      "vm.dirty_writeback_centisecs" = lib.mkForce 500;
+      "vm.dirty_writeback_centisecs" = 500;
     };
     resumeDevice = "/dev/disk/by-label/nixos";
   };
