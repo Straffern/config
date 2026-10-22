@@ -70,13 +70,11 @@
       den.aspects.platform.battery
       den.aspects.platform.environment
       den.aspects.platform.boot
-      den.aspects.hardware.amd-debug-tools
     ];
     provides.alex = {
       includes = [
         den.aspects.hardware.amd-monitoring
         den.aspects.cli.alacritty
-        den.aspects.cli.lobster
         den.aspects.cli.pi
         den.aspects.cli.ji
         den.aspects.cli.ai-shell

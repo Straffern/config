@@ -31,8 +31,6 @@
     };
 
     environment.systemPackages = with pkgs; [
-      winetricks
-      wineWow64Packages.waylandFull
       adwsteamgtk
     ];
   };
