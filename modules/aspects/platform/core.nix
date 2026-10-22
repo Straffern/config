@@ -95,7 +95,6 @@
         efibootmgr
         efitools
         efivar
-        fwupd
       ];
       boot = {
         initrd.systemd.enable = true;
