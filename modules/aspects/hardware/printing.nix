@@ -2,7 +2,7 @@
   den.aspects.hardware.printing = {
     includes = [den.aspects.network.avahi];
 
-    nixos = {...}: {
+    nixos = _: {
       services.printing = {
         enable = true;
         startWhenNeeded = true;

@@ -12,8 +12,7 @@
   pipewire,
   zlib,
   pcre2,
-}:
-let
+}: let
   version = "18.1.2";
   platforms = {
     aarch64-darwin = {
@@ -47,10 +46,9 @@ let
     hash = "sha256-f/TmsPNfqfiQTkiCtpP7V/rsSS9hGPsU5lz9t46PgbQ=";
   };
   linuxNativeFilename =
-    if stdenv.hostPlatform.isx86_64 then
-      "pi_natives.linux-x64-baseline.node"
-    else
-      "pi_natives.linux-arm64.node";
+    if stdenv.hostPlatform.isx86_64
+    then "pi_natives.linux-x64-baseline.node"
+    else "pi_natives.linux-arm64.node";
   linuxNativeAddon = rustPlatform.buildRustPackage {
     pname = "omp-native-wayland";
     inherit version;
@@ -83,58 +81,59 @@ let
     pcre2
   ];
 in
-stdenvNoCC.mkDerivation {
-  pname = "omp";
-  inherit version src;
+  stdenvNoCC.mkDerivation {
+    pname = "omp";
+    inherit version src;
 
-  dontUnpack = true;
-  dontStrip = true;
+    dontUnpack = true;
+    dontStrip = true;
 
-  nativeBuildInputs = [
-    makeWrapper
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
+    nativeBuildInputs =
+      [
+        makeWrapper
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isLinux [autoPatchelfHook];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
+    buildInputs = lib.optionals stdenv.hostPlatform.isLinux linuxLibs;
 
-  installPhase = ''
-    runHook preInstall
+    installPhase = ''
+      runHook preInstall
 
-    install -Dm755 "$src" "$out/lib/omp/omp"
-    makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
-      --set PI_SKIP_VERSION_CHECK 1 \
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--unset XDG_DATA_HOME --unset XDG_STATE_HOME --unset XDG_CACHE_HOME \\"}
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--set PI_NATIVE_VARIANT baseline \\"}
-      ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
+      install -Dm755 "$src" "$out/lib/omp/omp"
+      makeWrapper "$out/lib/omp/omp" "$out/bin/omp" \
+        --set PI_SKIP_VERSION_CHECK 1 \
+        ${lib.optionalString stdenv.hostPlatform.isLinux "--unset XDG_DATA_HOME --unset XDG_STATE_HOME --unset XDG_CACHE_HOME \\"}
+        ${lib.optionalString stdenv.hostPlatform.isLinux "--set PI_NATIVE_VARIANT baseline \\"}
+        ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
 
-    ${lib.optionalString stdenv.hostPlatform.isLinux ''
-      mkdir -p "$out/lib/omp/natives/${version}"
-      ln -s ${linuxNativeAddon}/${linuxNativeFilename} \
-        "$out/lib/omp/natives/${version}/${linuxNativeFilename}"
-    ''}
+      ${lib.optionalString stdenv.hostPlatform.isLinux ''
+        mkdir -p "$out/lib/omp/natives/${version}"
+        ln -s ${linuxNativeAddon}/${linuxNativeFilename} \
+          "$out/lib/omp/natives/${version}/${linuxNativeFilename}"
+      ''}
 
-    runHook postInstall
-  '';
+      runHook postInstall
+    '';
 
-  doInstallCheck = stdenv.hostPlatform.isLinux;
-  installCheckPhase = ''
-    runHook preInstallCheck
+    doInstallCheck = stdenv.hostPlatform.isLinux;
+    installCheckPhase = ''
+      runHook preInstallCheck
 
-    mkdir -p "$TMPDIR/.omp/natives"
-    ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
-    HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
+      mkdir -p "$TMPDIR/.omp/natives"
+      ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
+      HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
 
-    runHook postInstallCheck
-  '';
+      runHook postInstallCheck
+    '';
 
-  passthru.category = "AI Coding Agents";
+    passthru.category = "AI Coding Agents";
 
-  meta = {
-    description = "Oh My Pi, an AI coding agent";
-    homepage = "https://github.com/can1357/oh-my-pi";
-    changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
-    mainProgram = "omp";
-    sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-    platforms = builtins.attrNames platforms;
-  };
-}
+    meta = {
+      description = "Oh My Pi, an AI coding agent";
+      homepage = "https://github.com/can1357/oh-my-pi";
+      changelog = "https://github.com/can1357/oh-my-pi/releases/tag/v${version}";
+      mainProgram = "omp";
+      sourceProvenance = with lib.sourceTypes; [binaryNativeCode];
+      platforms = builtins.attrNames platforms;
+    };
+  }
