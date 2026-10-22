@@ -23,17 +23,7 @@
 
   den.aspects.palantir = {
     includes = [
-      den.aspects.services.openssh
-      den.aspects.services.tailscale
-      den.aspects.security.sops
-      den.aspects.security.fail2ban
-      den.aspects.security.server-hardening
-      den.aspects.platform.locale
-      den.aspects.platform.nix
-      den.aspects.platform.headless
-      den.aspects.platform.server-runtime
-      den.aspects.network.server
-      den.aspects.cli.zsh
+      den.aspects.profiles.server
       den.aspects.services.tern-remote
       den.aspects.services.romm
       den.aspects.virtualization.podman
@@ -71,14 +61,9 @@
         ./_/hardware-configuration.nix
         ./_/nixos.nix
       ];
-      networking.useNetworkd = true;
       # Moved from the shared podman aspect so only palantir keeps rootful docker socket access.
       virtualisation.podman.dockerSocket.enable = true;
       users.users.alex.extraGroups = ["podman"];
-      services.resolved.settings.Resolve = {
-        LLMNR = false;
-        MulticastDNS = false;
-      };
       services.journald.extraConfig = "SystemMaxUse=500M";
       system.stateVersion = "26.05";
     };
