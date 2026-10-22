@@ -113,49 +113,42 @@ in {
     homeManager = {
       config,
       lib,
-      options,
       pkgs,
       ...
-    }:
-      lib.mkMerge [
-        {
-          programs.neovim = {
-            enable = true;
-            defaultEditor = true;
-            withRuby = false;
-            withPython3 = false;
-            extraPackages = with pkgs; [
-              deno
-              imagemagick
-              ripgrep
-              gnumake
-              stdenv.cc
-              nodejs_24
-              tree-sitter
-              marksman
-            ];
-            initLua = ''
-              vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs config.programs.git.package config.programs.jujutsu.package}/bin"
-              vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
-              vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
+    }: {
+      programs.neovim = {
+        enable = true;
+        defaultEditor = true;
+        withRuby = false;
+        withPython3 = false;
+        extraPackages = with pkgs; [
+          deno
+          imagemagick
+          ripgrep
+          gnumake
+          stdenv.cc
+          nodejs_24
+          tree-sitter
+          marksman
+        ];
+        initLua = ''
+          vim.g.supermaven_jj_git_shim_path = "${supermaven-jj-git-shim pkgs config.programs.git.package config.programs.jujutsu.package}/bin"
+          vim.g.supermaven_jj_bwrap_path = "${pkgs.bubblewrap}/bin/bwrap"
+          vim.g.marksman_bin = "${pkgs.marksman}/bin/marksman"
 
-              -- bootstrap lazy.nvim, LazyVim and your plugins
-              require("config.lazy")
-            '';
-            viAlias = true;
-            vimAlias = true;
-            vimdiffAlias = true;
-          };
+          -- bootstrap lazy.nvim, LazyVim and your plugins
+          require("config.lazy")
+        '';
+        viAlias = true;
+        vimAlias = true;
+        vimdiffAlias = true;
+      };
 
-          xdg.configFile = lib.listToAttrs (map (file: {
-            name = "nvim/lua/${lib.removePrefix "${toString ./_config}/" (toString file)}";
-            value.source = config.lib.mutableSources.source file;
-          }) (lib.filesystem.listFilesRecursive ./_config));
-        }
-        (lib.optionalAttrs (options ? stylix.enable && options ? stylix.targets.neovim.enable) {
-          stylix.targets.neovim = lib.mkIf config.stylix.enable {enable = false;};
-        })
-      ];
+      xdg.configFile = lib.listToAttrs (map (file: {
+        name = "nvim/lua/${lib.removePrefix "${toString ./_config}/" (toString file)}";
+        value.source = config.lib.mutableSources.source file;
+      }) (lib.filesystem.listFilesRecursive ./_config));
+    };
 
     packages = {pkgs, ...}: {
       supermaven-jj-git-shim = supermaven-jj-git-shim pkgs pkgs.git pkgs.jujutsu;

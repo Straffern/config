@@ -70,19 +70,9 @@
         '';
       }
     ];
-    nixos = {
-      host,
-      pkgs,
-      ...
-    }: {
+    nixos = {pkgs, ...}: {
       imports = [inputs.dms.nixosModules.default];
       config = {
-        assertions = [
-          {
-            assertion = !(host.hasAspect den.aspects.styles.stylix);
-            message = "DMS and Stylix cannot be selected together.";
-          }
-        ];
         environment = {
           sessionVariables.QT_QPA_PLATFORMTHEME = "qt6ct";
           systemPackages = [pkgs.kdePackages.qt6ct];

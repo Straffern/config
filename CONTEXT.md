@@ -14,7 +14,7 @@ NixOS dotfiles for three hosts — `frostmourne`, `palantir`, and `sonic` — on
 
 ## Hosts
 
-- **Sonic** — Framework laptop, graphical Niri and Hyprland sessions with one desktop shell on both (currently Noctalia). Selects `profiles.desktop` and `profiles.development` plus machine-specific concerns. The shell is selected directly: `desktop.noctalia` or `desktop.dms`, never both; each asserts it cannot be selected with `styles.stylix`. No host currently selects Stylix. Discord, Shotwell, Helium, and Slack are direct host includes. Brave, Blender, gamedev, and video application bundles are absent.
+- **Sonic** — Framework laptop, graphical Niri and Hyprland sessions with one desktop shell on both (currently Noctalia). Selects `profiles.desktop` and `profiles.development` plus machine-specific concerns. The shell is selected directly: `desktop.noctalia` or `desktop.dms`, never both. Discord, Shotwell, Helium, and Slack are direct host includes. Brave, gamedev, and video application bundles are absent.
 - **Palantir** — bare headless VPS dev box, reached over Tailscale with public SSH behind fail2ban. Composes server aspects directly (no `profiles.server`: no avahi, NetworkManager, or remote storage clients; systemd-networkd DHCP). Alex gets `profiles.development-core` and omp; `services.tern-remote` runs a mutable `~/.local/share/tern` install as `tern remote serve --user`, UDP 8376 open on `tailscale0` only. `services.romm` runs RomM + MariaDB in Podman on `127.0.0.1:8080`, published via Tailscale Funnel on `https://palantir.<tailnet>.ts.net:8443`; library at `/var/lib/romm/library/{roms,bios}/<platform>` (uid 1000 = alex).
 - **Frostmourne** — k3s node, two home-less users.
 

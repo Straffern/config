@@ -34,10 +34,6 @@
             assertion = !(host.hasAspect den.aspects.desktop.dms);
             message = "Select one desktop shell: DMS or Noctalia.";
           }
-          {
-            assertion = !(host.hasAspect den.aspects.styles.stylix);
-            message = "Noctalia and Stylix cannot be selected together.";
-          }
         ];
         # NetworkManager, Bluetooth, UPower, and power-profiles-daemon back Noctalia's controls.
         programs.noctalia = {

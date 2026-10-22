@@ -275,7 +275,7 @@
         systemd.user.services.dcal.Service.SuccessExitStatus = [143];
 
         # GTK apps need a real theme package; DMS only manages the live color overlay.
-        # DMS lists cursor themes from XDG_DATA_DIRS; Stylix normally supplies them but cannot run alongside DMS.
+        # DMS lists cursor themes from XDG_DATA_DIRS and ships none itself.
         home.packages = with pkgs; [
           adw-gtk3
           xdg-terminal-exec
