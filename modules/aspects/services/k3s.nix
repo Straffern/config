@@ -40,13 +40,9 @@
             8472
           ];
           networking.firewall.allowedTCPPorts = [
-            22
             53
             6443
             6444
-            9000
-            445
-            139
           ];
         }
         (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
