@@ -210,20 +210,13 @@ in {
                 }; # e.g., #00ff00 for green
               };
 
-              signing = let
-                gitCfg = config.programs.git.settings;
-                signCommits = gitCfg.commit.gpgsign or false;
-              in
-                {
-                  backend = "ssh";
-                  behavior =
-                    if signCommits
-                    then "drop"
-                    else "never";
-                }
-                // lib.optionalAttrs signCommits {
-                  key = gitCfg.user.signingkey;
-                };
+              # Sign at push, not on every snapshot: palantir reaches the key only through a forwarded
+              # agent, so local commits keep working while none is connected.
+              signing = {
+                backend = "ssh";
+                behavior = "drop";
+                key = config.programs.git.settings.user.signingkey;
+              };
 
               revsets = {
                 # Smart log revset showing your work with full context:
@@ -266,7 +259,7 @@ in {
               };
 
               git = {
-                sign-on-push = true;
+                sign-on-push = config.programs.git.signing.signByDefault == true;
                 private-commits = lib.mkDefault "blacklist()";
                 write-change-id-header = true;
               };

@@ -22,6 +22,8 @@
           programs.git = {
             enable = true;
             package = inputs'.unstable.legacyPackages.git;
+            # The GitHub key signs from the agent, so agents sign too: a signature says a commit came
+            # from my machines, not that I typed it.
             signing.signByDefault = true;
             ignores = [
               ".aider*"
@@ -41,7 +43,6 @@
                 lg = "lg1";
               };
               gpg.format = "ssh";
-              commit.gpgsign = true;
               core = {
                 editor = "nvim";
                 pager = "delta";

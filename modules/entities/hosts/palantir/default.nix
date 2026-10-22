@@ -47,15 +47,8 @@
         den.aspects.profiles.development-core
         den.aspects.cli.omp
       ];
-      homeManager = {lib, ...}: {
+      homeManager = {
         programs.zsh.sessionVariables.PATH = "$HOME/.local/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
-        programs.git = {
-          signing = {
-            key = null;
-            signByDefault = lib.mkForce false;
-          };
-          settings.commit.gpgsign = lib.mkForce false;
-        };
       };
     };
 
