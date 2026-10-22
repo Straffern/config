@@ -4,10 +4,6 @@
   outputs = inputs: builtins.removeAttrs (inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules)) ["overlays"];
 
   inputs = {
-    comma = {
-      url = "github:nix-community/comma";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     dank-greeter = {
       url = "github:AvengeMedia/dank-greeter";
       inputs.nixpkgs.follows = "unstable";
@@ -62,10 +58,6 @@
       url = "github:idursun/jjui/v0.10.12";
       inputs.nixpkgs.follows = "unstable";
     };
-    lanzaboote = {
-      url = "github:nix-community/lanzaboote";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "unstable";
@@ -94,10 +86,6 @@
     nixpkgs-lib.url = "github:nix-community/nixpkgs.lib";
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
     noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     quickshell = {
       url = "github:quickshell-mirror/quickshell/v0.3.2";
       inputs.nixpkgs.follows = "unstable";

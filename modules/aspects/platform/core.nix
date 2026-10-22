@@ -4,10 +4,6 @@
   ...
 }: {
   flake-file.inputs = {
-    lanzaboote = {
-      url = "github:nix-community/lanzaboote";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
   };
 
