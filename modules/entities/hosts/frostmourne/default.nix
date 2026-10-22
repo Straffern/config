@@ -33,6 +33,9 @@ in {
       den.aspects.platform.boot
     ];
 
+    # Per user rather than host-wide: nh points programs.nh.flake at its user's home.
+    provides.alex.includes = [den.aspects.platform.nh];
+
     nixos = {...}: {
       imports = [
         inputs.disko.nixosModules.disko
