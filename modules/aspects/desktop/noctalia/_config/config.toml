@@ -13,3 +13,23 @@ wallpaper_scheme = "m3-tonal-spot"
 
 [lockscreen]
 fingerprint = true
+
+# Defining a behavior table replaces its defaults wholesale, so action,
+# timeout, and behavior_order restate Noctalia's defaults.
+[idle]
+behavior_order = ["lock", "screen-off", "lock-and-suspend"]
+
+[idle.behavior.lock]
+enabled = true
+action = "lock"
+timeout = 600
+
+[idle.behavior.screen-off]
+enabled = true
+action = "screen_off"
+timeout = 660
+
+[idle.behavior.lock-and-suspend]
+enabled = true
+action = "lock_and_suspend"
+timeout = 900
