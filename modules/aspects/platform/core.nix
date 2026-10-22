@@ -11,19 +11,12 @@
     nix.nixos = {
       config,
       lib,
-      pkgs,
       ...
     }: {
       imports = [
         inputs.determinate.nixosModules.default
       ];
       determinate.enable = true;
-      environment.systemPackages = with pkgs; [
-        nil
-        nixfmt
-        nix-index
-        nix-prefetch-git
-      ];
       nix = {
         settings = {
           auto-optimise-store = true;
@@ -130,7 +123,10 @@
       ...
     }: {
       home.packages = with pkgs; [
+        nil
         nix-output-monitor
+        nix-prefetch-git
+        nixfmt
         nvd
       ];
       systemd.user.startServices = "sd-switch";
