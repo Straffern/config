@@ -13,7 +13,7 @@ configuration interface.
   foundations.
 - `aspects/profiles/` — thin composition aspects: `common`, `desktop`,
   `server`, `development`, `development-core`, `gaming`, and `kubernetes`.
-- `aspects/services/` — service aspects, including Hermes.
+- `aspects/services/` — service aspects.
 - `entities/hosts/` — `frostmourne`, `palantir`, and `sonic` host entities.
 - `_` directories — subordinate expressions/assets owned by their parent
   aspect; they have no independent export semantics.
