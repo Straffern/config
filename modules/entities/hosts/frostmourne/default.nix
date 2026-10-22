@@ -30,7 +30,7 @@ in {
   den.aspects.frostmourne = {
     includes = [
       den.aspects.profiles.kubernetes
-      den.aspects.platform.boot
+      den.aspects.platform.boot-grub
     ];
 
     # Per user rather than host-wide: nh points programs.nh.flake at its user's home.
@@ -41,7 +41,6 @@ in {
         inputs.disko.nixosModules.disko
         ./_/disko.nix
         ./_/hardware-configuration.nix
-        ./_/nixos.nix
       ];
       system.stateVersion = "26.05";
     };

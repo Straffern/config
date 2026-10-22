@@ -29,7 +29,7 @@
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
       den.aspects.platform.nh
-      den.aspects.platform.boot
+      den.aspects.platform.boot-grub
     ];
 
     provides.alex = {
@@ -59,7 +59,6 @@
         inputs.disko.nixosModules.disko
         ./_/disko.nix
         ./_/hardware-configuration.nix
-        ./_/nixos.nix
       ];
       # Moved from the shared podman aspect so only palantir keeps rootful docker socket access.
       virtualisation.podman.dockerSocket.enable = true;
