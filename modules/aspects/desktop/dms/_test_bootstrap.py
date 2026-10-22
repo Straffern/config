@@ -48,7 +48,7 @@ with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
         binds = config / "niri/dms/binds.kdl"
         rules = config / "niri/dms/windowrules.kdl"
         gtk = config / "gtk-3.0/settings.ini"
-        autostart = config / "autostart/org.kde.kdeconnect.daemon.desktop"
+        autostart = config / "autostart/blueman.desktop"
         outputs = config / "niri/dms/outputs.kdl"
 
         if scenario == "existing":
@@ -87,7 +87,7 @@ with tempfile.TemporaryDirectory(prefix="dms-bootstrap-test-") as directory:
             assert "user-rule" in rules.read_text()
             assert rules.read_text().index("dotfiles-cast-indicator") < rules.read_text().index("user-rule")
             assert rules.read_text().index("user-rule") < rules.read_text().index("dotfiles-shell-blur")
-            assert "Exec=kdeconnectd" in autostart.read_text()
+            assert "Exec=blueman-applet" in autostart.read_text()
             assert outputs.is_symlink() and outputs.resolve() == profile
             assert json.loads((state / "DankMaterialShell/session.json").read_text())["wallpaperPath"] == "/chosen.png"
 

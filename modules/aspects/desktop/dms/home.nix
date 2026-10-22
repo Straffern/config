@@ -159,7 +159,6 @@
         description = "Windowed Fullscreen";
       };
     };
-    kdeconnectEnabled = host.hasAspect den.aspects.apps.kdeconnect;
     autostart = name: command: hidden:
       pkgs.writeText "dms-${name}.desktop" ''
         [Desktop Entry]
@@ -180,10 +179,6 @@
         "autostart/blueman.desktop" = autostart "Bluetooth" "blueman-applet" true;
         "xdg-terminals.list" = pkgs.writeText "dms-xdg-terminals.list" "kitty.desktop\n";
       }
-      // lib.optionalAttrs kdeconnectEnabled {
-        "autostart/org.kde.kdeconnect.daemon.desktop" = autostart "KDE Connect" "kdeconnectd" false;
-        "autostart/kdeconnect-indicator.desktop" = autostart "KDE Connect Indicator" "kdeconnect-indicator" false;
-      }
       // lib.optionalAttrs niriEnabled (
         lib.mapAttrs' (name: source: lib.nameValuePair "niri/dms/${name}.kdl" source) dmsNiriFiles
       )
@@ -202,7 +197,6 @@
       settings = "${config.xdg.configHome}/DankMaterialShell/settings.json";
       replaceStoreLinks = [
         "${config.xdg.configHome}/autostart/blueman.desktop"
-        "${config.xdg.configHome}/autostart/org.kde.kdeconnect.daemon.desktop"
         "${config.xdg.configHome}/niri/dms/blur.kdl"
       ];
       files =
