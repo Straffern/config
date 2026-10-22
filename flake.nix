@@ -58,7 +58,6 @@
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "unstable";
     };
-    lobster.url = "github:justchokingaround/lobster";
     lumen = {
       url = "github:jnsahaj/lumen/v2.32.0";
       flake = false;
