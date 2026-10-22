@@ -31,7 +31,6 @@
       den.aspects.cli.bottom
       den.aspects.cli.database
       den.aspects.cli.htop
-      den.aspects.cli.kubernetes
       den.aspects.cli.network-tools
       den.aspects.cli.nix-search-tv
       den.aspects.cli.television
