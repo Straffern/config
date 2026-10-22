@@ -24,6 +24,7 @@ Do not fear including a body with more details in the description.
 Additionally with jj:
 
 * Push a new or existing bookmark with `jj git push -b <bookmark>`; it tracks new bookmarks itself. Never pass `--allow-new`; this jj rejects it.
+* GitHub login and commit signing use the user's SSH agent, forwarded on palantir. It holds the key only after the user unlocks it, and on palantir only while they are connected. If `jj git push` fails for a missing key or `Permission denied (publickey)`, keep the commits local and tell the user; never create SSH keys or switch the remote to HTTPS.
 * Scope destructive revsets (`abandon`, `rebase -s`, `squash`) to your own stack, never `all()` or `visible_heads()`. Other jj workspaces share the repo.
 * Never delete `.git/*.lock` or `.jj` lock files; a running jj process holds them. Wait and retry.
 * Give each file-editing agent its own jj workspace, managed with `ji`, never raw `jj workspace add`. Create: `ji new <bookmark> -r 'trunk()' -m "<message>"` (makes `../<repo>.<bookmark>` and the bookmark). List: `ji ls`. Remove when done: `ji close --source <repo>.<bookmark> --method detach --delete-files` (keeps the commits). Workspaces share one operation log, so parallel agents in one workspace make its working copy stale.
