@@ -14,7 +14,6 @@
 
     homeManager = {
       unfree.packages = [
-        "aseprite"
         "goofcord"
         "keymapp"
       ];
