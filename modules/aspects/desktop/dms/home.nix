@@ -20,10 +20,6 @@
       url = "github:AvengeMedia/dank-greeter";
       inputs.nixpkgs.follows = "unstable";
     };
-    quickshell = {
-      url = "github:quickshell-mirror/quickshell/v0.3.2";
-      inputs.nixpkgs.follows = "unstable";
-    };
   };
   den.aspects.desktop.dms.homeManager = {
     config,

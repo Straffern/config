@@ -10,6 +10,10 @@
       url = "github:Shanu-Kumawat/quickshell-overview";
       flake = false;
     };
+    quickshell = {
+      url = "github:quickshell-mirror/quickshell/v0.3.2";
+      inputs.nixpkgs.follows = "unstable";
+    };
   };
 
   den.aspects.desktop.noctalia.homeManager = {

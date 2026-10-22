@@ -3,6 +3,10 @@
   inputs,
   ...
 }: {
+  flake-file.inputs.quickshell = {
+    url = "github:quickshell-mirror/quickshell/v0.3.2";
+    inputs.nixpkgs.follows = "unstable";
+  };
   den.aspects.services.dankgreeter = {
     vmSmoke = [
       {
