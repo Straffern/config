@@ -64,6 +64,11 @@
           };
         };
       };
+      # Noctalia's polkit agent shows its password field only once PAM asks, and never submits an empty one, so keep the reader first but bound it.
+      security.pam.services.polkit-1.rules.auth.fprintd.settings = {
+        "max-tries" = "2";
+        timeout = "10";
+      };
     };
   };
 }
