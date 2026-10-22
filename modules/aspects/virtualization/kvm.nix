@@ -16,7 +16,6 @@
         ];
 
         virtualisation = {
-          kvmgt.enable = true;
           spiceUSBRedirection.enable = true;
 
           libvirtd = {
