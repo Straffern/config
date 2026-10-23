@@ -124,7 +124,7 @@
     }: {
       home.packages = with pkgs; [
         nil
-        nix-output-monitor
+        (callPackage ./_package/nix-output-monitor.nix {})
         nix-prefetch-git
         nixfmt
         nvd
