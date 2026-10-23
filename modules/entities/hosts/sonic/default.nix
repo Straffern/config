@@ -76,6 +76,7 @@
         den.aspects.cli.alacritty
         den.aspects.cli.pi
         den.aspects.cli.ji
+        den.aspects.cli.romm-add
         den.aspects.cli.ai-shell
         den.aspects.apps.waldl
         den.aspects.apps.voxtype
