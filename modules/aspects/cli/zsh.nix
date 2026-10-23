@@ -136,6 +136,7 @@
           };
         }
         {programs.zsh.initContent = lib.mkAfter (builtins.readFile ./zsh/xdg-fpath.zsh);}
+        {programs.zsh.initContent = lib.mkAfter (builtins.readFile ./zsh/envrc-example.zsh);}
         (lib.optionalAttrs (host.hasAspect den.aspects.platform.impermanence) {
           home.persistence."/persist".directories = [".local/share/zsh"];
         })
