@@ -83,8 +83,10 @@ fi
 
 collect() {
   ssh \
-    -o BatchMode=yes \
     -o ConnectTimeout=5 \
+    -o ControlMaster=auto \
+    -o ControlPath="${XDG_RUNTIME_DIR:-/tmp}/nr7302-%C" \
+    -o ControlPersist=60 \
     "$host" "$remote_commands" 2>&1
 }
 
