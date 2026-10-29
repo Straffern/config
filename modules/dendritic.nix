@@ -13,7 +13,7 @@
 
   flake-file.inputs = {
     den.url = "github:denful/den";
-    flake-file.url = "github:denful/flake-file/v0.6.0";
+    flake-file.url = "github:denful/flake-file/v0.7.0";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:denful/import-tree";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";

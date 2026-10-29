@@ -31,7 +31,7 @@
       url = "github:AvengeMedia/DankMaterialShell/stable";
       inputs.nixpkgs.follows = "unstable";
     };
-    flake-file.url = "github:denful/flake-file/v0.6.0";
+    flake-file.url = "github:denful/flake-file/v0.7.0";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";

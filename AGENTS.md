@@ -39,7 +39,7 @@ before updating `flake.lock`. If the root is missing or cannot evaluate,
 restore the last committed generated root or run:
 
 ```bash
-nix-shell https://github.com/denful/flake-file/archive/v0.6.0.tar.gz -A flake-file.sh --run bootstrap
+nix-shell https://github.com/denful/flake-file/archive/v0.7.0.tar.gz -A flake-file.sh --run bootstrap
 nix run .#write-flake
 ```
 

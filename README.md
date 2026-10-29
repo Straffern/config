@@ -42,7 +42,7 @@ If the generated root is missing or cannot evaluate, restore the last committed
 `flake.nix` or bootstrap the pinned writer, then regenerate:
 
 ```bash
-nix-shell https://github.com/denful/flake-file/archive/v0.6.0.tar.gz -A flake-file.sh --run bootstrap
+nix-shell https://github.com/denful/flake-file/archive/v0.7.0.tar.gz -A flake-file.sh --run bootstrap
 nix run .#write-flake
 ```
 
