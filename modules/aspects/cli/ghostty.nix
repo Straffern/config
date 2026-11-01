@@ -42,6 +42,9 @@
           font-size = 14;
           window-padding-x = 10;
           window-padding-y = 10;
+          # Matches the 0.84 compositor rule kitty/foot get; cells keeps tmux-painted bg translucent too.
+          background-opacity = 0.84;
+          background-opacity-cells = true;
           window-decoration = "none";
           gtk-single-instance = true;
           quit-after-last-window-closed = false;
