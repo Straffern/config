@@ -56,6 +56,8 @@
           command = "zsh";
           # Optional include; noctalia renders it when present.
           config-file = "?themes/noctalia";
+          # Follow fontconfig's monospace like kitty/foot; ghostty otherwise uses embedded JetBrains Mono.
+          font-family = "monospace";
           font-size = 14;
           window-padding-x = 10;
           window-padding-y = 10;
