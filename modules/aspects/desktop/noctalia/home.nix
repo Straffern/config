@@ -60,6 +60,11 @@
               input_path = builtinTemplate "alacritty/alacritty.toml";
               output_path = themeFiles.alacritty;
             };
+            ghostty = {
+              input_path = builtinTemplate "ghostty/ghostty";
+              output_path = "${configHome}/ghostty/themes/noctalia";
+              post_hook = "pkill -USR2 ghostty || true";
+            };
           }
           // lib.optionalAttrs hyprlandEnabled {
             hyprland = {

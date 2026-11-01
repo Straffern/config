@@ -208,6 +208,7 @@ in {
         ];
         extraConfig = ''
           set -ag terminal-overrides ",*:RGB"
+          set -as terminal-features ',xterm-ghostty:RGB:clipboard:hyperlinks:usstyle:strikethrough:overline:sync:extkeys'
           # Minimal baseline: tmux already gives xterm* terminals OSC52 clipboard support.
           # Re-enable if Kitty modified keys like Shift+Enter regress inside tmux.
           # set-option -as terminal-features ',xterm-kitty*:extkeys'

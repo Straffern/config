@@ -16,6 +16,7 @@
       den.aspects.desktop.wayland-session
       den.aspects.desktop.media-controls
       den.aspects.cli.kitty
+      den.aspects.cli.ghostty
       den.aspects.cli.foot
       den.aspects.desktop.addons.xdg
       den.aspects.desktop.addons.kanshi
