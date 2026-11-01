@@ -10,7 +10,8 @@
       devShells.default = pkgs.mkShell {
         NIX_CONFIG = "extra-experimental-features = nix-command flakes";
         packages = [
-          pkgs.nh
+          # Same patched nom as platform.nh; this shell shadows the system nh inside ~/.dotfiles.
+          (pkgs.nh.override {nix-output-monitor = pkgs.callPackage ../platform/_package/nix-output-monitor.nix {};})
           inputs.nixos-anywhere.packages.${system}.nixos-anywhere
           inputs.deploy-rs.packages.${system}.default
           pkgs.nixd
