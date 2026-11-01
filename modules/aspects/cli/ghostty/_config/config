@@ -1,0 +1,64 @@
+# Ghostty config. Colors come from noctalia (themes/noctalia); `mutable on` links this file
+# to the repo so edits apply live via `systemctl --user reload app-com.mitchellh.ghostty`.
+command = zsh
+config-file = ?themes/noctalia
+
+# Fontconfig's monospace, like kitty/foot; ghostty otherwise uses embedded JetBrains Mono.
+font-family = monospace
+font-size = 14
+
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = none
+# Matches the 0.84 compositor rule kitty/foot get; cells keeps tmux-painted backgrounds translucent.
+background-opacity = 0.84
+background-opacity-cells = true
+resize-overlay = never
+
+# The systemd service keeps one instance alive so new windows open instantly.
+gtk-single-instance = true
+quit-after-last-window-closed = false
+confirm-close-surface = false
+
+# tmux owns scrollback (bytes).
+scrollback-limit = 10000000
+copy-on-select = clipboard
+clipboard-read = ask
+clipboard-write = allow
+mouse-hide-while-typing = true
+# Leave cursor shape to nvim/tmux.
+shell-integration-features = no-cursor,sudo,title
+
+# Ghostty splits collide with tmux and OMP shortcuts.
+keybind = ctrl+shift+o=unbind
+keybind = ctrl+shift+e=unbind
+keybind = ctrl+shift+x=unbind
+
+# Same translations as kitty.nix: tmux 3.6 cannot receive these modified keys natively.
+keybind = shift+enter=text:\x1b[13;2u
+keybind = ctrl+enter=text:\x1b[27;5;13~
+keybind = ctrl+period=text:\x1b[46;5u
+keybind = ctrl+slash=text:\x1b[47;5u
+
+# OpenCode session navigation and Which-Key controls.
+keybind = ctrl+alt+b=text:\x1b[98;7u
+keybind = ctrl+alt+d=text:\x1b[100;7u
+keybind = ctrl+alt+e=text:\x1b[101;7u
+keybind = ctrl+alt+f=text:\x1b[102;7u
+keybind = ctrl+alt+g=text:\x1b[103;7u
+keybind = ctrl+alt+n=text:\x1b[110;7u
+keybind = ctrl+alt+p=text:\x1b[112;7u
+keybind = ctrl+alt+u=text:\x1b[117;7u
+keybind = ctrl+alt+y=text:\x1b[121;7u
+keybind = ctrl+alt+bracket_left=text:\x1b[91;7u
+keybind = ctrl+alt+bracket_right=text:\x1b[93;7u
+keybind = ctrl+alt+shift+k=text:\x1b[107;8u
+keybind = ctrl+alt+shift+p=text:\x1b[112;8u
+keybind = ctrl+alt+arrow_left=text:\x1b[1;7D
+keybind = ctrl+alt+arrow_right=text:\x1b[1;7C
+keybind = ctrl+alt+arrow_up=text:\x1b[1;7A
+keybind = ctrl+alt+arrow_down=text:\x1b[1;7B
+keybind = ctrl+alt+page_up=text:\x1b[5;7~
+keybind = ctrl+alt+page_down=text:\x1b[6;7~
+keybind = ctrl+alt+home=text:\x1b[1;7H
+keybind = ctrl+alt+end=text:\x1b[1;7F

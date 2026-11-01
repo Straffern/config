@@ -63,7 +63,8 @@
             ghostty = {
               input_path = builtinTemplate "ghostty/ghostty";
               output_path = "${configHome}/ghostty/themes/noctalia";
-              post_hook = "pkill -USR2 ghostty || true";
+              # Reloads the systemd-owned instance (process name is .ghostty-wrapped, so pkill never matched).
+              post_hook = "bash ${builtinTemplate "ghostty/reload.sh"}";
             };
           }
           // lib.optionalAttrs hyprlandEnabled {
