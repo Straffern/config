@@ -1,6 +1,10 @@
 {
   den.aspects.cli.ghostty = {
-    homeManager = {lib, ...}: let
+    homeManager = {
+      config,
+      lib,
+      ...
+    }: let
       # Same translations as kitty.nix: tmux 3.6 cannot receive these modified keys natively.
       sendText = lib.mapAttrsToList (key: seq: "${key}=text:${seq}") {
         "shift+enter" = ''\x1b[13;2u'';
@@ -31,6 +35,10 @@
         "ctrl+alt+end" = ''\x1b[1;7F'';
       };
     in {
+      # HM links the unit but never enables it; without this the first launcher-started
+      # instance owns com.mitchellh.ghostty and every service activation fails with 'protocol'.
+      xdg.configFile."systemd/user/graphical-session.target.wants/app-com.mitchellh.ghostty.service".source =
+        "${config.programs.ghostty.package}/share/systemd/user/app-com.mitchellh.ghostty.service";
       programs.ghostty = {
         enable = true;
         # Daemon via systemd + single instance: new windows open instantly.

@@ -98,7 +98,7 @@
         xdg.configFile = {
           "noctalia/config.toml".source = source ./_config/config.toml;
           "noctalia/templates.toml".source = templates;
-          "xdg-terminals.list".text = "footclient.desktop\n";
+          "xdg-terminals.list".text = "com.mitchellh.ghostty.desktop\n";
         };
         xdg.stateFile."noctalia/settings.toml".source = source ./_config/settings.toml;
 
