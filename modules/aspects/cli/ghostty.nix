@@ -3,8 +3,10 @@
     homeManager = {
       config,
       lib,
+      pkgs,
       ...
     }: let
+      ghostty = config.programs.ghostty.package;
       # Same translations as kitty.nix: tmux 3.6 cannot receive these modified keys natively.
       sendText = lib.mapAttrsToList (key: seq: "${key}=text:${seq}") {
         "shift+enter" = ''\x1b[13;2u'';
@@ -35,10 +37,17 @@
         "ctrl+alt+end" = ''\x1b[1;7F'';
       };
     in {
-      # HM links the unit but never enables it; without this the first launcher-started
-      # instance owns com.mitchellh.ghostty and every service activation fails with 'protocol'.
+      # HM links the unit but never enables it; start it with the session.
       xdg.configFile."systemd/user/graphical-session.target.wants/app-com.mitchellh.ghostty.service".source =
-        "${config.programs.ghostty.package}/share/systemd/user/app-com.mitchellh.ghostty.service";
+        "${ghostty}/share/systemd/user/app-com.mitchellh.ghostty.service";
+      # Plain `ghostty` becomes the primary instance in the launcher's cgroup when the service is down,
+      # stealing com.mitchellh.ghostty so the service fails with Result=protocol. `+new-window` goes through
+      # D-Bus, which activates the service. Shadows the packaged entry for xdg-terminal-exec and launchers.
+      xdg.dataFile."applications/com.mitchellh.ghostty.desktop".source =
+        pkgs.runCommand "ghostty-new-window.desktop" {} ''
+          sed 's|^Exec=\(.*/ghostty\) --gtk-single-instance=true|Exec=\1 +new-window|' \
+            ${ghostty}/share/applications/com.mitchellh.ghostty.desktop > $out
+        '';
       programs.ghostty = {
         enable = true;
         # Daemon via systemd + single instance: new windows open instantly.
