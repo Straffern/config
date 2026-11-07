@@ -59,6 +59,9 @@
     src = source;
     sourceRoot = "${source.name}/python/robomp";
 
+    # The proxy holds the write credential; let it push only robomp's own workspace branches.
+    patches = [./proxy-push-farm-branches-only.patch];
+
     build-system = [python3.pkgs.setuptools];
 
     dependencies = with python3.pkgs;

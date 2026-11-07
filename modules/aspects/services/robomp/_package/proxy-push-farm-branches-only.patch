@@ -1,0 +1,117 @@
+diff --git a/src/proxy/server.py b/src/proxy/server.py
+index 1b63080..37ffa69 100644
+--- a/src/proxy/server.py
++++ b/src/proxy/server.py
+@@ -151,6 +151,22 @@ def _require_branch(value: Any) -> str:
+     return branch.removeprefix("refs/heads/")
+ 
+ 
++_PUSH_BRANCH_PREFIX = "farm/"
++
++
++def _require_push_branch(value: Any) -> str:
++    """Only robomp's own `farm/<hex>/<slug>` workspace branches may be pushed.
++
++    The orchestrator (and any agent that reaches its HMAC key) names the branch;
++    refusing everything else keeps the proxy's write credential off `main`,
++    release branches, and other people's branches regardless of GitHub rulesets.
++    """
++    branch = _require_branch(value)
++    if not branch.startswith(_PUSH_BRANCH_PREFIX):
++        raise HTTPException(403, f"push refused: branch must start with {_PUSH_BRANCH_PREFIX}")
++    return branch
++
++
+ _RELEASE_TAG_RE = re.compile(r"v[0-9][A-Za-z0-9._-]*")
+ 
+ 
+@@ -908,7 +933,7 @@ def create_proxy_app(settings: Settings) -> FastAPI:
+         data = await _json_body(request)
+         repo = _require_str(data.get("repo"), "repo")
+         workspace_key = _require_str(data.get("workspace_key"), "workspace_key")
+-        branch = _require_branch(data.get("branch"))
++        branch = _require_push_branch(data.get("branch"))
+         expected_head = _require_str(data.get("expected_head"), "expected_head")
+         slot_uid = _optional_slot_uid(data.get("slot_uid"))
+         # Sanity-check workspace_key matches the repo claim.
+@@ -949,7 +974,7 @@ def create_proxy_app(settings: Settings) -> FastAPI:
+         repo = _require_str(data.get("repo"), "repo")
+         _validate_repo_name(repo)
+         workspace_key = _require_str(data.get("workspace_key"), "workspace_key")
+-        branch = _require_branch(data.get("branch"))
++        branch = _require_push_branch(data.get("branch"))
+         tag = _require_release_tag(data.get("tag"))
+         expected_head = _require_str(data.get("expected_head"), "expected_head")
+         slot_uid = _optional_slot_uid(data.get("slot_uid"))
+diff --git a/tests/test_proxy_server.py b/tests/test_proxy_server.py
+index 41fd8e4..046f11d 100644
+--- a/tests/test_proxy_server.py
++++ b/tests/test_proxy_server.py
+@@ -893,7 +928,7 @@ async def test_git_push_passes_slot_uid_to_git_push(
+ async def test_git_push_rejects_invalid_slot_uid(proxy_settings: Settings, slot_uid: int) -> None:
+     app = _build_app(proxy_settings)
+     body = (
+-        b'{"repo":"octo/widget","workspace_key":"octo__widget__1","branch":"x","expected_head":"'
++        b'{"repo":"octo/widget","workspace_key":"octo__widget__1","branch":"farm/x","expected_head":"'
+         + (b"0" * 40)
+         + b'","slot_uid":'
+         + str(slot_uid).encode()
+@@ -936,7 +971,9 @@ async def test_git_push_head_drift(proxy_settings: Settings, upstream_repo: Path
+ async def test_git_push_workspace_key_mismatch(proxy_settings: Settings) -> None:
+     app = _build_app(proxy_settings)
+     body = (
+-        b'{"repo":"octo/widget","workspace_key":"other__repo__1","branch":"x","expected_head":"' + (b"0" * 40) + b'"}'
++        b'{"repo":"octo/widget","workspace_key":"other__repo__1","branch":"farm/x","expected_head":"'
++        + (b"0" * 40)
++        + b'"}'
+     )
+     async with await _async_client(app) as client:
+         resp = await client.post(
+@@ -948,6 +985,29 @@ async def test_git_push_workspace_key_mismatch(proxy_settings: Settings) -> None
+     assert "workspace_key" in resp.text
+ 
+ 
++@pytest.mark.parametrize("branch", ["main", "refs/heads/main", "release/1.x", "farmer/x", "alice/farm/x"])
++@pytest.mark.parametrize("path", ["/gh/v1/git/push", "/gh/v1/git/push_release"])
++async def test_git_push_refuses_non_farm_branch(proxy_settings: Settings, branch: str, path: str) -> None:
++    app = _build_app(proxy_settings)
++    body = json.dumps(
++        {
++            "repo": "octo/widget",
++            "workspace_key": "octo__widget__1",
++            "branch": branch,
++            "tag": "v1.2.3",
++            "expected_head": "0" * 40,
++        }
++    ).encode()
++    async with await _async_client(app) as client:
++        resp = await client.post(
++            path,
++            content=body,
++            headers={**_signed("POST", path, body), "Content-Type": "application/json"},
++        )
++    assert resp.status_code == 403
++    assert "farm/" in resp.text
++
++
+ async def test_git_push_release_requires_hmac(proxy_settings: Settings) -> None:
+     app = _build_app(proxy_settings)
+     body = json.dumps(
+@@ -974,7 +1034,7 @@ async def test_git_push_release_rejects_workspace_key_mismatch(proxy_settings: S
+         {
+             "repo": "octo/widget",
+             "workspace_key": "other__repo__release",
+-            "branch": "main",
++            "branch": "farm/x",
+             "tag": "v1.2.3",
+             "expected_head": "0" * 40,
+         }
+@@ -998,7 +1058,7 @@ async def test_git_push_release_rejects_invalid_tag(proxy_settings: Settings) ->
+         {
+             "repo": "octo/widget",
+             "workspace_key": "octo__widget__release",
+-            "branch": "main",
++            "branch": "farm/x",
+             "tag": "release/1.2.3",
+             "expected_head": "0" * 40,
+         }
