@@ -59,8 +59,12 @@
     src = source;
     sourceRoot = "${source.name}/python/robomp";
 
-    # The proxy holds the write credential; let it push only robomp's own workspace branches.
-    patches = [./proxy-push-farm-branches-only.patch];
+    patches = [
+      # The proxy holds the write credential; let it push only robomp's own workspace branches.
+      ./proxy-push-farm-branches-only.patch
+      # Read rotated GitHub App installation tokens from a file; accept `<app>[bot]` as the bot.
+      ./proxy-github-app-token-file.patch
+    ];
 
     build-system = [python3.pkgs.setuptools];
 

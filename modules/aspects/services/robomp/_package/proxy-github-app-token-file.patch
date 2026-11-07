@@ -1,0 +1,242 @@
+diff --git a/src/config.py b/src/config.py
+index 8f5da09..28a3fb5 100644
+--- a/src/config.py
++++ b/src/config.py
+@@ -51,6 +51,9 @@ class Settings(BaseSettings):
+     # rejected to prevent silent fallback to direct GitHub access.
+     gh_proxy_url: str | None = Field(None, alias="ROBOMP_GH_PROXY_URL")
+     gh_proxy_hmac_key: SecretStr | None = Field(None, alias="ROBOMP_GH_PROXY_HMAC_KEY")
++    # gh-proxy: read the GitHub token from this file on every request instead of
++    # GITHUB_TOKEN, so rotated GitHub App installation tokens apply without a restart.
++    github_token_file: Path | None = Field(None, alias="ROBOMP_GH_PROXY_TOKEN_FILE")
+     # Bind address for `python -m robomp.proxy serve`. Internal-only by
+     # default; gh-proxy never exposes a host port.
+     gh_proxy_bind_host: str = Field("0.0.0.0", alias="ROBOMP_GH_PROXY_BIND_HOST")
+@@ -419,7 +422,8 @@ class _ProxyEnvLoader(BaseSettings):
+         case_sensitive=False,
+     )
+ 
+-    github_token: SecretStr = Field(..., alias="GITHUB_TOKEN")
++    github_token: SecretStr | None = Field(None, alias="GITHUB_TOKEN")
++    github_token_file: Path | None = Field(None, alias="ROBOMP_GH_PROXY_TOKEN_FILE")
+     gh_proxy_hmac_key: SecretStr = Field(..., alias="ROBOMP_GH_PROXY_HMAC_KEY")
+     gh_proxy_bind_host: str = Field("0.0.0.0", alias="ROBOMP_GH_PROXY_BIND_HOST")
+     gh_proxy_bind_port: int = Field(8081, alias="ROBOMP_GH_PROXY_BIND_PORT")
+@@ -439,6 +443,12 @@ class _ProxyEnvLoader(BaseSettings):
+                 raise ValueError("must be a non-empty string")
+         return value
+ 
++    @model_validator(mode="after")
++    def _one_token_source(self) -> _ProxyEnvLoader:
++        if (self.github_token is None) == (self.github_token_file is None):
++            raise ValueError("set exactly one of GITHUB_TOKEN or ROBOMP_GH_PROXY_TOKEN_FILE")
++        return self
++
+ 
+ def load_proxy_settings() -> Settings:
+     """Build a `Settings` instance suitable for the gh-proxy process.
+@@ -452,6 +462,7 @@ def load_proxy_settings() -> Settings:
+     loader = _ProxyEnvLoader()  # type: ignore[call-arg]
+     return Settings.model_construct(
+         github_token=loader.github_token,
++        github_token_file=loader.github_token_file,
+         github_webhook_secret=SecretStr(""),
+         bot_login="gh-proxy",
+         git_author_email="gh-proxy@invalid",
+diff --git a/src/github_client.py b/src/github_client.py
+index e524895..9f02b4a 100644
+--- a/src/github_client.py
++++ b/src/github_client.py
+@@ -5,7 +5,7 @@ from __future__ import annotations
+ import asyncio
+ import logging
+ import time
+-from collections.abc import Mapping
++from collections.abc import Callable, Mapping
+ from dataclasses import dataclass
+ from typing import Any
+ from urllib.parse import quote
+@@ -223,20 +223,24 @@ class GitHubClient:
+ 
+     def __init__(
+         self,
+-        token: str,
++        token: str | Callable[[], str],
+         *,
+         transport: httpx.BaseTransport | None = None,
+         platform: str = "github",
+     ) -> None:
+-        self._token = token
+-        self._headers = {
+-            "Authorization": f"Bearer {token}",
++        # A callable lets gh-proxy pick up a rotated GitHub App installation token per request.
++        self._token = token if callable(token) else lambda: token
++        self._transport = transport
++        self._platform = platform
++
++    @property
++    def _headers(self) -> dict[str, str]:
++        return {
++            "Authorization": f"Bearer {self._token()}",
+             "Accept": ACCEPT,
+             "X-GitHub-Api-Version": API_VERSION,
+             "User-Agent": "robomp/0.1",
+         }
+-        self._transport = transport
+-        self._platform = platform
+ 
+     def _client(self) -> httpx.Client:
+         return httpx.Client(
+diff --git a/src/proxy/__main__.py b/src/proxy/__main__.py
+index f19fd40..b6fd6e8 100644
+--- a/src/proxy/__main__.py
++++ b/src/proxy/__main__.py
+@@ -40,8 +40,8 @@ def serve() -> None:
+     cfg.ensure_paths()
+     # `load_proxy_settings` already rejects blank values, but stay defensive
+     # in case a caller constructs the Settings by hand.
+-    if cfg.github_token is None:
+-        click.echo("gh-proxy: GITHUB_TOKEN is required in proxy mode", err=True)
++    if cfg.github_token is None and cfg.github_token_file is None:
++        click.echo("gh-proxy: GITHUB_TOKEN or ROBOMP_GH_PROXY_TOKEN_FILE is required in proxy mode", err=True)
+         sys.exit(2)
+     if cfg.gh_proxy_hmac_key is None:
+         click.echo("gh-proxy: ROBOMP_GH_PROXY_HMAC_KEY is required in proxy mode", err=True)
+diff --git a/src/proxy/server.py b/src/proxy/server.py
+index 1b63080..37ffa69 100644
+--- a/src/proxy/server.py
++++ b/src/proxy/server.py
+@@ -220,6 +236,15 @@ def _workspace_repo_dir(cfg: Settings, workspace_key: str) -> Path:
+ 
+ 
+ def _resolve_token(cfg: Settings) -> str:
++    if cfg.github_token_file is not None:
++        # Re-read per call: an external minter rotates GitHub App installation tokens in place.
++        try:
++            token = cfg.github_token_file.read_text(encoding="utf-8").strip()
++        except OSError as exc:
++            raise HTTPException(503, f"gh-proxy: cannot read token file: {exc.strerror}") from exc
++        if not token:
++            raise HTTPException(503, "gh-proxy: token file is empty")
++        return token
+     if cfg.github_token is None:
+         # Will already have been caught at startup, but stay defensive.
+         raise HTTPException(500, "gh-proxy: GITHUB_TOKEN not configured")
+@@ -388,7 +413,7 @@ def create_proxy_app(settings: Settings) -> FastAPI:
+ 
+     @asynccontextmanager
+     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+-        app.state.github = GitHubClient(_resolve_token(settings))
++        app.state.github = GitHubClient(lambda: _resolve_token(settings))
+         app.state.settings = settings
+         yield
+ 
+diff --git a/src/tasks.py b/src/tasks.py
+index 4b4acd8..b515d8d 100644
+--- a/src/tasks.py
++++ b/src/tasks.py
+@@ -12,6 +12,7 @@ from robomp.config import Settings
+ from robomp.db import Database, IssueRow, IssueState, issue_key
+ from robomp.git_ops import rev_parse_head
+ from robomp.github_backend import GitHubBackend
++from robomp.github_events import _login_matches_bot
+ from robomp.github_client import (
+     CommentInfo,
+     GitHubError,
+@@ -251,7 +252,7 @@ def _can_handle_pr_directly(*, settings: Settings, repo_full: str, pr: PullReque
+     if not pr.head_ref:
+         log.info("skip: PR has no head ref", extra={"repo": repo_full, "pr": pr.number})
+         return False
+-    if pr.author.lower() != settings.bot_login.lower():
++    if not _login_matches_bot(pr.author, settings.bot_login):
+         log.info(
+             "skip: unmapped PR not authored by bot",
+             extra={"repo": repo_full, "pr": pr.number, "author": pr.author},
+diff --git a/tests/test_proxy_server.py b/tests/test_proxy_server.py
+index 41fd8e4..046f11d 100644
+--- a/tests/test_proxy_server.py
++++ b/tests/test_proxy_server.py
+@@ -12,6 +12,7 @@ from pathlib import Path
+ 
+ import httpx
+ import pytest
++import respx
+ from pydantic import SecretStr
+ 
+ from robomp.config import Settings
+@@ -297,6 +298,40 @@ async def test_get_repo(proxy_settings: Settings) -> None:
+     }
+ 
+ 
++async def test_token_file_is_reread_per_request(tmp_path: Path) -> None:
++    token_file = tmp_path / "github-token"
++    cfg = _build_settings(tmp_path).model_copy(update={"github_token": None, "github_token_file": token_file})
++    app = create_proxy_app(cfg)
++    seen: list[str] = []
++
++    def gh(req: httpx.Request) -> httpx.Response:
++        seen.append(req.headers["Authorization"])
++        return httpx.Response(
++            200,
++            json={
++                "full_name": "octo/widget",
++                "default_branch": "main",
++                "clone_url": "https://github.com/octo/widget.git",
++                "private": True,
++            },
++        )
++
++    params = {"repo": "octo/widget"}
++    with respx.mock(assert_all_called=False) as mock:
++        mock.get("https://api.github.com/repos/octo/widget").mock(side_effect=gh)
++        async with app.router.lifespan_context(app), await _async_client(app) as client:
++            for token in ("ghs_first", "ghs_second"):
++                token_file.write_text(f"{token}\n")
++                resp = await client.get(
++                    "/gh/v1/repo", params=params, headers=_signed("GET", "/gh/v1/repo", params=params)
++                )
++                assert resp.status_code == 200
++            token_file.unlink()
++            resp = await client.get("/gh/v1/repo", params=params, headers=_signed("GET", "/gh/v1/repo", params=params))
++    assert resp.status_code == 503
++    assert seen == ["Bearer ghs_first", "Bearer ghs_second"]
++
++
+ async def test_get_issue(proxy_settings: Settings) -> None:
+     def gh(req: httpx.Request) -> httpx.Response:
+         assert req.url.path == "/repos/octo/widget/issues/1"
+diff --git a/tests/test_tasks.py b/tests/test_tasks.py
+index 3a0bf6a..8e3ffc0 100644
+--- a/tests/test_tasks.py
++++ b/tests/test_tasks.py
+@@ -6,7 +6,7 @@ from types import SimpleNamespace
+ import pytest
+ 
+ from robomp import tasks
+-from robomp.github_client import IssueInfo, RepoInfo
++from robomp.github_client import IssueInfo, PullRequestInfo, RepoInfo
+ 
+ 
+ async def test_triage_issue_keeps_event_loop_live_while_workspace_setup_blocks(db, settings, monkeypatch, tmp_path):
+@@ -235,3 +235,21 @@ async def test_triage_issue_reopen_tears_down_finalized_workspace(db, settings,
+     row = db.get_issue("octo/widget#1")
+     assert row is not None
+     assert row.state == "reproducing"
++
++
++@pytest.mark.parametrize(
++    ("author", "expected"),
++    [("robomp-bot", True), ("robomp-bot[bot]", True), ("Robomp-Bot[bot]", True), ("robomp-bot-evil", False)],
++)
++def test_can_handle_pr_directly_accepts_github_app_author(settings, author, expected):
++    pr = PullRequestInfo(
++        repo="octo/widget",
++        number=7,
++        html_url="https://github.com/octo/widget/pull/7",
++        head_ref="farm/abc/fix",
++        base_ref="main",
++        state="open",
++        author=author,
++        head_repo="octo/widget",
++    )
++    assert tasks._can_handle_pr_directly(settings=settings, repo_full="octo/widget", pr=pr) is expected

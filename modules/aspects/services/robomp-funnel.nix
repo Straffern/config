@@ -17,11 +17,15 @@
         };
       }
     ];
-    nixos = {config, ...}: let
+    nixos = {
+      config,
+      lib,
+      ...
+    }: let
       tailscale = "${config.services.tailscale.package}/bin/tailscale";
       webhook = "http://127.0.0.1:${toString config.services.robomp.listen.port}/webhook/github";
     in {
-      systemd.services.robomp-funnel = {
+      systemd.services.robomp-funnel = lib.mkIf config.services.robomp.enable {
         description = "Expose the Robomp GitHub webhook through Tailscale Funnel";
         wantedBy = ["multi-user.target"];
         after = [

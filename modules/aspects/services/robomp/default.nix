@@ -22,6 +22,9 @@
     proxyUser = "robomp-proxy";
     proxyGroup = "robomp-proxy";
     sharedGroup = "robomp-shared";
+    minterUser = "robomp-minter";
+    tokenDir = "/run/robomp-github";
+    tokenFile = "${tokenDir}/token";
     piRoot = robomp.passthru.piRoot;
     scalarType = lib.types.oneOf [
       lib.types.str
@@ -39,6 +42,7 @@
       "ROBOMP_GH_PROXY_BIND_PORT"
       "ROBOMP_GH_PROXY_HMAC_KEY"
       "ROBOMP_GH_PROXY_URL"
+      "ROBOMP_GH_PROXY_TOKEN_FILE"
       "ROBOMP_GIT_AUTHOR_EMAIL"
       "ROBOMP_GIT_AUTHOR_NAME"
       "ROBOMP_LOG_DIR"
@@ -67,8 +71,8 @@
       GITHUB_WEBHOOK_SECRET = config.sops.placeholder.${cfg.secrets.webhookSecretKey};
       ROBOMP_BOT_LOGIN = cfg.bot.login;
       ROBOMP_GH_PROXY_HMAC_KEY = config.sops.placeholder.${cfg.secrets.proxyHmacKey};
-      ROBOMP_GIT_AUTHOR_EMAIL = cfg.bot.email;
-      ROBOMP_GIT_AUTHOR_NAME = cfg.bot.name;
+      ROBOMP_GIT_AUTHOR_EMAIL = "${toString cfg.app.botUserId}+${cfg.bot.login}[bot]@users.noreply.github.com";
+      ROBOMP_GIT_AUTHOR_NAME = "${cfg.bot.login}[bot]";
       ROBOMP_LOG_DIR = "${dataDir}/logs";
       ROBOMP_MAINTAINER_LOGINS = lib.concatStringsSep "," cfg.bot.maintainers;
       ROBOMP_MODEL = cfg.model.id;
@@ -94,7 +98,7 @@
       commonEnvironment
       // cfg.settings
       // {
-        GITHUB_TOKEN = config.sops.placeholder.${cfg.secrets.githubTokenKey};
+        ROBOMP_GH_PROXY_TOKEN_FILE = tokenFile;
         ROBOMP_GH_PROXY_BIND_HOST = "127.0.0.1";
         ROBOMP_GH_PROXY_BIND_PORT = 8081;
       };
@@ -125,6 +129,45 @@
       SystemCallArchitectures = "native";
       UMask = "0007";
     };
+    # Installation tokens last an hour. Each mint narrows the token to the allowlisted
+    # repositories and the permissions robomp uses, whatever else the App is granted.
+    mintToken = pkgs.writeShellApplication {
+      name = "robomp-mint-github-token";
+      runtimeInputs = [
+        pkgs.coreutils
+        pkgs.curl
+        pkgs.jq
+        pkgs.openssl
+      ];
+      text = ''
+        b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+        now=$(date +%s)
+        header=$(printf '{"alg":"RS256","typ":"JWT"}' | b64url)
+        claims=$(printf '{"iat":%d,"exp":%d,"iss":"%d"}' "$((now - 60))" "$((now + 540))" ${toString cfg.app.id} | b64url)
+        signature=$(printf '%s.%s' "$header" "$claims" | openssl dgst -sha256 -sign "$CREDENTIALS_DIRECTORY/app-key" -binary | b64url)
+        token=$(
+          curl --fail-with-body --silent --show-error --request POST \
+            --header "Authorization: Bearer $header.$claims.$signature" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --data ${lib.escapeShellArg (builtins.toJSON {
+          repositories = map (repo: lib.last (lib.splitString "/" repo)) cfg.repositories;
+          permissions = {
+            contents = "write";
+            issues = "write";
+            metadata = "read";
+            pull_requests = "write";
+          };
+        })} \
+            https://api.github.com/app/installations/${toString cfg.app.installationId}/access_tokens |
+            jq --exit-status --raw-output .token
+        )
+        tmp=$(mktemp ${tokenDir}/.token.XXXXXX)
+        printf '%s\n' "$token" >"$tmp"
+        chmod 0440 "$tmp"
+        mv --force "$tmp" ${tokenFile}
+      '';
+    };
     serviceConfig =
       {
         WorkingDirectory = stateDir;
@@ -146,17 +189,7 @@
         login = lib.mkOption {
           type = lib.types.str;
           default = "";
-          description = "GitHub login of the Robomp bot.";
-        };
-        name = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          description = "Git author name used by the Robomp bot.";
-        };
-        email = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          description = "Git author email used by the Robomp bot.";
+          description = "GitHub App slug. Robomp answers @<slug> mentions and acts as <slug>[bot].";
         };
         maintainers = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -167,6 +200,20 @@
           type = lib.types.listOf lib.types.str;
           default = [];
           description = "GitHub bot logins whose reviews Robomp recognizes.";
+        };
+      };
+      app = {
+        id = lib.mkOption {
+          type = lib.types.ints.positive;
+          description = "GitHub App ID, from the App's settings page.";
+        };
+        installationId = lib.mkOption {
+          type = lib.types.ints.positive;
+          description = "Installation ID of the App on the repositories' owner, from the installation settings URL.";
+        };
+        botUserId = lib.mkOption {
+          type = lib.types.ints.positive;
+          description = "User ID of <slug>[bot], used in the bot's noreply commit email: `gh api '/users/<slug>%5Bbot%5D' --jq .id`.";
         };
       };
       model = {
@@ -197,12 +244,12 @@
         sopsFile = lib.mkOption {
           type = lib.types.path;
           default = inputs.self + "/secrets/hosts/${host.name}.yaml";
-          description = "SOPS file containing the GitHub token, webhook secret, and proxy HMAC key.";
+          description = "SOPS file containing the App private key, webhook secret, and proxy HMAC key.";
         };
-        githubTokenKey = lib.mkOption {
+        appPrivateKeyKey = lib.mkOption {
           type = lib.types.str;
-          default = "robomp_github_token";
-          description = "SOPS key holding the GitHub PAT. Only robomp-gh-proxy receives it.";
+          default = "robomp_app_private_key";
+          description = "SOPS key holding the GitHub App private key (PEM). Only the token minter reads it.";
         };
         webhookSecretKey = lib.mkOption {
           type = lib.types.str;
@@ -252,14 +299,6 @@
             message = "services.robomp.bot.login must be nonempty when services.robomp.enable is true.";
           }
           {
-            assertion = !cfg.enable || cfg.bot.name != "";
-            message = "services.robomp.bot.name must be nonempty when services.robomp.enable is true.";
-          }
-          {
-            assertion = !cfg.enable || cfg.bot.email != "";
-            message = "services.robomp.bot.email must be nonempty when services.robomp.enable is true.";
-          }
-          {
             assertion = lib.all (name: builtins.match "ROBOMP_[A-Z0-9_]+" name != null) (
               builtins.attrNames cfg.settings
             );
@@ -275,11 +314,15 @@
             ) (builtins.attrValues cfg.settings);
             message = "services.robomp.settings string values must not contain newlines.";
           }
+          {
+            assertion = !cfg.enable || lib.length (lib.unique (map (repo: lib.head (lib.splitString "/" repo)) cfg.repositories)) == 1;
+            message = "services.robomp.repositories must share one owner: a GitHub App installation token covers a single account.";
+          }
         ];
       }
       (lib.mkIf cfg.enable {
         sops.secrets = {
-          "${cfg.secrets.githubTokenKey}".sopsFile = cfg.secrets.sopsFile;
+          "${cfg.secrets.appPrivateKeyKey}".sopsFile = cfg.secrets.sopsFile;
           "${cfg.secrets.webhookSecretKey}".sopsFile = cfg.secrets.sopsFile;
           "${cfg.secrets.proxyHmacKey}".sopsFile = cfg.secrets.sopsFile;
         };
@@ -316,6 +359,11 @@
           home = proxyHome;
           createHome = false;
         };
+        users.groups.${minterUser} = {};
+        users.users.${minterUser} = {
+          isSystemUser = true;
+          group = minterUser;
+        };
         systemd.tmpfiles.rules = [
           "d ${stateDir} 0710 root ${sharedGroup} -"
           "d ${agentHome} 0700 ${agentUser} ${agentGroup} -"
@@ -325,12 +373,40 @@
           "d ${dataDir}/cache/pi-natives 2770 root ${sharedGroup} -"
           "d ${dataDir}/logs 2770 root ${sharedGroup} -"
           "d ${dataDir}/workspaces 2770 root ${sharedGroup} -"
+          "d ${tokenDir} 2750 ${minterUser} ${proxyGroup} -"
         ];
+        systemd.services.robomp-github-token = {
+          description = "Mint the Robomp GitHub App installation token";
+          after = ["network-online.target"];
+          wants = ["network-online.target"];
+          serviceConfig =
+            hardening
+            // {
+              Type = "oneshot";
+              User = minterUser;
+              Group = minterUser;
+              LoadCredential = "app-key:${config.sops.secrets.${cfg.secrets.appPrivateKeyKey}.path}";
+              ReadWritePaths = [tokenDir];
+              ExecStart = lib.getExe mintToken;
+              Restart = "on-failure";
+              RestartSec = "30s";
+            };
+        };
+        systemd.timers.robomp-github-token = {
+          wantedBy = ["timers.target"];
+          timerConfig.OnUnitActiveSec = "30min";
+        };
         systemd.services.robomp-gh-proxy = {
           description = "Robomp GitHub API proxy";
           wantedBy = ["multi-user.target"];
-          after = ["network-online.target"];
-          wants = ["network-online.target"];
+          after = [
+            "network-online.target"
+            "robomp-github-token.service"
+          ];
+          wants = [
+            "network-online.target"
+            "robomp-github-token.service"
+          ];
           restartTriggers = [config.sops.templates."robomp-gh-proxy-env".content];
           path = [
             pkgs.git

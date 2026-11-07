@@ -67,15 +67,14 @@
       services.journald.extraConfig = "SystemMaxUse=500M";
       system.stateVersion = "26.05";
       services.robomp = {
-        enable = true;
+        # Off until the GitHub App exists: set app.*, add robomp_app_private_key to the sopsFile.
+        enable = false;
         repositories = ["heretask/platform"];
         secrets.sopsFile = ../../../../secrets/hosts/palantir-robomp.yaml;
         # RomM owns 127.0.0.1:8080.
         listen.port = 8090;
         bot = {
           login = "heretask-robomp";
-          name = "heretask-robomp";
-          email = "heretask-robomp@users.noreply.github.com";
           maintainers = ["Straffern"];
         };
         settings = {
