@@ -4,32 +4,28 @@
   stdenvNoCC,
   fetchurl,
   fetchFromGitHub,
-  rustPlatform,
-  pkg-config,
   makeWrapper,
   autoPatchelfHook,
-  libopus,
-  pipewire,
   zlib,
   pcre2,
 }: let
-  version = "18.1.2";
+  version = "18.18.0";
   platforms = {
     aarch64-darwin = {
       asset = "omp-darwin-arm64";
-      hash = "sha256-XyUSzOKhVK0kBqR5JCHELwIrEzX4PcveQjb3blCrNbQ=";
+      hash = "sha256-Ctrio0Gh5oQLAMls4LHJ0uAlex6meC5DAuF7cXpv+wo=";
     };
     aarch64-linux = {
       asset = "omp-linux-arm64";
-      hash = "sha256-KGXCGnOui4k/1VU78wKvxb6KC8r6AVr5lzI0nVGIMNo=";
+      hash = "sha256-s5S/v3wOC6guAZE977X63xSm6lpx7gU0gHCrXkAYcUQ=";
     };
     x86_64-darwin = {
       asset = "omp-darwin-x64";
-      hash = "sha256-//HswZULRVMLww+sVHg8Rdk/G8ilxJGGsb15bMbLYtA=";
+      hash = "sha256-7n3EyWl7Tcp8TMkhnCb3cc7D1oSPHtY1kq1UYwIb+fA=";
     };
     x86_64-linux = {
       asset = "omp-linux-x64";
-      hash = "sha256-xqMGNHpXyHK/OFh+gRMttQSQIohn4+F5o2Okz4dNoaA=";
+      hash = "sha256-7CceDX30wPV6y2p6KPhYXUa9BQvO+ElPbTPbimwN+7o=";
     };
   };
   platform =
@@ -39,41 +35,11 @@
     url = "https://github.com/can1357/oh-my-pi/releases/download/v${version}/${platform.asset}";
     inherit (platform) hash;
   };
-  linuxSource = fetchFromGitHub {
+  source = fetchFromGitHub {
     owner = "can1357";
     repo = "oh-my-pi";
     rev = "v${version}";
-    hash = "sha256-f/TmsPNfqfiQTkiCtpP7V/rsSS9hGPsU5lz9t46PgbQ=";
-  };
-  linuxNativeFilename =
-    if stdenv.hostPlatform.isx86_64
-    then "pi_natives.linux-x64-baseline.node"
-    else "pi_natives.linux-arm64.node";
-  linuxNativeAddon = rustPlatform.buildRustPackage {
-    pname = "omp-native-wayland";
-    inherit version;
-    src = linuxSource;
-    cargoHash = "sha256-ABh9m6mtlubbv3StlmmVn7JmuRxzA1Us2NALH2CKdj0=";
-    buildType = "ci";
-    cargoBuildFlags = [
-      "-p"
-      "pi-natives"
-      "--features"
-      "wayland-pipewire"
-    ];
-    nativeBuildInputs = [
-      pkg-config
-      rustPlatform.bindgenHook
-    ];
-    buildInputs = [
-      libopus
-      pipewire
-    ];
-    RUSTC_BOOTSTRAP = 1;
-    doCheck = false;
-    installPhase = ''
-      install -Dm755 target/*/ci/libpi_natives.so "$out/${linuxNativeFilename}"
-    '';
+    hash = "sha256-yJao6bG6Y9BjLaY39I65dmfIqcpC4L8qwHaBXVVIjYw=";
   };
   linuxLibs = [
     stdenv.cc.cc.lib
@@ -106,12 +72,6 @@ in
         ${lib.optionalString stdenv.hostPlatform.isLinux "--set PI_NATIVE_VARIANT baseline \\"}
         ${lib.optionalString stdenv.hostPlatform.isLinux "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath linuxLibs}"}
 
-      ${lib.optionalString stdenv.hostPlatform.isLinux ''
-        mkdir -p "$out/lib/omp/natives/${version}"
-        ln -s ${linuxNativeAddon}/${linuxNativeFilename} \
-          "$out/lib/omp/natives/${version}/${linuxNativeFilename}"
-      ''}
-
       runHook postInstall
     '';
 
@@ -119,14 +79,15 @@ in
     installCheckPhase = ''
       runHook preInstallCheck
 
-      mkdir -p "$TMPDIR/.omp/natives"
-      ln -s "$out/lib/omp/natives/${version}" "$TMPDIR/.omp/natives/${version}"
       HOME="$TMPDIR" "$out/bin/omp" --smoke-test | grep -q "smoke-test: ok"
 
       runHook postInstallCheck
     '';
 
-    passthru.category = "AI Coding Agents";
+    passthru = {
+      category = "AI Coding Agents";
+      inherit source;
+    };
 
     meta = {
       description = "Oh My Pi, an AI coding agent";

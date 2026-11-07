@@ -9,7 +9,7 @@ python3.pkgs.buildPythonPackage {
   pyproject = true;
 
   src = source;
-  sourceRoot = "${source.name}/python/omp-rpc";
+  sourceRoot = "${source.name}/sdk/python/omp-rpc";
 
   build-system = [python3.pkgs.setuptools];
 

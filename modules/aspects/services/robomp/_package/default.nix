@@ -10,13 +10,7 @@
   bun,
 }: let
   version = "0.1.0";
-  source = fetchFromGitHub {
-    name = "oh-my-pi-565d535-source";
-    owner = "can1357";
-    repo = "oh-my-pi";
-    rev = "565d53515b54df32fada2564d1fe9caf1a17b738";
-    hash = "sha256-Bj4ZaL8/Wdsxf1lB/k9JFC/vKERZKmm6OP3qICIZK1E=";
-  };
+  source = omp.passthru.source;
   omp = callPackage ../../../cli/omp/_package {};
   ompRpc = callPackage ./omp-rpc.nix {inherit source python3;};
   webDeps = stdenvNoCC.mkDerivation {
@@ -29,7 +23,7 @@
     SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
-    outputHash = "sha256-uCHDoNuko5Fw569x9kOr857WII3QpSyymN97QnzJyIk=";
+    outputHash = "sha256-R7YCW9qxz6r6wa7e3ULps+ATKMtNbVMjBeGVI0e0UTk=";
 
     buildPhase = ''
       export HOME="$TMPDIR/home"
@@ -141,7 +135,7 @@
 
     meta = {
       description = "Self-hosted GitHub triage and fix bot driven by Oh My Pi";
-      homepage = "https://github.com/can1357/oh-my-pi/tree/565d53515b54df32fada2564d1fe9caf1a17b738/python/robomp";
+      homepage = "https://github.com/can1357/oh-my-pi/tree/v${omp.version}/python/robomp";
       mainProgram = "robomp";
       platforms = lib.platforms.unix;
     };

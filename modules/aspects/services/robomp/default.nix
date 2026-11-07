@@ -377,10 +377,6 @@
               Group = agentGroup;
               SupplementaryGroups = [sharedGroup];
               EnvironmentFile = config.sops.templates."robomp-env".path;
-              ExecStartPre = [
-                "${pkgs.coreutils}/bin/install -d -m 0700 ${agentHome}/.omp/natives"
-                "${pkgs.coreutils}/bin/ln -sfnT ${omp}/lib/omp/natives/${omp.version} ${agentHome}/.omp/natives/${omp.version}"
-              ];
               ExecStart = "${robomp}/bin/robomp serve";
             };
         };
