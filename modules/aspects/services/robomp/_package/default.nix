@@ -133,7 +133,8 @@
     passthru = {
       inherit source ompRpc;
       piRoot = source;
-      python = python3.withPackages (_: [robomp]);
+      # withPackages drops applications; toPythonModule puts robomp.proxy on the env's path.
+      python = python3.withPackages (_: [(python3.pkgs.toPythonModule robomp)]);
     };
 
     meta = {
