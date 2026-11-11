@@ -21,9 +21,9 @@
           enable = true;
           enableDefaultConfig = false;
           settings = {
-            # Passphrase-protected and on sonic only. ssh-unlock or the first GitHub connection from a
-            # terminal loads it into the agent once per login; agents, jj signing and forwarded hosts
-            # can only use it from there. Registered on GitHub for login and commit signing.
+            # Passphrase-protected on sonic: ssh-unlock or the first GitHub connection from a terminal
+            # loads it into the agent once per login, and agents and jj signing use it from there.
+            # Palantir keeps its own passphrase-free key at the same path. Both are registered on GitHub.
             "github.com" = {
               AddKeysToAgent = "yes";
               ControlMaster = "auto";
