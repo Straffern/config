@@ -78,6 +78,8 @@
                 PLAYMATCH_API_ENABLED = "true";
                 ENABLE_RESCAN_ON_FILESYSTEM_CHANGE = "true";
                 RESCAN_ON_FILESYSTEM_CHANGE_DELAY = "1";
+                # One async uvicorn worker is plenty for a single user; the default 4 hold ~165 MB each.
+                WEB_SERVER_CONCURRENCY = "1";
               };
               environmentFiles = [config.sops.templates."romm-env".path];
               volumes = [

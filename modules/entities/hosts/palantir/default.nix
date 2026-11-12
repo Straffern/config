@@ -69,6 +69,8 @@
       virtualisation.podman.dockerSocket.enable = true;
       users.users.alex.extraGroups = ["podman"];
       services.journald.extraConfig = "SystemMaxUse=500M";
+      # 7.6 GiB and no disk swap: agent dev servers and nix builds otherwise stall T3 threads or hit the OOM killer.
+      zramSwap.enable = true;
       system.stateVersion = "26.05";
       services.robomp = {
         # Off until the GitHub App exists: set app.*, add robomp_app_private_key to the sopsFile.
