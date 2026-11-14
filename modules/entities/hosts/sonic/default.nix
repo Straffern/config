@@ -102,6 +102,11 @@
       programs.nix-ld.libraries = with pkgs; [libGL libxkbcommon linux-pam vulkan-loader wayland webkitgtk_4_1];
       services.gnome.glib-networking.enable = true;
       environment.systemPackages = [pkgs.glib];
+      # Official AppImages (T3 Code desktop) self-update and register t3code:// to run themselves.
+      programs.appimage = {
+        enable = true;
+        binfmt = true;
+      };
 
       # hardware.printers = {
       #   ensurePrinters = [
