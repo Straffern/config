@@ -4,6 +4,13 @@
   outputs = inputs: builtins.removeAttrs (inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules)) ["overlays"];
 
   inputs = {
+    comin = {
+      url = "github:nlewo/comin";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        treefmt-nix.follows = "treefmt-nix";
+      };
+    };
     dank-greeter = {
       url = "github:AvengeMedia/dank-greeter";
       inputs.nixpkgs.follows = "unstable";

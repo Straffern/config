@@ -31,6 +31,7 @@
       den.aspects.platform.nh
       den.aspects.platform.boot-grub
       den.aspects.services.robomp-funnel
+      den.aspects.services.comin
     ];
 
     provides.alex = {
