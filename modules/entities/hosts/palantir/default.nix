@@ -59,12 +59,16 @@
       };
     };
 
-    nixos = {...}: {
+    nixos = {pkgs, ...}: {
       imports = [
         inputs.disko.nixosModules.disko
         ./_/disko.nix
         ./_/hardware-configuration.nix
       ];
+      # Headless Chromium (Playwright) aborts in Skia without /etc/fonts/fonts.conf and at least one
+      # font; the server profile disables fontconfig by default.
+      fonts.fontconfig.enable = true;
+      fonts.packages = [pkgs.liberation_ttf pkgs.dejavu_fonts pkgs.noto-fonts-color-emoji];
       # Moved from the shared podman aspect so only palantir keeps rootful docker socket access.
       virtualisation.podman.dockerSocket.enable = true;
       users.users.alex.extraGroups = ["podman"];
