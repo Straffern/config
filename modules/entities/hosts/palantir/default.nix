@@ -37,7 +37,7 @@
     provides.alex = {
       includes = [
         den.aspects.profiles.development-core
-        den.aspects.cli.omp
+        # den.aspects.cli.omp
       ];
       homeManager = {lib, ...}: {
         programs.zsh.sessionVariables.PATH = "$HOME/.local/bin:$XDG_CACHE_HOME/.bun/bin:$HOME/.npm-global/bin:$PATH";
