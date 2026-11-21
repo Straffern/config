@@ -31,7 +31,6 @@
       den.aspects.platform.nh
       den.aspects.platform.boot-grub
       den.aspects.services.robomp-funnel
-      den.aspects.services.comin
     ];
 
     provides.alex = {
@@ -84,6 +83,11 @@
         }
       ];
       system.stateVersion = "26.05";
+      system.autoUpgrade = {
+        enable = true;
+        flake = "github:Straffern/config/master#palantir";
+        upgrade = false;
+      };
       services.robomp = {
         # Off until the GitHub App exists: set app.*, add robomp_app_private_key to the sopsFile.
         enable = false;

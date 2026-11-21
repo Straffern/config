@@ -74,6 +74,10 @@ nh clean                      # collect garbage and optimise the store
 deploy HOSTNAME               # deploy an explicit remote node
 ```
 
+Palantir's NixOS auto-upgrade timer follows `master` daily, uses the branch's
+committed `flake.lock`, and switches without an automatic reboot. The timer
+trusts the GitHub branch; it does not verify commit signatures.
+
 For a first Determinate Nix migration where its cache is not already trusted:
 
 ```bash
