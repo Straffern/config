@@ -73,6 +73,14 @@
       virtualisation.podman.dockerSocket.enable = true;
       users.users.alex.extraGroups = ["podman"];
       services.journald.extraConfig = "SystemMaxUse=500M";
+      # A client that vanishes without closing (sleep, lost network) leaves its sshd-session alive, and
+      # its forwarded agent socket then accepts connections and never answers. ~/.ssh/agent.sock still
+      # points at it, so git signing and ssh hang instead of falling back to ~/.ssh/github. Ask the
+      # client every 30 s and drop the session after three unanswered probes.
+      services.openssh.settings = {
+        ClientAliveInterval = 30;
+        ClientAliveCountMax = 3;
+      };
       # 7.6 GiB of RAM: agent dev servers and nix builds otherwise stall T3 threads or hit the OOM killer.
       # zram (priority 5) takes swap first; the disk swapfile (default priority -2) catches overflow.
       zramSwap.enable = true;
