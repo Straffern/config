@@ -31,11 +31,13 @@
       den.aspects.platform.nh
       den.aspects.platform.boot-grub
       den.aspects.services.robomp-funnel
+      den.aspects.services.omniroute
     ];
 
     provides.alex = {
       includes = [
         den.aspects.profiles.development-core
+        den.aspects.cli.autolith
         # den.aspects.cli.omp
       ];
       homeManager = {lib, ...}: {
