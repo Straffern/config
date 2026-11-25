@@ -1,6 +1,10 @@
 {den, ...}: let
   port = 20128;
+  image = "docker.io/cheaperinference/omniroute:3.8.54";
   dataDir = "/var/lib/omniroute";
+  # Capability token for the Codex app-server WebSocket, shared by both containers.
+  codexTokenDir = "/var/lib/omniroute-codex";
+  codexAppServer = "ws://127.0.0.1:1456";
   # The image runs as `node`.
   uid = "1000";
 
@@ -8,7 +12,10 @@
   providers = [
     "claude" # Claude Code subscription
     "anthropic"
-    "codex" # ChatGPT subscription
+    # ChatGPT plan: OpenAI's Sign in with ChatGPT plan usage for self-hosted apps, and the official
+    # `codex app-server` holding its own login. The `codex` provider replays the CLI's token instead.
+    "chatgpt"
+    "codex-app-server"
     "openai"
     "gemini"
     "xai"
@@ -23,7 +30,6 @@
     "aihorde"
     "auggie"
     "cloudflare-playground"
-    "codex-app-server"
     "devin-cli-agentic"
     "duckduckgo-web"
     "minimax-code"
@@ -58,10 +64,13 @@ in {
         ${lib.concatStringsSep ",\n" (lib.mapAttrsToList (key: value: "  ('settings', ${quote key}, ${quote (builtins.toJSON value)})") settings)};
       '';
     in {
-      systemd.tmpfiles.rules = ["d ${dataDir} 0700 ${uid} ${uid} -"];
+      systemd.tmpfiles.rules = [
+        "d ${dataDir} 0700 ${uid} ${uid} -"
+        "d ${codexTokenDir} 0700 ${uid} ${uid} -"
+      ];
 
       virtualisation.oci-containers.containers.omniroute = {
-        image = "docker.io/cheaperinference/omniroute:3.8.54";
+        inherit image;
         ports = ["127.0.0.1:${toString port}:${toString port}"];
         volumes = [
           "${dataDir}:/app/data"
@@ -70,14 +79,42 @@ in {
           # The image's `node` shares the user's uid, so the CLIs reuse and refresh the host logins.
           "${home}/.claude:/home/node/.claude"
           "${home}/.codex:/home/node/.codex"
+          "${codexTokenDir}:/run/codex-appserver:ro"
         ];
         environment = {
           # Empty: the dashboard's first-run wizard sets the password. The image generates its other
           # secrets into the data directory and requires an API key on /v1.
           INITIAL_PASSWORD = "";
           PATH = "${profile}/profile/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+          OMNIROUTE_CODEX_APPSERVER_WS = codexAppServer;
+          OMNIROUTE_CODEX_APPSERVER_WS_TOKEN_FILE = "/run/codex-appserver/token";
         };
       };
+
+      # The user's `codex app-server`, inside OmniRoute's network namespace so it stays on loopback.
+      virtualisation.oci-containers.containers.omniroute-codex = {
+        inherit image;
+        dependsOn = ["omniroute"];
+        extraOptions = ["--network=container:omniroute"];
+        volumes = [
+          "/nix/store:/nix/store:ro"
+          "${profile}:${profile}:ro"
+          "${home}/.codex:/home/node/.codex"
+          "${codexTokenDir}:/run/codex-appserver"
+        ];
+        environment.CODEX_HOME = "/home/node/.codex";
+        entrypoint = "/bin/sh";
+        cmd = [
+          "-c"
+          ''
+            token=/run/codex-appserver/token
+            [ -s "$token" ] || node -e 'require("fs").writeFileSync(process.argv[1], require("crypto").randomBytes(32).toString("hex"), {mode: 0o600})' "$token"
+            exec ${profile}/profile/bin/codex app-server --listen ${codexAppServer} --ws-auth capability-token --ws-token-file "$token"
+          ''
+        ];
+      };
+      # It lives in OmniRoute's network namespace, so it must restart with it.
+      systemd.services.podman-omniroute-codex.partOf = ["podman-omniroute.service"];
 
       systemd.services.omniroute-settings = {
         description = "Apply the OmniRoute provider policy";
