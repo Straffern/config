@@ -10,7 +10,6 @@
     "anthropic"
     "codex" # ChatGPT subscription
     "openai"
-    "antigravity"
     "gemini"
     "xai"
     "opencode-go"
