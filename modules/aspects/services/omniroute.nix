@@ -39,14 +39,19 @@
     hideAutoCombos = true;
   };
 in {
-  den.aspects.services.omniroute = {
+  den.aspects.services.omniroute = {user}: {
     includes = [den.aspects.virtualization.podman];
 
     nixos = {
+      config,
       lib,
       pkgs,
       ...
     }: let
+      home = config.users.users.${user.userName}.home;
+      # ACP detects and spawns agent CLIs from PATH. The user's imperative `nix profile` holds them;
+      # its links resolve through the shared store, so upgrades reach the container without a restart.
+      profile = "${home}/.local/state/nix";
       quote = value: "'${lib.replaceStrings ["'"] ["''"] value}'";
       # OmniRoute keeps its settings as JSON rows and rereads them within a minute.
       seed = pkgs.writeText "omniroute-settings.sql" ''
@@ -59,10 +64,20 @@ in {
       virtualisation.oci-containers.containers.omniroute = {
         image = "docker.io/cheaperinference/omniroute:3.8.54";
         ports = ["127.0.0.1:${toString port}:${toString port}"];
-        volumes = ["${dataDir}:/app/data"];
-        # Empty: the dashboard's first-run wizard sets the password. The image generates its other
-        # secrets into the data directory and requires an API key on /v1.
-        environment.INITIAL_PASSWORD = "";
+        volumes = [
+          "${dataDir}:/app/data"
+          "/nix/store:/nix/store:ro"
+          "${profile}:${profile}:ro"
+          # The image's `node` shares the user's uid, so the CLIs reuse and refresh the host logins.
+          "${home}/.claude:/home/node/.claude"
+          "${home}/.codex:/home/node/.codex"
+        ];
+        environment = {
+          # Empty: the dashboard's first-run wizard sets the password. The image generates its other
+          # secrets into the data directory and requires an API key on /v1.
+          INITIAL_PASSWORD = "";
+          PATH = "${profile}/profile/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+        };
       };
 
       systemd.services.omniroute-settings = {
