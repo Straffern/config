@@ -7,6 +7,7 @@
     homeManager = {config, ...}: {
       xdg.configFile."autolith/init.lisp".source = config.lib.mutableSources.source ./_config/init.lisp;
       xdg.configFile."autolith/pstack-models.md".source = config.lib.mutableSources.source ./_config/pstack-models.md;
+      xdg.configFile."autolith/pstack.lisp".source = config.lib.mutableSources.source ./_config/pstack.lisp;
     };
   };
 }
