@@ -110,7 +110,8 @@ Read pstack text through these Autolith equivalents:
 - todolist: plan.update. /loop: async jobs or mission.schedule-add, never sleep loops. AskQuestion: none, decide and report.
 - Transcripts: channel:current history and ~/.local/share/autolith/conversations/<id>/.
 - Skill edits: Autolith-only changes go to ~/.config/autolith/skills/, not the shared ~/.agents/skills/.
-Leave state the user can read and edit: keep plan.update current during multi-step work, add an agenda item for work that spans turns, and record reusable decisions as memory:facts with sources. Turn a repeated correction into a procedure, contract or memory rather than more prose.")
+Leave state the user can read and edit: keep plan.update current during multi-step work, add an agenda item for work that spans turns, and record reusable decisions as memory:facts with sources. Turn a repeated correction into a procedure, contract or memory rather than more prose.
+Missions: only the user starts one. For long, multi-turn or unattended work (Autonomous run, Autopilot, Babysit, Shipping, Multi-phase plan), write one proposal plist to ~/.local/state/autolith/pstack-mission.sexp with :objective, :turn-limit, :token-limit, :wall-seconds, :criteria ((:id :description :gates)) and :gates ((:id :kind :command :command \"...\" :timeout-seconds N)) built from the repo's own checks, such as targeted tests or the affected build check. Then tell the user to review it and run (pstack :mission). Never start it yourself. While a mission is active: mission.status to orient, mission.schedule-add for periodic checks instead of waiting, mission.review-configure for independent review, mission.verify to finish, mission.stop with evidence when blocked.")
 
 (defparameter *worker-file*
   (merge-pathnames ".agents/skills/poteto-mode/worker.md" (user-homedir-pathname)))
@@ -202,6 +203,19 @@ The primary agent's parent is the human participant, which has no conversation."
          :message   "AGENTS.md: git or jj commands that change data need an explicit request in the current user message."))
   "Workspace rules enforced at tool-call time. Each matches one argument FIELD of TOOL.")
 
+(defun command-directory (command default)
+  "Return the directory COMMAND runs in: a leading `cd DIR` or `git -C DIR`, else DEFAULT."
+  (let ((directory (or (cl-ppcre:register-groups-bind (dir)
+                           ("^\\s*cd\\s+([^\\s;&|]+)" command)
+                         dir)
+                       (cl-ppcre:register-groups-bind (dir)
+                           ("^\\s*git\\s+-C\\s+([^\\s;&|]+)" command)
+                         dir))))
+    (cond ((null directory) default)
+          ((and (plusp (length directory)) (char= (char directory 0) #\~))
+           (concatenate 'string (namestring (user-homedir-pathname)) (subseq directory 1)))
+          (t directory))))
+
 (defun guard-violation (tool context arguments)
   "Return the first guard that ARGUMENTS of TOOL break, and the offending value."
   (let ((name      (al::tool-canonical-name tool))
@@ -214,7 +228,10 @@ The primary agent's parent is the human participant, which has no conversation."
         (let ((value (and (string= name (getf guard :tool))
                           (al::json-get arguments (getf guard :field)))))
           (when (and (stringp value)
-                     (cl-ppcre:scan (getf guard :workspace) directory)
+                     (cl-ppcre:scan (getf guard :workspace)
+                                    (if (string= (getf guard :field) "command")
+                                        (command-directory value directory)
+                                        directory))
                      (cl-ppcre:scan (getf guard :pattern) value)
                      (not (and (getf guard :except)
                                (cl-ppcre:scan (getf guard :except) value)))
@@ -269,18 +286,49 @@ The primary agent's parent is the human participant, which has no conversation."
                 collect (append key (list count)))
           #'string< :key (lambda (row) (format nil "~A ~A" (first row) (second row))))))
 
+(defparameter *mission-file* (merge-pathnames "pstack-mission.sexp" *state-directory*)
+  "The mission proposal the model writes and the user starts with (pstack :mission).")
+
+(defun read-mission-proposal ()
+  "Return the proposal in *mission-file* after Autolith's own validation."
+  (let ((specification
+          (with-open-file (in *mission-file* :if-does-not-exist nil)
+            (unless in
+              (error "No mission proposal at ~A." (namestring *mission-file*)))
+            (let ((*read-eval* nil) (*package* (find-package :keyword)))
+              (read in)))))
+    (al::mission--validate-specification specification)
+    specification))
+
+(defun start-mission ()
+  "Start the proposed mission and archive the proposal, so it starts only once."
+  (let ((specification (read-mission-proposal)))
+    (al::mission :start specification)
+    (rename-file *mission-file*
+                 (make-pathname :type (format nil "started-~D" (get-universal-time))
+                                :defaults *mission-file*))
+    (note :mission :started :objective (clip (getf specification :objective) 120))
+    (al::mission :status)))
+
 (defun al::pstack (&optional feature new-mode)
   "Inspect or change the pstack trial.
 (pstack) shows modes and event counts. (pstack :report) shows recent events.
 (pstack FEATURE MODE) sets FEATURE (:catalog, :core, :guards or :all) to
-:on, :shadow or :off, saves it and applies it at once."
+:on, :shadow or :off, saves it and applies it at once.
+(pstack :mission :show) validates and shows the proposed mission.
+(pstack :mission) starts it."
   (cond
     ((null feature)
      (list :modes (loop for f in *feature-names* append (list f (mode f)))
            :events (event-counts)
-           :log (namestring *events-file*)))
+           :log (namestring *events-file*)
+           :mission-proposal (and (probe-file *mission-file*) (namestring *mission-file*))))
     ((eq feature :report)
      (last (read-events) 20))
+    ((and (eq feature :mission) (eq new-mode :show))
+     (read-mission-proposal))
+    ((eq feature :mission)
+     (start-mission))
     (t
      (assert (member new-mode '(:on :shadow :off)) (new-mode)
              "Mode must be :on, :shadow or :off.")
