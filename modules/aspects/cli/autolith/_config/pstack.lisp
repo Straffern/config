@@ -154,7 +154,9 @@ The primary agent's parent is the human participant, which has no conversation."
   "Contribute pstack routing to primary requests and worker.md rules to children."
   (handler-case
       (unless (or (eq (mode :core) :off)
-                  (al::request-context-compaction-p request))
+                  (al::request-context-compaction-p request)
+                  ;; Internal calls such as the permission classifier offer no tools.
+                  (zerop (length (al::request-context-tool-namespaces request))))
         (let* ((child-p     (child-request-p request))
                (identifier  (if child-p "pstack-worker" "pstack-core"))
                (instruction (if child-p (worker-instruction) *core-instruction*)))
