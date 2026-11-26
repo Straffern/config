@@ -28,6 +28,8 @@ Additionally with jj:
 * Scope destructive revsets (`abandon`, `rebase -s`, `squash`) to your own stack, never `all()` or `visible_heads()`. Other jj workspaces share the repo.
 * Never delete `.git/*.lock` or `.jj` lock files; a running jj process holds them. Wait and retry.
 * Give each file-editing agent its own jj workspace, managed with `ji`, never raw `jj workspace add`. Create: `ji new <bookmark> -r 'trunk()' -m "<message>"` (makes `../<repo>.<bookmark>` and the bookmark). List: `ji ls`. Remove when done: `ji close --source <repo>.<bookmark> --method detach --delete-files` (keeps the commits). Workspaces share one operation log, so parallel agents in one workspace make its working copy stale.
+* Run `ji` from the main checkout. A Git worktree that carries a copied `.jj` is a separate jj repo, so workspaces made from it land beside it and the main checkout never sees them.
+* Before `ji close`, stop every service started in the workspace (`process-compose down`). A running supervisor restarts its processes after the files are deleted and recreates the directory. Close a workspace as soon as its PR merges.
 * Colocated jj repos can hold tens of thousands of `refs/jj/*` refs. Never run `git log --all` or `git branch -a --contains`; search the trunk (`git log origin/main -S <text>`) or a jj revset.
 * Run a command on every commit of a stack with `jj run`, never a `jj new`/`jj edit` loop. Example, test each commit below `@`:
 
