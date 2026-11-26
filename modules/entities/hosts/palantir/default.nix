@@ -69,6 +69,31 @@
       # font; the server profile disables fontconfig by default.
       fonts.fontconfig.enable = true;
       fonts.packages = [pkgs.liberation_ttf pkgs.dejavu_fonts pkgs.noto-fonts-color-emoji];
+      # Shared libraries for T3 Code's bundled Playwright Chromium (`html_preview`, `preview_*`).
+      programs.nix-ld.libraries = with pkgs; [
+        alsa-lib
+        at-spi2-atk
+        at-spi2-core
+        cairo
+        cups
+        dbus
+        expat
+        glib
+        libdrm
+        libgbm
+        libxkbcommon
+        nspr
+        nss
+        pango
+        systemd
+        xorg.libX11
+        xorg.libXcomposite
+        xorg.libXdamage
+        xorg.libXext
+        xorg.libXfixes
+        xorg.libXrandr
+        xorg.libxcb
+      ];
       # Moved from the shared podman aspect so only palantir keeps rootful docker socket access.
       virtualisation.podman.dockerSocket.enable = true;
       users.users.alex.extraGroups = ["podman"];
