@@ -75,6 +75,7 @@
       includes = [
         den.aspects.hardware.amd-monitoring
         den.aspects.cli.alacritty
+        den.aspects.cli.autolith
         den.aspects.cli.pi
         den.aspects.cli.ji
         den.aspects.cli.romm-add
