@@ -138,6 +138,42 @@ The primary agent's parent is the human participant, which has no conversation."
                                       *conversations-directory*))
          t)))
 
+(defparameter *watch-pr*
+  (namestring (merge-pathnames ".agents/skills/poteto-mode/scripts/watch-pr/watch-pr"
+                               (user-homedir-pathname))))
+
+(defparameter *watchers*
+  (list
+   (list :workspace "/platform(\\.[^/]+)?/?$"
+         :command   (format nil "~A --pr <N> --stack --timeout 21600 --pretty" *watch-pr*)
+         :note      "GitHub PRs via gh. Exit 0 merge-ready or merged, 2 conflict, 3 review threads, 4 failing checks, 5 timeout, 6 merge gate, 7 GitHub query errors."))
+  "PR and CI watchers per workspace. The first entry whose :workspace regex
+matches the working directory is offered to the model. Add one per project.")
+
+(defparameter *watch-instruction*
+  "PR WATCH for this workspace: after you push a PR or a stack, or when the user asks you to keep an eye on PRs, start
+  ~A
+as shell.run with async true and completion-policy continue, one job per stack (lowest open PR). ~A
+Do not poll it. Its completion wakes you. Then follow the Babysit playbook: fix the diff's own failures and real review findings, report conflicts and stale bases with the branch that needs a rebase, never rebase, retarget, force-push or merge on your own, and restart the watcher after each pushed fix. Before starting, check job.list for a watcher already running on that stack.")
+
+(defun watcher-instruction (request)
+  "Return the PR watch line for REQUEST's working directory, or NIL."
+  (let ((directory (ignore-errors
+                    (namestring (al::config :working-directory
+                                            (al::request-context-configuration request))))))
+    (when directory
+      (let ((watcher (find-if (lambda (watcher)
+                                (cl-ppcre:scan (getf watcher :workspace) directory))
+                              *watchers*)))
+        (when watcher
+          (format nil *watch-instruction* (getf watcher :command) (getf watcher :note)))))))
+
+(defun primary-instruction (request)
+  (let ((watch (watcher-instruction request)))
+    (if watch
+        (format nil "~A~2%~A" *core-instruction* watch)
+        *core-instruction*)))
+
 (defvar *last-user-text* (make-hash-table :test 'equal :synchronized t)
   "Latest user text seen per conversation, so each message is logged once.")
 
@@ -160,7 +196,7 @@ The primary agent's parent is the human participant, which has no conversation."
                   (zerop (length (al::request-context-tool-namespaces request))))
         (let* ((child-p     (child-request-p request))
                (identifier  (if child-p "pstack-worker" "pstack-core"))
-               (instruction (if child-p (worker-instruction) *core-instruction*)))
+               (instruction (if child-p (worker-instruction) (primary-instruction request))))
           (when instruction
             (note-once-per-message request :core
                                    (if (eq (mode :core) :on) :injected :would-inject)
