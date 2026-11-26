@@ -1,6 +1,8 @@
 {den, ...}: let
   port = 20128;
-  image = "docker.io/cheaperinference/omniroute:3.8.54";
+  image = "docker.io/cheaperinference/omniroute:latest";
+  # Restarting the service upgrades OmniRoute.
+  pull = "newer";
   dataDir = "/var/lib/omniroute";
   # Capability token for the Codex app-server WebSocket, shared by both containers.
   codexTokenDir = "/var/lib/omniroute-codex";
@@ -70,7 +72,7 @@ in {
       ];
 
       virtualisation.oci-containers.containers.omniroute = {
-        inherit image;
+        inherit image pull;
         ports = ["127.0.0.1:${toString port}:${toString port}"];
         volumes = [
           "${dataDir}:/app/data"
@@ -93,7 +95,7 @@ in {
 
       # The user's `codex app-server`, inside OmniRoute's network namespace so it stays on loopback.
       virtualisation.oci-containers.containers.omniroute-codex = {
-        inherit image;
+        inherit image pull;
         dependsOn = ["omniroute"];
         extraOptions = ["--network=container:omniroute"];
         volumes = [
