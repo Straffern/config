@@ -61,6 +61,7 @@
       # den.aspects.desktop.dms
       den.aspects.desktop.hyprland
       den.aspects.services.tailscale
+      den.aspects.services.rex
       den.aspects.services.omniroute
       den.aspects.network.wireguard
       den.aspects.virtualization.kvm

@@ -1470,6 +1470,23 @@
         "type": "github"
       }
     },
+    "rex": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795643951,
+        "narHash": "sha256-q+hfY4e/AtTHOuH8tom0GDmay7Jta+WrpZnGmQoKKuA=",
+        "type": "tarball",
+        "url": "https://pkgs.superlogical.com/rex/nix/preview/0.1.0-preview.25.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://pkgs.superlogical.com/rex/nix/preview.tar.gz"
+      }
+    },
     "root": {
       "inputs": {
         "dank-greeter": "dank-greeter",
@@ -1503,6 +1520,7 @@
         "noctalia-greeter": "noctalia-greeter",
         "quickshell": "quickshell",
         "quickshell-overview": "quickshell-overview",
+        "rex": "rex",
         "sops-nix": "sops-nix",
         "treefmt-nix": "treefmt-nix_5",
         "unstable": "unstable",

@@ -25,6 +25,7 @@
     includes = [
       den.aspects.profiles.server
       den.aspects.services.tern-remote
+      den.aspects.services.rex
       den.aspects.services.romm
       den.aspects.virtualization.podman
       den.aspects.platform.nix-ld
