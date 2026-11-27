@@ -1,6 +1,9 @@
-# Rex (Superlogical) personal server: a systemd user service per account, reached
-# from clients with `rex -S ssh://<user>@<host>`. Public beta; the flake packages
-# the prebuilt unfree binary. Lingering keeps sessions alive after logout.
+# Rex (Superlogical) login server: one root service that maps the caller's Tailscale
+# identity to the account and hands off to that account's server. Account servers
+# outlive login-server restarts and upgrades, so running programs survive deploys.
+# Clients (iOS app, `rex -S`) connect to https://<host>.<tailnet>.ts.net through the
+# host's own Tailscale Serve on port 7297; local and ssh:// use reach the same server.
+# Lingering keeps the account server alive without a login session.
 {
   den,
   inputs,
@@ -12,10 +15,15 @@
   };
 
   den.aspects.services.rex = {user}: {
-    nixos.users.users.${user.userName}.linger = true;
-    homeManager = {
-      imports = [inputs.rex.homeManagerModules.default];
-      services.rex.enable = true;
+    includes = [den.aspects.services.tailscale];
+    nixos = {
+      imports = [inputs.rex.nixosModules.default];
+      services.rex.loginServer = {
+        enable = true;
+        accounts.${user.userName}.principals = ["tailscale:Straffern@github"];
+        tailscaleServe.enable = true;
+      };
+      users.users.${user.userName}.linger = true;
     };
   };
 }
